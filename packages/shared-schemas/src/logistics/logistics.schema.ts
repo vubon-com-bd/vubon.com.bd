@@ -6,20 +6,20 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema';
-import { ShipmentSchema } from './shipment.schema';
-import { DeliverySchema } from './delivery.schema';
-import { CourierSchema } from './courier.schema';
-import { TrackingInfoSchema } from './tracking.schema';
-import { WarehouseSchema } from './warehouse.schema';
-import { FulfillmentSchema } from './fulfillment.schema';
-import { DispatchSchema } from './dispatch.schema';
-import { VehicleSchema } from './vehicle.schema';
-import { DriverSchema } from './driver.schema';
-import { RouteSchema } from './route.schema';
-import { LogisticsMetricsSchema } from './logistics-analytics.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema.js';
+import { ShipmentSchema } from './shipment.schema.js';
+import { DeliverySchema } from './delivery.schema.js';
+import { CourierSchema } from './courier.schema.js';
+import { TrackingInfoSchema } from './tracking.schema.js';
+import { WarehouseSchema } from './warehouse.schema.js';
+import { FulfillmentSchema } from './fulfillment.schema.js';
+import { DispatchSchema } from './dispatch.schema.js';
+import { VehicleSchema } from './vehicle.schema.js';
+import { DriverSchema } from './driver.schema.js';
+import { RouteSchema } from './route.schema.js';
+import { LogisticsMetricsSchema } from './logistics-analytics.schema.js';
 
 export const LogisticsSchema = BaseEntitySchema.extend({
   shipmentId: UuidSchema.optional(),

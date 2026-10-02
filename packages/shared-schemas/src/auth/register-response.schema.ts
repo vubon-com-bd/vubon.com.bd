@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { AuthPublicSchema } from './auth.schema';
-import { AuthSessionPublicSchema } from './auth-session.schema';
+import { AuthPublicSchema } from './auth.schema.js';
+import { AuthSessionPublicSchema } from './auth-session.schema.js';
 
 export const RegisterResponseSchema = z.object({
   success: z.literal(true),

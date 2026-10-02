@@ -1,65 +1,65 @@
-import { VENDOR_STATUS } from './vendor-status.constants';
-import { VENDOR_TYPE, VENDOR_BUSINESS_TYPE } from './vendor-type.constants';
-import { VENDOR_TIER, VENDOR_TIER_THRESHOLD, VENDOR_TIER_BENEFIT } from './vendor-tier.constants';
+import { VENDOR_STATUS } from './vendor-status.constants.js';
+import { VENDOR_TYPE, VENDOR_BUSINESS_TYPE } from './vendor-type.constants.js';
+import { VENDOR_TIER, VENDOR_TIER_THRESHOLD, VENDOR_TIER_BENEFIT } from './vendor-tier.constants.js';
 import {
   VENDOR_VERIFICATION_STATUS,
   VENDOR_VERIFICATION_TYPE,
   VENDOR_VERIFICATION,
-} from './vendor-verification.constants';
-import { VENDOR_COMMISSION_TYPE, VENDOR_COMMISSION } from './vendor-commission.constants';
+} from './vendor-verification.constants.js';
+import { VENDOR_COMMISSION_TYPE, VENDOR_COMMISSION } from './vendor-commission.constants.js';
 import {
   VENDOR_PAYOUT_METHOD,
   VENDOR_PAYOUT_CYCLE,
   VENDOR_PAYOUT,
   VENDOR_PAYOUT_LIMIT,
-} from './vendor-payout.constants';
-import { VENDOR_PAYOUT_STATUS } from './vendor-payout-status.constants';
+} from './vendor-payout.constants.js';
+import { VENDOR_PAYOUT_STATUS } from './vendor-payout-status.constants.js';
 import {
   VENDOR_PERFORMANCE_METRIC,
   VENDOR_PERFORMANCE_GRADE,
   VENDOR_PERFORMANCE,
-} from './vendor-performance.constants';
-import { VENDOR_RATING, VENDOR_RATING_CATEGORY } from './vendor-rating.constants';
+} from './vendor-performance.constants.js';
+import { VENDOR_RATING, VENDOR_RATING_CATEGORY } from './vendor-rating.constants.js';
 import {
   VENDOR_DOCUMENT_TYPE,
   VENDOR_DOCUMENT_STATUS,
   VENDOR_DOCUMENT,
-} from './vendor-document.constants';
+} from './vendor-document.constants.js';
 import {
   VENDOR_SHIPPING_METHOD,
   VENDOR_SHIPPING_ZONE,
   VENDOR_SHIPPING,
-} from './vendor-shipping.constants';
-import { VENDOR_RETURN_TYPE, VENDOR_RETURN_POLICY } from './vendor-return-policy.constants';
+} from './vendor-shipping.constants.js';
+import { VENDOR_RETURN_TYPE, VENDOR_RETURN_POLICY } from './vendor-return-policy.constants.js';
 import {
   VENDOR_WARRANTY_TYPE,
   VENDOR_WARRANTY_PERIOD,
   VENDOR_WARRANTY,
-} from './vendor-warranty.constants';
+} from './vendor-warranty.constants.js';
 import {
   VENDOR_INVOICE_STATUS,
   VENDOR_INVOICE_TYPE,
   VENDOR_INVOICE,
-} from './vendor-invoice.constants';
+} from './vendor-invoice.constants.js';
 import {
   VENDOR_SUBSCRIPTION_PLAN,
   VENDOR_SUBSCRIPTION_STATUS,
   VENDOR_SUBSCRIPTION_CYCLE,
   VENDOR_SUBSCRIPTION,
-} from './vendor-subscription.constants';
-import { VENDOR_ROLE } from './vendor-role.constants';
-import { VENDOR_PERMISSION } from './vendor-permission.constants';
+} from './vendor-subscription.constants.js';
+import { VENDOR_ROLE } from './vendor-role.constants.js';
+import { VENDOR_PERMISSION } from './vendor-permission.constants.js';
 import {
   VENDOR_TEAM_STATUS,
   VENDOR_TEAM,
   VENDOR_TEAM_INVITE_STATUS,
-} from './vendor-team.constants';
+} from './vendor-team.constants.js';
 import {
   VENDOR_REPORT_TYPE,
   VENDOR_REPORT_FORMAT,
   VENDOR_REPORT_PERIOD,
   VENDOR_REPORT,
-} from './vendor-report.constants';
+} from './vendor-report.constants.js';
 
 export const VENDOR_LIMIT = {
   MAX_PRODUCTS: 100000,

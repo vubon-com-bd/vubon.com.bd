@@ -3,10 +3,10 @@
  * @module shared-types/platform/discovery
  */
 
-import type { UserId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { RecommendationTypeValue } from './recommendation-type.types';
-import type { RecommendationStrategyValue } from './recommendation-strategy.types';
+import type { UserId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { RecommendationTypeValue } from './recommendation-type.types.js';
+import type { RecommendationStrategyValue } from './recommendation-strategy.types.js';
 
 export interface Recommendation {
   readonly id: string;

@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
 
 export const ForgotPasswordRequestSchema = z
   .object({

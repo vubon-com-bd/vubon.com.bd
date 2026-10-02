@@ -1,13 +1,13 @@
-import { PRODUCT_STATUS } from './product-status.constants';
-import { PRODUCT_TYPE } from './product-type.constants';
-import { CATEGORY_STATUS, CATEGORY } from './category.constants';
-import { BRAND_STATUS, BRAND } from './brand.constants';
-import { VARIANT_STATUS, VARIANT_TYPE, VARIANT } from './variant.constants';
-import { ATTRIBUTE_TYPE, ATTRIBUTE } from './attribute.constants';
-import { INVENTORY_STATUS, INVENTORY } from './inventory.constants';
-import { PRICING_TYPE, PRICING, COST_TYPE } from './pricing.constants';
-import { REVIEW_STATUS, REVIEW_RATING, REVIEW } from './review.constants';
-import { COLLECTION_TYPE, COLLECTION_STATUS, COLLECTION } from './collection.constants';
+import { PRODUCT_STATUS } from './product-status.constants.js';
+import { PRODUCT_TYPE } from './product-type.constants.js';
+import { CATEGORY_STATUS, CATEGORY } from './category.constants.js';
+import { BRAND_STATUS, BRAND } from './brand.constants.js';
+import { VARIANT_STATUS, VARIANT_TYPE, VARIANT } from './variant.constants.js';
+import { ATTRIBUTE_TYPE, ATTRIBUTE } from './attribute.constants.js';
+import { INVENTORY_STATUS, INVENTORY } from './inventory.constants.js';
+import { PRICING_TYPE, PRICING, COST_TYPE } from './pricing.constants.js';
+import { REVIEW_STATUS, REVIEW_RATING, REVIEW } from './review.constants.js';
+import { COLLECTION_TYPE, COLLECTION_STATUS, COLLECTION } from './collection.constants.js';
 
 export const PRODUCT = {
   STATUS: PRODUCT_STATUS,

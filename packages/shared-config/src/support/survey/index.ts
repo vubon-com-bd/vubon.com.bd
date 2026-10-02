@@ -1,3 +1,3 @@
 // shared-config/support/survey/index.ts
 
-export * from './survey.config';
+export * from './survey.config.js';

@@ -5,20 +5,20 @@
  * Logistics aggregator।
  */
 
-import type { BaseEntity } from '../common/base';
-import type { ShipmentId, OrderId, UserId } from '../common/primitives';
-import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types';
-import type { Shipment } from './shipment.types';
-import type { Delivery } from './delivery.types';
-import type { Courier } from './courier.types';
-import type { TrackingInfo } from './tracking.types';
-import type { Warehouse } from './warehouse.types';
-import type { Fulfillment } from './fulfillment.types';
-import type { Dispatch } from './dispatch.types';
-import type { Vehicle } from './vehicle.types';
-import type { Driver } from './driver.types';
-import type { Route } from './route.types';
-import type { LogisticsMetrics } from './logistics-analytics.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { ShipmentId, OrderId, UserId } from '../common/primitives/index.js';
+import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types.js';
+import type { Shipment } from './shipment.types.js';
+import type { Delivery } from './delivery.types.js';
+import type { Courier } from './courier.types.js';
+import type { TrackingInfo } from './tracking.types.js';
+import type { Warehouse } from './warehouse.types.js';
+import type { Fulfillment } from './fulfillment.types.js';
+import type { Dispatch } from './dispatch.types.js';
+import type { Vehicle } from './vehicle.types.js';
+import type { Driver } from './driver.types.js';
+import type { Route } from './route.types.js';
+import type { LogisticsMetrics } from './logistics-analytics.types.js';
 
 export interface Logistics extends BaseEntity<string> {
   readonly shipmentId?: ShipmentId;

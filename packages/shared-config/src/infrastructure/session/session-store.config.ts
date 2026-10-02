@@ -2,7 +2,7 @@
  * Session store configuration
  * @module shared-config/infrastructure/session
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SESSION_STORE_CONFIG = Object.freeze({
   driver: getOptionalEnv('SESSION_STORE_DRIVER', 'redis'),

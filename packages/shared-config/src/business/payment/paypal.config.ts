@@ -2,7 +2,7 @@
  * PayPal payment gateway configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PAYPAL_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PAYPAL_ENABLED', false),

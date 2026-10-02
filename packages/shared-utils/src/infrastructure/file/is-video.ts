@@ -3,7 +3,7 @@
  * @module shared-utils/infrastructure/file
  */
 import { VIDEO_FORMAT } from '@vubon/shared-constants/common';
-import { getExtension } from './get-extension';
+import { getExtension } from './get-extension.js';
 
 const VIDEO_EXTS = new Set(Object.values(VIDEO_FORMAT).map((v) => v.toLowerCase()));
 

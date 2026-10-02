@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { LocaleSchema, LanguageSchema, TimezoneSchema } from '../common/enums/locale.schema';
-import { ThemeSchema } from './user-settings.schema';
+import { LocaleSchema, LanguageSchema, TimezoneSchema } from '../common/enums/locale.schema.js';
+import { ThemeSchema } from './user-settings.schema.js';
 
 export const UpdateSettingsRequestSchema = z
   .object({

@@ -1,4 +1,4 @@
 // shared-utils/parser/query/index.ts
 
-export * from './parse-query-params';
-export * from './stringify-query-params';
+export * from './parse-query-params.js';
+export * from './stringify-query-params.js';

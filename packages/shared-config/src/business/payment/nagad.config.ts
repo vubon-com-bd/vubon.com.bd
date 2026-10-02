@@ -2,7 +2,7 @@
  * Nagad payment gateway configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const NAGAD_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('NAGAD_ENABLED', false),

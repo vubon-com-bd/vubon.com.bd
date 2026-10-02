@@ -2,7 +2,7 @@
  * Video processing configuration
  * @module shared-config/media/video
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const VIDEO_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('VIDEO_ENABLED', true),

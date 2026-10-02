@@ -5,7 +5,7 @@
  * Values আসে shared-constants/auth থেকে।
  */
 import { AUTH_MFA } from '@vubon/shared-constants/auth';
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const MFA_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MFA_ENABLED', true),

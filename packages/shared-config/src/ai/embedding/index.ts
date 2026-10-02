@@ -1,3 +1,3 @@
 // shared-config/ai/embedding/index.ts
 
-export * from './embedding.config';
+export * from './embedding.config.js';

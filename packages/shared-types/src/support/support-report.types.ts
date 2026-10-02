@@ -5,7 +5,7 @@
  * ⚠️ Note: SupportAnalyticsPeriodValue support-analytics.types.ts থেকে import।
  */
 
-import type { SupportAnalyticsPeriodValue } from './support-analytics.types';
+import type { SupportAnalyticsPeriodValue } from './support-analytics.types.js';
 
 export type SupportReportTypeValue =
   | 'tickets'

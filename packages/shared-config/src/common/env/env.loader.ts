@@ -11,7 +11,7 @@
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { config as dotenvConfig } from 'dotenv';
-import { EnvSchema, type EnvSchemaType } from './env.schema';
+import { EnvSchema, type EnvSchemaType } from './env.schema.js';
 
 let cachedEnv: EnvSchemaType | null = null;
 let envLoaded = false;

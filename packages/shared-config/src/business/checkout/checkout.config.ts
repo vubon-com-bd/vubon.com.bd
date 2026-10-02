@@ -2,7 +2,7 @@
  * Checkout configuration
  * @module shared-config/business/checkout
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CHECKOUT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('CHECKOUT_ENABLED', true),

@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { PRICING_TYPE, COST_TYPE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const PricingTypeSchema = z.enum(Object.values(PRICING_TYPE) as [string, ...string[]]);
 

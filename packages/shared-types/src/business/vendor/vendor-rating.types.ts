@@ -6,7 +6,7 @@
  */
 
 import type { VENDOR_RATING_CATEGORY } from '@vubon/shared-constants/business';
-import type { VendorId, UserId } from '../../common/primitives';
+import type { VendorId, UserId } from '../../common/primitives/index.js';
 
 export type VendorRatingCategoryValue =
   (typeof VENDOR_RATING_CATEGORY)[keyof typeof VENDOR_RATING_CATEGORY];

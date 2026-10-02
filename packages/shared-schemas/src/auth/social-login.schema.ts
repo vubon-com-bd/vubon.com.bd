@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { SocialProviderSchema } from './auth-social.schema';
+import { SocialProviderSchema } from './auth-social.schema.js';
 
 export const SocialLoginRequestSchema = z
   .object({

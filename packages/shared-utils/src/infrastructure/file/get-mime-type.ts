@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে image/video/audio/document constants।
  */
 import { IMAGE_MIME, VIDEO_MIME, AUDIO_MIME, DOCUMENT_MIME } from '@vubon/shared-constants/common';
-import { getExtension } from './get-extension';
+import { getExtension } from './get-extension.js';
 
 const MIME_MAP: Record<string, string> = {};
 

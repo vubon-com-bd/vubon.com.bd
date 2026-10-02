@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { AUTH_DEVICE_TYPE } from '@vubon/shared-constants/auth';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AuthDeviceTypeSchema = z.enum(
   Object.values(AUTH_DEVICE_TYPE) as [string, ...string[]]

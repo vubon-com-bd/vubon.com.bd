@@ -10,7 +10,7 @@ import type {
   TRACKING_STATUS,
   TRACKING_SOURCE,
 } from '@vubon/shared-constants/logistics';
-import type { ShipmentId, OrderId } from '../common/primitives';
+import type { ShipmentId, OrderId } from '../common/primitives/index.js';
 
 export type TrackingEventValue = (typeof TRACKING_EVENT)[keyof typeof TRACKING_EVENT];
 

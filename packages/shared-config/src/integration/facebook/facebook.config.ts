@@ -2,7 +2,7 @@
  * Facebook integration configuration (pixel + OAuth)
  * @module shared-config/integration/facebook
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const FACEBOOK_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FACEBOOK_ENABLED', false),

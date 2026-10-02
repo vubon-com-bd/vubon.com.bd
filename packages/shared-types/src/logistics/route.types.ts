@@ -10,7 +10,7 @@ import type {
   ROUTE_TYPE,
   ROUTE_OPTIMIZATION,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type RouteStatusValue = (typeof ROUTE_STATUS)[keyof typeof ROUTE_STATUS];
 

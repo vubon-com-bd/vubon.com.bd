@@ -6,7 +6,7 @@
  */
 
 import type { AI_PROMPT_TYPE, AI_PROMPT_STATUS, AI_PROMPT_ROLE } from '@vubon/shared-constants/ai';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type AiPromptTypeValue = (typeof AI_PROMPT_TYPE)[keyof typeof AI_PROMPT_TYPE];
 

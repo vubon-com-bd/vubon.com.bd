@@ -2,7 +2,7 @@
  * Warehouse configuration
  * @module shared-config/logistics/warehouse
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 import { TIMEZONE } from '@vubon/shared-constants/common';
 
 export const WAREHOUSE_CONFIG = Object.freeze({

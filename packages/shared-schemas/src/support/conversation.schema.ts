@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { CONVERSATION_STATUS, CONVERSATION_TYPE } from '@vubon/shared-constants/support';
 
 export const ConversationStatusSchema = z.enum(

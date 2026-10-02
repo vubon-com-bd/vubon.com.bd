@@ -6,7 +6,7 @@
  * প্রতিটা ID আলাদা nominal type — ভুল type mix করা যাবে না।
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 // ─────────────────────────────────────────────
 // Auth & User

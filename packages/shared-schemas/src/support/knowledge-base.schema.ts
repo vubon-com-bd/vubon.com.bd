@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { SlugSchema } from '../common/primitives/slug.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { SlugSchema } from '../common/primitives/slug.schema.js';
 import {
   KNOWLEDGE_BASE_STATUS,
   KNOWLEDGE_BASE_TYPE,

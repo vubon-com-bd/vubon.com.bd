@@ -10,8 +10,8 @@
 
 import { z } from 'zod';
 import { VERIFICATION_TYPE, VERIFICATION_STATUS, OTP } from '@vubon/shared-constants/security';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
 
 export const VerificationTypeSchema = z.enum(
   Object.values(VERIFICATION_TYPE) as [string, ...string[]]

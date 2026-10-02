@@ -2,7 +2,7 @@
  * Compute contrast ratio between two hex colors (WCAG)
  * @module shared-utils/common/color
  */
-import { luminance } from './luminance';
+import { luminance } from './luminance.js';
 
 export function contrastRatio(hexA: string, hexB: string): number {
   const l1 = luminance(hexA);

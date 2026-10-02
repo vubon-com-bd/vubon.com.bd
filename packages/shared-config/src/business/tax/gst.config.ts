@@ -2,7 +2,7 @@
  * GST configuration (India, etc.)
  * @module shared-config/business/tax
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const GST_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GST_ENABLED', false),

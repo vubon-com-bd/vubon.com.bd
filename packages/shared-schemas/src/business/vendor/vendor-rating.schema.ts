@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { VENDOR_RATING_CATEGORY } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const VendorRatingCategorySchema = z.enum(
   Object.values(VENDOR_RATING_CATEGORY) as [string, ...string[]]

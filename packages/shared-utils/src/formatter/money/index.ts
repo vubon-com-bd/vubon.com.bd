@@ -1,6 +1,6 @@
 // shared-utils/formatter/money/index.ts
 
-export * from './format-money';
-export * from './format-currency';
-export * from './format-price';
-export * from './parse-money';
+export * from './format-money.js';
+export * from './format-currency.js';
+export * from './format-price.js';
+export * from './parse-money.js';

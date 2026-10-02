@@ -6,7 +6,7 @@
  */
 
 import type { ORDER_ITEM_STATUS, ORDER_ITEM_TYPE } from '@vubon/shared-constants/business';
-import type { OrderId, ProductId, VendorId, Money, Url } from '../../common/primitives';
+import type { OrderId, ProductId, VendorId, Money, Url } from '../../common/primitives/index.js';
 
 export type OrderItemStatusValue = (typeof ORDER_ITEM_STATUS)[keyof typeof ORDER_ITEM_STATUS];
 

@@ -2,7 +2,7 @@
  * Order cancel configuration
  * @module shared-config/business/order
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ORDER_CANCEL_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ORDER_CANCEL_ENABLED', true),

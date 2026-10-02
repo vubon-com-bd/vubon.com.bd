@@ -5,16 +5,16 @@
  * SEO entity + aggregator।
  */
 
-import type { Slug, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { SeoStatusValue } from './seo-status.types';
-import type { SeoTypeValue } from './seo-type.types';
-import type { SeoPriorityValue } from './seo-priority.types';
-import type { SeoStrategyValue } from './seo-strategy.types';
-import type { SeoScore } from './seo-score.types';
-import type { SeoOpenGraph } from './seo-open-graph.types';
-import type { SeoTwitterCard } from './seo-twitter-card.types';
-import type { SeoSchema } from './seo-schema.types';
+import type { Slug, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { SeoStatusValue } from './seo-status.types.js';
+import type { SeoTypeValue } from './seo-type.types.js';
+import type { SeoPriorityValue } from './seo-priority.types.js';
+import type { SeoStrategyValue } from './seo-strategy.types.js';
+import type { SeoScore } from './seo-score.types.js';
+import type { SeoOpenGraph } from './seo-open-graph.types.js';
+import type { SeoTwitterCard } from './seo-twitter-card.types.js';
+import type { SeoSchema } from './seo-schema.types.js';
 
 export interface Seo extends BaseEntity<string> {
   readonly url: string;

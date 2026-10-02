@@ -2,7 +2,7 @@
  * Generic file configuration
  * @module shared-config/media/file
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const FILE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FILE_ENABLED', true),

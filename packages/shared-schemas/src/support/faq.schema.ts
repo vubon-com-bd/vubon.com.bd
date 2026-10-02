@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
 import { FAQ_STATUS, FAQ_CATEGORY, FAQ } from '@vubon/shared-constants/support';
 
 export const FaqStatusSchema = z.enum(Object.values(FAQ_STATUS) as [string, ...string[]]);

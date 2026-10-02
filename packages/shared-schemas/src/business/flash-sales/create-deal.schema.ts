@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { DealDiscountTypeSchema } from './deal-discount-type.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { DealDiscountTypeSchema } from './deal-discount-type.schema.js';
 
 export const CreateDealRequestSchema = z
   .object({

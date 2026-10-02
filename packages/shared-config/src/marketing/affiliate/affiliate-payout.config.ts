@@ -2,7 +2,7 @@
  * Affiliate payout configuration
  * @module shared-config/marketing/affiliate
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const AFFILIATE_PAYOUT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AFFILIATE_PAYOUT_ENABLED', true),

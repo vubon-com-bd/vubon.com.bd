@@ -1,27 +1,27 @@
-import { FLASH_SALE_STATUS } from './flash-sale-status.constants';
-import { FLASH_SALE_TYPE } from './flash-sale-type.constants';
-import { DEAL, DEAL_TYPE } from './deal.constants';
-import { DEAL_STATUS } from './deal-status.constants';
-import { DEAL_DISCOUNT_TYPE } from './deal-discount-type.constants';
-import { PRODUCT_DEAL_STATUS, PRODUCT_DEAL } from './product-deal.constants';
-import { BUNDLE_DEAL_STATUS, BUNDLE_DEAL_TYPE, BUNDLE_DEAL } from './bundle-deal.constants';
-import { FLASH_SALE_SCHEDULE, FLASH_SALE_RECURRENCE } from './flash-sale-schedule.constants';
+import { FLASH_SALE_STATUS } from './flash-sale-status.constants.js';
+import { FLASH_SALE_TYPE } from './flash-sale-type.constants.js';
+import { DEAL, DEAL_TYPE } from './deal.constants.js';
+import { DEAL_STATUS } from './deal-status.constants.js';
+import { DEAL_DISCOUNT_TYPE } from './deal-discount-type.constants.js';
+import { PRODUCT_DEAL_STATUS, PRODUCT_DEAL } from './product-deal.constants.js';
+import { BUNDLE_DEAL_STATUS, BUNDLE_DEAL_TYPE, BUNDLE_DEAL } from './bundle-deal.constants.js';
+import { FLASH_SALE_SCHEDULE, FLASH_SALE_RECURRENCE } from './flash-sale-schedule.constants.js';
 import {
   FLASH_SALE_PARTICIPANT_TYPE,
   FLASH_SALE_PARTICIPANT_STATUS,
   FLASH_SALE_PARTICIPANT,
-} from './flash-sale-participant.constants';
+} from './flash-sale-participant.constants.js';
 import {
   FLASH_SALE_INVENTORY_STATUS,
   FLASH_SALE_INVENTORY,
-} from './flash-sale-inventory.constants';
-import { FLASH_SALE_PRICE_TYPE, FLASH_SALE_PRICE } from './flash-sale-price.constants';
-import { FLASH_SALE_COUPON_TYPE, FLASH_SALE_COUPON } from './flash-sale-coupon.constants';
+} from './flash-sale-inventory.constants.js';
+import { FLASH_SALE_PRICE_TYPE, FLASH_SALE_PRICE } from './flash-sale-price.constants.js';
+import { FLASH_SALE_COUPON_TYPE, FLASH_SALE_COUPON } from './flash-sale-coupon.constants.js';
 import {
   FLASH_SALE_VOUCHER_TYPE,
   FLASH_SALE_VOUCHER_STATUS,
   FLASH_SALE_VOUCHER,
-} from './flash-sale-voucher.constants';
+} from './flash-sale-voucher.constants.js';
 
 export const FLASH_SALE_LIMIT = {
   MAX_PRODUCTS: 5000,

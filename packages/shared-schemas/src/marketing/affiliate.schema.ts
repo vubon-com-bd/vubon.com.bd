@@ -6,12 +6,12 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 
-import { AffiliateStatusSchema, AffiliateTypeSchema } from './affiliate-status.schema';
-import { AffiliateCommissionSchema } from './affiliate-commission.schema';
+import { AffiliateStatusSchema, AffiliateTypeSchema } from './affiliate-status.schema.js';
+import { AffiliateCommissionSchema } from './affiliate-commission.schema.js';
 
 export const AffiliateSchema = BaseEntitySchema.extend({
   userId: UuidSchema.optional(),

@@ -2,7 +2,7 @@
  * GitHub OAuth configuration
  * @module shared-config/auth/oauth
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const GITHUB_OAUTH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GITHUB_OAUTH_ENABLED', false),

@@ -4,10 +4,10 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { PhoneSchema } from '../../common/primitives/phone.schema';
-import { CheckoutTypeSchema } from './checkout.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { PhoneSchema } from '../../common/primitives/phone.schema.js';
+import { CheckoutTypeSchema } from './checkout.schema.js';
 
 export const StartCheckoutRequestSchema = z
   .object({

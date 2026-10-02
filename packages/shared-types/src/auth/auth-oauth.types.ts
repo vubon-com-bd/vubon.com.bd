@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_OAUTH } from '@vubon/shared-constants/auth';
-import type { UserId, Url } from '../common/primitives';
+import type { UserId, Url } from '../common/primitives/index.js';
 
 export type OAuthGrantType =
   | typeof AUTH_OAUTH.GRANT_TYPE_AUTHORIZATION_CODE

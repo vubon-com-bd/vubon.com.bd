@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { MoneySchema } from '../common/primitives/money.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../common/primitives/money.schema.js';
 import { PROMOTION } from '@vubon/shared-constants/marketing';
-import { PromotionTypeSchema, PromotionAppliesToSchema } from './promotion-type.schema';
-import { PromotionStatusSchema } from './promotion-status.schema';
-import { PromotionDiscountTypeValueSchema } from './promotion-discount-type.schema';
+import { PromotionTypeSchema, PromotionAppliesToSchema } from './promotion-type.schema.js';
+import { PromotionStatusSchema } from './promotion-status.schema.js';
+import { PromotionDiscountTypeValueSchema } from './promotion-discount-type.schema.js';
 
 export const PromotionSchema = BaseEntitySchema.extend({
   name: z.string().min(1).max(PROMOTION.NAME_MAX_LENGTH),

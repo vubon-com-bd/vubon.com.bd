@@ -8,7 +8,7 @@ import type {
   SUPPORT_SLA_METRIC,
   SUPPORT_SLA_TARGET,
 } from '@vubon/shared-constants/support';
-import type { TicketPriorityValue } from './ticket-priority.types';
+import type { TicketPriorityValue } from './ticket-priority.types.js';
 
 export type SupportSlaStatusValue = (typeof SUPPORT_SLA_STATUS)[keyof typeof SUPPORT_SLA_STATUS];
 

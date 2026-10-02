@@ -5,13 +5,13 @@
  * AI entity + aggregator।
  */
 
-import type { BaseEntity } from '../common/base';
-import type { AiModelTypeValue } from './ai-model-type.types';
-import type { AiModelStatusValue } from './ai-model-status.types';
-import type { AiModelProviderValue } from './ai-model-provider.types';
-import type { AiFeatureValue } from './ai-feature.types';
-import type { AiModel, AiModelConfig } from './ai-model.types';
-import type { AiModelUsage } from './ai-analytics.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { AiModelTypeValue } from './ai-model-type.types.js';
+import type { AiModelStatusValue } from './ai-model-status.types.js';
+import type { AiModelProviderValue } from './ai-model-provider.types.js';
+import type { AiFeatureValue } from './ai-feature.types.js';
+import type { AiModel, AiModelConfig } from './ai-model.types.js';
+import type { AiModelUsage } from './ai-analytics.types.js';
 
 export interface Ai extends BaseEntity<string> {
   readonly modelId: string;

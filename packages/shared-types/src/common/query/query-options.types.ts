@@ -5,10 +5,10 @@
  * Composite query options — pagination + sort + filter একসাথে।
  */
 
-import type { PaginationQuery } from './pagination-query.types';
-import type { SortQuery } from './sort-query.types';
-import type { FilterQuery } from './filter-query.types';
-import type { SearchQuery } from './search-query.types';
+import type { PaginationQuery } from './pagination-query.types.js';
+import type { SortQuery } from './sort-query.types.js';
+import type { FilterQuery } from './filter-query.types.js';
+import type { SearchQuery } from './search-query.types.js';
 
 export interface QueryOptions<TField extends string = string> {
   readonly pagination?: PaginationQuery;

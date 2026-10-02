@@ -4,7 +4,7 @@
  *
  * ⚠️ Always use these helpers. Do NOT read process.env directly in config files.
  */
-import { EnvMissingError, EnvParseError } from './env.types';
+import { EnvMissingError, EnvParseError } from './env.types.js';
 
 function source(): Record<string, string | undefined> {
   if (typeof process !== 'undefined' && process.env) return process.env;

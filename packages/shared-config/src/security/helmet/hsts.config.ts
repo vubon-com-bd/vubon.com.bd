@@ -2,8 +2,8 @@
  * HTTP Strict Transport Security configuration
  * @module shared-config/security/helmet
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const isProd = loadEnv().NODE_ENV === 'production';
 

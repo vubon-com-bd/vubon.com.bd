@@ -2,9 +2,9 @@
  * Helmet security headers configuration
  * @module shared-config/security/helmet
  */
-import { getOptionalEnvBool } from '../../common/env/env.helper';
-import { CSP_CONFIG } from './csp.config';
-import { HSTS_CONFIG } from './hsts.config';
+import { getOptionalEnvBool } from '../../common/env/env.helper.js';
+import { CSP_CONFIG } from './csp.config.js';
+import { HSTS_CONFIG } from './hsts.config.js';
 
 export const HELMET_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('HELMET_ENABLED', true),

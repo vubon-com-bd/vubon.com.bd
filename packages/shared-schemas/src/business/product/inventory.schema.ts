@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { INVENTORY_STATUS } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const InventoryStatusSchema = z.enum(
   Object.values(INVENTORY_STATUS) as [string, ...string[]]

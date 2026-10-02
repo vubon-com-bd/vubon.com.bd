@@ -1,3 +1,3 @@
 // shared-config/marketing/campaign/index.ts
 
-export * from './campaign.config';
+export * from './campaign.config.js';

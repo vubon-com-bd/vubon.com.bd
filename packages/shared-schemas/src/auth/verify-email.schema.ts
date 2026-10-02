@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 
 export const VerifyEmailRequestSchema = z
   .object({

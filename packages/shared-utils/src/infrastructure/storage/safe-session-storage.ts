@@ -2,7 +2,7 @@
  * SSR-safe sessionStorage wrapper with JSON serialization
  * @module shared-utils/infrastructure/storage
  */
-import { isStorageAvailable } from './is-storage-available';
+import { isStorageAvailable } from './is-storage-available.js';
 
 function getStorage(): Storage | null {
   if (!isStorageAvailable('sessionStorage')) return null;

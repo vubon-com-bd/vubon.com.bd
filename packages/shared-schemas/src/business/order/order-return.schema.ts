@@ -11,8 +11,8 @@ import {
   ORDER_RETURN_REASON,
   ORDER_RETURN,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const OrderReturnStatusSchema = z.enum(
   Object.values(ORDER_RETURN_STATUS) as [string, ...string[]]

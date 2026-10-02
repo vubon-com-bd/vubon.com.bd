@@ -2,7 +2,7 @@
  * Google Analytics integration configuration (alias to platform/analytics/ga)
  * @module shared-config/integration/google
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const GOOGLE_ANALYTICS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GOOGLE_ANALYTICS_ENABLED', false),

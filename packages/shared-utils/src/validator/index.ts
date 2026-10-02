@@ -1,8 +1,8 @@
 // shared-utils/validator/index.ts
 // Validator layer barrel export
 
-export * from './identity';
-export * from './bd';
-export * from './payment';
-export * from './business';
-export * from './type';
+export * from './identity/index.js';
+export * from './bd/index.js';
+export * from './payment/index.js';
+export * from './business/index.js';
+export * from './type/index.js';

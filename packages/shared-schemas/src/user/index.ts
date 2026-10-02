@@ -2,36 +2,36 @@
 // User domain barrel export — FINAL
 
 // Base schemas
-export * from './user.schema';
-export * from './user-status.schema';
-export * from './user-type.schema';
-export * from './user-role.schema';
-export * from './user-permission.schema';
-export * from './user-profile.schema';
-export * from './user-settings.schema';
-export * from './user-preferences.schema';
-export * from './user-address.schema';
-export * from './user-contact.schema';
-export * from './user-verification.schema';
-export * from './user-kyc.schema';
-export * from './user-activity.schema';
-export * from './user-log.schema';
+export * from './user.schema.js';
+export * from './user-status.schema.js';
+export * from './user-type.schema.js';
+export * from './user-role.schema.js';
+export * from './user-permission.schema.js';
+export * from './user-profile.schema.js';
+export * from './user-settings.schema.js';
+export * from './user-preferences.schema.js';
+export * from './user-address.schema.js';
+export * from './user-contact.schema.js';
+export * from './user-verification.schema.js';
+export * from './user-kyc.schema.js';
+export * from './user-activity.schema.js';
+export * from './user-log.schema.js';
 
 // Request schemas
-export * from './create-user.schema';
-export * from './update-user.schema';
-export * from './update-profile.schema';
-export * from './change-password.schema';
-export * from './add-address.schema';
-export * from './update-address.schema';
-export * from './add-contact.schema';
-export * from './submit-kyc.schema';
-export * from './update-preferences.schema';
-export * from './update-settings.schema';
+export * from './create-user.schema.js';
+export * from './update-user.schema.js';
+export * from './update-profile.schema.js';
+export * from './change-password.schema.js';
+export * from './add-address.schema.js';
+export * from './update-address.schema.js';
+export * from './add-contact.schema.js';
+export * from './submit-kyc.schema.js';
+export * from './update-preferences.schema.js';
+export * from './update-settings.schema.js';
 
 // Response schemas
-export * from './user-response.schema';
-export * from './profile-response.schema';
-export * from './address-response.schema';
-export * from './kyc-response.schema';
-export * from './preferences-response.schema';
+export * from './user-response.schema.js';
+export * from './profile-response.schema.js';
+export * from './address-response.schema.js';
+export * from './kyc-response.schema.js';
+export * from './preferences-response.schema.js';

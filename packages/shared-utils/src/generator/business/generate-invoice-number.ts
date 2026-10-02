@@ -2,7 +2,7 @@
  * Generate an invoice number (INV-YYYY-NNNNNN)
  * @module shared-utils/generator/business
  */
-import { generateNanoid } from '../id/generate-nanoid';
+import { generateNanoid } from '../id/generate-nanoid.js';
 
 export function generateInvoiceNumber(date: Date = new Date()): string {
   const year = date.getFullYear();

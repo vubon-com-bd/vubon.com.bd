@@ -4,11 +4,11 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { PhoneSchema } from '../../common/primitives/phone.schema';
-import { AddressSchema } from '../../common/geo/address.schema';
-import { VendorTypeSchema, VendorBusinessTypeSchema } from './vendor-type.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { PhoneSchema } from '../../common/primitives/phone.schema.js';
+import { AddressSchema } from '../../common/geo/address.schema.js';
+import { VendorTypeSchema, VendorBusinessTypeSchema } from './vendor-type.schema.js';
 
 export const RegisterVendorRequestSchema = z
   .object({

@@ -1,3 +1,3 @@
 // shared-config/media/file/index.ts
 
-export * from './file.config';
+export * from './file.config.js';

@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { ANALYTICS_EVENT, ANALYTICS_EVENT_CATEGORY } from '@vubon/shared-constants/platform';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const AnalyticsEventNameSchema = z.enum(
   Object.values(ANALYTICS_EVENT) as [string, ...string[]]

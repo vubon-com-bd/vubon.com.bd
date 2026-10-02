@@ -10,7 +10,7 @@ import type {
   USER_KYC_LEVEL,
   USER_KYC_DOCUMENT,
 } from '@vubon/shared-constants/user';
-import type { UserId, Url } from '../common/primitives';
+import type { UserId, Url } from '../common/primitives/index.js';
 
 export type KycStatusValue = (typeof USER_KYC_STATUS)[keyof typeof USER_KYC_STATUS];
 

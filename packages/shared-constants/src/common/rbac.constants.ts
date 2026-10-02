@@ -6,8 +6,8 @@
  * এই ফাইলই বলে দেয় কোন role কী করতে পারবে।
  */
 
-import { ROLE, type RoleType } from './role.constants';
-import { PERMISSION, type PermissionType } from './permission.constants';
+import { ROLE, type RoleType } from './role.constants.js';
+import { PERMISSION, type PermissionType } from './permission.constants.js';
 
 /**
  * Role → Permission mapping

@@ -2,7 +2,7 @@
  * Sitemap configuration
  * @module shared-config/platform/seo
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SITEMAP_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SITEMAP_ENABLED', true),

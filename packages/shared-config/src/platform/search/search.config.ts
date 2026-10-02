@@ -2,7 +2,7 @@
  * Search base configuration
  * @module shared-config/platform/search
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SEARCH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SEARCH_ENABLED', true),

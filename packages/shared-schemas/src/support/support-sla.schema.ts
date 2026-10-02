@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { SUPPORT_SLA_STATUS, SUPPORT_SLA_METRIC } from '@vubon/shared-constants/support';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { TicketPrioritySchema } from './ticket-priority.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { TicketPrioritySchema } from './ticket-priority.schema.js';
 
 export const SupportSlaStatusSchema = z.enum(
   Object.values(SUPPORT_SLA_STATUS) as [string, ...string[]]

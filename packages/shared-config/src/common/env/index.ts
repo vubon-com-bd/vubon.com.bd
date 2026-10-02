@@ -1,7 +1,7 @@
 // shared-config/common/env/index.ts
 
-export * from './env.types';
-export * from './env.helper';
-export * from './env.schema';
-export * from './env.loader';
-export * from './env.validation';
+export * from './env.types.js';
+export * from './env.helper.js';
+export * from './env.schema.js';
+export * from './env.loader.js';
+export * from './env.validation.js';

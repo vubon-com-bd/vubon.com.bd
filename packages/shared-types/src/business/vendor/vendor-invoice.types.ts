@@ -6,8 +6,8 @@
  */
 
 import type { VENDOR_INVOICE_STATUS, VENDOR_INVOICE_TYPE } from '@vubon/shared-constants/business';
-import type { VendorId, Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { VendorId, Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type VendorInvoiceStatusValue =
   (typeof VENDOR_INVOICE_STATUS)[keyof typeof VENDOR_INVOICE_STATUS];

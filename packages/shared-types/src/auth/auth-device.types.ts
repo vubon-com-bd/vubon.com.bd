@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_DEVICE, AUTH_DEVICE_TYPE } from '@vubon/shared-constants/auth';
-import type { UserId, IpAddress } from '../common/primitives';
+import type { UserId, IpAddress } from '../common/primitives/index.js';
 
 export type AuthDeviceTypeValue = (typeof AUTH_DEVICE_TYPE)[keyof typeof AUTH_DEVICE_TYPE];
 

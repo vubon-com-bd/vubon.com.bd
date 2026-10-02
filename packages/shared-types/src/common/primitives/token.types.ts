@@ -3,7 +3,7 @@
  * @module shared-types/common/primitives
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 export type AccessToken = Branded<string, 'AccessToken'>;
 export type RefreshToken = Branded<string, 'RefreshToken'>;

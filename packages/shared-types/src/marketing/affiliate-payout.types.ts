@@ -3,8 +3,8 @@
  * @module shared-types/marketing
  */
 
-import type { Money } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { Money } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type AffiliatePayoutStatusValue =
   'pending' | 'approved' | 'processing' | 'paid' | 'rejected' | 'failed' | 'on_hold';

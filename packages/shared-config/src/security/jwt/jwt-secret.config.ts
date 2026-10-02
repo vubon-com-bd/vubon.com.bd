@@ -4,8 +4,8 @@
  *
  * ⚠️ NEVER hardcode JWT secret. Always read from env.
  */
-import { getEnv, getOptionalEnv } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getEnv, getOptionalEnv } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const env = loadEnv();
 

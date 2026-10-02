@@ -13,15 +13,15 @@ import type {
   Money,
   Slug,
   Url,
-} from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { ProductStatusValue } from './product-status.types';
-import type { ProductTypeValue } from './product-type.types';
-import type { Variant } from './variant.types';
-import type { ProductAttribute } from './attribute.types';
-import type { Inventory } from './inventory.types';
-import type { Pricing } from './pricing.types';
-import type { ReviewSummary } from './review.types';
+} from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { ProductStatusValue } from './product-status.types.js';
+import type { ProductTypeValue } from './product-type.types.js';
+import type { Variant } from './variant.types.js';
+import type { ProductAttribute } from './attribute.types.js';
+import type { Inventory } from './inventory.types.js';
+import type { Pricing } from './pricing.types.js';
+import type { ReviewSummary } from './review.types.js';
 
 export interface Product extends BaseEntity<ProductId> {
   readonly name: string;

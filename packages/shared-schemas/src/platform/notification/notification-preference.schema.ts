@@ -10,7 +10,7 @@ import {
   NOTIFICATION_PREFERENCE_TYPE,
   NOTIFICATION_PREFERENCE_FREQUENCY,
 } from '@vubon/shared-constants/platform';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const NotificationPreferenceTypeSchema = z.enum(
   Object.values(NOTIFICATION_PREFERENCE_TYPE) as [string, ...string[]]

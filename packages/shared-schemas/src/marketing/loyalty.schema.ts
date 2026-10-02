@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { LoyaltyStatusSchema, LoyaltyTierSchema } from './loyalty-status.schema';
-import { LoyaltyPointsSchema } from './loyalty-points.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { LoyaltyStatusSchema, LoyaltyTierSchema } from './loyalty-status.schema.js';
+import { LoyaltyPointsSchema } from './loyalty-points.schema.js';
 
 export const LoyaltySchema = BaseEntitySchema.extend({
   userId: UuidSchema,

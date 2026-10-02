@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { AUTH_SOCIAL } from '@vubon/shared-constants/auth';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const SocialProviderSchema = z.enum(Object.values(AUTH_SOCIAL) as [string, ...string[]]);
 

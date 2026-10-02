@@ -7,7 +7,7 @@
  */
 
 import type { AUTH_ROLE } from '@vubon/shared-constants/auth';
-import type { RoleValue } from '../common/enums';
+import type { RoleValue } from '../common/enums/index.js';
 
 export type AuthRoleValue = (typeof AUTH_ROLE)[keyof typeof AUTH_ROLE];
 

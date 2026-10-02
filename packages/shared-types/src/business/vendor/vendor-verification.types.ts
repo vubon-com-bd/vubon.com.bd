@@ -9,7 +9,7 @@ import type {
   VENDOR_VERIFICATION_STATUS,
   VENDOR_VERIFICATION_TYPE,
 } from '@vubon/shared-constants/business';
-import type { VendorId } from '../../common/primitives';
+import type { VendorId } from '../../common/primitives/index.js';
 
 export type VendorVerificationStatusValue =
   (typeof VENDOR_VERIFICATION_STATUS)[keyof typeof VENDOR_VERIFICATION_STATUS];

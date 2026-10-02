@@ -10,8 +10,8 @@ import type {
   DRIVER_TYPE,
   DRIVER_LICENSE_TYPE,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { UserId, Phone, Email } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId, Phone, Email } from '../common/primitives/index.js';
 
 export type DriverStatusValue = (typeof DRIVER_STATUS)[keyof typeof DRIVER_STATUS];
 

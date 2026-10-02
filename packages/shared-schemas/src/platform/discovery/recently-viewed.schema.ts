@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { RECENTLY_VIEWED_TYPE } from '@vubon/shared-constants/platform';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const RecentlyViewedTypeSchema = z.enum(
   Object.values(RECENTLY_VIEWED_TYPE) as [string, ...string[]]

@@ -16,7 +16,7 @@ import type {
   VerifyToken,
   InviteToken,
   ApiKey,
-} from '../common/primitives';
+} from '../common/primitives/index.js';
 
 export type AuthTokenTypeValue = (typeof AUTH_TOKEN_TYPE)[keyof typeof AUTH_TOKEN_TYPE];
 

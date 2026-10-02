@@ -2,7 +2,7 @@
  * Flash sale configuration
  * @module shared-config/business/flash-sales
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const FLASH_SALE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FLASH_SALE_ENABLED', true),

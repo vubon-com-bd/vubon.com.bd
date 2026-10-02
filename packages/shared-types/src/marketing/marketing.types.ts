@@ -5,13 +5,13 @@
  * Marketing entity + aggregator।
  */
 
-import type { Campaign } from './campaign.types';
-import type { Promotion } from './promotion.types';
-import type { Affiliate } from './affiliate.types';
-import type { Referral } from './referral.types';
-import type { Loyalty } from './loyalty.types';
-import type { Lead } from './lead-generation.types';
-import type { MarketingAutomation } from './marketing-automation.types';
+import type { Campaign } from './campaign.types.js';
+import type { Promotion } from './promotion.types.js';
+import type { Affiliate } from './affiliate.types.js';
+import type { Referral } from './referral.types.js';
+import type { Loyalty } from './loyalty.types.js';
+import type { Lead } from './lead-generation.types.js';
+import type { MarketingAutomation } from './marketing-automation.types.js';
 
 export interface MarketingStats {
   readonly period: string;

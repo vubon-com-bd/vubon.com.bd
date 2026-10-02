@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { COLLECTION_TYPE, COLLECTION_STATUS, COLLECTION } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { SlugSchema } from '../../common/primitives/slug.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { SlugSchema } from '../../common/primitives/slug.schema.js';
 
 export const CollectionTypeSchema = z.enum(Object.values(COLLECTION_TYPE) as [string, ...string[]]);
 

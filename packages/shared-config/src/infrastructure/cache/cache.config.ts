@@ -5,7 +5,7 @@
  * Values আসে shared-constants/infrastructure/cache.constants থেকে।
  */
 import { CACHE_STRATEGY, CACHE_EVICTION } from '@vubon/shared-constants/infrastructure';
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CACHE_CONFIG = Object.freeze({
   driver: getOptionalEnv('CACHE_DRIVER', 'redis'), // redis | memory | hybrid

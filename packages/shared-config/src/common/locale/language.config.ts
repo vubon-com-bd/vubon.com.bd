@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে।
  */
 import { LANGUAGE } from '@vubon/shared-constants/common';
-import { getOptionalEnv } from '../env/env.helper';
+import { getOptionalEnv } from '../env/env.helper.js';
 
 export const LANGUAGE_CONFIG = Object.freeze({
   default: getOptionalEnv('DEFAULT_LANGUAGE', LANGUAGE.BN),

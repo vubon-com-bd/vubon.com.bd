@@ -2,40 +2,40 @@
 // Auth domain barrel export — FINAL
 
 // Base schemas
-export * from './auth.schema';
-export * from './auth-status.schema';
-export * from './auth-type.schema';
-export * from './auth-provider.schema';
-export * from './auth-method.schema';
-export * from './auth-permission.schema';
-export * from './auth-role.schema';
-export * from './auth-session.schema';
-export * from './auth-token.schema';
-export * from './auth-verification.schema';
-export * from './auth-password.schema';
-export * from './auth-mfa.schema';
-export * from './auth-login-attempt.schema';
-export * from './auth-device.schema';
-export * from './auth-social.schema';
-export * from './auth-oauth.schema';
-export * from './auth-sso.schema';
+export * from './auth.schema.js';
+export * from './auth-status.schema.js';
+export * from './auth-type.schema.js';
+export * from './auth-provider.schema.js';
+export * from './auth-method.schema.js';
+export * from './auth-permission.schema.js';
+export * from './auth-role.schema.js';
+export * from './auth-session.schema.js';
+export * from './auth-token.schema.js';
+export * from './auth-verification.schema.js';
+export * from './auth-password.schema.js';
+export * from './auth-mfa.schema.js';
+export * from './auth-login-attempt.schema.js';
+export * from './auth-device.schema.js';
+export * from './auth-social.schema.js';
+export * from './auth-oauth.schema.js';
+export * from './auth-sso.schema.js';
 
 // Request schemas
-export * from './login-request.schema';
-export * from './register-request.schema';
-export * from './refresh-request.schema';
-export * from './logout-request.schema';
-export * from './forgot-password.schema';
-export * from './reset-password.schema';
-export * from './verify-email.schema';
-export * from './verify-mfa.schema';
-export * from './enable-mfa.schema';
-export * from './social-login.schema';
+export * from './login-request.schema.js';
+export * from './register-request.schema.js';
+export * from './refresh-request.schema.js';
+export * from './logout-request.schema.js';
+export * from './forgot-password.schema.js';
+export * from './reset-password.schema.js';
+export * from './verify-email.schema.js';
+export * from './verify-mfa.schema.js';
+export * from './enable-mfa.schema.js';
+export * from './social-login.schema.js';
 
 // Response schemas
-export * from './login-response.schema';
-export * from './register-response.schema';
-export * from './refresh-response.schema';
-export * from './mfa-response.schema';
-export * from './session-response.schema';
-export * from './logout-response.schema';
+export * from './login-response.schema.js';
+export * from './register-response.schema.js';
+export * from './refresh-response.schema.js';
+export * from './mfa-response.schema.js';
+export * from './session-response.schema.js';
+export * from './logout-response.schema.js';

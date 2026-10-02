@@ -2,22 +2,22 @@
 // Root barrel — FINAL
 
 // Foundation
-export * from './common';
+export * from './common/index.js';
 
 // Infrastructure + Security
-export * from './infrastructure';
-export * from './security';
+export * from './infrastructure/index.js';
+export * from './security/index.js';
 
 // Domain
-export * from './auth';
-export * from './user';
-export * from './business';
+export * from './auth/index.js';
+export * from './user/index.js';
+export * from './business/index.js';
 
 // Platform
-export * from './platform';
+export * from './platform/index.js';
 
 // Cross-cutting
-export * from './ai';
-export * from './marketing';
-export * from './support';
-export * from './logistics';
+export * from './ai/index.js';
+export * from './marketing/index.js';
+export * from './support/index.js';
+export * from './logistics/index.js';

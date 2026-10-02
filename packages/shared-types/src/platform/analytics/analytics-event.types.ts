@@ -4,7 +4,7 @@
  */
 
 import type { ANALYTICS_EVENT, ANALYTICS_EVENT_CATEGORY } from '@vubon/shared-constants/platform';
-import type { UserId } from '../../common/primitives';
+import type { UserId } from '../../common/primitives/index.js';
 
 export type AnalyticsEventValue = (typeof ANALYTICS_EVENT)[keyof typeof ANALYTICS_EVENT];
 

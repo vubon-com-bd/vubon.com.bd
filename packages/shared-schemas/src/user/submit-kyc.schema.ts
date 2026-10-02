@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 import { USER_KYC } from '@vubon/shared-constants/user';
-import { KycDocumentInputSchema } from './user-kyc.schema';
+import { KycDocumentInputSchema } from './user-kyc.schema.js';
 
 export const SubmitKycRequestSchema = z
   .object({

@@ -4,14 +4,14 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { AddressSchema } from '../common/geo/address.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { AddressSchema } from '../common/geo/address.schema.js';
 import {
   ReturnShipmentStatusSchema,
   ReturnShipmentTypeSchema,
   ReturnReasonSchema,
-} from './return-reason.schema';
+} from './return-reason.schema.js';
 
 export const ReturnShipmentSchema = BaseEntitySchema.extend({
   rmaNumber: z.string().min(1).max(50),

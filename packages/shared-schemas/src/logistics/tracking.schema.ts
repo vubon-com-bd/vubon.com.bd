@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import {
   TRACKING_EVENT,
   TRACKING_STATUS,

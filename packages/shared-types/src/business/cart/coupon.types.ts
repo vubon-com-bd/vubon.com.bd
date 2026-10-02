@@ -6,10 +6,10 @@
  */
 
 import type { COUPON_STATUS } from '@vubon/shared-constants/business';
-import type { CouponId, Money, UserId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { CouponTypeValue } from './coupon-type.types';
-import type { CouponDiscountTypeValue, CouponAppliesToValue } from './coupon-discount-type.types';
+import type { CouponId, Money, UserId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { CouponTypeValue } from './coupon-type.types.js';
+import type { CouponDiscountTypeValue, CouponAppliesToValue } from './coupon-discount-type.types.js';
 
 export type CouponStatusValue = (typeof COUPON_STATUS)[keyof typeof COUPON_STATUS];
 

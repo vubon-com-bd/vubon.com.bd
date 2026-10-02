@@ -2,7 +2,7 @@
  * CDN configuration
  * @module shared-config/infrastructure/storage
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CDN_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('CDN_ENABLED', false),

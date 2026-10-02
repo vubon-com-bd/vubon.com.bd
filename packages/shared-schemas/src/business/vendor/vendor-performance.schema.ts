@@ -10,7 +10,7 @@ import {
   VENDOR_PERFORMANCE_METRIC,
   VENDOR_PERFORMANCE_GRADE,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const VendorPerformanceMetricSchema = z.enum(
   Object.values(VENDOR_PERFORMANCE_METRIC) as [string, ...string[]]

@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { ORDER_FULFILLMENT_STATUS, ORDER_FULFILLMENT_TYPE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const OrderFulfillmentStatusSchema = z.enum(
   Object.values(ORDER_FULFILLMENT_STATUS) as [string, ...string[]]

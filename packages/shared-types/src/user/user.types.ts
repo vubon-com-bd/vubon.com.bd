@@ -5,15 +5,15 @@
  * Base entity + aggregator।
  */
 
-import type { UserId, Email, Phone, PasswordHash } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
-import type { UserStatusValue } from './user-status.types';
-import type { UserTypeValue } from './user-type.types';
-import type { UserRoleValue } from './user-role.types';
-import type { UserProfile } from './user-profile.types';
-import type { UserSettings } from './user-settings.types';
-import type { UserPreferences } from './user-preferences.types';
-import type { UserKyc } from './user-kyc.types';
+import type { UserId, Email, Phone, PasswordHash } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserStatusValue } from './user-status.types.js';
+import type { UserTypeValue } from './user-type.types.js';
+import type { UserRoleValue } from './user-role.types.js';
+import type { UserProfile } from './user-profile.types.js';
+import type { UserSettings } from './user-settings.types.js';
+import type { UserPreferences } from './user-preferences.types.js';
+import type { UserKyc } from './user-kyc.types.js';
 
 export interface User extends BaseEntity<UserId> {
   readonly email: Email;

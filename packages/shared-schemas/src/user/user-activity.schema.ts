@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { USER_ACTIVITY, USER_ACTIVITY_CATEGORY } from '@vubon/shared-constants/user';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const ActivityTypeSchema = z.enum(Object.values(USER_ACTIVITY) as [string, ...string[]]);
 

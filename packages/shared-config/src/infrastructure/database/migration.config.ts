@@ -2,7 +2,7 @@
  * Database migration configuration
  * @module shared-config/infrastructure/database
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const MIGRATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MIGRATION_ENABLED', true),

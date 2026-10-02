@@ -8,8 +8,8 @@ import type {
   SUPPORT_TEAM_STATUS,
   SUPPORT_TEAM_ROUTING,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type SupportTeamTypeValue = (typeof SUPPORT_TEAM_TYPE)[keyof typeof SUPPORT_TEAM_TYPE];
 

@@ -10,7 +10,7 @@ import type {
   VENDOR_SUBSCRIPTION_STATUS,
   VENDOR_SUBSCRIPTION_CYCLE,
 } from '@vubon/shared-constants/business';
-import type { VendorId, Money } from '../../common/primitives';
+import type { VendorId, Money } from '../../common/primitives/index.js';
 
 export type VendorSubscriptionPlanValue =
   (typeof VENDOR_SUBSCRIPTION_PLAN)[keyof typeof VENDOR_SUBSCRIPTION_PLAN];

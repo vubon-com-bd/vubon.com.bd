@@ -1,5 +1,5 @@
-import { DEAL_STATUS } from './deal-status.constants';
-import { DEAL_DISCOUNT_TYPE } from './deal-discount-type.constants';
+import { DEAL_STATUS } from './deal-status.constants.js';
+import { DEAL_DISCOUNT_TYPE } from './deal-discount-type.constants.js';
 
 export const DEAL_TYPE = {
   PRODUCT: 'product',

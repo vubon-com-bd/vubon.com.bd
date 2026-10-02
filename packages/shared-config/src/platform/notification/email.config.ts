@@ -2,7 +2,7 @@
  * Email base configuration
  * @module shared-config/platform/notification
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const EMAIL_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('EMAIL_ENABLED', true),

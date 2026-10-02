@@ -3,7 +3,7 @@
  * @module shared-types/logistics
  */
 
-import type { LogisticsAnalyticsPeriodValue } from './logistics-analytics.types';
+import type { LogisticsAnalyticsPeriodValue } from './logistics-analytics.types.js';
 
 export type LogisticsReportTypeValue =
   | 'shipments'

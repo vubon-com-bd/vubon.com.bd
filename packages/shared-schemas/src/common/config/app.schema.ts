@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { EnvironmentSchema } from './env.schema';
-import { LocaleSchema, LanguageSchema, TimezoneSchema } from '../enums/locale.schema';
+import { EnvironmentSchema } from './env.schema.js';
+import { LocaleSchema, LanguageSchema, TimezoneSchema } from '../enums/locale.schema.js';
 
 export const FeatureFlagsSchema = z.object({
   enableNotifications: z.boolean().default(true),

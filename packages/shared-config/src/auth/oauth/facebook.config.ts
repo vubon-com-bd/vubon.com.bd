@@ -2,7 +2,7 @@
  * Facebook OAuth configuration
  * @module shared-config/auth/oauth
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const FACEBOOK_OAUTH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FACEBOOK_OAUTH_ENABLED', false),

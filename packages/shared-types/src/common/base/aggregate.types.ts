@@ -5,7 +5,7 @@
  * DDD aggregate root — consistency boundary।
  */
 
-import type { DomainEvent } from './domain-event.types';
+import type { DomainEvent } from './domain-event.types.js';
 
 export interface AggregateRoot<TId = string> {
   readonly id: TId;

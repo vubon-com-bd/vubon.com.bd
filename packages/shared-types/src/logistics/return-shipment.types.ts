@@ -3,13 +3,13 @@
  * @module shared-types/logistics
  */
 
-import type { BaseEntity } from '../common/base';
-import type { OrderId, ShipmentId, UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { OrderId, ShipmentId, UserId } from '../common/primitives/index.js';
 import type {
   ReturnShipmentStatusValue,
   ReturnShipmentTypeValue,
   ReturnReasonValue,
-} from './return-reason.types';
+} from './return-reason.types.js';
 
 export interface ReturnShipment extends BaseEntity<string> {
   readonly rmaNumber: string;

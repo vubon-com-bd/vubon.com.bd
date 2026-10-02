@@ -2,7 +2,7 @@
  * Tax base configuration
  * @module shared-config/business/tax
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const TAX_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('TAX_ENABLED', true),

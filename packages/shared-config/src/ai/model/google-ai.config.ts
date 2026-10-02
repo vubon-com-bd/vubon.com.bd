@@ -2,7 +2,7 @@
  * Google AI (Gemini) configuration
  * @module shared-config/ai/model
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const GOOGLE_AI_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GOOGLE_AI_ENABLED', false),

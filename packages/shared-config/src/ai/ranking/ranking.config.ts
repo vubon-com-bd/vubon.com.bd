@@ -2,7 +2,7 @@
  * AI ranking configuration
  * @module shared-config/ai/ranking
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const RANKING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AI_RANKING_ENABLED', true),

@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { UserProfileSchema, UserProfilePublicSchema } from './user-profile.schema';
+import { UserProfileSchema, UserProfilePublicSchema } from './user-profile.schema.js';
 
 export const ProfileResponseSchema = z.object({
   success: z.literal(true),

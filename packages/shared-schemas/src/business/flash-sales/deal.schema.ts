@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
-import { DealStatusSchema } from './deal-status.schema';
-import { DealDiscountTypeSchema } from './deal-discount-type.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
+import { DealStatusSchema } from './deal-status.schema.js';
+import { DealDiscountTypeSchema } from './deal-discount-type.schema.js';
 
 export const DealTypeSchema = z.enum(['product', 'bundle', 'category', 'brand', 'cart', 'order']);
 

@@ -2,7 +2,7 @@
  * Cart configuration
  * @module shared-config/business/cart
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CART_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('CART_ENABLED', true),

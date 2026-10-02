@@ -2,7 +2,7 @@
  * Voucher configuration
  * @module shared-config/business/cart
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const VOUCHER_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('VOUCHER_ENABLED', true),

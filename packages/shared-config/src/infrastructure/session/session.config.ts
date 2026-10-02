@@ -5,7 +5,7 @@
  * Values আসে shared-constants/infrastructure/session.constants থেকে।
  */
 import { SESSION } from '@vubon/shared-constants/infrastructure';
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SESSION_CONFIG = Object.freeze({
   driver: getOptionalEnv('SESSION_DRIVER', 'redis'),

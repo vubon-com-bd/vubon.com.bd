@@ -4,10 +4,10 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
-import { PaymentMethodSchema } from './payment-method.schema';
-import { PaymentGatewaySchema } from './payment-gateway.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
+import { PaymentMethodSchema } from './payment-method.schema.js';
+import { PaymentGatewaySchema } from './payment-gateway.schema.js';
 
 export const ProcessPaymentRequestSchema = z
   .object({

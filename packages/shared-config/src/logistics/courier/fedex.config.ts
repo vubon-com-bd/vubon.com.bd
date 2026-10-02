@@ -1,4 +1,4 @@
-import { getOptionalEnv } from '../../common/env/env.helper';
+import { getOptionalEnv } from '../../common/env/env.helper.js';
 
 export const FEDEX_CONFIG = Object.freeze({
   apiKey: getOptionalEnv('FEDEX_API_KEY', ''),

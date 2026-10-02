@@ -3,7 +3,7 @@
  * @module shared-types/support
  */
 
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportTemplateTypeValue =
   'email' | 'sms' | 'push' | 'in_app' | 'auto_reply' | 'signature' | 'macro';

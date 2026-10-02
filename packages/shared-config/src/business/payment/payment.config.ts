@@ -3,7 +3,7 @@
  * @module shared-config/business/payment
  */
 import { CURRENCY } from '@vubon/shared-constants/common';
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PAYMENT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PAYMENT_ENABLED', true),

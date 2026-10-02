@@ -2,7 +2,7 @@
  * Storage base configuration
  * @module shared-config/infrastructure/storage
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const STORAGE_CONFIG = Object.freeze({
   provider: getOptionalEnv('STORAGE_PROVIDER', 'local'), // local | s3 | gcs | azure

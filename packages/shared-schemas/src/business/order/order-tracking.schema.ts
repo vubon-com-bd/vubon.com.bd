@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { ORDER_TRACKING_EVENT } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { LatLngSchema } from '../../common/geo/coordinates.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { LatLngSchema } from '../../common/geo/coordinates.schema.js';
 
 export const OrderTrackingEventSchema = z.enum(
   Object.values(ORDER_TRACKING_EVENT) as [string, ...string[]]

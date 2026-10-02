@@ -4,7 +4,7 @@
  */
 
 import type { SEO_OPEN_GRAPH_TYPE } from '@vubon/shared-constants/platform';
-import type { Url, ImageUrl } from '../../common/primitives';
+import type { Url, ImageUrl } from '../../common/primitives/index.js';
 
 export type SeoOpenGraphTypeValue = (typeof SEO_OPEN_GRAPH_TYPE)[keyof typeof SEO_OPEN_GRAPH_TYPE];
 

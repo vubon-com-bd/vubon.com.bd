@@ -3,7 +3,7 @@
  * @module shared-types/support
  */
 
-import type { UserId } from '../common/primitives';
+import type { UserId } from '../common/primitives/index.js';
 
 export type ScheduleDayOfWeek =
   'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';

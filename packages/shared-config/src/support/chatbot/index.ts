@@ -1,3 +1,3 @@
 // shared-config/support/chatbot/index.ts
 
-export * from './chatbot.config';
+export * from './chatbot.config.js';

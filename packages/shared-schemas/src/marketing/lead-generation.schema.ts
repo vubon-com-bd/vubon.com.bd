@@ -6,12 +6,12 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { LeadStatusSchema, LeadQualitySchema } from './lead-status.schema';
-import { LeadSourceSchema } from './lead-source.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { LeadStatusSchema, LeadQualitySchema } from './lead-status.schema.js';
+import { LeadSourceSchema } from './lead-source.schema.js';
 
 export const LeadSchema = BaseEntitySchema.extend({
   name: z.string().min(1).max(150),

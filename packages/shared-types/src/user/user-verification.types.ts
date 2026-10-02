@@ -6,7 +6,7 @@
  */
 
 import type { USER_VERIFICATION_STATUS } from '@vubon/shared-constants/user';
-import type { UserId } from '../common/primitives';
+import type { UserId } from '../common/primitives/index.js';
 
 export type UserVerificationStatusValue =
   (typeof USER_VERIFICATION_STATUS)[keyof typeof USER_VERIFICATION_STATUS];

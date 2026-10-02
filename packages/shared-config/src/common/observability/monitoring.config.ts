@@ -2,7 +2,7 @@
  * Monitoring configuration
  * @module shared-config/common/observability
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper.js';
 
 export const MONITORING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MONITORING_ENABLED', true),

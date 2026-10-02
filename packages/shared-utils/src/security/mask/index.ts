@@ -1,7 +1,7 @@
 // shared-utils/security/mask/index.ts
 
-export * from './mask-generic';
-export * from './mask-email';
-export * from './mask-phone';
-export * from './mask-card';
-export * from './mask-nid';
+export * from './mask-generic.js';
+export * from './mask-email.js';
+export * from './mask-phone.js';
+export * from './mask-card.js';
+export * from './mask-nid.js';

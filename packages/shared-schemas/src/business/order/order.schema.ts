@@ -6,15 +6,15 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
-import { AddressSchema } from '../../common/geo/address.schema';
-import { OrderStatusSchema, OrderPrioritySchema } from './order-status.schema';
-import { OrderItemPublicSchema } from './order-item.schema';
-import { OrderReturnPublicSchema } from './order-return.schema';
-import { OrderTrackingPublicSchema } from './order-tracking.schema';
-import { OrderFulfillmentPublicSchema } from './order-fulfillment.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema.js';
+import { AddressSchema } from '../../common/geo/address.schema.js';
+import { OrderStatusSchema, OrderPrioritySchema } from './order-status.schema.js';
+import { OrderItemPublicSchema } from './order-item.schema.js';
+import { OrderReturnPublicSchema } from './order-return.schema.js';
+import { OrderTrackingPublicSchema } from './order-tracking.schema.js';
+import { OrderFulfillmentPublicSchema } from './order-fulfillment.schema.js';
 
 export const OrderTypeSchema = z.enum([
   'regular',

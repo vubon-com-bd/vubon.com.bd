@@ -1,9 +1,9 @@
 // shared-utils/validator/payment/index.ts
 
-export * from './is-valid-bkash';
-export * from './is-valid-nagad';
-export * from './is-valid-rocket';
-export * from './is-valid-upay';
-export * from './is-valid-card';
-export * from './is-valid-cvv';
-export * from './is-valid-expiry';
+export * from './is-valid-bkash.js';
+export * from './is-valid-nagad.js';
+export * from './is-valid-rocket.js';
+export * from './is-valid-upay.js';
+export * from './is-valid-card.js';
+export * from './is-valid-cvv.js';
+export * from './is-valid-expiry.js';

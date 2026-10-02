@@ -6,8 +6,8 @@
  */
 
 import type { ZONE_STATUS, ZONE_TYPE, ZONE_PRICING_TYPE } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { Money } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Money } from '../common/primitives/index.js';
 
 export type ZoneStatusValue = (typeof ZONE_STATUS)[keyof typeof ZONE_STATUS];
 

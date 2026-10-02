@@ -5,14 +5,14 @@
  * Vendor entity + aggregator।
  */
 
-import type { VendorId, UserId, Email, Phone, Slug, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { Address } from '../../common/geo';
-import type { VendorStatusValue } from './vendor-status.types';
-import type { VendorTypeValue, VendorBusinessTypeValue } from './vendor-type.types';
-import type { VendorTierValue } from './vendor-tier.types';
-import type { VendorCommission } from './vendor-commission.types';
-import type { VendorReturnPolicy } from './vendor-return-policy.types';
+import type { VendorId, UserId, Email, Phone, Slug, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { Address } from '../../common/geo/index.js';
+import type { VendorStatusValue } from './vendor-status.types.js';
+import type { VendorTypeValue, VendorBusinessTypeValue } from './vendor-type.types.js';
+import type { VendorTierValue } from './vendor-tier.types.js';
+import type { VendorCommission } from './vendor-commission.types.js';
+import type { VendorReturnPolicy } from './vendor-return-policy.types.js';
 
 export interface Vendor extends BaseEntity<VendorId> {
   readonly userId: UserId;

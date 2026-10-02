@@ -2,7 +2,7 @@
  * Generate an order number (ORD-YYYYMMDD-XXXX)
  * @module shared-utils/generator/business
  */
-import { generateNanoid } from '../id/generate-nanoid';
+import { generateNanoid } from '../id/generate-nanoid.js';
 
 export function generateOrderNumber(date: Date = new Date()): string {
   const y = date.getFullYear();

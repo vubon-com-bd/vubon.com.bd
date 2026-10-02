@@ -9,7 +9,7 @@
  */
 
 import type { AUTH_PASSWORD } from '@vubon/shared-constants/auth';
-import type { PlainPassword, PasswordHash } from '../common/primitives';
+import type { PlainPassword, PasswordHash } from '../common/primitives/index.js';
 
 export type AuthPasswordMinLength = typeof AUTH_PASSWORD.MIN_LENGTH;
 export type AuthPasswordMaxLength = typeof AUTH_PASSWORD.MAX_LENGTH;

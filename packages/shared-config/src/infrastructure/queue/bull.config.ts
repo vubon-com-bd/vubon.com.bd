@@ -2,7 +2,7 @@
  * Bull / BullMQ specific configuration
  * @module shared-config/infrastructure/queue
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const BULL_CONFIG = Object.freeze({
   prefix: 'bull',

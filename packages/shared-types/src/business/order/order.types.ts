@@ -5,14 +5,14 @@
  * Order entity + aggregator।
  */
 
-import type { OrderId, UserId, VendorId, Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { Address } from '../../common/geo';
-import type { OrderStatusValue, OrderPriorityValue } from './order-status.types';
-import type { OrderItemPublic } from './order-item.types';
-import type { OrderReturnPublic } from './order-return.types';
-import type { OrderTrackingPublic } from './order-tracking.types';
-import type { OrderFulfillmentPublic } from './order-fulfillment.types';
+import type { OrderId, UserId, VendorId, Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { Address } from '../../common/geo/index.js';
+import type { OrderStatusValue, OrderPriorityValue } from './order-status.types.js';
+import type { OrderItemPublic } from './order-item.types.js';
+import type { OrderReturnPublic } from './order-return.types.js';
+import type { OrderTrackingPublic } from './order-tracking.types.js';
+import type { OrderFulfillmentPublic } from './order-fulfillment.types.js';
 
 export type OrderTypeValue =
   'regular' | 'pre_order' | 'backorder' | 'subscription' | 'exchange' | 'replacement';

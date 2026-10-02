@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../primitives/uuid.schema';
+import { UuidSchema } from '../primitives/uuid.schema.js';
 
 export const IdFieldSchema = UuidSchema;
 

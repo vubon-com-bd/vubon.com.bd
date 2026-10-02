@@ -1,10 +1,10 @@
 // shared-utils/infrastructure/crypto/index.ts
 
-export * from './random-bytes';
-export * from './generate-uuid';
-export * from './generate-token';
-export * from './hash-sha256';
-export * from './hmac';
-export * from './constant-time-equal';
-export * from './random-int-secure';
-export * from './pbkdf2';
+export * from './random-bytes.js';
+export * from './generate-uuid.js';
+export * from './generate-token.js';
+export * from './hash-sha256.js';
+export * from './hmac.js';
+export * from './constant-time-equal.js';
+export * from './random-int-secure.js';
+export * from './pbkdf2.js';

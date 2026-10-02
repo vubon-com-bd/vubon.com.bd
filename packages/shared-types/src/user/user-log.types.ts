@@ -9,7 +9,7 @@
  */
 
 import type { USER_LOG_LEVEL, USER_LOG_TYPE } from '@vubon/shared-constants/user';
-import type { UserId, IpAddress } from '../common/primitives';
+import type { UserId, IpAddress } from '../common/primitives/index.js';
 
 export type UserLogLevelValue = (typeof USER_LOG_LEVEL)[keyof typeof USER_LOG_LEVEL];
 

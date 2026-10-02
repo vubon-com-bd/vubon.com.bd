@@ -2,7 +2,7 @@
  * Reporting base configuration
  * @module shared-config/platform/reporting
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const REPORTING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('REPORTING_ENABLED', true),

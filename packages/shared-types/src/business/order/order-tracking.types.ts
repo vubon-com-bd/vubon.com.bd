@@ -6,8 +6,8 @@
  */
 
 import type { ORDER_TRACKING_EVENT } from '@vubon/shared-constants/business';
-import type { OrderId } from '../../common/primitives';
-import type { LatLng } from '../../common/geo';
+import type { OrderId } from '../../common/primitives/index.js';
+import type { LatLng } from '../../common/geo/index.js';
 
 export type OrderTrackingEventValue =
   (typeof ORDER_TRACKING_EVENT)[keyof typeof ORDER_TRACKING_EVENT];

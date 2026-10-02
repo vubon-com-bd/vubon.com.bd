@@ -1,9 +1,9 @@
-import { RECOMMENDATION_TYPE } from './recommendation-type.constants';
+import { RECOMMENDATION_TYPE } from './recommendation-type.constants.js';
 import {
   RECOMMENDATION_STRATEGY,
   RECOMMENDATION_STRATEGY_WEIGHT,
   RECOMMENDATION_STRATEGY_STATUS,
-} from './recommendation-strategy.constants';
+} from './recommendation-strategy.constants.js';
 
 export const RECOMMENDATION_STATUS = {
   ACTIVE: 'active',

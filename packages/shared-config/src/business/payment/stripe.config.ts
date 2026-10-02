@@ -2,7 +2,7 @@
  * Stripe payment gateway configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const STRIPE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('STRIPE_ENABLED', false),

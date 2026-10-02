@@ -6,9 +6,9 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { MoneySchema } from '../common/primitives/money.schema';
-import { ReferralRewardTypeSchema } from './referral-status.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../common/primitives/money.schema.js';
+import { ReferralRewardTypeSchema } from './referral-status.schema.js';
 
 export const ReferralRewardSchema = z.object({
   type: ReferralRewardTypeSchema,

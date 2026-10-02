@@ -1,3 +1,3 @@
 // shared-config/ai/personalization/index.ts
 
-export * from './personalization.config';
+export * from './personalization.config.js';

@@ -6,8 +6,8 @@
  */
 
 import type { COURIER_STATUS, COURIER_TYPE, COURIER_NAME } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { Url, Phone, Email } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Url, Phone, Email } from '../common/primitives/index.js';
 
 export type CourierStatusValue = (typeof COURIER_STATUS)[keyof typeof COURIER_STATUS];
 

@@ -2,7 +2,7 @@
  * Ticket priority configuration
  * @module shared-config/support/ticket
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const TICKET_PRIORITY_CONFIG = Object.freeze({
   autoEscalate: getOptionalEnvBool('TICKET_AUTO_ESCALATE', true),

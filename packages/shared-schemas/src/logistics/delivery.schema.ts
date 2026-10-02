@@ -6,12 +6,12 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { AddressSchema } from '../common/geo/address.schema';
-import { DeliveryStatusSchema, DeliveryAttemptStatusSchema } from './delivery-status.schema';
-import { DeliveryTypeSchema } from './delivery-type.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { AddressSchema } from '../common/geo/address.schema.js';
+import { DeliveryStatusSchema, DeliveryAttemptStatusSchema } from './delivery-status.schema.js';
+import { DeliveryTypeSchema } from './delivery-type.schema.js';
 
 export const DeliveryAttemptSchema = z.object({
   id: z.string().min(1),

@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { VENDOR_SHIPPING_METHOD, VENDOR_SHIPPING_ZONE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VendorShippingMethodSchema = z.enum(
   Object.values(VENDOR_SHIPPING_METHOD) as [string, ...string[]]

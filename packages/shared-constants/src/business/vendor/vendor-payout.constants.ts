@@ -1,4 +1,4 @@
-import { VENDOR_PAYOUT_STATUS } from './vendor-payout-status.constants';
+import { VENDOR_PAYOUT_STATUS } from './vendor-payout-status.constants.js';
 
 export const VENDOR_PAYOUT_METHOD = {
   BANK_TRANSFER: 'bank_transfer',

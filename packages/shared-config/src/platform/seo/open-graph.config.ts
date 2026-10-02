@@ -2,7 +2,7 @@
  * Open Graph configuration
  * @module shared-config/platform/seo
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const OPEN_GRAPH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('OPEN_GRAPH_ENABLED', true),

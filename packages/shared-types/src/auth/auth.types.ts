@@ -13,12 +13,12 @@ import type {
   AccessToken,
   RefreshToken,
   SessionId,
-} from '../common/primitives';
-import type { BaseEntity } from '../common/base';
-import type { AuthStatusValue } from './auth-status.types';
-import type { AuthTypeValue } from './auth-type.types';
-import type { AuthProviderValue } from './auth-provider.types';
-import type { AuthMethodValue } from './auth-method.types';
+} from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
+import type { AuthStatusValue } from './auth-status.types.js';
+import type { AuthTypeValue } from './auth-type.types.js';
+import type { AuthProviderValue } from './auth-provider.types.js';
+import type { AuthMethodValue } from './auth-method.types.js';
 
 export interface Auth extends BaseEntity<string> {
   readonly userId: UserId;

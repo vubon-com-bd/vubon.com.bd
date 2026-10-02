@@ -2,7 +2,7 @@
  * Report export configuration
  * @module shared-config/platform/reporting
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const REPORT_EXPORT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('REPORT_EXPORT_ENABLED', true),

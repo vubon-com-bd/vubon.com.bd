@@ -6,7 +6,7 @@
  */
 
 import type { SECURITY } from '@vubon/shared-constants/security';
-import type { PasswordHash, AccessToken, RefreshToken, ApiKey } from '../common/primitives';
+import type { PasswordHash, AccessToken, RefreshToken, ApiKey } from '../common/primitives/index.js';
 
 export type BcryptRounds = typeof SECURITY.BCRYPT_ROUNDS;
 export type JwtAlgorithm = typeof SECURITY.JWT_ALGORITHM;

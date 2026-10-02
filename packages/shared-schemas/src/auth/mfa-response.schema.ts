@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { MfaMethodSchema } from './auth-mfa.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { MfaMethodSchema } from './auth-mfa.schema.js';
 
 export const MfaSetupResponseSchema = z.object({
   success: z.literal(true),

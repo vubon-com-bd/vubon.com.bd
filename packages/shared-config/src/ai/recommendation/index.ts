@@ -1,3 +1,3 @@
 // shared-config/ai/recommendation/index.ts
 
-export * from './recommendation.config';
+export * from './recommendation.config.js';

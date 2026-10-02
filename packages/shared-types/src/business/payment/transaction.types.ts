@@ -6,9 +6,9 @@
  */
 
 import type { TRANSACTION_TYPE, TRANSACTION_STATUS } from '@vubon/shared-constants/business';
-import type { TransactionId, PaymentId, OrderId, Money, UserId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { PaymentGatewayValue } from './payment-gateway.types';
+import type { TransactionId, PaymentId, OrderId, Money, UserId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { PaymentGatewayValue } from './payment-gateway.types.js';
 
 export type TransactionTypeValue = (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];
 

@@ -1,3 +1,3 @@
 // shared-config/logistics/delivery/index.ts
 
-export * from './delivery.config';
+export * from './delivery.config.js';

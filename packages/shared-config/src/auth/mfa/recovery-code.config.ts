@@ -5,7 +5,7 @@
  * Values আসে shared-constants/auth থেকে।
  */
 import { AUTH_MFA } from '@vubon/shared-constants/auth';
-import { getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const RECOVERY_CODE_CONFIG = Object.freeze({
   count: AUTH_MFA.BACKUP_CODES_COUNT,

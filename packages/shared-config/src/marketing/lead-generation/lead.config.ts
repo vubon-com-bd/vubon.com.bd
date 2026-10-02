@@ -2,7 +2,7 @@
  * Lead generation configuration
  * @module shared-config/marketing/lead-generation
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const LEAD_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('LEAD_GEN_ENABLED', true),

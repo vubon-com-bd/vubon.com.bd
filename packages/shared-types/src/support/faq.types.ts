@@ -4,7 +4,7 @@
  */
 
 import type { FAQ_STATUS, FAQ_CATEGORY } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type FaqStatusValue = (typeof FAQ_STATUS)[keyof typeof FAQ_STATUS];
 

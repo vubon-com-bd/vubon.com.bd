@@ -1,4 +1,4 @@
-import { PERMISSION as COMMON_PERMISSION } from '../common/permission.constants';
+import { PERMISSION as COMMON_PERMISSION } from '../common/permission.constants.js';
 
 // Note: Cannot import from vendor (layer isolation) — hardcode + comment
 export const USER_PERMISSION = {

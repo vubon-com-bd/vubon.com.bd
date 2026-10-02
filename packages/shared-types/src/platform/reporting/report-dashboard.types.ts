@@ -8,9 +8,9 @@ import type {
   REPORT_DASHBOARD_STATUS,
   REPORT_DASHBOARD_LAYOUT,
 } from '@vubon/shared-constants/platform';
-import type { UserId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { ReportWidgetPublic } from './report-widget.types';
+import type { UserId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { ReportWidgetPublic } from './report-widget.types.js';
 
 export type ReportDashboardTypeValue =
   (typeof REPORT_DASHBOARD_TYPE)[keyof typeof REPORT_DASHBOARD_TYPE];

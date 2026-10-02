@@ -1,86 +1,86 @@
-import { NOTIFICATION_STATUS } from './notification-status.constants';
-import { NOTIFICATION_TYPE } from './notification-type.constants';
+import { NOTIFICATION_STATUS } from './notification-status.constants.js';
+import { NOTIFICATION_TYPE } from './notification-type.constants.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CHANNEL_PRIORITY,
   NOTIFICATION_CHANNEL_LIMIT,
-} from './notification-channel.constants';
+} from './notification-channel.constants.js';
 import {
   NOTIFICATION_PRIORITY,
   NOTIFICATION_PRIORITY_WEIGHT,
   NOTIFICATION_PRIORITY_TTL,
-} from './notification-priority.constants';
-import { NOTIFICATION_CATEGORY } from './notification-category.constants';
+} from './notification-priority.constants.js';
+import { NOTIFICATION_CATEGORY } from './notification-category.constants.js';
 import {
   NOTIFICATION_DELIVERY_STATUS,
   NOTIFICATION_DELIVERY_FAILURE_REASON,
-} from './notification-delivery-status.constants';
-import { NOTIFICATION_READ_STATUS, NOTIFICATION_READ } from './notification-read-status.constants';
-import { NOTIFICATION_ACTION, NOTIFICATION_ACTION_TYPE } from './notification-action.constants';
-import { EMAIL_PROVIDER, EMAIL_STATUS, EMAIL_PRIORITY, EMAIL } from './email.constants';
-import { SMS_PROVIDER, SMS_STATUS, SMS_TYPE, SMS } from './sms.constants';
-import { PUSH_PROVIDER, PUSH_PLATFORM, PUSH_STATUS, PUSH_PRIORITY, PUSH } from './push.constants';
-import { IN_APP_TYPE, IN_APP_POSITION, IN_APP_STATUS, IN_APP } from './in-app.constants';
+} from './notification-delivery-status.constants.js';
+import { NOTIFICATION_READ_STATUS, NOTIFICATION_READ } from './notification-read-status.constants.js';
+import { NOTIFICATION_ACTION, NOTIFICATION_ACTION_TYPE } from './notification-action.constants.js';
+import { EMAIL_PROVIDER, EMAIL_STATUS, EMAIL_PRIORITY, EMAIL } from './email.constants.js';
+import { SMS_PROVIDER, SMS_STATUS, SMS_TYPE, SMS } from './sms.constants.js';
+import { PUSH_PROVIDER, PUSH_PLATFORM, PUSH_STATUS, PUSH_PRIORITY, PUSH } from './push.constants.js';
+import { IN_APP_TYPE, IN_APP_POSITION, IN_APP_STATUS, IN_APP } from './in-app.constants.js';
 import {
   WEBHOOK_METHOD,
   WEBHOOK_STATUS,
   WEBHOOK_DELIVERY_STATUS,
   WEBHOOK_EVENT,
   WEBHOOK,
-} from './webhook.constants';
+} from './webhook.constants.js';
 import {
   NOTIFICATION_TEMPLATE_TYPE,
   NOTIFICATION_TEMPLATE_STATUS,
   NOTIFICATION_TEMPLATE_CATEGORY,
   NOTIFICATION_TEMPLATE,
-} from './notification-template.constants';
+} from './notification-template.constants.js';
 import {
   NOTIFICATION_SCHEDULE_TYPE,
   NOTIFICATION_SCHEDULE_RECURRENCE,
   NOTIFICATION_SCHEDULE_STATUS,
   NOTIFICATION_SCHEDULE,
-} from './notification-schedule.constants';
+} from './notification-schedule.constants.js';
 import {
   NOTIFICATION_BROADCAST_TYPE,
   NOTIFICATION_BROADCAST_STATUS,
   NOTIFICATION_BROADCAST_TARGET,
   NOTIFICATION_BROADCAST,
-} from './notification-broadcast.constants';
+} from './notification-broadcast.constants.js';
 import {
   NOTIFICATION_DIGEST_FREQUENCY,
   NOTIFICATION_DIGEST_TYPE,
   NOTIFICATION_DIGEST_STATUS,
   NOTIFICATION_DIGEST,
-} from './notification-digest.constants';
+} from './notification-digest.constants.js';
 import {
   NOTIFICATION_RULE_TYPE,
   NOTIFICATION_RULE_CONDITION,
   NOTIFICATION_RULE_ACTION,
   NOTIFICATION_RULE_STATUS,
   NOTIFICATION_RULE,
-} from './notification-rule.constants';
+} from './notification-rule.constants.js';
 import {
   NOTIFICATION_PREFERENCE_TYPE,
   NOTIFICATION_PREFERENCE_FREQUENCY,
   NOTIFICATION_PREFERENCE_DEFAULT,
   NOTIFICATION_PREFERENCE,
-} from './notification-preference.constants';
+} from './notification-preference.constants.js';
 import {
   NOTIFICATION_DEVICE_TYPE,
   NOTIFICATION_DEVICE_STATUS,
   NOTIFICATION_DEVICE,
-} from './notification-device.constants';
+} from './notification-device.constants.js';
 import {
   NOTIFICATION_ANALYTICS_METRIC,
   NOTIFICATION_ANALYTICS_PERIOD,
   NOTIFICATION_ANALYTICS,
-} from './notification-analytics.constants';
+} from './notification-analytics.constants.js';
 import {
   NOTIFICATION_REPORT_TYPE,
   NOTIFICATION_REPORT_FORMAT,
   NOTIFICATION_REPORT_SCHEDULE,
   NOTIFICATION_REPORT,
-} from './notification-report.constants';
+} from './notification-report.constants.js';
 
 export const NOTIFICATION_LIMIT = {
   MAX_RECIPIENTS: 1000000,

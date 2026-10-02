@@ -1,4 +1,4 @@
-import { getOptionalEnv } from '../../common/env/env.helper';
+import { getOptionalEnv } from '../../common/env/env.helper.js';
 
 export const UPS_CONFIG = Object.freeze({
   apiKey: getOptionalEnv('UPS_API_KEY', ''),

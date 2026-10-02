@@ -4,13 +4,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
-import { PaymentStatusSchema } from './payment-status.schema';
-import { PaymentMethodSchema } from './payment-method.schema';
-import { PaymentGatewaySchema } from './payment-gateway.schema';
-import { TransactionPublicSchema } from './transaction.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
+import { PaymentStatusSchema } from './payment-status.schema.js';
+import { PaymentMethodSchema } from './payment-method.schema.js';
+import { PaymentGatewaySchema } from './payment-gateway.schema.js';
+import { TransactionPublicSchema } from './transaction.schema.js';
 
 export const PaymentTypeSchema = z.enum([
   'one_time',

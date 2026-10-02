@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে।
  */
 import { CURRENCY } from '@vubon/shared-constants/common';
-import { getOptionalEnv } from '../env/env.helper';
+import { getOptionalEnv } from '../env/env.helper.js';
 
 export const CURRENCY_CONFIG = Object.freeze({
   default: getOptionalEnv('DEFAULT_CURRENCY', CURRENCY.BDT),

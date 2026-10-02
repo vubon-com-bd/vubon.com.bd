@@ -5,12 +5,12 @@
  * Cart entity + aggregator।
  */
 
-import type { CartId, UserId, Money, CouponId, VoucherId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { CartStatusValue } from './cart-status.types';
-import type { CartItem } from './cart-item.types';
-import type { CouponPublic } from './coupon.types';
-import type { VoucherPublic } from './voucher.types';
+import type { CartId, UserId, Money, CouponId, VoucherId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { CartStatusValue } from './cart-status.types.js';
+import type { CartItem } from './cart-item.types.js';
+import type { CouponPublic } from './coupon.types.js';
+import type { VoucherPublic } from './voucher.types.js';
 
 export type CartTypeValue = 'guest' | 'user' | 'wishlist' | 'saved' | 'subscription';
 

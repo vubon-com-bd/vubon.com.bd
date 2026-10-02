@@ -1,9 +1,9 @@
 // shared-utils/calculator/finance/index.ts
 
-export * from './calculate-interest';
-export * from './calculate-compound-interest';
-export * from './calculate-emi';
-export * from './calculate-installment';
-export * from './calculate-roi';
-export * from './calculate-npv';
-export * from './calculate-payback-period';
+export * from './calculate-interest.js';
+export * from './calculate-compound-interest.js';
+export * from './calculate-emi.js';
+export * from './calculate-installment.js';
+export * from './calculate-roi.js';
+export * from './calculate-npv.js';
+export * from './calculate-payback-period.js';

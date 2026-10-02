@@ -2,7 +2,7 @@
  * Abandoned cart configuration
  * @module shared-config/business/cart
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ABANDONED_CART_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ABANDONED_CART_ENABLED', true),

@@ -2,7 +2,7 @@
  * Commission configuration
  * @module shared-config/business/vendor
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const COMMISSION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('COMMISSION_ENABLED', true),

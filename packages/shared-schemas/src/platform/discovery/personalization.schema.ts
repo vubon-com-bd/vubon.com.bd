@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { PERSONALIZATION_TYPE, PERSONALIZATION_STATUS } from '@vubon/shared-constants/platform';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const PersonalizationTypeSchema = z.enum(
   Object.values(PERSONALIZATION_TYPE) as [string, ...string[]]

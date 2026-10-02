@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { VARIANT_STATUS, VARIANT_TYPE, VARIANT } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VariantStatusSchema = z.enum(Object.values(VARIANT_STATUS) as [string, ...string[]]);
 

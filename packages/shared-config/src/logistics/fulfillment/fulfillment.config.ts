@@ -2,7 +2,7 @@
  * Fulfillment configuration
  * @module shared-config/logistics/fulfillment
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const FULFILLMENT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FULFILLMENT_ENABLED', true),

@@ -8,8 +8,8 @@ import type {
   COMPLAINT_STATUS,
   COMPLAINT_SEVERITY,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type ComplaintTypeValue = (typeof COMPLAINT_TYPE)[keyof typeof COMPLAINT_TYPE];
 

@@ -1,3 +1,3 @@
 // shared-config/ai/ranking/index.ts
 
-export * from './ranking.config';
+export * from './ranking.config.js';

@@ -2,7 +2,7 @@
  * Payment gateway base configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PAYMENT_GATEWAY_CONFIG = Object.freeze({
   activeGateway: getOptionalEnv('PAYMENT_ACTIVE_GATEWAY', 'bkash'),

@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { PaginationMetaSchema } from '../base/pagination.schema';
+import { PaginationMetaSchema } from '../base/pagination.schema.js';
 
 export function createPaginatedResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
   return z.object({

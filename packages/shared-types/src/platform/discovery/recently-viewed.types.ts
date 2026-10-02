@@ -4,7 +4,7 @@
  */
 
 import type { RECENTLY_VIEWED_TYPE } from '@vubon/shared-constants/platform';
-import type { UserId } from '../../common/primitives';
+import type { UserId } from '../../common/primitives/index.js';
 
 export type RecentlyViewedTypeValue =
   (typeof RECENTLY_VIEWED_TYPE)[keyof typeof RECENTLY_VIEWED_TYPE];

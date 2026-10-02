@@ -2,8 +2,8 @@
  * Auth-specific rate limit (login, register, otp, forgot-password)
  * @module shared-config/security/rate-limit
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const env = loadEnv();
 

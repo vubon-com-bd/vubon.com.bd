@@ -3,10 +3,10 @@
  * @module shared-types/marketing
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
-import type { ReferralStatusValue } from './referral-status.types';
-import type { ReferralReward, ReferralTypeValue } from './referral-reward.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
+import type { ReferralStatusValue } from './referral-status.types.js';
+import type { ReferralReward, ReferralTypeValue } from './referral-reward.types.js';
 
 export interface Referral extends BaseEntity<string> {
   readonly referrerId: UserId;

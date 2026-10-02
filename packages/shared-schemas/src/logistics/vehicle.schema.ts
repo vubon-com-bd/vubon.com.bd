@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { VEHICLE_STATUS, VEHICLE_TYPE, VEHICLE_FUEL_TYPE } from '@vubon/shared-constants/logistics';
 
 export const VehicleStatusSchema = z.enum(Object.values(VEHICLE_STATUS) as [string, ...string[]]);

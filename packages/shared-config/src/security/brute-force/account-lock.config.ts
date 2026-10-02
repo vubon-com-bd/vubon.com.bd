@@ -2,7 +2,7 @@
  * Account lockout configuration
  * @module shared-config/security/brute-force
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 import { SECURITY } from '@vubon/shared-constants/security';
 
 export const ACCOUNT_LOCK_CONFIG = Object.freeze({

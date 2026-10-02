@@ -7,9 +7,9 @@
 
 import { z } from 'zod';
 import { SUPPORT_AGENT_STATUS, SUPPORT_AGENT_SKILL } from '@vubon/shared-constants/support';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { SupportAgentLevelSchema } from './ticket-escalation.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { SupportAgentLevelSchema } from './ticket-escalation.schema.js';
 
 export const SupportAgentStatusSchema = z.enum(
   Object.values(SUPPORT_AGENT_STATUS) as [string, ...string[]]

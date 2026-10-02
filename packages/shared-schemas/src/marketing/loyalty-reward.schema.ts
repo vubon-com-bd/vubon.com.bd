@@ -4,9 +4,9 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { MoneySchema } from '../common/primitives/money.schema';
-import { LoyaltyTierSchema } from './loyalty-status.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../common/primitives/money.schema.js';
+import { LoyaltyTierSchema } from './loyalty-status.schema.js';
 
 export const LoyaltyRewardTypeSchema = z.enum([
   'discount',

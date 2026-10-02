@@ -5,7 +5,7 @@
  * Values আসে shared-constants/infrastructure/cache.constants থেকে।
  */
 import { CACHE_PREFIX } from '@vubon/shared-constants/infrastructure';
-import { getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CACHE_KEY_CONFIG = Object.freeze({
   separator: ':',

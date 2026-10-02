@@ -2,7 +2,7 @@
  * Schema.org structured data configuration
  * @module shared-config/platform/seo
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const SCHEMA_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SCHEMA_ENABLED', true),

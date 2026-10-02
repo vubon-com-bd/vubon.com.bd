@@ -11,8 +11,8 @@ import {
   AI_INSIGHT_PRIORITY,
   AI_INSIGHT_STATUS,
 } from '@vubon/shared-constants/ai';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AiInsightTypeSchema = z.enum(Object.values(AI_INSIGHT_TYPE) as [string, ...string[]]);
 

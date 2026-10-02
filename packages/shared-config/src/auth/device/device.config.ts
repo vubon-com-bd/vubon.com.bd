@@ -5,7 +5,7 @@
  * Values আসে shared-constants/auth থেকে।
  */
 import { AUTH_DEVICE } from '@vubon/shared-constants/auth';
-import { getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const AUTH_DEVICE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AUTH_DEVICE_TRACKING', true),

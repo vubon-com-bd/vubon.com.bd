@@ -2,7 +2,7 @@
  * Chatbot configuration
  * @module shared-config/support/chatbot
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CHATBOT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('CHATBOT_ENABLED', false),

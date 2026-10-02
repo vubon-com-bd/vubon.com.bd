@@ -2,7 +2,7 @@
  * Twitter Card configuration
  * @module shared-config/platform/seo
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const TWITTER_CARD_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('TWITTER_CARD_ENABLED', true),

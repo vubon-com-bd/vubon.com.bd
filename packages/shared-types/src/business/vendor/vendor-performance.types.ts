@@ -9,7 +9,7 @@ import type {
   VENDOR_PERFORMANCE_METRIC,
   VENDOR_PERFORMANCE_GRADE,
 } from '@vubon/shared-constants/business';
-import type { VendorId } from '../../common/primitives';
+import type { VendorId } from '../../common/primitives/index.js';
 
 export type VendorPerformanceMetricValue =
   (typeof VENDOR_PERFORMANCE_METRIC)[keyof typeof VENDOR_PERFORMANCE_METRIC];

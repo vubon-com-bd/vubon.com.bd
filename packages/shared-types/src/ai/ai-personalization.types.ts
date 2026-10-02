@@ -9,7 +9,7 @@ import type {
   AI_PERSONALIZATION_TYPE,
   AI_PERSONALIZATION_SIGNAL,
 } from '@vubon/shared-constants/ai';
-import type { UserId } from '../common/primitives';
+import type { UserId } from '../common/primitives/index.js';
 
 export type AiPersonalizationTypeValue =
   (typeof AI_PERSONALIZATION_TYPE)[keyof typeof AI_PERSONALIZATION_TYPE];

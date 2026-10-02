@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { RecommendationTypeSchema } from './recommendation-type.schema';
-import { RecommendationStrategySchema } from './recommendation-strategy.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { RecommendationTypeSchema } from './recommendation-type.schema.js';
+import { RecommendationStrategySchema } from './recommendation-strategy.schema.js';
 
 export const RecommendationContextSchema = z.object({
   sourceProductId: z.string().min(1).optional(),

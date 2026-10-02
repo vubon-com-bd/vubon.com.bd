@@ -6,7 +6,7 @@
  */
 
 import type { DISPATCH_STATUS, DISPATCH_TYPE } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type DispatchStatusValue = (typeof DISPATCH_STATUS)[keyof typeof DISPATCH_STATUS];
 

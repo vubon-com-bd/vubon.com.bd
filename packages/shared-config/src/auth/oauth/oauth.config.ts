@@ -2,7 +2,7 @@
  * OAuth base configuration
  * @module shared-config/auth/oauth
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const OAUTH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('OAUTH_ENABLED', true),

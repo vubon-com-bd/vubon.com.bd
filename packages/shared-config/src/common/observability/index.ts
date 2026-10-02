@@ -1,6 +1,6 @@
 // shared-config/common/observability/index.ts
 
-export * from './logging.config';
-export * from './monitoring.config';
-export * from './tracing.config';
-export * from './error-tracking.config';
+export * from './logging.config.js';
+export * from './monitoring.config.js';
+export * from './tracing.config.js';
+export * from './error-tracking.config.js';

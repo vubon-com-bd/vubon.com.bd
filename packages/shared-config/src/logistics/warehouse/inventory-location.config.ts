@@ -2,7 +2,7 @@
  * Inventory location configuration
  * @module shared-config/logistics/warehouse
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const INVENTORY_LOCATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('INVENTORY_LOCATION_ENABLED', true),

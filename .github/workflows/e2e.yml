@@ -29,6 +29,7 @@ jobs:
         service:
           - user-service
           - auth-service
+          - product-service
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://test:test@localhost:5432/vubon_test

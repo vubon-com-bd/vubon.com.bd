@@ -4,10 +4,10 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 import { VARIANT } from '@vubon/shared-constants/business';
-import { VariantTypeSchema } from './variant.schema';
+import { VariantTypeSchema } from './variant.schema.js';
 
 export const AddVariantRequestSchema = z
   .object({

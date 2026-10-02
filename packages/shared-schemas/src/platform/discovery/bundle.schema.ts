@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { BUNDLE_TYPE, BUNDLE_STATUS, BUNDLE_PRICING } from '@vubon/shared-constants/platform';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const BundleTypeSchema = z.enum(Object.values(BUNDLE_TYPE) as [string, ...string[]]);
 

@@ -2,32 +2,32 @@
 // Vendor sub-domain barrel export
 
 // Base
-export * from './vendor.schema';
-export * from './vendor-status.schema';
-export * from './vendor-type.schema';
-export * from './vendor-tier.schema';
-export * from './vendor-verification.schema';
-export * from './vendor-commission.schema';
-export * from './vendor-payout.schema';
-export * from './vendor-payout-status.schema';
-export * from './vendor-performance.schema';
-export * from './vendor-rating.schema';
-export * from './vendor-document.schema';
-export * from './vendor-shipping.schema';
-export * from './vendor-return-policy.schema';
-export * from './vendor-warranty.schema';
-export * from './vendor-invoice.schema';
-export * from './vendor-subscription.schema';
-export * from './vendor-role.schema';
-export * from './vendor-permission.schema';
-export * from './vendor-team.schema';
-export * from './vendor-report.schema';
+export * from './vendor.schema.js';
+export * from './vendor-status.schema.js';
+export * from './vendor-type.schema.js';
+export * from './vendor-tier.schema.js';
+export * from './vendor-verification.schema.js';
+export * from './vendor-commission.schema.js';
+export * from './vendor-payout.schema.js';
+export * from './vendor-payout-status.schema.js';
+export * from './vendor-performance.schema.js';
+export * from './vendor-rating.schema.js';
+export * from './vendor-document.schema.js';
+export * from './vendor-shipping.schema.js';
+export * from './vendor-return-policy.schema.js';
+export * from './vendor-warranty.schema.js';
+export * from './vendor-invoice.schema.js';
+export * from './vendor-subscription.schema.js';
+export * from './vendor-role.schema.js';
+export * from './vendor-permission.schema.js';
+export * from './vendor-team.schema.js';
+export * from './vendor-report.schema.js';
 
 // Requests
-export * from './register-vendor.schema';
-export * from './update-vendor.schema';
-export * from './request-payout.schema';
-export * from './add-team-member.schema';
+export * from './register-vendor.schema.js';
+export * from './update-vendor.schema.js';
+export * from './request-payout.schema.js';
+export * from './add-team-member.schema.js';
 
 // Responses
-export * from './vendor-response.schema';
+export * from './vendor-response.schema.js';

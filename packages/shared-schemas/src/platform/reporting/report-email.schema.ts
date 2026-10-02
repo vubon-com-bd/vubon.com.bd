@@ -11,7 +11,7 @@ import {
   REPORT_EMAIL_STATUS,
   REPORT_EMAIL_FORMAT,
 } from '@vubon/shared-constants/platform';
-import { EmailSchema } from '../../common/primitives/email.schema';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
 
 export const ReportEmailTypeSchema = z.enum(
   Object.values(REPORT_EMAIL_TYPE) as [string, ...string[]]

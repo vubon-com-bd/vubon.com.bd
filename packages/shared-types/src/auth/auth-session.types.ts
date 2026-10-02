@@ -7,7 +7,7 @@
 
 import type { AUTH_SESSION } from '@vubon/shared-constants/auth';
 import type { SESSION_STATUS } from '@vubon/shared-constants/infrastructure';
-import type { UserId, SessionId, IpAddress } from '../common/primitives';
+import type { UserId, SessionId, IpAddress } from '../common/primitives/index.js';
 
 export type AuthSessionMaxAge = typeof AUTH_SESSION.EXPIRY_SECONDS;
 export type SessionStatusValue = (typeof SESSION_STATUS)[keyof typeof SESSION_STATUS];

@@ -8,8 +8,8 @@ import type {
   SURVEY_STATUS,
   SURVEY_QUESTION_TYPE,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type SurveyTypeValue = (typeof SURVEY_TYPE)[keyof typeof SURVEY_TYPE];
 

@@ -2,8 +2,8 @@
  * Darken a hex color by percentage (0-100)
  * @module shared-utils/common/color
  */
-import { hexToRgb } from './hex-to-rgb';
-import { rgbToHex } from './rgb-to-hex';
+import { hexToRgb } from './hex-to-rgb.js';
+import { rgbToHex } from './rgb-to-hex.js';
 
 export function darken(hex: string, percent: number): string {
   if (percent < 0 || percent > 100) {

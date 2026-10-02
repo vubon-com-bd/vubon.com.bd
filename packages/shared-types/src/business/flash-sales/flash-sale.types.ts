@@ -5,14 +5,14 @@
  * Flash Sale entity + aggregator।
  */
 
-import type { Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { FlashSaleStatusValue } from './flash-sale-status.types';
-import type { FlashSaleTypeValue } from './flash-sale-type.types';
-import type { FlashSaleSchedule, FlashSaleRecurrenceValue } from './flash-sale-schedule.types';
-import type { FlashSalePricePublic } from './flash-sale-price.types';
-import type { ProductDealPublic } from './product-deal.types';
-import type { BundleDealPublic } from './bundle-deal.types';
+import type { Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { FlashSaleStatusValue } from './flash-sale-status.types.js';
+import type { FlashSaleTypeValue } from './flash-sale-type.types.js';
+import type { FlashSaleSchedule, FlashSaleRecurrenceValue } from './flash-sale-schedule.types.js';
+import type { FlashSalePricePublic } from './flash-sale-price.types.js';
+import type { ProductDealPublic } from './product-deal.types.js';
+import type { BundleDealPublic } from './bundle-deal.types.js';
 
 export interface FlashSale extends BaseEntity<string> {
   readonly name: string;

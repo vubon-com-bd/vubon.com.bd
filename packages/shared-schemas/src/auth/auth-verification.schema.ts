@@ -8,9 +8,9 @@
 import { z } from 'zod';
 import { AUTH_VERIFICATION } from '@vubon/shared-constants/auth';
 import { VERIFICATION_STATUS } from '@vubon/shared-constants/security';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
 
 export const AuthVerificationStatusSchema = z.enum(
   Object.values(VERIFICATION_STATUS) as [string, ...string[]]

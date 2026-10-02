@@ -5,13 +5,13 @@
  * Report entity + aggregator।
  */
 
-import type { UserId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { ReportTypeValue } from './report-type.types';
-import type { ReportFormatValue } from './report-format.types';
-import type { ReportStatusValue } from './report-status.types';
-import type { ReportPriorityValue } from './report-priority.types';
-import type { ReportFilter } from './report-filter.types';
+import type { UserId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { ReportTypeValue } from './report-type.types.js';
+import type { ReportFormatValue } from './report-format.types.js';
+import type { ReportStatusValue } from './report-status.types.js';
+import type { ReportPriorityValue } from './report-priority.types.js';
+import type { ReportFilter } from './report-filter.types.js';
 
 export interface Report extends BaseEntity<string> {
   readonly name: string;

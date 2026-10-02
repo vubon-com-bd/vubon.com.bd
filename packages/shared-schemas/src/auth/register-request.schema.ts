@@ -4,10 +4,10 @@
  */
 
 import { z } from 'zod';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { AuthPasswordSchema } from './auth-password.schema';
-import { NameSchema, UsernameSchema } from '../common/primitives/name.schema';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { AuthPasswordSchema } from './auth-password.schema.js';
+import { NameSchema, UsernameSchema } from '../common/primitives/name.schema.js';
 
 export const RegisterRequestSchema = z
   .object({

@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const CartItemSchema = z.object({
   id: UuidSchema,

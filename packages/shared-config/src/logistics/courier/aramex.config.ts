@@ -1,4 +1,4 @@
-import { getOptionalEnv } from '../../common/env/env.helper';
+import { getOptionalEnv } from '../../common/env/env.helper.js';
 
 export const ARAMEX_CONFIG = Object.freeze({
   apiKey: getOptionalEnv('ARAMEX_API_KEY', ''),

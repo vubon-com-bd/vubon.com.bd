@@ -2,7 +2,7 @@
  * AI embedding configuration
  * @module shared-config/ai/embedding
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const EMBEDDING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AI_EMBEDDING_ENABLED', true),

@@ -2,7 +2,7 @@
  * Order return configuration
  * @module shared-config/business/order
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ORDER_RETURN_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ORDER_RETURN_ENABLED', true),

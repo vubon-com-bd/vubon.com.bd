@@ -6,17 +6,17 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { SlugSchema } from '../../common/primitives/slug.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
-import { ProductStatusSchema } from './product-status.schema';
-import { ProductTypeSchema } from './product-type.schema';
-import { VariantSchema } from './variant.schema';
-import { ProductAttributeSchema } from './attribute.schema';
-import { InventorySchema } from './inventory.schema';
-import { PricingSchema } from './pricing.schema';
-import { ReviewSummarySchema } from './review.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { SlugSchema } from '../../common/primitives/slug.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
+import { ProductStatusSchema } from './product-status.schema.js';
+import { ProductTypeSchema } from './product-type.schema.js';
+import { VariantSchema } from './variant.schema.js';
+import { ProductAttributeSchema } from './attribute.schema.js';
+import { InventorySchema } from './inventory.schema.js';
+import { PricingSchema } from './pricing.schema.js';
+import { ReviewSummarySchema } from './review.schema.js';
 
 export const ProductDimensionsSchema = z.object({
   length: z.number().positive(),

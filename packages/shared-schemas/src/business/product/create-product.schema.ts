@@ -4,11 +4,11 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { SlugSchema } from '../../common/primitives/slug.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
-import { ProductTypeSchema } from './product-type.schema';
-import { ProductDimensionsSchema } from './product.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { SlugSchema } from '../../common/primitives/slug.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
+import { ProductTypeSchema } from './product-type.schema.js';
+import { ProductDimensionsSchema } from './product.schema.js';
 
 export const CreateProductRequestSchema = z
   .object({

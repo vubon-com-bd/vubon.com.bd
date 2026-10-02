@@ -12,8 +12,8 @@ import type {
   MESSAGE_STATUS,
   MESSAGE_SENDER_TYPE,
 } from '@vubon/shared-constants/support';
-import type { UserId, Url } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { UserId, Url } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportMessageTypeValue = (typeof MESSAGE_TYPE)[keyof typeof MESSAGE_TYPE];
 

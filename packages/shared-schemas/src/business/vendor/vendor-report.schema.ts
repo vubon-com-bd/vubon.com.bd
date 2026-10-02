@@ -11,8 +11,8 @@ import {
   VENDOR_REPORT_FORMAT,
   VENDOR_REPORT_PERIOD,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VendorReportTypeSchema = z.enum(
   Object.values(VENDOR_REPORT_TYPE) as [string, ...string[]]

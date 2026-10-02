@@ -1,3 +1,3 @@
 // shared-config/marketing/lead-generation/index.ts
 
-export * from './lead.config';
+export * from './lead.config.js';

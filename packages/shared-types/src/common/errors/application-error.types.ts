@@ -3,7 +3,7 @@
  * @module shared-types/common/errors
  */
 
-import type { ErrorCode } from './base-error.types';
+import type { ErrorCode } from './base-error.types.js';
 
 export interface ApplicationError {
   readonly name: 'ApplicationError';

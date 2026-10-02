@@ -8,8 +8,8 @@ import type {
   LIVE_CHAT_SESSION_STATUS,
   LIVE_CHAT_TRIGGER,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type LiveChatStatusValue = (typeof LIVE_CHAT_STATUS)[keyof typeof LIVE_CHAT_STATUS];
 

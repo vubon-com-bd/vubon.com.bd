@@ -2,7 +2,7 @@
  * Anthropic Claude configuration
  * @module shared-config/ai/model
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ANTHROPIC_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ANTHROPIC_ENABLED', false),

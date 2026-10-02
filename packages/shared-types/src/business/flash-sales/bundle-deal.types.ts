@@ -6,7 +6,7 @@
  */
 
 import type { BUNDLE_DEAL_STATUS, BUNDLE_DEAL_TYPE } from '@vubon/shared-constants/business';
-import type { ProductId, Money } from '../../common/primitives';
+import type { ProductId, Money } from '../../common/primitives/index.js';
 
 export type BundleDealStatusValue = (typeof BUNDLE_DEAL_STATUS)[keyof typeof BUNDLE_DEAL_STATUS];
 

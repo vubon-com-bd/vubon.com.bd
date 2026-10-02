@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UserPreferencesSchema } from './user-preferences.schema';
-import { UserSettingsSchema } from './user-settings.schema';
+import { UserPreferencesSchema } from './user-preferences.schema.js';
+import { UserSettingsSchema } from './user-settings.schema.js';
 
 export const PreferencesResponseSchema = z.object({
   success: z.literal(true),

@@ -2,25 +2,25 @@
 // Product sub-domain barrel export
 
 // Base
-export * from './product.schema';
-export * from './product-status.schema';
-export * from './product-type.schema';
-export * from './category.schema';
-export * from './brand.schema';
-export * from './variant.schema';
-export * from './attribute.schema';
-export * from './inventory.schema';
-export * from './pricing.schema';
-export * from './review.schema';
-export * from './collection.schema';
+export * from './product.schema.js';
+export * from './product-status.schema.js';
+export * from './product-type.schema.js';
+export * from './category.schema.js';
+export * from './brand.schema.js';
+export * from './variant.schema.js';
+export * from './attribute.schema.js';
+export * from './inventory.schema.js';
+export * from './pricing.schema.js';
+export * from './review.schema.js';
+export * from './collection.schema.js';
 
 // Requests
-export * from './create-product.schema';
-export * from './update-product.schema';
-export * from './add-variant.schema';
-export * from './submit-review.schema';
-export * from './update-inventory.schema';
+export * from './create-product.schema.js';
+export * from './update-product.schema.js';
+export * from './add-variant.schema.js';
+export * from './submit-review.schema.js';
+export * from './update-inventory.schema.js';
 
 // Responses
-export * from './product-response.schema';
-export * from './list-response.schema';
+export * from './product-response.schema.js';
+export * from './list-response.schema.js';

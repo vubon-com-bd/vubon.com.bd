@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { USER_ADDRESS_TYPE, USER_ADDRESS } from '@vubon/shared-constants/user';
-import { AddressSchema } from '../common/geo/address.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { AddressSchema } from '../common/geo/address.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AddressTypeSchema = z.enum(Object.values(USER_ADDRESS_TYPE) as [string, ...string[]]);
 

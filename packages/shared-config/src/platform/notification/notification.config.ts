@@ -2,7 +2,7 @@
  * Notification base configuration
  * @module shared-config/platform/notification
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const NOTIFICATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('NOTIFICATION_ENABLED', true),

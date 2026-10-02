@@ -5,11 +5,11 @@
  * AI model definition + configuration।
  */
 
-import type { BaseEntity } from '../common/base';
-import type { Url } from '../common/primitives';
-import type { AiModelTypeValue } from './ai-model-type.types';
-import type { AiModelStatusValue } from './ai-model-status.types';
-import type { AiModelProviderValue } from './ai-model-provider.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Url } from '../common/primitives/index.js';
+import type { AiModelTypeValue } from './ai-model-type.types.js';
+import type { AiModelStatusValue } from './ai-model-status.types.js';
+import type { AiModelProviderValue } from './ai-model-provider.types.js';
 
 export interface AiModel extends BaseEntity<string> {
   readonly name: string;

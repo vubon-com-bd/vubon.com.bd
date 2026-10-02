@@ -6,8 +6,8 @@
  */
 
 import type { REVIEW_STATUS, REVIEW_RATING } from '@vubon/shared-constants/business';
-import type { ProductId, UserId, ReviewId, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { ProductId, UserId, ReviewId, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type ReviewStatusValue = (typeof REVIEW_STATUS)[keyof typeof REVIEW_STATUS];
 

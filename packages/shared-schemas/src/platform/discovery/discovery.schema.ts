@@ -6,17 +6,17 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { RecommendationSchema } from './recommendation.schema';
-import { TrendingListSchema } from './trending.schema';
-import { PopularListSchema } from './popular.schema';
-import { RecentlyViewedListSchema } from './recently-viewed.schema';
-import { FrequentlyBoughtResultSchema } from './frequently-bought.schema';
-import { ComplementaryResultSchema } from './complementary.schema';
-import { SubstituteResultSchema } from './substitute.schema';
-import { UpsellResultSchema } from './upselling.schema';
-import { CrossSellResultSchema } from './cross-selling.schema';
-import { DiscoveryBundleSchema } from './bundle.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { RecommendationSchema } from './recommendation.schema.js';
+import { TrendingListSchema } from './trending.schema.js';
+import { PopularListSchema } from './popular.schema.js';
+import { RecentlyViewedListSchema } from './recently-viewed.schema.js';
+import { FrequentlyBoughtResultSchema } from './frequently-bought.schema.js';
+import { ComplementaryResultSchema } from './complementary.schema.js';
+import { SubstituteResultSchema } from './substitute.schema.js';
+import { UpsellResultSchema } from './upselling.schema.js';
+import { CrossSellResultSchema } from './cross-selling.schema.js';
+import { DiscoveryBundleSchema } from './bundle.schema.js';
 
 export const DiscoverySectionSchema = z.enum([
   'recommendations',

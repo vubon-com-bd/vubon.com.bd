@@ -3,7 +3,7 @@
  * @module shared-types/common/primitives
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 export type Uuid = Branded<string, 'Uuid'>;
 export type UuidV4 = Branded<string, 'UuidV4'>;

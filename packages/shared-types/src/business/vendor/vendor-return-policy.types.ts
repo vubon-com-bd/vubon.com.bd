@@ -6,7 +6,7 @@
  */
 
 import type { VENDOR_RETURN_TYPE } from '@vubon/shared-constants/business';
-import type { VendorId, Money } from '../../common/primitives';
+import type { VendorId, Money } from '../../common/primitives/index.js';
 
 export type VendorReturnTypeValue = (typeof VENDOR_RETURN_TYPE)[keyof typeof VENDOR_RETURN_TYPE];
 

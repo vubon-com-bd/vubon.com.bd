@@ -2,7 +2,7 @@
  * RabbitMQ configuration
  * @module shared-config/infrastructure/queue
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const RABBITMQ_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('RABBITMQ_ENABLED', false),

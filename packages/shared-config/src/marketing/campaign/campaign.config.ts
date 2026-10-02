@@ -2,7 +2,7 @@
  * Marketing campaign configuration
  * @module shared-config/marketing/campaign
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CAMPAIGN_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('CAMPAIGN_ENABLED', true),

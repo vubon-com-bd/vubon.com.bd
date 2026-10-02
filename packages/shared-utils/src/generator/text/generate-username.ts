@@ -2,7 +2,7 @@
  * Generate a unique-ish username from name/email
  * @module shared-utils/generator/text
  */
-import { generateNanoid } from '../id/generate-nanoid';
+import { generateNanoid } from '../id/generate-nanoid.js';
 
 export function generateUsername(source: string): string {
   const base = source

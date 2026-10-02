@@ -6,11 +6,11 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { AddressSchema } from '../common/geo/address.schema';
-import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema';
-import { ShipmentTypeSchema } from './shipment-type.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { AddressSchema } from '../common/geo/address.schema.js';
+import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema.js';
+import { ShipmentTypeSchema } from './shipment-type.schema.js';
 
 export const ShipmentSchema = BaseEntitySchema.extend({
   trackingNumber: z.string().min(1).max(100),

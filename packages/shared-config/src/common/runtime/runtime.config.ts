@@ -2,7 +2,7 @@
  * Runtime environment snapshot
  * @module shared-config/common/runtime
  */
-import { loadEnv } from '../env/env.loader';
+import { loadEnv } from '../env/env.loader.js';
 
 function getGlobal(key: string): unknown {
   if (typeof globalThis === 'undefined') return undefined;

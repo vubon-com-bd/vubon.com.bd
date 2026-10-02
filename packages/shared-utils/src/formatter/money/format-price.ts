@@ -2,7 +2,7 @@
  * Format price with optional discount badge
  * @module shared-utils/formatter/money
  */
-import { formatCurrency } from './format-currency';
+import { formatCurrency } from './format-currency.js';
 
 export interface FormatPriceOptions {
   readonly currency?: string;

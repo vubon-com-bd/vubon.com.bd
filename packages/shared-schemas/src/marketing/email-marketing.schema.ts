@@ -11,7 +11,7 @@ import {
   EMAIL_MARKETING_STATUS,
   EMAIL_MARKETING,
 } from '@vubon/shared-constants/marketing';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 
 export const EmailMarketingTypeSchema = z.enum(
   Object.values(EMAIL_MARKETING_TYPE) as [string, ...string[]]

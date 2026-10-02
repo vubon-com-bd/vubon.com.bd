@@ -10,7 +10,7 @@ import {
   NOTIFICATION_DEVICE_TYPE,
   NOTIFICATION_DEVICE_STATUS,
 } from '@vubon/shared-constants/platform';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const NotificationDeviceTypeSchema = z.enum(
   Object.values(NOTIFICATION_DEVICE_TYPE) as [string, ...string[]]

@@ -9,7 +9,7 @@ import type {
   VENDOR_SHIPPING_METHOD,
   VENDOR_SHIPPING_ZONE,
 } from '@vubon/shared-constants/business';
-import type { VendorId, Money } from '../../common/primitives';
+import type { VendorId, Money } from '../../common/primitives/index.js';
 
 export type VendorShippingMethodValue =
   (typeof VENDOR_SHIPPING_METHOD)[keyof typeof VENDOR_SHIPPING_METHOD];

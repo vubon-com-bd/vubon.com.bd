@@ -5,7 +5,7 @@
  * ⚠️ Note: SupportAgentLevelValue support-agent.types.ts থেকে import।
  */
 
-import type { SupportAgentLevelValue } from './support-agent.types';
+import type { SupportAgentLevelValue } from './support-agent.types.js';
 
 export interface TicketEscalation {
   readonly id: string;

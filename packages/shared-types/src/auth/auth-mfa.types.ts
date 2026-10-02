@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_MFA, AUTH_MFA_METHOD } from '@vubon/shared-constants/auth';
-import type { UserId, OtpCode } from '../common/primitives';
+import type { UserId, OtpCode } from '../common/primitives/index.js';
 
 export type MfaMethodValue = (typeof AUTH_MFA_METHOD)[keyof typeof AUTH_MFA_METHOD];
 

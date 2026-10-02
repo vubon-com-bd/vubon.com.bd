@@ -3,11 +3,11 @@
  * @module shared-types/marketing
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
-import type { LoyaltyStatusValue } from './loyalty-status.types';
-import type { LoyaltyTierValue } from './loyalty-tier.types';
-import type { LoyaltyPoints } from './loyalty-points.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
+import type { LoyaltyStatusValue } from './loyalty-status.types.js';
+import type { LoyaltyTierValue } from './loyalty-tier.types.js';
+import type { LoyaltyPoints } from './loyalty-points.types.js';
 
 export interface Loyalty extends BaseEntity<string> {
   readonly userId: UserId;

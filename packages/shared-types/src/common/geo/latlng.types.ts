@@ -3,7 +3,7 @@
  * @module shared-types/common/geo
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 export type Latitude = Branded<number, 'Latitude'>;
 export type Longitude = Branded<number, 'Longitude'>;

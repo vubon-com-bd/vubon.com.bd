@@ -1,5 +1,5 @@
-import { TAX_TYPE, TAX_CATEGORY } from './tax-type.constants';
-import { TAX_RATE, TAX_RATE_TYPE, TAX_INCLUSION, TAX_RATE_LIMIT } from './tax-rate.constants';
+import { TAX_TYPE, TAX_CATEGORY } from './tax-type.constants.js';
+import { TAX_RATE, TAX_RATE_TYPE, TAX_INCLUSION, TAX_RATE_LIMIT } from './tax-rate.constants.js';
 
 export const TAX_STATUS = {
   ACTIVE: 'active',

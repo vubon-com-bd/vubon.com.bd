@@ -2,7 +2,7 @@
  * Upload configuration
  * @module shared-config/media/upload
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const UPLOAD_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('UPLOAD_ENABLED', true),

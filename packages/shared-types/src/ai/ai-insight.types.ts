@@ -10,8 +10,8 @@ import type {
   AI_INSIGHT_PRIORITY,
   AI_INSIGHT_STATUS,
 } from '@vubon/shared-constants/ai';
-import type { UserId } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { UserId } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type AiInsightTypeValue = (typeof AI_INSIGHT_TYPE)[keyof typeof AI_INSIGHT_TYPE];
 

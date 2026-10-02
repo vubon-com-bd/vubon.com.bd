@@ -1,6 +1,6 @@
 // shared-utils/generator/text/index.ts
 
-export * from './generate-slug';
-export * from './generate-username';
-export * from './generate-password';
-export * from './generate-random-string';
+export * from './generate-slug.js';
+export * from './generate-username.js';
+export * from './generate-password.js';
+export * from './generate-random-string.js';

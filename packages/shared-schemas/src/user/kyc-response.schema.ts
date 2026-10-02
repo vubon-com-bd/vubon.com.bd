@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UserKycSchema } from './user-kyc.schema';
-import { UserVerificationStatusSchema } from './user-verification.schema';
+import { UserKycSchema } from './user-kyc.schema.js';
+import { UserVerificationStatusSchema } from './user-verification.schema.js';
 
 export const KycResponseSchema = z.object({
   success: z.literal(true),

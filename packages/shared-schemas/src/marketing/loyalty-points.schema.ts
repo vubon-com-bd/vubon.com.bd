@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { LoyaltyPointTypeSchema, LoyaltyEarnRuleSchema } from './loyalty-status.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { LoyaltyPointTypeSchema, LoyaltyEarnRuleSchema } from './loyalty-status.schema.js';
 
 export const LoyaltyPointsSchema = z.object({
   userId: UuidSchema,

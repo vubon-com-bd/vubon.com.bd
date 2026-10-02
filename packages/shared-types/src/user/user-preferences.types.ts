@@ -6,7 +6,7 @@
  */
 
 import type { USER_PREFERENCE, USER_PREFERENCE_CHANNEL } from '@vubon/shared-constants/user';
-import type { UserId } from '../common/primitives';
+import type { UserId } from '../common/primitives/index.js';
 
 export type PreferenceKey = (typeof USER_PREFERENCE)[keyof typeof USER_PREFERENCE];
 

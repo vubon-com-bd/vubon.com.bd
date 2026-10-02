@@ -3,7 +3,7 @@
  * @module shared-types/logistics
  */
 
-import type { ProductId } from '../common/primitives';
+import type { ProductId } from '../common/primitives/index.js';
 
 export interface InventoryLocation {
   readonly id: string;

@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { BUNDLE_DEAL_STATUS, BUNDLE_DEAL_TYPE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const BundleDealStatusSchema = z.enum(
   Object.values(BUNDLE_DEAL_STATUS) as [string, ...string[]]

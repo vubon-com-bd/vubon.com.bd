@@ -2,7 +2,7 @@
  * Checkout session configuration
  * @module shared-config/business/checkout
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CHECKOUT_SESSION_CONFIG = Object.freeze({
   ttlSeconds: getOptionalEnvInt('CHECKOUT_SESSION_TTL', 3600),

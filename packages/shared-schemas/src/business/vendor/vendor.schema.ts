@@ -6,17 +6,17 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { PhoneSchema } from '../../common/primitives/phone.schema';
-import { SlugSchema } from '../../common/primitives/slug.schema';
-import { AddressSchema } from '../../common/geo/address.schema';
-import { VendorStatusSchema } from './vendor-status.schema';
-import { VendorTypeSchema, VendorBusinessTypeSchema } from './vendor-type.schema';
-import { VendorTierSchema } from './vendor-tier.schema';
-import { VendorCommissionSchema } from './vendor-commission.schema';
-import { VendorReturnPolicySchema } from './vendor-return-policy.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { PhoneSchema } from '../../common/primitives/phone.schema.js';
+import { SlugSchema } from '../../common/primitives/slug.schema.js';
+import { AddressSchema } from '../../common/geo/address.schema.js';
+import { VendorStatusSchema } from './vendor-status.schema.js';
+import { VendorTypeSchema, VendorBusinessTypeSchema } from './vendor-type.schema.js';
+import { VendorTierSchema } from './vendor-tier.schema.js';
+import { VendorCommissionSchema } from './vendor-commission.schema.js';
+import { VendorReturnPolicySchema } from './vendor-return-policy.schema.js';
 
 export const VendorSchema = BaseEntitySchema.extend({
   userId: UuidSchema,

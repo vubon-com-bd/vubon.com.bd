@@ -6,9 +6,9 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 import { FEEDBACK_TYPE, FEEDBACK_STATUS, FEEDBACK_RATING } from '@vubon/shared-constants/support';
 
 export const FeedbackTypeSchema = z.enum(Object.values(FEEDBACK_TYPE) as [string, ...string[]]);

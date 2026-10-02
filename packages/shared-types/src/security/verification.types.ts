@@ -6,7 +6,7 @@
  */
 
 import type { VERIFICATION_TYPE, VERIFICATION_STATUS, OTP } from '@vubon/shared-constants/security';
-import type { Email, Phone, OtpCode, VerifyToken } from '../common/primitives';
+import type { Email, Phone, OtpCode, VerifyToken } from '../common/primitives/index.js';
 
 export type VerificationType = (typeof VERIFICATION_TYPE)[keyof typeof VERIFICATION_TYPE];
 export type VerificationStatus = (typeof VERIFICATION_STATUS)[keyof typeof VERIFICATION_STATUS];

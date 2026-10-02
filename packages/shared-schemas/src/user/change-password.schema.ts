@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { AuthPasswordSchema } from '../auth/auth-password.schema';
+import { AuthPasswordSchema } from '../auth/auth-password.schema.js';
 
 export const ChangePasswordRequestSchema = z
   .object({

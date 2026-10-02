@@ -2,7 +2,7 @@
  * Loyalty tier configuration
  * @module shared-config/marketing/loyalty
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const LOYALTY_TIER_CONFIG = Object.freeze({
   autoUpgrade: getOptionalEnvBool('LOYALTY_TIER_AUTO_UPGRADE', true),

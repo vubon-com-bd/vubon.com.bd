@@ -2,7 +2,7 @@
  * Mixpanel configuration
  * @module shared-config/platform/analytics
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const MIXPANEL_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MIXPANEL_ENABLED', false),

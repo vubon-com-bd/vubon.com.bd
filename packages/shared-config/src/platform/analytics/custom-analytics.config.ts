@@ -2,7 +2,7 @@
  * Custom analytics configuration (self-hosted)
  * @module shared-config/platform/analytics
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const CUSTOM_ANALYTICS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('CUSTOM_ANALYTICS_ENABLED', false),

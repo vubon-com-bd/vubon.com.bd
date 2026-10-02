@@ -2,7 +2,7 @@
  * Job scheduler configuration
  * @module shared-config/infrastructure/queue
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const JOB_CONFIG = Object.freeze({
   schedulerEnabled: getOptionalEnvBool('JOB_SCHEDULER_ENABLED', true),

@@ -10,7 +10,7 @@
 
 import { z } from 'zod';
 import { VENDOR_WARRANTY_TYPE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const VendorWarrantyTypeSchema = z.enum(
   Object.values(VENDOR_WARRANTY_TYPE) as [string, ...string[]]

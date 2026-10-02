@@ -9,7 +9,7 @@ import type {
   LOGISTICS_ANALYTICS_METRIC,
   LOGISTICS_ANALYTICS_PERIOD,
 } from '@vubon/shared-constants/logistics';
-import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types';
+import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types.js';
 
 export type LogisticsAnalyticsMetricValue =
   (typeof LOGISTICS_ANALYTICS_METRIC)[keyof typeof LOGISTICS_ANALYTICS_METRIC];

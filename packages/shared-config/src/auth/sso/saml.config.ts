@@ -2,7 +2,7 @@
  * SAML SSO configuration
  * @module shared-config/auth/sso
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SAML_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SAML_ENABLED', false),

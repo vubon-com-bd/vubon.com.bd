@@ -125,6 +125,11 @@
       "types": "./dist/business/vendor/index.d.ts",
       "import": "./dist/business/vendor/index.js",
       "require": "./dist/business/vendor/index.js"
+    },
+    "./business/product": {
+      "types": "./dist/business/product/index.d.ts",
+      "import": "./dist/business/product/index.js",
+      "require": "./dist/business/product/index.js"
     }
   },
   "scripts": {

@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { TicketStatusSchema } from './ticket-status.schema';
-import { TicketPrioritySchema } from './ticket-priority.schema';
-import { TicketSchema } from './ticket.schema';
-import { ConversationSchema } from './conversation.schema';
-import { SupportMessageSchema } from './message.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { TicketStatusSchema } from './ticket-status.schema.js';
+import { TicketPrioritySchema } from './ticket-priority.schema.js';
+import { TicketSchema } from './ticket.schema.js';
+import { ConversationSchema } from './conversation.schema.js';
+import { SupportMessageSchema } from './message.schema.js';
 
 export const SupportSchema = BaseEntitySchema.extend({
   ticketId: UuidSchema.optional(),

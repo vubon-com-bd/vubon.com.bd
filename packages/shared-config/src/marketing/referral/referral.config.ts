@@ -2,7 +2,7 @@
  * Referral program configuration
  * @module shared-config/marketing/referral
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const REFERRAL_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('REFERRAL_ENABLED', true),

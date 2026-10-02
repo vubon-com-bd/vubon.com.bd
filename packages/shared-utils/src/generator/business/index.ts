@@ -1,7 +1,7 @@
 // shared-utils/generator/business/index.ts
 
-export * from './generate-order-number';
-export * from './generate-invoice-number';
-export * from './generate-sku';
-export * from './generate-tracking-number';
-export * from './generate-transaction-id';
+export * from './generate-order-number.js';
+export * from './generate-invoice-number.js';
+export * from './generate-sku.js';
+export * from './generate-tracking-number.js';
+export * from './generate-transaction-id.js';

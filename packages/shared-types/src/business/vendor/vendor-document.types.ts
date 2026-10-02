@@ -9,8 +9,8 @@ import type {
   VENDOR_DOCUMENT_TYPE,
   VENDOR_DOCUMENT_STATUS,
 } from '@vubon/shared-constants/business';
-import type { VendorId, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { VendorId, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type VendorDocumentTypeValue =
   (typeof VENDOR_DOCUMENT_TYPE)[keyof typeof VENDOR_DOCUMENT_TYPE];

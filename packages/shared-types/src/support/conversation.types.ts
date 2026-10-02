@@ -6,8 +6,8 @@
  */
 
 import type { CONVERSATION_STATUS, CONVERSATION_TYPE } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type ConversationStatusValue =
   (typeof CONVERSATION_STATUS)[keyof typeof CONVERSATION_STATUS];

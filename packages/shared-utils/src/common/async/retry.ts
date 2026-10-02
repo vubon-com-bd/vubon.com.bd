@@ -2,7 +2,7 @@
  * Retry an async function on failure
  * @module shared-utils/common/async
  */
-import { sleep } from './sleep';
+import { sleep } from './sleep.js';
 
 export interface RetryOptions {
   readonly attempts?: number;

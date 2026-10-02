@@ -2,7 +2,7 @@
  * Google Maps integration configuration
  * @module shared-config/integration/google
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const GOOGLE_MAPS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GOOGLE_MAPS_ENABLED', false),

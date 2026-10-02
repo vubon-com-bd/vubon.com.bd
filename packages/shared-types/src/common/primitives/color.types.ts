@@ -3,7 +3,7 @@
  * @module shared-types/common/primitives
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 export type HexColor = Branded<string, 'HexColor'>;
 export type RgbColor = Branded<string, 'RgbColor'>;

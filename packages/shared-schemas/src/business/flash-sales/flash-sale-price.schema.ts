@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { FLASH_SALE_PRICE_TYPE, FLASH_SALE_PRICE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const FlashSalePriceTypeSchema = z.enum(
   Object.values(FLASH_SALE_PRICE_TYPE) as [string, ...string[]]

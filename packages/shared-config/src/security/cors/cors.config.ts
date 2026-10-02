@@ -4,8 +4,8 @@
  *
  * ⚠️ Wildcard origin ('*') FORBIDDEN in production — use whitelist.
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 function parseOrigins(raw: string): readonly string[] {
   return raw

@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { PositiveMoneySchema, MoneySchema } from '../common/primitives/money.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { PositiveMoneySchema, MoneySchema } from '../common/primitives/money.schema.js';
 import { ZONE_STATUS, ZONE_TYPE, ZONE_PRICING_TYPE } from '@vubon/shared-constants/logistics';
 
 export const ZoneStatusSchema = z.enum(Object.values(ZONE_STATUS) as [string, ...string[]]);

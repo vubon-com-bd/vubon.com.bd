@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { IsoDateTimeSchema } from '../primitives/timestamp.schema';
-import { UuidSchema } from '../primitives/uuid.schema';
+import { IsoDateTimeSchema } from '../primitives/timestamp.schema.js';
+import { UuidSchema } from '../primitives/uuid.schema.js';
 
 export const BaseEntitySchema = z.object({
   id: UuidSchema,

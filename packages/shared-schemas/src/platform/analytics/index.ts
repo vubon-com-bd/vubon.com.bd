@@ -1,20 +1,20 @@
 // shared-schemas/platform/analytics/index.ts
 // Analytics sub-service barrel export
 
-export * from './analytics.schema';
-export * from './analytics-type.schema';
-export * from './analytics-category.schema';
-export * from './analytics-source.schema';
-export * from './analytics-medium.schema';
-export * from './analytics-campaign.schema';
-export * from './analytics-event.schema';
-export * from './analytics-metric.schema';
-export * from './analytics-dimension.schema';
-export * from './analytics-filter.schema';
-export * from './analytics-period.schema';
-export * from './analytics-interval.schema';
-export * from './analytics-aggregation.schema';
-export * from './analytics-comparison.schema';
-export * from './analytics-trend.schema';
-export * from './analytics-status.schema';
-export * from './analytics-permission.schema';
+export * from './analytics.schema.js';
+export * from './analytics-type.schema.js';
+export * from './analytics-category.schema.js';
+export * from './analytics-source.schema.js';
+export * from './analytics-medium.schema.js';
+export * from './analytics-campaign.schema.js';
+export * from './analytics-event.schema.js';
+export * from './analytics-metric.schema.js';
+export * from './analytics-dimension.schema.js';
+export * from './analytics-filter.schema.js';
+export * from './analytics-period.schema.js';
+export * from './analytics-interval.schema.js';
+export * from './analytics-aggregation.schema.js';
+export * from './analytics-comparison.schema.js';
+export * from './analytics-trend.schema.js';
+export * from './analytics-status.schema.js';
+export * from './analytics-permission.schema.js';

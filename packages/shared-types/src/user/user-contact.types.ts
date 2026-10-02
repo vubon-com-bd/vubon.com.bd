@@ -6,7 +6,7 @@
  */
 
 import type { USER_CONTACT_TYPE } from '@vubon/shared-constants/user';
-import type { UserId, Email, Phone, Url } from '../common/primitives';
+import type { UserId, Email, Phone, Url } from '../common/primitives/index.js';
 
 export type ContactTypeValue = (typeof USER_CONTACT_TYPE)[keyof typeof USER_CONTACT_TYPE];
 

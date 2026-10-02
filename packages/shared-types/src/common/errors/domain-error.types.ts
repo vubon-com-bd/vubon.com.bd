@@ -5,7 +5,7 @@
  * Business rule violation ইত্যাদির জন্য।
  */
 
-import type { ErrorCode } from './base-error.types';
+import type { ErrorCode } from './base-error.types.js';
 
 export interface DomainError {
   readonly name: 'DomainError';

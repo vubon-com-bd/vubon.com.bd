@@ -2,7 +2,7 @@
  * Brute-force protection configuration
  * @module shared-config/security/brute-force
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const BRUTE_FORCE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('BRUTE_FORCE_ENABLED', true),

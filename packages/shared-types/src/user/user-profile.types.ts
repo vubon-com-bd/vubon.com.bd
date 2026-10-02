@@ -10,7 +10,7 @@ import type {
   USER_PROFILE_VISIBILITY,
   USER_GENDER,
 } from '@vubon/shared-constants/user';
-import type { UserId, Url } from '../common/primitives';
+import type { UserId, Url } from '../common/primitives/index.js';
 
 export type ProfileVisibilityValue =
   (typeof USER_PROFILE_VISIBILITY)[keyof typeof USER_PROFILE_VISIBILITY];

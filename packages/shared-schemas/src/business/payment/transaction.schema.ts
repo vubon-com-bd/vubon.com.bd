@@ -9,9 +9,9 @@ import {
   TRANSACTION_STATUS,
   TRANSACTION_LIMIT,
 } from '@vubon/shared-constants/business';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const TransactionTypeSchema = z.enum(
   Object.values(TRANSACTION_TYPE) as [string, ...string[]]

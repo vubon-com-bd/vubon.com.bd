@@ -2,7 +2,7 @@
  * Rocket (DBBL) payment gateway configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ROCKET_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ROCKET_ENABLED', false),

@@ -2,7 +2,7 @@
  * Generic queue configuration
  * @module shared-config/infrastructure/queue
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 import { QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
 
 export const QUEUE_CONFIG = Object.freeze({

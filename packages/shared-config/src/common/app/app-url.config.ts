@@ -2,7 +2,7 @@
  * Application URL configuration
  * @module shared-config/common/app
  */
-import { getOptionalEnv } from '../env/env.helper';
+import { getOptionalEnv } from '../env/env.helper.js';
 
 export const APP_URL_CONFIG = Object.freeze({
   app: getOptionalEnv('APP_URL', 'http://localhost:3000'),

@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে।
  */
 import { TIMEZONE } from '@vubon/shared-constants/common';
-import { getOptionalEnv } from '../env/env.helper';
+import { getOptionalEnv } from '../env/env.helper.js';
 
 export const TIMEZONE_CONFIG = Object.freeze({
   default: getOptionalEnv('DEFAULT_TIMEZONE', TIMEZONE.ASIA_DHAKA),

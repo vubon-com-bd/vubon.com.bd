@@ -6,9 +6,9 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 import { COURIER_STATUS, COURIER_TYPE, COURIER_NAME } from '@vubon/shared-constants/logistics';
 
 export const CourierStatusSchema = z.enum(Object.values(COURIER_STATUS) as [string, ...string[]]);

@@ -1,5 +1,5 @@
 // shared-config/common/runtime/index.ts
 
-export * from './runtime.config';
-export * from './runtime-env.config';
-export * from './runtime-flags.config';
+export * from './runtime.config.js';
+export * from './runtime-env.config.js';
+export * from './runtime-flags.config.js';

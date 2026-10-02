@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { MfaMethodSchema } from './auth-mfa.schema';
+import { MfaMethodSchema } from './auth-mfa.schema.js';
 
 export const EnableMfaRequestSchema = z
   .object({

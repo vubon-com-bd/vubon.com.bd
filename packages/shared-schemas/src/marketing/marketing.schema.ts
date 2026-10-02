@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { CampaignSchema } from './campaign.schema';
-import { PromotionSchema } from './promotion.schema';
+import { CampaignSchema } from './campaign.schema.js';
+import { PromotionSchema } from './promotion.schema.js';
 
 export const MarketingStatsSchema = z.object({
   period: z.string().min(1).max(50),

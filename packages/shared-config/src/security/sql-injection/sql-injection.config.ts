@@ -2,7 +2,7 @@
  * SQL injection protection configuration
  * @module shared-config/security/sql-injection
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SQL_INJECTION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SQL_INJECTION_PROTECTION_ENABLED', true),

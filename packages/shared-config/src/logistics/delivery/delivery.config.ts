@@ -2,7 +2,7 @@
  * Delivery configuration
  * @module shared-config/logistics/delivery
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const DELIVERY_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('DELIVERY_ENABLED', true),

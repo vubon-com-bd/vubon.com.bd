@@ -2,7 +2,7 @@
  * Promotion configuration
  * @module shared-config/marketing/promotion
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PROMOTION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PROMOTION_ENABLED', true),

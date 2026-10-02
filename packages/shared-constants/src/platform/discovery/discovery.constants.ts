@@ -1,24 +1,24 @@
-import { RECOMMENDATION } from './recommendation.constants';
-import { RECOMMENDATION_TYPE } from './recommendation-type.constants';
+import { RECOMMENDATION } from './recommendation.constants.js';
+import { RECOMMENDATION_TYPE } from './recommendation-type.constants.js';
 import {
   RECOMMENDATION_STRATEGY,
   RECOMMENDATION_STRATEGY_WEIGHT,
   RECOMMENDATION_STRATEGY_STATUS,
-} from './recommendation-strategy.constants';
+} from './recommendation-strategy.constants.js';
 import {
   PERSONALIZATION_TYPE,
   PERSONALIZATION_STATUS,
   PERSONALIZATION,
-} from './personalization.constants';
-import { TRENDING_TYPE, TRENDING_PERIOD, TRENDING_STATUS, TRENDING } from './trending.constants';
-import { POPULAR_TYPE, POPULAR_PERIOD, POPULAR_METRIC, POPULAR } from './popular.constants';
-import { RECENTLY_VIEWED_TYPE, RECENTLY_VIEWED } from './recently-viewed.constants';
-import { FREQUENTLY_BOUGHT_TYPE, FREQUENTLY_BOUGHT } from './frequently-bought.constants';
-import { COMPLEMENTARY_TYPE, COMPLEMENTARY } from './complementary.constants';
-import { SUBSTITUTE_TYPE, SUBSTITUTE } from './substitute.constants';
-import { UPSELL_TYPE, UPSELL } from './upselling.constants';
-import { CROSS_SELL_TYPE, CROSS_SELL_LOCATION, CROSS_SELL } from './cross-selling.constants';
-import { BUNDLE_TYPE, BUNDLE_STATUS, BUNDLE_PRICING, BUNDLE } from './bundle.constants';
+} from './personalization.constants.js';
+import { TRENDING_TYPE, TRENDING_PERIOD, TRENDING_STATUS, TRENDING } from './trending.constants.js';
+import { POPULAR_TYPE, POPULAR_PERIOD, POPULAR_METRIC, POPULAR } from './popular.constants.js';
+import { RECENTLY_VIEWED_TYPE, RECENTLY_VIEWED } from './recently-viewed.constants.js';
+import { FREQUENTLY_BOUGHT_TYPE, FREQUENTLY_BOUGHT } from './frequently-bought.constants.js';
+import { COMPLEMENTARY_TYPE, COMPLEMENTARY } from './complementary.constants.js';
+import { SUBSTITUTE_TYPE, SUBSTITUTE } from './substitute.constants.js';
+import { UPSELL_TYPE, UPSELL } from './upselling.constants.js';
+import { CROSS_SELL_TYPE, CROSS_SELL_LOCATION, CROSS_SELL } from './cross-selling.constants.js';
+import { BUNDLE_TYPE, BUNDLE_STATUS, BUNDLE_PRICING, BUNDLE } from './bundle.constants.js';
 
 export const DISCOVERY_LIMIT = {
   MAX_RECOMMENDATIONS: 50,

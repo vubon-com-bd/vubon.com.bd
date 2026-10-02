@@ -2,7 +2,7 @@
  * Order tracking configuration
  * @module shared-config/business/order
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ORDER_TRACKING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ORDER_TRACKING_ENABLED', true),

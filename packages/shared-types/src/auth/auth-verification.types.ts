@@ -10,7 +10,7 @@
 
 import type { AUTH_VERIFICATION } from '@vubon/shared-constants/auth';
 import type { VERIFICATION_STATUS } from '@vubon/shared-constants/security';
-import type { UserId, Email, Phone, OtpCode, VerifyToken } from '../common/primitives';
+import type { UserId, Email, Phone, OtpCode, VerifyToken } from '../common/primitives/index.js';
 
 export type AuthVerificationStatus = (typeof VERIFICATION_STATUS)[keyof typeof VERIFICATION_STATUS];
 

@@ -2,7 +2,7 @@
  * Choose 'black' or 'white' for readable text on a background color
  * @module shared-utils/common/color
  */
-import { luminance } from './luminance';
+import { luminance } from './luminance.js';
 
 export function getContrastText(
   backgroundHex: string,

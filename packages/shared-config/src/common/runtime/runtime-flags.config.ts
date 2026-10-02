@@ -2,7 +2,7 @@
  * Runtime feature flags based on environment (not business features)
  * @module shared-config/common/runtime
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper.js';
 
 export const RUNTIME_FLAGS_CONFIG = Object.freeze({
   ssrEnabled: getOptionalEnvBool('SSR_ENABLED', false),

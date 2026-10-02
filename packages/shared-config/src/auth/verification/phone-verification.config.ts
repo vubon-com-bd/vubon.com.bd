@@ -2,7 +2,7 @@
  * Phone verification configuration
  * @module shared-config/auth/verification
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PHONE_VERIFICATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PHONE_VERIFICATION_ENABLED', true),

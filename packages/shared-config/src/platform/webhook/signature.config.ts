@@ -2,7 +2,7 @@
  * Webhook signature configuration
  * @module shared-config/platform/webhook
  */
-import { getOptionalEnv, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const WEBHOOK_SIGNATURE_CONFIG = Object.freeze({
   enabled: true,

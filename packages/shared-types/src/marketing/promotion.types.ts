@@ -3,11 +3,11 @@
  * @module shared-types/marketing
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId, Money } from '../common/primitives';
-import type { PromotionTypeValue, PromotionAppliesToValue } from './promotion-type.types';
-import type { PromotionStatusValue } from './promotion-status.types';
-import type { PromotionDiscountTypeValue } from './promotion-discount-type.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId, Money } from '../common/primitives/index.js';
+import type { PromotionTypeValue, PromotionAppliesToValue } from './promotion-type.types.js';
+import type { PromotionStatusValue } from './promotion-status.types.js';
+import type { PromotionDiscountTypeValue } from './promotion-discount-type.types.js';
 
 export interface Promotion extends BaseEntity<string> {
   readonly name: string;

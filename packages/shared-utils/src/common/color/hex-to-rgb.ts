@@ -2,7 +2,7 @@
  * Convert hex color to RGB object
  * @module shared-utils/common/color
  */
-import { isHexColor } from './is-hex-color';
+import { isHexColor } from './is-hex-color.js';
 
 export interface Rgb {
   readonly r: number;

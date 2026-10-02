@@ -1,13 +1,13 @@
-import { ORDER_STATUS, ORDER_PRIORITY } from './order-status.constants';
-import { ORDER_ITEM_STATUS, ORDER_ITEM_TYPE, ORDER_ITEM_LIMIT } from './order-item.constants';
-import { ORDER_CANCEL_REASON, ORDER_CANCEL_STATUS, ORDER_CANCEL } from './order-cancel.constants';
-import { ORDER_RETURN_STATUS, ORDER_RETURN_REASON, ORDER_RETURN } from './order-return.constants';
-import { ORDER_TRACKING_EVENT, ORDER_TRACKING } from './order-tracking.constants';
+import { ORDER_STATUS, ORDER_PRIORITY } from './order-status.constants.js';
+import { ORDER_ITEM_STATUS, ORDER_ITEM_TYPE, ORDER_ITEM_LIMIT } from './order-item.constants.js';
+import { ORDER_CANCEL_REASON, ORDER_CANCEL_STATUS, ORDER_CANCEL } from './order-cancel.constants.js';
+import { ORDER_RETURN_STATUS, ORDER_RETURN_REASON, ORDER_RETURN } from './order-return.constants.js';
+import { ORDER_TRACKING_EVENT, ORDER_TRACKING } from './order-tracking.constants.js';
 import {
   ORDER_FULFILLMENT_STATUS,
   ORDER_FULFILLMENT_TYPE,
   ORDER_FULFILLMENT,
-} from './order-fulfillment.constants';
+} from './order-fulfillment.constants.js';
 
 export const ORDER_TYPE = {
   REGULAR: 'regular',

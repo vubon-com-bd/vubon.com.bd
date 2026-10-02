@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { AddressSchema } from '../../common/geo/address.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { AddressSchema } from '../../common/geo/address.schema.js';
 
 export const SelectAddressRequestSchema = z
   .object({

@@ -2,7 +2,7 @@
  * Ticket SLA configuration
  * @module shared-config/support/ticket
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 import { TIMEZONE } from '@vubon/shared-constants/common';
 
 export const TICKET_SLA_CONFIG = Object.freeze({

@@ -5,8 +5,8 @@
  * Generic location shape — address + coordinates।
  */
 
-import type { Address } from './address.types';
-import type { LatLng } from './latlng.types';
+import type { Address } from './address.types.js';
+import type { LatLng } from './latlng.types.js';
 
 export interface Location {
   readonly address: Address;

@@ -4,8 +4,8 @@
  */
 
 import type { FEEDBACK_TYPE, FEEDBACK_STATUS } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type FeedbackTypeValue = (typeof FEEDBACK_TYPE)[keyof typeof FEEDBACK_TYPE];
 

@@ -3,11 +3,11 @@
  * @module shared-types/marketing
  */
 
-import type { BaseEntity } from '../common/base';
-import type { Email, Phone } from '../common/primitives';
-import type { LeadStatusValue } from './lead-status.types';
-import type { LeadQualityValue } from './lead-status.types';
-import type { LeadSourceValue } from './lead-source.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Email, Phone } from '../common/primitives/index.js';
+import type { LeadStatusValue } from './lead-status.types.js';
+import type { LeadQualityValue } from './lead-status.types.js';
+import type { LeadSourceValue } from './lead-source.types.js';
 
 export interface Lead extends BaseEntity<string> {
   readonly name: string;

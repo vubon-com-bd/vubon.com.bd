@@ -4,8 +4,8 @@
  *
  * ⚠️ Env var নাম সবসময় FF_ prefix দিয়ে শুরু হবে।
  */
-import { getOptionalEnvBool } from '../env/env.helper';
-import type { FeatureFlagDefinition } from './feature-flag.types';
+import { getOptionalEnvBool } from '../env/env.helper.js';
+import type { FeatureFlagDefinition } from './feature-flag.types.js';
 
 export const FEATURE_FLAG_DEFINITIONS: readonly FeatureFlagDefinition[] = Object.freeze([
   {

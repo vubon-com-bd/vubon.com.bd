@@ -1,6 +1,6 @@
 // shared-config/infrastructure/queue/index.ts
 
-export * from './queue.config';
-export * from './bull.config';
-export * from './rabbitmq.config';
-export * from './job.config';
+export * from './queue.config.js';
+export * from './bull.config.js';
+export * from './rabbitmq.config.js';
+export * from './job.config.js';

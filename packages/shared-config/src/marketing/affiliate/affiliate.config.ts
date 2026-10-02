@@ -2,7 +2,7 @@
  * Affiliate program configuration
  * @module shared-config/marketing/affiliate
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const AFFILIATE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AFFILIATE_ENABLED', true),

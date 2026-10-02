@@ -8,7 +8,7 @@ import type {
   REPORT_EMAIL_STATUS,
   REPORT_EMAIL_FORMAT,
 } from '@vubon/shared-constants/platform';
-import type { Email } from '../../common/primitives';
+import type { Email } from '../../common/primitives/index.js';
 
 export type ReportEmailTypeValue = (typeof REPORT_EMAIL_TYPE)[keyof typeof REPORT_EMAIL_TYPE];
 

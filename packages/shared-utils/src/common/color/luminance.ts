@@ -2,7 +2,7 @@
  * Compute relative luminance (WCAG) of a hex color
  * @module shared-utils/common/color
  */
-import { hexToRgb } from './hex-to-rgb';
+import { hexToRgb } from './hex-to-rgb.js';
 
 export function luminance(hex: string): number {
   const rgb = hexToRgb(hex);

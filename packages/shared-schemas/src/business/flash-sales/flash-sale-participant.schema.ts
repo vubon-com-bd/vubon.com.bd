@@ -10,7 +10,7 @@ import {
   FLASH_SALE_PARTICIPANT_TYPE,
   FLASH_SALE_PARTICIPANT_STATUS,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const ParticipantTypeSchema = z.enum(
   Object.values(FLASH_SALE_PARTICIPANT_TYPE) as [string, ...string[]]

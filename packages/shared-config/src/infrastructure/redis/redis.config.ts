@@ -2,8 +2,8 @@
  * Redis base configuration
  * @module shared-config/infrastructure/redis
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 export const REDIS_CONFIG = Object.freeze({
   url: getOptionalEnv('REDIS_URL', 'redis://localhost:6379'),

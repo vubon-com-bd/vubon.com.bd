@@ -1,4 +1,4 @@
-import { SECURITY } from '../security/security.constants';
+import { SECURITY } from '../security/security.constants.js';
 
 export const AUTH_PASSWORD = {
   MIN_LENGTH: SECURITY.PASSWORD_MIN_LENGTH,

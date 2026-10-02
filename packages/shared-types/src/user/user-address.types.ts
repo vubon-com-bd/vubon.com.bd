@@ -7,8 +7,8 @@
  */
 
 import type { USER_ADDRESS_TYPE } from '@vubon/shared-constants/user';
-import type { UserId } from '../common/primitives';
-import type { Address } from '../common/geo';
+import type { UserId } from '../common/primitives/index.js';
+import type { Address } from '../common/geo/index.js';
 
 export type AddressTypeValue = (typeof USER_ADDRESS_TYPE)[keyof typeof USER_ADDRESS_TYPE];
 

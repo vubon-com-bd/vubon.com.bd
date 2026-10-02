@@ -11,8 +11,8 @@ import {
   ORDER_CANCEL_STATUS,
   ORDER_CANCEL,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const OrderCancelReasonSchema = z.enum(
   Object.values(ORDER_CANCEL_REASON) as [string, ...string[]]

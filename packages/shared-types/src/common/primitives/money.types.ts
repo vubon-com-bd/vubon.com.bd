@@ -5,7 +5,7 @@
  * ⚠️ Note: Tax branded amount → TaxAmount, কারণ business/tax-এ Tax entity আছে।
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 export type Money = Branded<number, 'Money'>;
 export type Price = Branded<number, 'Price'>;

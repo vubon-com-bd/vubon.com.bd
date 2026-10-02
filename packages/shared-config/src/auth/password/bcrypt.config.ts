@@ -5,7 +5,7 @@
  * Values আসে shared-constants/security থেকে।
  */
 import { SECURITY } from '@vubon/shared-constants/security';
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const BCRYPT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('BCRYPT_ENABLED', true),

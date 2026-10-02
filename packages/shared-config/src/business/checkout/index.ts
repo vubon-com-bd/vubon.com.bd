@@ -1,4 +1,4 @@
 // shared-config/business/checkout/index.ts
 
-export * from './checkout.config';
-export * from './checkout-session.config';
+export * from './checkout.config.js';
+export * from './checkout-session.config.js';

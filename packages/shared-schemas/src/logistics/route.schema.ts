@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { ROUTE_STATUS, ROUTE_TYPE, ROUTE_OPTIMIZATION } from '@vubon/shared-constants/logistics';
 
 export const RouteStatusSchema = z.enum(Object.values(ROUTE_STATUS) as [string, ...string[]]);

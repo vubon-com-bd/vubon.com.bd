@@ -6,7 +6,7 @@
  */
 
 import type { INVENTORY_STATUS } from '@vubon/shared-constants/business';
-import type { ProductId, VendorId } from '../../common/primitives';
+import type { ProductId, VendorId } from '../../common/primitives/index.js';
 
 export type InventoryStatusValue = (typeof INVENTORY_STATUS)[keyof typeof INVENTORY_STATUS];
 

@@ -2,7 +2,7 @@
  * Bundle deal configuration
  * @module shared-config/business/flash-sales
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const BUNDLE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('BUNDLE_ENABLED', true),

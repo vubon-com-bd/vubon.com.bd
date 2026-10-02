@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { AiModelTypeSchema } from './ai-model-type.schema';
-import { AiModelStatusSchema } from './ai-model-status.schema';
-import { AiModelProviderSchema } from './ai-model-provider.schema';
-import { AiFeatureSchema } from './ai-feature.schema';
-import { AiModelSchema, AiModelConfigSchema } from './ai-model.schema';
-import { AiModelUsageSchema } from './ai-analytics.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { AiModelTypeSchema } from './ai-model-type.schema.js';
+import { AiModelStatusSchema } from './ai-model-status.schema.js';
+import { AiModelProviderSchema } from './ai-model-provider.schema.js';
+import { AiFeatureSchema } from './ai-feature.schema.js';
+import { AiModelSchema, AiModelConfigSchema } from './ai-model.schema.js';
+import { AiModelUsageSchema } from './ai-analytics.schema.js';
 
 export const AiSchema = BaseEntitySchema.extend({
   modelId: z.string().min(1),

@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { VENDOR_DOCUMENT_TYPE, VENDOR_DOCUMENT_STATUS } from '@vubon/shared-constants/business';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const VendorDocumentTypeSchema = z.enum(
   Object.values(VENDOR_DOCUMENT_TYPE) as [string, ...string[]]

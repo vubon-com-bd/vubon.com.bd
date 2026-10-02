@@ -3,8 +3,8 @@
  * @module shared-types/support
  */
 
-import type { Phone } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { Phone } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportSmsStatusValue = 'pending' | 'queued' | 'sent' | 'delivered' | 'failed';
 

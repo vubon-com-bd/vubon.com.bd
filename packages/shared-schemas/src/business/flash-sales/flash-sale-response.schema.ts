@@ -4,9 +4,9 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { FlashSalePublicSchema, FlashSaleSummarySchema } from './flash-sale.schema';
-import { DealPublicSchema } from './deal.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { FlashSalePublicSchema, FlashSaleSummarySchema } from './flash-sale.schema.js';
+import { DealPublicSchema } from './deal.schema.js';
 
 export const FlashSaleResponseSchema = z.object({
   success: z.literal(true),

@@ -1,9 +1,9 @@
 // shared-config/platform/index.ts
 // Platform layer barrel export
 
-export * from './analytics';
-export * from './search';
-export * from './notification';
-export * from './reporting';
-export * from './seo';
-export * from './webhook';
+export * from './analytics/index.js';
+export * from './search/index.js';
+export * from './notification/index.js';
+export * from './reporting/index.js';
+export * from './seo/index.js';
+export * from './webhook/index.js';

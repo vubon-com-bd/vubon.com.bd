@@ -2,7 +2,7 @@
  * Web Push (VAPID) configuration
  * @module shared-config/platform/notification
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const WEB_PUSH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('WEB_PUSH_ENABLED', false),

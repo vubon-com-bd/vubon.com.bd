@@ -1,9 +1,9 @@
-import { CHECKOUT_STATUS } from './checkout-status.constants';
+import { CHECKOUT_STATUS } from './checkout-status.constants.js';
 import {
   CHECKOUT_STEP,
   CHECKOUT_STEP_ORDER,
   CHECKOUT_STEP_STATUS,
-} from './checkout-step.constants';
+} from './checkout-step.constants.js';
 
 export const CHECKOUT_TYPE = {
   GUEST: 'guest',

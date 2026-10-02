@@ -5,14 +5,14 @@
  * Search entity + aggregator।
  */
 
-import type { BaseEntity } from '../../common/base';
-import type { UserId } from '../../common/primitives';
-import type { SearchTypeValue, SearchScopeValue } from './search-type.types';
-import type { SearchSort } from './search-sort.types';
-import type { SearchFilter } from './search-filter.types';
-import type { SearchMatch } from './search-match.types';
-import type { SearchBoost } from './search-boost.types';
-import type { Facet } from './facet.types';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { UserId } from '../../common/primitives/index.js';
+import type { SearchTypeValue, SearchScopeValue } from './search-type.types.js';
+import type { SearchSort } from './search-sort.types.js';
+import type { SearchFilter } from './search-filter.types.js';
+import type { SearchMatch } from './search-match.types.js';
+import type { SearchBoost } from './search-boost.types.js';
+import type { Facet } from './facet.types.js';
 
 export interface SearchRequest {
   readonly query: string;

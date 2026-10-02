@@ -7,9 +7,9 @@
 
 import { z } from 'zod';
 import { ABANDONED_CART_STATUS } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const AbandonedCartStatusSchema = z.enum(
   Object.values(ABANDONED_CART_STATUS) as [string, ...string[]]

@@ -2,8 +2,8 @@
  * Feature flag helpers
  * @module shared-config/common/feature-flag
  */
-import { FEATURE_FLAGS } from './feature-flag.config';
-import type { FeatureFlagKey } from './feature-flag.types';
+import { FEATURE_FLAGS } from './feature-flag.config.js';
+import type { FeatureFlagKey } from './feature-flag.types.js';
 
 export function isFeatureEnabled(flag: FeatureFlagKey): boolean {
   return FEATURE_FLAGS[flag];

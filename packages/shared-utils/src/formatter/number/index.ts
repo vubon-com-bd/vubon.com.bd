@@ -1,7 +1,7 @@
 // shared-utils/formatter/number/index.ts
 
-export * from './format-number';
-export * from './format-percentage';
-export * from './format-compact';
-export * from './format-ordinal';
-export * from './format-decimal';
+export * from './format-number.js';
+export * from './format-percentage.js';
+export * from './format-compact.js';
+export * from './format-ordinal.js';
+export * from './format-decimal.js';

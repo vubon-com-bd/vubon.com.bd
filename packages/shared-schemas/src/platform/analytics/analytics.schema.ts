@@ -6,12 +6,12 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { AnalyticsTypeSchema } from './analytics-type.schema';
-import { AnalyticsCategorySchema } from './analytics-category.schema';
-import { AnalyticsStatusSchema } from './analytics-status.schema';
-import { AnalyticsMetricSchema } from './analytics-metric.schema';
-import { AnalyticsPeriodSchema } from './analytics-period.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { AnalyticsTypeSchema } from './analytics-type.schema.js';
+import { AnalyticsCategorySchema } from './analytics-category.schema.js';
+import { AnalyticsStatusSchema } from './analytics-status.schema.js';
+import { AnalyticsMetricSchema } from './analytics-metric.schema.js';
+import { AnalyticsPeriodSchema } from './analytics-period.schema.js';
 
 export const AnalyticsSchema = BaseEntitySchema.extend({
   name: z.string().min(1).max(200),

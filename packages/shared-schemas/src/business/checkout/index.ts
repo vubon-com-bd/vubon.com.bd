@@ -2,15 +2,15 @@
 // Checkout sub-domain barrel export
 
 // Base
-export * from './checkout.schema';
-export * from './checkout-status.schema';
-export * from './checkout-step.schema';
+export * from './checkout.schema.js';
+export * from './checkout-status.schema.js';
+export * from './checkout-step.schema.js';
 
 // Requests
-export * from './start-checkout.schema';
-export * from './select-address.schema';
-export * from './select-shipping.schema';
-export * from './confirm-order.schema';
+export * from './start-checkout.schema.js';
+export * from './select-address.schema.js';
+export * from './select-shipping.schema.js';
+export * from './confirm-order.schema.js';
 
 // Responses
-export * from './checkout-response.schema';
+export * from './checkout-response.schema.js';

@@ -3,7 +3,7 @@
  * @module shared-types/common/errors
  */
 
-import type { ErrorCode, DomainErrorDetail } from './base-error.types';
+import type { ErrorCode, DomainErrorDetail } from './base-error.types.js';
 
 export interface ValidationError {
   readonly name: 'ValidationError';

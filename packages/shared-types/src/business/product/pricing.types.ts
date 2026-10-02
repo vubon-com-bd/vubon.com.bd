@@ -6,7 +6,7 @@
  */
 
 import type { PRICING_TYPE, COST_TYPE } from '@vubon/shared-constants/business';
-import type { ProductId, Money } from '../../common/primitives';
+import type { ProductId, Money } from '../../common/primitives/index.js';
 
 export type PricingTypeValue = (typeof PRICING_TYPE)[keyof typeof PRICING_TYPE];
 

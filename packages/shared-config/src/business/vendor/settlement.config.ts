@@ -2,7 +2,7 @@
  * Vendor settlement configuration
  * @module shared-config/business/vendor
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SETTLEMENT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SETTLEMENT_ENABLED', true),

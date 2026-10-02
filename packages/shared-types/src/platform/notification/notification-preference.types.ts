@@ -8,7 +8,7 @@ import type {
   NOTIFICATION_PREFERENCE_FREQUENCY,
   NOTIFICATION_PREFERENCE_DEFAULT,
 } from '@vubon/shared-constants/platform';
-import type { UserId } from '../../common/primitives';
+import type { UserId } from '../../common/primitives/index.js';
 
 export type NotificationPreferenceTypeValue =
   (typeof NOTIFICATION_PREFERENCE_TYPE)[keyof typeof NOTIFICATION_PREFERENCE_TYPE];

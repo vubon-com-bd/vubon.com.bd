@@ -4,7 +4,7 @@
  */
 
 import type { LOYALTY_POINT_TYPE, LOYALTY_EARN_RULE } from '@vubon/shared-constants/marketing';
-import type { UserId } from '../common/primitives';
+import type { UserId } from '../common/primitives/index.js';
 
 export type LoyaltyPointTypeValue = (typeof LOYALTY_POINT_TYPE)[keyof typeof LOYALTY_POINT_TYPE];
 

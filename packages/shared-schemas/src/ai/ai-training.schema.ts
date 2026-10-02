@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { AI_TRAINING_STATUS, AI_TRAINING_TYPE } from '@vubon/shared-constants/ai';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
 
 export const AiTrainingStatusSchema = z.enum(
   Object.values(AI_TRAINING_STATUS) as [string, ...string[]]

@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { FlashSaleTypeSchema } from './flash-sale-type.schema';
-import { FlashSaleRecurrenceSchema } from './flash-sale-schedule.schema';
+import { FlashSaleTypeSchema } from './flash-sale-type.schema.js';
+import { FlashSaleRecurrenceSchema } from './flash-sale-schedule.schema.js';
 
 export const CreateFlashSaleRequestSchema = z
   .object({

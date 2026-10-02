@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { OrderPublicSchema, OrderSummarySchema, OrderStatsSchema } from './order.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { OrderPublicSchema, OrderSummarySchema, OrderStatsSchema } from './order.schema.js';
 
 export const OrderResponseSchema = z.object({
   success: z.literal(true),

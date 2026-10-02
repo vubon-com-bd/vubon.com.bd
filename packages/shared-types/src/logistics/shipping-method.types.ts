@@ -10,8 +10,8 @@ import type {
   SHIPPING_METHOD_STATUS,
   SHIPPING_RATE_TYPE,
 } from '@vubon/shared-constants/logistics';
-import type { Money } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { Money } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type ShippingMethodValue = (typeof SHIPPING_METHOD)[keyof typeof SHIPPING_METHOD];
 

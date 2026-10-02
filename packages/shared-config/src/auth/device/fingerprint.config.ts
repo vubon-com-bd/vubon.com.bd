@@ -2,7 +2,7 @@
  * Device fingerprinting configuration
  * @module shared-config/auth/device
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const FINGERPRINT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FINGERPRINT_ENABLED', true),

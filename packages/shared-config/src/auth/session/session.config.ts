@@ -5,7 +5,7 @@
  * Values আসে shared-constants/auth থেকে।
  */
 import { AUTH_SESSION } from '@vubon/shared-constants/auth';
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const AUTH_SESSION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AUTH_SESSION_ENABLED', true),

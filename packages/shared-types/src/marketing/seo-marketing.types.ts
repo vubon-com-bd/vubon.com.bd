@@ -3,7 +3,7 @@
  * @module shared-types/marketing
  */
 
-import type { Money } from '../common/primitives';
+import type { Money } from '../common/primitives/index.js';
 
 export type SeoMarketingTypeValue =
   'organic' | 'local' | 'content' | 'link_building' | 'keyword' | 'technical';

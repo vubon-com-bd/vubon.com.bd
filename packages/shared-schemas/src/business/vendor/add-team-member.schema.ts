@@ -4,9 +4,9 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { VendorRoleSchema } from './vendor-role.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { VendorRoleSchema } from './vendor-role.schema.js';
 
 export const AddTeamMemberRequestSchema = z
   .object({

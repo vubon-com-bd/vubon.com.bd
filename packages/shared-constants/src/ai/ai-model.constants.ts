@@ -1,10 +1,10 @@
-import { AI_MODEL_TYPE } from './ai-model-type.constants';
-import { AI_MODEL_STATUS } from './ai-model-status.constants';
+import { AI_MODEL_TYPE } from './ai-model-type.constants.js';
+import { AI_MODEL_STATUS } from './ai-model-status.constants.js';
 import {
   AI_MODEL_PROVIDER,
   AI_PROVIDER_ENV_KEY,
   AI_PROVIDER_REGION,
-} from './ai-model-provider.constants';
+} from './ai-model-provider.constants.js';
 
 export const AI_MODEL_NAME = {
   GPT_4: 'gpt-4',

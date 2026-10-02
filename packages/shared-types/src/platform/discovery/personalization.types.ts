@@ -7,7 +7,7 @@ import type {
   PERSONALIZATION_TYPE,
   PERSONALIZATION_STATUS,
 } from '@vubon/shared-constants/platform';
-import type { UserId } from '../../common/primitives';
+import type { UserId } from '../../common/primitives/index.js';
 
 export type PersonalizationTypeValue =
   (typeof PERSONALIZATION_TYPE)[keyof typeof PERSONALIZATION_TYPE];

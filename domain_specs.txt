@@ -1,0 +1,25 @@
+# ১. Product Entity Specs
+- Product Name: Max length? (e.g., 255 chars)
+- Slug: Auto-generated or manual? Unique?
+- Description: Rich text or plain text? Max length?
+- Status Enum: (e.g., DRAFT, PUBLISHED, ARCHIVED, OUT_OF_STOCK)
+
+# ২. Product Variant Specs
+- SKU Format: (e.g., alphanumeric, unique constraint)
+- Attributes: How are they stored? (e.g., JSONB or separate table? e.g., {"color": "red", "size": "L"})
+- Barcode/ISBN: Optional or mandatory?
+
+# ৩. Inventory Specs
+- Stock Tracking: Boolean (track_inventory)
+- Quantity: Integer (minimum 0)
+- Low Stock Threshold: Integer (e.g., 5)
+
+# ۴. Pricing Specs
+- Currency: (e.g., "BDT", "USD")
+- Base Price: Decimal (e.g., 2 decimal places)
+- Discount Price: Optional Decimal
+- Tax Rate: Percentage (e.g., 0.15 for 15%)
+
+# ৫. Brand & Category Specs
+- Hierarchy: Category-তে parent_id থাকবে? (Multi-level nested?)
+- Brand: Name + Logo URL + Description

@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
 
 export const SupportSmsStatusSchema = z.enum(['pending', 'queued', 'sent', 'delivered', 'failed']);
 

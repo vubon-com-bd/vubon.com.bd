@@ -2,7 +2,7 @@
  * Meilisearch configuration
  * @module shared-config/platform/search
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const MEILISEARCH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MEILISEARCH_ENABLED', false),

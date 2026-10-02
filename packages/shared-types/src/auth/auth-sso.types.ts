@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_SSO, AUTH_SSO_BINDING } from '@vubon/shared-constants/auth';
-import type { UserId, Url } from '../common/primitives';
+import type { UserId, Url } from '../common/primitives/index.js';
 
 export type SsoProviderValue = (typeof AUTH_SSO)[keyof typeof AUTH_SSO];
 

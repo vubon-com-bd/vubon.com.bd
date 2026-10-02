@@ -3,8 +3,8 @@
  * @module shared-types/support
  */
 
-import type { UserId } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { UserId } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportPushStatusValue = 'pending' | 'queued' | 'sent' | 'delivered' | 'failed';
 

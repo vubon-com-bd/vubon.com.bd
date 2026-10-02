@@ -8,7 +8,7 @@ import type {
   SUPPORT_AGENT_LEVEL,
   SUPPORT_AGENT_SKILL,
 } from '@vubon/shared-constants/support';
-import type { UserId } from '../common/primitives';
+import type { UserId } from '../common/primitives/index.js';
 
 export type SupportAgentStatusValue =
   (typeof SUPPORT_AGENT_STATUS)[keyof typeof SUPPORT_AGENT_STATUS];

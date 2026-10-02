@@ -3,7 +3,7 @@
  * @module shared-types/common/api
  */
 
-import type { ApiError } from './error.types';
+import type { ApiError } from './error.types.js';
 
 export interface BaseResponse<T = unknown> {
   readonly success: boolean;

@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { CATEGORY_STATUS, CATEGORY } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { SlugSchema } from '../../common/primitives/slug.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { SlugSchema } from '../../common/primitives/slug.schema.js';
 
 export const CategoryStatusSchema = z.enum(Object.values(CATEGORY_STATUS) as [string, ...string[]]);
 

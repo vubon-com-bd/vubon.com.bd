@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { MfaMethodSchema } from './auth-mfa.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { MfaMethodSchema } from './auth-mfa.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const VerifyMfaRequestSchema = z
   .object({

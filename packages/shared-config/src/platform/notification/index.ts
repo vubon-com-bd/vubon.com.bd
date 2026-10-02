@@ -1,13 +1,13 @@
 // shared-config/platform/notification/index.ts
 
-export * from './notification.config';
-export * from './email.config';
-export * from './smtp.config';
-export * from './sendgrid.config';
-export * from './ses.config';
-export * from './mailgun.config';
-export * from './sms.config';
-export * from './twilio.config';
-export * from './push.config';
-export * from './fcm.config';
-export * from './web-push.config';
+export * from './notification.config.js';
+export * from './email.config.js';
+export * from './smtp.config.js';
+export * from './sendgrid.config.js';
+export * from './ses.config.js';
+export * from './mailgun.config.js';
+export * from './sms.config.js';
+export * from './twilio.config.js';
+export * from './push.config.js';
+export * from './fcm.config.js';
+export * from './web-push.config.js';

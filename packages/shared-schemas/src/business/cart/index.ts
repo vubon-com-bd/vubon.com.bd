@@ -2,20 +2,20 @@
 // Cart sub-domain barrel export
 
 // Base
-export * from './cart.schema';
-export * from './cart-status.schema';
-export * from './cart-item.schema';
-export * from './coupon.schema';
-export * from './coupon-type.schema';
-export * from './coupon-discount-type.schema';
-export * from './voucher.schema';
-export * from './abandoned-cart.schema';
+export * from './cart.schema.js';
+export * from './cart-status.schema.js';
+export * from './cart-item.schema.js';
+export * from './coupon.schema.js';
+export * from './coupon-type.schema.js';
+export * from './coupon-discount-type.schema.js';
+export * from './voucher.schema.js';
+export * from './abandoned-cart.schema.js';
 
 // Requests
-export * from './add-to-cart.schema';
-export * from './update-cart-item.schema';
-export * from './apply-coupon.schema';
-export * from './apply-voucher.schema';
+export * from './add-to-cart.schema.js';
+export * from './update-cart-item.schema.js';
+export * from './apply-coupon.schema.js';
+export * from './apply-voucher.schema.js';
 
 // Responses
-export * from './cart-response.schema';
+export * from './cart-response.schema.js';

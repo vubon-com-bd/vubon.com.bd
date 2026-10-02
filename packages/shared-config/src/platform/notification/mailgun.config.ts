@@ -2,7 +2,7 @@
  * Mailgun configuration
  * @module shared-config/platform/notification
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const MAILGUN_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MAILGUN_ENABLED', false),

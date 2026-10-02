@@ -5,7 +5,7 @@
  * Values আসে shared-constants/security থেকে।
  */
 import { OTP } from '@vubon/shared-constants/security';
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const OTP_CONFIG = Object.freeze({
   length: OTP.LENGTH,

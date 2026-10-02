@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { ATTRIBUTE_TYPE, ATTRIBUTE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const AttributeTypeSchema = z.enum(Object.values(ATTRIBUTE_TYPE) as [string, ...string[]]);
 

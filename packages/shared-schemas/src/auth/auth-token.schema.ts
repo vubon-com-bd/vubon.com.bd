@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { AUTH_TOKEN_TYPE } from '@vubon/shared-constants/auth';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AuthTokenTypeSchema = z.enum(Object.values(AUTH_TOKEN_TYPE) as [string, ...string[]]);
 

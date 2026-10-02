@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে।
  */
 import { LOCALE } from '@vubon/shared-constants/common';
-import { getOptionalEnv } from '../env/env.helper';
+import { getOptionalEnv } from '../env/env.helper.js';
 
 export const LOCALE_CONFIG = Object.freeze({
   default: getOptionalEnv('DEFAULT_LOCALE', LOCALE.BN_BD),

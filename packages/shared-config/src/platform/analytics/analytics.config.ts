@@ -2,7 +2,7 @@
  * Analytics base configuration
  * @module shared-config/platform/analytics
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ANALYTICS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ANALYTICS_ENABLED', true),

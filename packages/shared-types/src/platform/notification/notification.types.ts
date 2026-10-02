@@ -5,16 +5,16 @@
  * Notification entity + aggregator।
  */
 
-import type { UserId, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { NotificationTypeValue } from './notification-type.types';
-import type { NotificationChannelValue } from './notification-channel.types';
-import type { NotificationStatusValue } from './notification-status.types';
-import type { NotificationPriorityValue } from './notification-priority.types';
-import type { NotificationCategoryValue } from './notification-category.types';
-import type { NotificationDeliveryMetadata } from './notification-delivery-status.types';
-import type { NotificationReadMetadata } from './notification-read-status.types';
-import type { NotificationAction } from './notification-action.types';
+import type { UserId, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { NotificationTypeValue } from './notification-type.types.js';
+import type { NotificationChannelValue } from './notification-channel.types.js';
+import type { NotificationStatusValue } from './notification-status.types.js';
+import type { NotificationPriorityValue } from './notification-priority.types.js';
+import type { NotificationCategoryValue } from './notification-category.types.js';
+import type { NotificationDeliveryMetadata } from './notification-delivery-status.types.js';
+import type { NotificationReadMetadata } from './notification-read-status.types.js';
+import type { NotificationAction } from './notification-action.types.js';
 
 export interface Notification extends BaseEntity<string> {
   readonly userId: UserId;

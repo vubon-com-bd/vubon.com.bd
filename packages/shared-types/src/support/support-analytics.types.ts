@@ -7,8 +7,8 @@ import type {
   SUPPORT_ANALYTICS_METRIC,
   SUPPORT_ANALYTICS_PERIOD,
 } from '@vubon/shared-constants/support';
-import type { TicketPriorityValue } from './ticket-priority.types';
-import type { TicketStatusValue } from './ticket-status.types';
+import type { TicketPriorityValue } from './ticket-priority.types.js';
+import type { TicketStatusValue } from './ticket-status.types.js';
 
 export type SupportAnalyticsMetricValue =
   (typeof SUPPORT_ANALYTICS_METRIC)[keyof typeof SUPPORT_ANALYTICS_METRIC];

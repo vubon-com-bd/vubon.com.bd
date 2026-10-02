@@ -2,7 +2,7 @@
  * Shipping base configuration
  * @module shared-config/logistics/shipping
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SHIPPING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SHIPPING_ENABLED', true),

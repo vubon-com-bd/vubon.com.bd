@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 
 export const SupportEmailStatusSchema = z.enum([
   'pending',

@@ -1,5 +1,5 @@
 // shared-utils/infrastructure/compression/index.ts
 
-export * from './gzip';
-export * from './gunzip';
-export * from './compress-string';
+export * from './gzip.js';
+export * from './gunzip.js';
+export * from './compress-string.js';

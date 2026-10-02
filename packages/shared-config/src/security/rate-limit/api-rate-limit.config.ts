@@ -2,7 +2,7 @@
  * API-wide rate limit configuration
  * @module shared-config/security/rate-limit
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const API_RATE_LIMIT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('API_RATE_LIMIT_ENABLED', true),

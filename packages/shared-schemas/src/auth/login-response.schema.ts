@@ -4,9 +4,9 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { AuthPublicSchema } from './auth.schema';
-import { AuthSessionPublicSchema } from './auth-session.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { AuthPublicSchema } from './auth.schema.js';
+import { AuthSessionPublicSchema } from './auth-session.schema.js';
 
 export const LoginResponseSchema = z.object({
   success: z.literal(true),

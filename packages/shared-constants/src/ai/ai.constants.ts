@@ -1,47 +1,47 @@
-import { AI_MODEL } from './ai-model.constants';
-import { AI_MODEL_TYPE } from './ai-model-type.constants';
-import { AI_MODEL_STATUS } from './ai-model-status.constants';
+import { AI_MODEL } from './ai-model.constants.js';
+import { AI_MODEL_TYPE } from './ai-model-type.constants.js';
+import { AI_MODEL_STATUS } from './ai-model-status.constants.js';
 import {
   AI_MODEL_PROVIDER,
   AI_PROVIDER_ENV_KEY,
   AI_PROVIDER_REGION,
-} from './ai-model-provider.constants';
-import { AI_PERSONALIZATION } from './ai-personalization.constants';
-import { AI_RANKING } from './ai-ranking.constants';
-import { AI_ANALYTICS } from './ai-analytics.constants';
-import { AI_TRAINING_STATUS, AI_TRAINING_TYPE, AI_TRAINING } from './ai-training.constants';
-import { AI_FEATURE, AI_FEATURE_STATUS, AI_FEATURE_TOGGLE } from './ai-feature.constants';
-import { AI_PROMPT_TYPE, AI_PROMPT_STATUS, AI_PROMPT, AI_PROMPT_ROLE } from './ai-prompt.constants';
+} from './ai-model-provider.constants.js';
+import { AI_PERSONALIZATION } from './ai-personalization.constants.js';
+import { AI_RANKING } from './ai-ranking.constants.js';
+import { AI_ANALYTICS } from './ai-analytics.constants.js';
+import { AI_TRAINING_STATUS, AI_TRAINING_TYPE, AI_TRAINING } from './ai-training.constants.js';
+import { AI_FEATURE, AI_FEATURE_STATUS, AI_FEATURE_TOGGLE } from './ai-feature.constants.js';
+import { AI_PROMPT_TYPE, AI_PROMPT_STATUS, AI_PROMPT, AI_PROMPT_ROLE } from './ai-prompt.constants.js';
 import {
   AI_EMBEDDING_TYPE,
   AI_EMBEDDING_MODEL,
   AI_EMBEDDING_DIMENSION,
   AI_EMBEDDING,
-} from './ai-embedding.constants';
+} from './ai-embedding.constants.js';
 import {
   AI_VECTOR_DB,
   AI_VECTOR_INDEX_TYPE,
   AI_VECTOR_METRIC,
   AI_VECTOR,
-} from './ai-vector.constants';
+} from './ai-vector.constants.js';
 import {
   AI_SIMILARITY_METRIC,
   AI_SIMILARITY_THRESHOLD,
   AI_SIMILARITY,
-} from './ai-similarity.constants';
-import { AI_CLUSTER_ALGORITHM, AI_CLUSTER_STATUS, AI_CLUSTER } from './ai-cluster.constants';
+} from './ai-similarity.constants.js';
+import { AI_CLUSTER_ALGORITHM, AI_CLUSTER_STATUS, AI_CLUSTER } from './ai-cluster.constants.js';
 import {
   AI_FORECAST_TYPE,
   AI_FORECAST_MODEL,
   AI_FORECAST_HORIZON,
   AI_FORECAST,
-} from './ai-forecast.constants';
+} from './ai-forecast.constants.js';
 import {
   AI_INSIGHT_TYPE,
   AI_INSIGHT_PRIORITY,
   AI_INSIGHT_STATUS,
   AI_INSIGHT,
-} from './ai-insight.constants';
+} from './ai-insight.constants.js';
 
 export const AI_LIMIT = {
   MAX_MODELS: 100,

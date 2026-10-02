@@ -4,7 +4,7 @@
  */
 
 import type { SEO_TWITTER_CARD_TYPE } from '@vubon/shared-constants/platform';
-import type { Url, ImageUrl } from '../../common/primitives';
+import type { Url, ImageUrl } from '../../common/primitives/index.js';
 
 export type SeoTwitterCardTypeValue =
   (typeof SEO_TWITTER_CARD_TYPE)[keyof typeof SEO_TWITTER_CARD_TYPE];

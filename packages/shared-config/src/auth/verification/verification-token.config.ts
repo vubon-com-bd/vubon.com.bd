@@ -5,7 +5,7 @@
  * Values আসে shared-constants/security থেকে।
  */
 import { VERIFICATION_TOKEN } from '@vubon/shared-constants/security';
-import { getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const VERIFICATION_TOKEN_CONFIG = Object.freeze({
   length: VERIFICATION_TOKEN.LENGTH,

@@ -4,7 +4,7 @@
  */
 
 import type { REFERRAL_REWARD_TYPE, REFERRAL_TYPE } from '@vubon/shared-constants/marketing';
-import type { Money } from '../common/primitives';
+import type { Money } from '../common/primitives/index.js';
 
 export type ReferralRewardTypeValue =
   (typeof REFERRAL_REWARD_TYPE)[keyof typeof REFERRAL_REWARD_TYPE];

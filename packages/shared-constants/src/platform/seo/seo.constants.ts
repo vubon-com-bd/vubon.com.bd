@@ -1,34 +1,34 @@
-import { SEO_STATUS } from './seo-status.constants';
-import { SEO_TYPE } from './seo-type.constants';
-import { SEO_PRIORITY, SEO_PRIORITY_WEIGHT } from './seo-priority.constants';
-import { SEO_STRATEGY, SEO_CRAWL_FREQUENCY } from './seo-strategy.constants';
+import { SEO_STATUS } from './seo-status.constants.js';
+import { SEO_TYPE } from './seo-type.constants.js';
+import { SEO_PRIORITY, SEO_PRIORITY_WEIGHT } from './seo-priority.constants.js';
+import { SEO_STRATEGY, SEO_CRAWL_FREQUENCY } from './seo-strategy.constants.js';
 import {
   SEO_KEYWORD_TYPE,
   SEO_KEYWORD_DIFFICULTY,
   SEO_KEYWORD_INTENT,
   SEO_KEYWORD,
-} from './seo-keyword.constants';
-import { SEO_CONTENT_TYPE, SEO_CONTENT, SEO_META_TAG } from './seo-content.constants';
-import { SEO_LINK_TYPE, SEO_LINK } from './seo-link.constants';
-import { SEO_AUDIT_TYPE, SEO_AUDIT_STATUS, SEO_AUDIT } from './seo-audit.constants';
-import { SEO_SCORE_GRADE, SEO_SCORE, SEO_SCORE_WEIGHT } from './seo-score.constants';
-import { SEO_RANKING_TYPE, SEO_RANKING } from './seo-ranking.constants';
-import { SEO_SITEMAP_TYPE, SEO_SITEMAP, SEO_SITEMAP_CHANGEFREQ } from './seo-sitemap.constants';
-import { SEO_ROBOTS_DIRECTIVE, SEO_ROBOTS_USER_AGENT, SEO_ROBOTS } from './seo-robots.constants';
-import { SEO_SCHEMA_TYPE, SEO_SCHEMA_FORMAT, SEO_SCHEMA } from './seo-schema.constants';
-import { SEO_OPEN_GRAPH_TYPE, SEO_OPEN_GRAPH } from './seo-open-graph.constants';
-import { SEO_TWITTER_CARD_TYPE, SEO_TWITTER_CARD } from './seo-twitter-card.constants';
+} from './seo-keyword.constants.js';
+import { SEO_CONTENT_TYPE, SEO_CONTENT, SEO_META_TAG } from './seo-content.constants.js';
+import { SEO_LINK_TYPE, SEO_LINK } from './seo-link.constants.js';
+import { SEO_AUDIT_TYPE, SEO_AUDIT_STATUS, SEO_AUDIT } from './seo-audit.constants.js';
+import { SEO_SCORE_GRADE, SEO_SCORE, SEO_SCORE_WEIGHT } from './seo-score.constants.js';
+import { SEO_RANKING_TYPE, SEO_RANKING } from './seo-ranking.constants.js';
+import { SEO_SITEMAP_TYPE, SEO_SITEMAP, SEO_SITEMAP_CHANGEFREQ } from './seo-sitemap.constants.js';
+import { SEO_ROBOTS_DIRECTIVE, SEO_ROBOTS_USER_AGENT, SEO_ROBOTS } from './seo-robots.constants.js';
+import { SEO_SCHEMA_TYPE, SEO_SCHEMA_FORMAT, SEO_SCHEMA } from './seo-schema.constants.js';
+import { SEO_OPEN_GRAPH_TYPE, SEO_OPEN_GRAPH } from './seo-open-graph.constants.js';
+import { SEO_TWITTER_CARD_TYPE, SEO_TWITTER_CARD } from './seo-twitter-card.constants.js';
 import {
   SEO_ANALYTICS_METRIC,
   SEO_ANALYTICS_PERIOD,
   SEO_ANALYTICS,
-} from './seo-analytics.constants';
+} from './seo-analytics.constants.js';
 import {
   SEO_REPORT_TYPE,
   SEO_REPORT_FORMAT,
   SEO_REPORT_SCHEDULE,
   SEO_REPORT,
-} from './seo-report.constants';
+} from './seo-report.constants.js';
 
 export const SEO_LIMIT = {
   MAX_KEYWORDS: 10000,

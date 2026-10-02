@@ -3,8 +3,8 @@
  * @module shared-utils/formatter/date-time
  */
 import { LOCALE, DATE_FORMAT, TIME_FORMAT } from '@vubon/shared-constants/common';
-import { formatDate } from './format-date';
-import { formatTime } from './format-time';
+import { formatDate } from './format-date.js';
+import { formatTime } from './format-time.js';
 
 export function formatDateTime(
   date: Date,

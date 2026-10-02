@@ -2,7 +2,7 @@
  * AI recommendation configuration
  * @module shared-config/ai/recommendation
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const RECOMMENDATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AI_RECOMMENDATION_ENABLED', true),

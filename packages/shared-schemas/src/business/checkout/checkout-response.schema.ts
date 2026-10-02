@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { CheckoutPublicSchema, CheckoutValidationResultSchema } from './checkout.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { CheckoutPublicSchema, CheckoutValidationResultSchema } from './checkout.schema.js';
 
 export const CheckoutResponseSchema = z.object({
   success: z.literal(true),

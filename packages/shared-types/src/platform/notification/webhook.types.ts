@@ -9,7 +9,7 @@ import type {
   WEBHOOK_DELIVERY_STATUS,
   WEBHOOK_EVENT,
 } from '@vubon/shared-constants/platform';
-import type { Url } from '../../common/primitives';
+import type { Url } from '../../common/primitives/index.js';
 
 export type WebhookMethodValue = (typeof WEBHOOK_METHOD)[keyof typeof WEBHOOK_METHOD];
 

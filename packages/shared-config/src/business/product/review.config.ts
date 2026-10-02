@@ -2,7 +2,7 @@
  * Review configuration
  * @module shared-config/business/product
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const REVIEW_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('REVIEW_ENABLED', true),

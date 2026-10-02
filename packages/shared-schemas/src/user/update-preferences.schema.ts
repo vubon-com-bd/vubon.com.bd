@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { PreferenceChannelSettingSchema } from './user-preferences.schema';
+import { PreferenceChannelSettingSchema } from './user-preferences.schema.js';
 
 export const UpdatePreferencesRequestSchema = z
   .object({

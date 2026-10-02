@@ -2,7 +2,7 @@
  * Argon2 password hashing configuration
  * @module shared-config/auth/password
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ARGON2_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ARGON2_ENABLED', false),

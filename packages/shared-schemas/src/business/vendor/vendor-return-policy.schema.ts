@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { VENDOR_RETURN_TYPE } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VendorReturnTypeSchema = z.enum(
   Object.values(VENDOR_RETURN_TYPE) as [string, ...string[]]

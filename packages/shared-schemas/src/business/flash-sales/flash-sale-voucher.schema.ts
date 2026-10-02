@@ -11,8 +11,8 @@ import {
   FLASH_SALE_VOUCHER_STATUS,
   FLASH_SALE_VOUCHER,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const FlashSaleVoucherTypeSchema = z.enum(
   Object.values(FLASH_SALE_VOUCHER_TYPE) as [string, ...string[]]

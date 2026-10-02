@@ -2,7 +2,7 @@
  * Product configuration
  * @module shared-config/business/product
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PRODUCT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PRODUCT_ENABLED', true),

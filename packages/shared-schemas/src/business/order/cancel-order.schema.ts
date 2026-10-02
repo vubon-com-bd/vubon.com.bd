@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { OrderCancelReasonSchema } from './order-cancel.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { OrderCancelReasonSchema } from './order-cancel.schema.js';
 
 export const CancelOrderRequestSchema = z
   .object({

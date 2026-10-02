@@ -2,8 +2,8 @@
  * Application core configuration
  * @module shared-config/common/app
  */
-import { getOptionalEnv, getOptionalEnvInt } from '../env/env.helper';
-import { loadEnv } from '../env/env.loader';
+import { getOptionalEnv, getOptionalEnvInt } from '../env/env.helper.js';
+import { loadEnv } from '../env/env.loader.js';
 
 export const APP_CONFIG = Object.freeze({
   name: getOptionalEnv('APP_NAME', 'Vubon'),

@@ -2,7 +2,7 @@
  * Generate SKU from category + product + variant + random
  * @module shared-utils/generator/business
  */
-import { generateNanoid } from '../id/generate-nanoid';
+import { generateNanoid } from '../id/generate-nanoid.js';
 
 export function generateSku(category = 'GEN', productCode = 'PRD', variant = 'STD'): string {
   const cat =

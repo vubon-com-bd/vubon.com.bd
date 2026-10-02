@@ -2,7 +2,7 @@
  * XSS protection configuration
  * @module shared-config/security/xss
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const XSS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('XSS_PROTECTION_ENABLED', true),

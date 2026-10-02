@@ -2,7 +2,7 @@
  * Error tracking configuration (Sentry, Rollbar, etc.)
  * @module shared-config/common/observability
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper.js';
 
 export const ERROR_TRACKING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ERROR_TRACKING_ENABLED', false),

@@ -1,54 +1,54 @@
-import { REPORT_STATUS } from './report-status.constants';
-import { REPORT_TYPE } from './report-type.constants';
-import { REPORT_FORMAT, REPORT_FORMAT_MIME, REPORT_FORMAT_LIMIT } from './report-format.constants';
+import { REPORT_STATUS } from './report-status.constants.js';
+import { REPORT_TYPE } from './report-type.constants.js';
+import { REPORT_FORMAT, REPORT_FORMAT_MIME, REPORT_FORMAT_LIMIT } from './report-format.constants.js';
 import {
   REPORT_PRIORITY,
   REPORT_PRIORITY_WEIGHT,
   REPORT_PRIORITY_SLA_SECONDS,
-} from './report-priority.constants';
+} from './report-priority.constants.js';
 import {
   REPORT_SCHEDULE_TYPE,
   REPORT_SCHEDULE_FREQUENCY,
   REPORT_SCHEDULE_STATUS,
   REPORT_SCHEDULE,
-} from './report-schedule.constants';
+} from './report-schedule.constants.js';
 import {
   REPORT_TEMPLATE_TYPE,
   REPORT_TEMPLATE_CATEGORY,
   REPORT_TEMPLATE_STATUS,
   REPORT_TEMPLATE,
-} from './report-template.constants';
+} from './report-template.constants.js';
 import {
   REPORT_DASHBOARD_TYPE,
   REPORT_DASHBOARD_STATUS,
   REPORT_DASHBOARD_LAYOUT,
   REPORT_DASHBOARD,
-} from './report-dashboard.constants';
+} from './report-dashboard.constants.js';
 import {
   REPORT_WIDGET_TYPE,
   REPORT_WIDGET_SIZE,
   REPORT_WIDGET_STATUS,
   REPORT_WIDGET,
-} from './report-widget.constants';
+} from './report-widget.constants.js';
 import {
   REPORT_FILTER_OPERATOR,
   REPORT_FILTER_LOGIC,
   REPORT_FILTER_TYPE,
   REPORT_FILTER,
-} from './report-filter.constants';
+} from './report-filter.constants.js';
 import {
   REPORT_EXPORT_TYPE,
   REPORT_EXPORT_STATUS,
   REPORT_EXPORT_DESTINATION,
   REPORT_EXPORT,
-} from './report-export.constants';
+} from './report-export.constants.js';
 import {
   REPORT_EMAIL_TYPE,
   REPORT_EMAIL_STATUS,
   REPORT_EMAIL_FORMAT,
   REPORT_EMAIL,
-} from './report-email.constants';
-import { REPORT_PERMISSION } from './report-permission.constants';
+} from './report-email.constants.js';
+import { REPORT_PERMISSION } from './report-permission.constants.js';
 
 export const REPORTING_LIMIT = {
   MAX_REPORTS: 10000,

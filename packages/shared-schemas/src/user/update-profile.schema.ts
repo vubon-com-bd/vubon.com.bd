@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 import { USER_PROFILE } from '@vubon/shared-constants/user';
-import { ProfileVisibilitySchema, GenderSchema } from './user-profile.schema';
+import { ProfileVisibilitySchema, GenderSchema } from './user-profile.schema.js';
 
 export const UpdateProfileRequestSchema = z
   .object({

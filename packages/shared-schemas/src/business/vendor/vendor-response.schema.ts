@@ -4,10 +4,10 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { VendorPublicSchema, VendorSummarySchema, VendorStatsSchema } from './vendor.schema';
-import { VendorPayoutPublicSchema } from './vendor-payout.schema';
-import { VendorTeamMemberPublicSchema } from './vendor-team.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { VendorPublicSchema, VendorSummarySchema, VendorStatsSchema } from './vendor.schema.js';
+import { VendorPayoutPublicSchema } from './vendor-payout.schema.js';
+import { VendorTeamMemberPublicSchema } from './vendor-team.schema.js';
 
 export const VendorResponseSchema = z.object({
   success: z.literal(true),

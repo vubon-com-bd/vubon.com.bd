@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
-import { TaxTypeSchema, TaxCategorySchema } from './tax-type.schema';
-import { TaxRateTypeSchema, TaxInclusionSchema } from './tax-rate.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
+import { TaxTypeSchema, TaxCategorySchema } from './tax-type.schema.js';
+import { TaxRateTypeSchema, TaxInclusionSchema } from './tax-rate.schema.js';
 
 export const TaxStatusSchema = z.enum(['active', 'inactive', 'draft', 'archived', 'expired']);
 

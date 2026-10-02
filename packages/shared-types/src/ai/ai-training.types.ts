@@ -6,8 +6,8 @@
  */
 
 import type { AI_TRAINING_STATUS, AI_TRAINING_TYPE } from '@vubon/shared-constants/ai';
-import type { BaseEntity } from '../common/base';
-import type { Url } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Url } from '../common/primitives/index.js';
 
 export type AiTrainingStatusValue = (typeof AI_TRAINING_STATUS)[keyof typeof AI_TRAINING_STATUS];
 

@@ -2,7 +2,7 @@
  * Check if value is empty (nil, '', [], {}, or Map/Set size 0)
  * @module shared-utils/common/validation
  */
-import { isNil } from './is-nil';
+import { isNil } from './is-nil.js';
 
 export function isEmpty(value: unknown): boolean {
   if (isNil(value)) return true;

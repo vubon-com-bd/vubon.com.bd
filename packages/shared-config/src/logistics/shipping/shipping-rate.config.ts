@@ -2,7 +2,7 @@
  * Shipping rate configuration
  * @module shared-config/logistics/shipping
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 import { CURRENCY } from '@vubon/shared-constants/common';
 
 export const SHIPPING_RATE_CONFIG = Object.freeze({

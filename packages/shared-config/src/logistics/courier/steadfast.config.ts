@@ -2,7 +2,7 @@
  * Steadfast courier configuration
  * @module shared-config/logistics/courier
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const STEADFAST_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('STEADFAST_ENABLED', false),

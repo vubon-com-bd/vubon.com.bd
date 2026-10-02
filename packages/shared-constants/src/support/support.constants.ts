@@ -6,74 +6,74 @@ import {
   TICKET_CHANNEL,
   TICKET_CATEGORY,
   TICKET,
-} from './ticket.constants';
-import { CONVERSATION_STATUS, CONVERSATION_TYPE, CONVERSATION } from './conversation.constants';
+} from './ticket.constants.js';
+import { CONVERSATION_STATUS, CONVERSATION_TYPE, CONVERSATION } from './conversation.constants.js';
 import {
   MESSAGE_TYPE,
   MESSAGE_STATUS,
   MESSAGE_SENDER_TYPE,
   MESSAGE,
   SUPPORT_MESSAGE_TEMPLATE,
-} from './message.constants';
-import { FAQ_STATUS, FAQ_CATEGORY, FAQ } from './faq.constants';
+} from './message.constants.js';
+import { FAQ_STATUS, FAQ_CATEGORY, FAQ } from './faq.constants.js';
 import {
   KNOWLEDGE_BASE_STATUS,
   KNOWLEDGE_BASE_TYPE,
   KNOWLEDGE_BASE_VISIBILITY,
   KNOWLEDGE_BASE,
-} from './knowledge-base.constants';
-import { FEEDBACK_TYPE, FEEDBACK_STATUS, FEEDBACK_RATING, FEEDBACK } from './feedback.constants';
+} from './knowledge-base.constants.js';
+import { FEEDBACK_TYPE, FEEDBACK_STATUS, FEEDBACK_RATING, FEEDBACK } from './feedback.constants.js';
 import {
   COMPLAINT_TYPE,
   COMPLAINT_STATUS,
   COMPLAINT_SEVERITY,
   COMPLAINT,
-} from './complaint.constants';
-import { SURVEY_TYPE, SURVEY_STATUS, SURVEY_QUESTION_TYPE, SURVEY } from './survey.constants';
+} from './complaint.constants.js';
+import { SURVEY_TYPE, SURVEY_STATUS, SURVEY_QUESTION_TYPE, SURVEY } from './survey.constants.js';
 import {
   LIVE_CHAT_STATUS,
   LIVE_CHAT_SESSION_STATUS,
   LIVE_CHAT_TRIGGER,
   LIVE_CHAT,
-} from './live-chat.constants';
-import { CHATBOT_TYPE, CHATBOT_STATUS, CHATBOT_INTENT, CHATBOT } from './chatbot.constants';
+} from './live-chat.constants.js';
+import { CHATBOT_TYPE, CHATBOT_STATUS, CHATBOT_INTENT, CHATBOT } from './chatbot.constants.js';
 import {
   SUPPORT_ANALYTICS_METRIC,
   SUPPORT_ANALYTICS_PERIOD,
   SUPPORT_ANALYTICS,
-} from './support-analytics.constants';
+} from './support-analytics.constants.js';
 import {
   SUPPORT_SLA_STATUS,
   SUPPORT_SLA_METRIC,
   SUPPORT_SLA_TARGET,
   SUPPORT_SLA,
-} from './support-sla.constants';
+} from './support-sla.constants.js';
 import {
   SUPPORT_AGENT_STATUS,
   SUPPORT_AGENT_LEVEL,
   SUPPORT_AGENT_SKILL,
   SUPPORT_AGENT,
-} from './support-agent.constants';
+} from './support-agent.constants.js';
 import {
   SUPPORT_TEAM_TYPE,
   SUPPORT_TEAM_STATUS,
   SUPPORT_TEAM_ROUTING,
   SUPPORT_TEAM,
-} from './support-team.constants';
+} from './support-team.constants.js';
 import {
   SUPPORT_RULE_TYPE,
   SUPPORT_RULE_CONDITION,
   SUPPORT_RULE_ACTION,
   SUPPORT_RULE_STATUS,
   SUPPORT_RULE,
-} from './support-rule.constants';
+} from './support-rule.constants.js';
 import {
   SUPPORT_AUTOMATION_TYPE,
   SUPPORT_AUTOMATION_TRIGGER,
   SUPPORT_AUTOMATION_STATUS,
   SUPPORT_AUTOMATION,
-} from './support-automation.constants';
-import { SUPPORT_PERMISSION } from './support-permission.constants';
+} from './support-automation.constants.js';
+import { SUPPORT_PERMISSION } from './support-permission.constants.js';
 
 export const SUPPORT_LIMIT = {
   MAX_TICKETS_PER_USER: 20,

@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { UserPublicSchema, UserSummarySchema } from './user.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { UserPublicSchema, UserSummarySchema } from './user.schema.js';
 
 export const UserResponseSchema = z.object({
   success: z.literal(true),

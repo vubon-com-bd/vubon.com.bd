@@ -3,12 +3,12 @@
  * @module shared-types/marketing
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId, Url } from '../common/primitives';
-import type { CampaignTypeValue } from './campaign-type.types';
-import type { CampaignStatusValue, CampaignGoalValue } from './campaign-status.types';
-import type { CampaignChannel } from './campaign-channel.types';
-import type { CampaignBudget } from './campaign-budget.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId, Url } from '../common/primitives/index.js';
+import type { CampaignTypeValue } from './campaign-type.types.js';
+import type { CampaignStatusValue, CampaignGoalValue } from './campaign-status.types.js';
+import type { CampaignChannel } from './campaign-channel.types.js';
+import type { CampaignBudget } from './campaign-budget.types.js';
 
 export interface Campaign extends BaseEntity<string> {
   readonly name: string;

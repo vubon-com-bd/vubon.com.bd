@@ -6,11 +6,11 @@
  */
 
 import type { USER_SETTINGS, USER_SETTINGS_KEY } from '@vubon/shared-constants/user';
-import type { UserId } from '../common/primitives';
-import type { LanguageCode } from '../common/primitives/language.types';
-import type { LocaleCode } from '../common/primitives/locale.types';
-import type { CurrencyCode } from '../common/primitives/currency.types';
-import type { TimezoneValue } from '../common/geo';
+import type { UserId } from '../common/primitives/index.js';
+import type { LanguageCode } from '../common/primitives/language.types.js';
+import type { LocaleCode } from '../common/primitives/locale.types.js';
+import type { CurrencyCode } from '../common/primitives/currency.types.js';
+import type { TimezoneValue } from '../common/geo/index.js';
 
 export type ThemeValue = (typeof USER_SETTINGS)[keyof typeof USER_SETTINGS];
 export type SettingsKey = (typeof USER_SETTINGS_KEY)[keyof typeof USER_SETTINGS_KEY];

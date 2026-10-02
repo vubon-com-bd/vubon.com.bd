@@ -6,16 +6,16 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { SlugSchema } from '../../common/primitives/slug.schema';
-import { SeoStatusSchema } from './seo-status.schema';
-import { SeoTypeSchema } from './seo-type.schema';
-import { SeoPrioritySchema } from './seo-priority.schema';
-import { SeoStrategySchema } from './seo-strategy.schema';
-import { SeoScoreSchema } from './seo-score.schema';
-import { SeoOpenGraphSchema } from './seo-open-graph.schema';
-import { SeoTwitterCardSchema } from './seo-twitter-card.schema';
-import { SeoSchemaDataSchema } from './seo-schema.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { SlugSchema } from '../../common/primitives/slug.schema.js';
+import { SeoStatusSchema } from './seo-status.schema.js';
+import { SeoTypeSchema } from './seo-type.schema.js';
+import { SeoPrioritySchema } from './seo-priority.schema.js';
+import { SeoStrategySchema } from './seo-strategy.schema.js';
+import { SeoScoreSchema } from './seo-score.schema.js';
+import { SeoOpenGraphSchema } from './seo-open-graph.schema.js';
+import { SeoTwitterCardSchema } from './seo-twitter-card.schema.js';
+import { SeoSchemaDataSchema } from './seo-schema.schema.js';
 
 export const SeoSchema = BaseEntitySchema.extend({
   url: z.string().url(),

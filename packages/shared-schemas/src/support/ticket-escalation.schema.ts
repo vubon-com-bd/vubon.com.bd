@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { SUPPORT_AGENT_LEVEL } from '@vubon/shared-constants/support';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const SupportAgentLevelSchema = z.enum(
   Object.values(SUPPORT_AGENT_LEVEL) as [string, ...string[]]

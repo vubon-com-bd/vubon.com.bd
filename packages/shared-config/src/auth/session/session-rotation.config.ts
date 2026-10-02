@@ -2,7 +2,7 @@
  * Session & token rotation configuration
  * @module shared-config/auth/session
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SESSION_ROTATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SESSION_ROTATION_ENABLED', true),

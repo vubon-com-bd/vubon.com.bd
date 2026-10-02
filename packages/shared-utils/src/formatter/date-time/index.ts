@@ -1,10 +1,10 @@
 // shared-utils/formatter/date-time/index.ts
 
-export * from './format-date';
-export * from './format-time';
-export * from './format-datetime';
-export * from './format-relative-time';
-export * from './format-duration';
-export * from './format-iso';
-export * from './format-month-year';
-export * from './format-day-name';
+export * from './format-date.js';
+export * from './format-time.js';
+export * from './format-datetime.js';
+export * from './format-relative-time.js';
+export * from './format-duration.js';
+export * from './format-iso.js';
+export * from './format-month-year.js';
+export * from './format-day-name.js';

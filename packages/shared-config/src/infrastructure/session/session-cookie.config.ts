@@ -2,8 +2,8 @@
  * Session cookie configuration
  * @module shared-config/infrastructure/session
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const isProd = loadEnv().NODE_ENV === 'production';
 

@@ -2,7 +2,7 @@
  * Generate a URL-safe slug with random suffix to avoid collisions
  * @module shared-utils/generator/text
  */
-import { generateNanoid } from '../id/generate-nanoid';
+import { generateNanoid } from '../id/generate-nanoid.js';
 
 export function generateSlug(source: string): string {
   const base = source

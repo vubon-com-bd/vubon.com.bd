@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { AI_PERSONALIZATION_TYPE, AI_PERSONALIZATION_SIGNAL } from '@vubon/shared-constants/ai';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AiPersonalizationTypeSchema = z.enum(
   Object.values(AI_PERSONALIZATION_TYPE) as [string, ...string[]]

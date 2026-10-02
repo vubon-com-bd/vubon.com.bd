@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { FlashSaleStatusSchema } from './flash-sale-status.schema';
-import { FlashSaleTypeSchema } from './flash-sale-type.schema';
-import { FlashSaleScheduleSchema } from './flash-sale-schedule.schema';
-import { FlashSalePricePublicSchema } from './flash-sale-price.schema';
-import { ProductDealPublicSchema } from './product-deal.schema';
-import { BundleDealPublicSchema } from './bundle-deal.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { FlashSaleStatusSchema } from './flash-sale-status.schema.js';
+import { FlashSaleTypeSchema } from './flash-sale-type.schema.js';
+import { FlashSaleScheduleSchema } from './flash-sale-schedule.schema.js';
+import { FlashSalePricePublicSchema } from './flash-sale-price.schema.js';
+import { ProductDealPublicSchema } from './product-deal.schema.js';
+import { BundleDealPublicSchema } from './bundle-deal.schema.js';
 
 export const FlashSaleSchema = BaseEntitySchema.extend({
   name: z.string().min(1).max(150),

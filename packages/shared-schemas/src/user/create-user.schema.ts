@@ -4,12 +4,12 @@
  */
 
 import { z } from 'zod';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { UsernameSchema, NameSchema } from '../common/primitives/name.schema';
-import { AuthPasswordSchema } from '../auth/auth-password.schema';
-import { UserTypeSchema } from './user-type.schema';
-import { UserRoleSchema } from './user-role.schema';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { UsernameSchema, NameSchema } from '../common/primitives/name.schema.js';
+import { AuthPasswordSchema } from '../auth/auth-password.schema.js';
+import { UserTypeSchema } from './user-type.schema.js';
+import { UserRoleSchema } from './user-role.schema.js';
 
 export const CreateUserRequestSchema = z
   .object({

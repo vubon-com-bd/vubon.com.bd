@@ -7,10 +7,10 @@
 
 import { z } from 'zod';
 import { VENDOR_TEAM_STATUS, VENDOR_TEAM_INVITE_STATUS } from '@vubon/shared-constants/business';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { VendorRoleSchema } from './vendor-role.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { VendorRoleSchema } from './vendor-role.schema.js';
 
 export const VendorTeamStatusSchema = z.enum(
   Object.values(VENDOR_TEAM_STATUS) as [string, ...string[]]

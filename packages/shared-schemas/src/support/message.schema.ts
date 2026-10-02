@@ -8,8 +8,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { MESSAGE_TYPE, MESSAGE_STATUS, MESSAGE_SENDER_TYPE } from '@vubon/shared-constants/support';
 
 export const SupportMessageTypeSchema = z.enum(

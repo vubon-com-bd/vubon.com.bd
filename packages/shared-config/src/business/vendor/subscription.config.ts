@@ -2,7 +2,7 @@
  * Vendor subscription configuration
  * @module shared-config/business/vendor
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const VENDOR_SUBSCRIPTION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('VENDOR_SUBSCRIPTION_ENABLED', false),

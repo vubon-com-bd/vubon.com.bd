@@ -2,7 +2,7 @@
  * Free shipping configuration
  * @module shared-config/logistics/shipping
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const FREE_SHIPPING_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FREE_SHIPPING_ENABLED', true),

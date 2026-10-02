@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { IN_APP_TYPE, IN_APP_POSITION, IN_APP_STATUS } from '@vubon/shared-constants/platform';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const InAppTypeSchema = z.enum(Object.values(IN_APP_TYPE) as [string, ...string[]]);
 

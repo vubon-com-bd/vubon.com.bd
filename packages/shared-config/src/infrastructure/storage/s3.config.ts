@@ -2,7 +2,7 @@
  * Amazon S3 configuration
  * @module shared-config/infrastructure/storage
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const S3_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('S3_ENABLED', false),

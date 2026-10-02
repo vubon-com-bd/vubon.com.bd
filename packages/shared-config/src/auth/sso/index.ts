@@ -1,4 +1,4 @@
 // shared-config/auth/sso/index.ts
 
-export * from './saml.config';
-export * from './oidc.config';
+export * from './saml.config.js';
+export * from './oidc.config.js';

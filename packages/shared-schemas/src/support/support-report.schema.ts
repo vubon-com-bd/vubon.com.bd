@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { SupportAnalyticsPeriodSchema } from './support-analytics.schema';
+import { SupportAnalyticsPeriodSchema } from './support-analytics.schema.js';
 
 export const SupportReportTypeSchema = z.enum([
   'tickets',

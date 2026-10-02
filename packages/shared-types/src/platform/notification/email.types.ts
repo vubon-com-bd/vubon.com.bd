@@ -8,7 +8,7 @@ import type {
   EMAIL_STATUS,
   EMAIL_PRIORITY,
 } from '@vubon/shared-constants/platform';
-import type { Email, Url } from '../../common/primitives';
+import type { Email, Url } from '../../common/primitives/index.js';
 
 export type EmailProviderValue = (typeof EMAIL_PROVIDER)[keyof typeof EMAIL_PROVIDER];
 

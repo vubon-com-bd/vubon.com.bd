@@ -1,5 +1,5 @@
 // shared-config/platform/webhook/index.ts
 
-export * from './webhook.config';
-export * from './retry.config';
-export * from './signature.config';
+export * from './webhook.config.js';
+export * from './retry.config.js';
+export * from './signature.config.js';

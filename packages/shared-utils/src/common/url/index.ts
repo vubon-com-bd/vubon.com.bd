@@ -1,13 +1,13 @@
 // shared-utils/common/url/index.ts
 
-export * from './build-url';
-export * from './parse-url';
-export * from './is-absolute-url';
-export * from './get-domain';
-export * from './get-pathname';
-export * from './add-query-param';
-export * from './remove-query-param';
-export * from './get-query-param';
-export * from './has-query-param';
-export * from './encode-query';
-export * from './decode-query';
+export * from './build-url.js';
+export * from './parse-url.js';
+export * from './is-absolute-url.js';
+export * from './get-domain.js';
+export * from './get-pathname.js';
+export * from './add-query-param.js';
+export * from './remove-query-param.js';
+export * from './get-query-param.js';
+export * from './has-query-param.js';
+export * from './encode-query.js';
+export * from './decode-query.js';

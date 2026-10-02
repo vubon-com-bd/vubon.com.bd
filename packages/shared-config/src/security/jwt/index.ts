@@ -1,6 +1,6 @@
 // shared-config/security/jwt/index.ts
 
-export * from './jwt-secret.config';
-export * from './jwt.config';
-export * from './access-token.config';
-export * from './refresh-token.config';
+export * from './jwt-secret.config.js';
+export * from './jwt.config.js';
+export * from './access-token.config.js';
+export * from './refresh-token.config.js';

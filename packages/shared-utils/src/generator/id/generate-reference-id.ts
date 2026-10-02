@@ -2,7 +2,7 @@
  * Generate a human-friendly reference ID (e.g., REF-2025-A3F2)
  * @module shared-utils/generator/id
  */
-import { generateNanoid } from './generate-nanoid';
+import { generateNanoid } from './generate-nanoid.js';
 
 export function generateReferenceId(prefix = 'REF', year?: number): string {
   const y = year ?? new Date().getFullYear();

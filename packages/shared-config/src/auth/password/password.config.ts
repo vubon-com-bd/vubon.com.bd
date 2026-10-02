@@ -5,7 +5,7 @@
  * Values আসে shared-constants/security থেকে।
  */
 import { SECURITY } from '@vubon/shared-constants/security';
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PASSWORD_CONFIG = Object.freeze({
   algorithm: getOptionalEnv('PASSWORD_ALGO', 'bcrypt'), // bcrypt | argon2

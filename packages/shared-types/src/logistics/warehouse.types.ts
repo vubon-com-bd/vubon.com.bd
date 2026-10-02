@@ -10,9 +10,9 @@ import type {
   WAREHOUSE_TYPE,
   WAREHOUSE_ZONE,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { Address } from '../common/geo';
-import type { UserId, Email, Phone } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Address } from '../common/geo/index.js';
+import type { UserId, Email, Phone } from '../common/primitives/index.js';
 
 export type WarehouseStatusValue = (typeof WAREHOUSE_STATUS)[keyof typeof WAREHOUSE_STATUS];
 

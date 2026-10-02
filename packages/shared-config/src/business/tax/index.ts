@@ -1,6 +1,6 @@
 // shared-config/business/tax/index.ts
 
-export * from './tax.config';
-export * from './vat.config';
-export * from './gst.config';
-export * from './income-tax.config';
+export * from './tax.config.js';
+export * from './vat.config.js';
+export * from './gst.config.js';
+export * from './income-tax.config.js';

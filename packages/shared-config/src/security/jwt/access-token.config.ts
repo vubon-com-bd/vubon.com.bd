@@ -2,8 +2,8 @@
  * Access token configuration
  * @module shared-config/security/jwt
  */
-import { getOptionalEnv, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnv, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const env = loadEnv();
 

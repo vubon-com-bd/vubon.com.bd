@@ -1,5 +1,5 @@
 // shared-config/security/helmet/index.ts
 
-export * from './helmet.config';
-export * from './csp.config';
-export * from './hsts.config';
+export * from './helmet.config.js';
+export * from './csp.config.js';
+export * from './hsts.config.js';

@@ -12,7 +12,7 @@ import {
   USER_KYC_DOCUMENT,
   USER_KYC,
 } from '@vubon/shared-constants/user';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const KycStatusSchema = z.enum(Object.values(USER_KYC_STATUS) as [string, ...string[]]);
 

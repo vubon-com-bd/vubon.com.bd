@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { VOUCHER_STATUS, VOUCHER_TYPE, VOUCHER_LIMIT } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VoucherStatusSchema = z.enum(Object.values(VOUCHER_STATUS) as [string, ...string[]]);
 

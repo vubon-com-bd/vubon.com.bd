@@ -2,7 +2,7 @@
  * Azure Blob Storage configuration
  * @module shared-config/infrastructure/storage
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const AZURE_BLOB_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AZURE_BLOB_ENABLED', false),

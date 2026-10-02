@@ -2,7 +2,7 @@
  * Loyalty program configuration
  * @module shared-config/marketing/loyalty
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const LOYALTY_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('LOYALTY_ENABLED', true),

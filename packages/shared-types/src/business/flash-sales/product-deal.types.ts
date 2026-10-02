@@ -6,8 +6,8 @@
  */
 
 import type { PRODUCT_DEAL_STATUS } from '@vubon/shared-constants/business';
-import type { ProductId, VendorId, Money } from '../../common/primitives';
-import type { DealDiscountTypeValue } from './deal-discount-type.types';
+import type { ProductId, VendorId, Money } from '../../common/primitives/index.js';
+import type { DealDiscountTypeValue } from './deal-discount-type.types.js';
 
 export type ProductDealStatusValue = (typeof PRODUCT_DEAL_STATUS)[keyof typeof PRODUCT_DEAL_STATUS];
 

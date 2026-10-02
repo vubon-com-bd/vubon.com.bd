@@ -1,6 +1,6 @@
 // shared-utils/formatter/contact/index.ts
 
-export * from './format-phone';
-export * from './format-email';
-export * from './format-name';
-export * from './format-address';
+export * from './format-phone.js';
+export * from './format-email.js';
+export * from './format-name.js';
+export * from './format-address.js';

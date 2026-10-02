@@ -2,7 +2,7 @@
  * VAT configuration (Bangladesh: 15%)
  * @module shared-config/business/tax
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const VAT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('VAT_ENABLED', true),

@@ -1,4 +1,4 @@
-import { CURRENCY } from '../../common/currency.constants';
+import { CURRENCY } from '../../common/currency.constants.js';
 
 export const PRICING_TYPE = {
   FIXED: 'fixed',

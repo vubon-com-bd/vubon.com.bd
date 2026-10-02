@@ -2,7 +2,7 @@
  * Email verification configuration
  * @module shared-config/auth/verification
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const EMAIL_VERIFICATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('EMAIL_VERIFICATION_ENABLED', true),

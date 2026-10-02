@@ -6,8 +6,8 @@
  */
 
 import type { VOUCHER_STATUS, VOUCHER_TYPE } from '@vubon/shared-constants/business';
-import type { VoucherId, Money, UserId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { VoucherId, Money, UserId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type VoucherStatusValue = (typeof VOUCHER_STATUS)[keyof typeof VOUCHER_STATUS];
 

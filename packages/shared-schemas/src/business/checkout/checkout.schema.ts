@@ -4,15 +4,15 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { EmailSchema } from '../../common/primitives/email.schema';
-import { PhoneSchema } from '../../common/primitives/phone.schema';
-import { AddressSchema } from '../../common/geo/address.schema';
-import { CartItemPublicSchema } from '../cart/cart-item.schema';
-import { CartTotalsSchema } from '../cart/cart.schema';
-import { CheckoutStatusSchema } from './checkout-status.schema';
-import { CheckoutStepSchema, CheckoutStepStateSchema } from './checkout-step.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../../common/primitives/email.schema.js';
+import { PhoneSchema } from '../../common/primitives/phone.schema.js';
+import { AddressSchema } from '../../common/geo/address.schema.js';
+import { CartItemPublicSchema } from '../cart/cart-item.schema.js';
+import { CartTotalsSchema } from '../cart/cart.schema.js';
+import { CheckoutStatusSchema } from './checkout-status.schema.js';
+import { CheckoutStepSchema, CheckoutStepStateSchema } from './checkout-step.schema.js';
 
 export const CheckoutTypeSchema = z.enum([
   'guest',

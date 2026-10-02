@@ -11,8 +11,8 @@ import type {
   INSURANCE_COVERAGE,
   INSURANCE_CLAIM_STATUS,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { ShipmentId, OrderId, UserId, Url } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { ShipmentId, OrderId, UserId, Url } from '../common/primitives/index.js';
 
 export type InsuranceStatusValue = (typeof INSURANCE_STATUS)[keyof typeof INSURANCE_STATUS];
 

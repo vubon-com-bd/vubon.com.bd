@@ -6,7 +6,7 @@
  */
 
 import type { ORDER_RETURN_STATUS, ORDER_RETURN_REASON } from '@vubon/shared-constants/business';
-import type { OrderId, UserId, Money, Url } from '../../common/primitives';
+import type { OrderId, UserId, Money, Url } from '../../common/primitives/index.js';
 
 export type OrderReturnStatusValue = (typeof ORDER_RETURN_STATUS)[keyof typeof ORDER_RETURN_STATUS];
 

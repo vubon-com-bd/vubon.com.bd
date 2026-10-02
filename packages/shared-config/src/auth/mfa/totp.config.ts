@@ -5,7 +5,7 @@
  * Values আসে shared-constants/auth থেকে।
  */
 import { AUTH_MFA } from '@vubon/shared-constants/auth';
-import { getOptionalEnv, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const TOTP_CONFIG = Object.freeze({
   periodSeconds: AUTH_MFA.TOTP_PERIOD_SECONDS,

@@ -2,9 +2,9 @@
  * Compare plain password against stored hash (constant-time)
  * @module shared-utils/security/password
  */
-import { pbkdf2 } from '../../infrastructure/crypto/pbkdf2';
-import { constantTimeEqual } from '../../infrastructure/crypto/constant-time-equal';
-import type { HashedPassword } from './hash-password';
+import { pbkdf2 } from '../../infrastructure/crypto/pbkdf2.js';
+import { constantTimeEqual } from '../../infrastructure/crypto/constant-time-equal.js';
+import type { HashedPassword } from './hash-password.js';
 
 export async function comparePassword(
   plainPassword: string,

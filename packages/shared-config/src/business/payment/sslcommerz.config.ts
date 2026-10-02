@@ -2,7 +2,7 @@
  * SSLCommerz payment gateway configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SSLCOMMERZ_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SSLCOMMERZ_ENABLED', false),

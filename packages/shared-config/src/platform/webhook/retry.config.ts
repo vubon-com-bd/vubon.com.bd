@@ -2,7 +2,7 @@
  * Webhook retry configuration
  * @module shared-config/platform/webhook
  */
-import { getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const WEBHOOK_RETRY_CONFIG = Object.freeze({
   maxRetries: getOptionalEnvInt('WEBHOOK_MAX_RETRIES', 5),

@@ -6,18 +6,18 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { UsernameSchema } from '../common/primitives/name.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { UserStatusSchema } from './user-status.schema';
-import { UserTypeSchema } from './user-type.schema';
-import { UserRoleSchema } from './user-role.schema';
-import { UserProfileSchema } from './user-profile.schema';
-import { UserSettingsSchema } from './user-settings.schema';
-import { UserPreferencesSchema } from './user-preferences.schema';
-import { UserKycSchema } from './user-kyc.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { UsernameSchema } from '../common/primitives/name.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { UserStatusSchema } from './user-status.schema.js';
+import { UserTypeSchema } from './user-type.schema.js';
+import { UserRoleSchema } from './user-role.schema.js';
+import { UserProfileSchema } from './user-profile.schema.js';
+import { UserSettingsSchema } from './user-settings.schema.js';
+import { UserPreferencesSchema } from './user-preferences.schema.js';
+import { UserKycSchema } from './user-kyc.schema.js';
 
 export const UserSchema = BaseEntitySchema.extend({
   email: EmailSchema,

@@ -5,8 +5,8 @@
  * Values আসে shared-constants/common/log-level.constants থেকে।
  */
 import { LOG_LEVEL } from '@vubon/shared-constants/common';
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper';
-import { loadEnv } from '../env/env.loader';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../env/env.helper.js';
+import { loadEnv } from '../env/env.loader.js';
 
 export const LOGGING_CONFIG = Object.freeze({
   level: loadEnv().LOG_LEVEL,

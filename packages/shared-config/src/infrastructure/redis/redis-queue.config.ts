@@ -2,8 +2,8 @@
  * Redis queue-specific configuration (Bull/BullMQ)
  * @module shared-config/infrastructure/redis
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 export const REDIS_QUEUE_CONFIG = Object.freeze({
   keyPrefix: `${loadEnv().REDIS_KEY_PREFIX}queue:`,

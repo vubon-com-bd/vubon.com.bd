@@ -1,11 +1,11 @@
-import { PAYMENT_STATUS } from './payment-status.constants';
-import { PAYMENT_METHOD, PAYMENT_METHOD_TYPE } from './payment-method.constants';
+import { PAYMENT_STATUS } from './payment-status.constants.js';
+import { PAYMENT_METHOD, PAYMENT_METHOD_TYPE } from './payment-method.constants.js';
 import {
   PAYMENT_GATEWAY,
   PAYMENT_GATEWAY_STATUS,
   PAYMENT_GATEWAY_ENV,
-} from './payment-gateway.constants';
-import { TRANSACTION_TYPE, TRANSACTION_STATUS, TRANSACTION_LIMIT } from './transaction.constants';
+} from './payment-gateway.constants.js';
+import { TRANSACTION_TYPE, TRANSACTION_STATUS, TRANSACTION_LIMIT } from './transaction.constants.js';
 
 export const PAYMENT_TYPE = {
   ONE_TIME: 'one_time',

@@ -6,7 +6,7 @@
  */
 
 import type { FLASH_SALE_INVENTORY_STATUS } from '@vubon/shared-constants/business';
-import type { ProductId } from '../../common/primitives';
+import type { ProductId } from '../../common/primitives/index.js';
 
 export type FlashSaleInventoryStatusValue =
   (typeof FLASH_SALE_INVENTORY_STATUS)[keyof typeof FLASH_SALE_INVENTORY_STATUS];

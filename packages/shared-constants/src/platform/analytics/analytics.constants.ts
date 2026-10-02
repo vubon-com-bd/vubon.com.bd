@@ -1,39 +1,39 @@
-import { ANALYTICS_STATUS } from './analytics-status.constants';
-import { ANALYTICS_TYPE } from './analytics-type.constants';
-import { ANALYTICS_CATEGORY } from './analytics-category.constants';
-import { ANALYTICS_SOURCE, ANALYTICS_SOURCE_PLATFORM } from './analytics-source.constants';
-import { ANALYTICS_MEDIUM } from './analytics-medium.constants';
+import { ANALYTICS_STATUS } from './analytics-status.constants.js';
+import { ANALYTICS_TYPE } from './analytics-type.constants.js';
+import { ANALYTICS_CATEGORY } from './analytics-category.constants.js';
+import { ANALYTICS_SOURCE, ANALYTICS_SOURCE_PLATFORM } from './analytics-source.constants.js';
+import { ANALYTICS_MEDIUM } from './analytics-medium.constants.js';
 import {
   ANALYTICS_CAMPAIGN_TYPE,
   ANALYTICS_CAMPAIGN,
   ANALYTICS_UTM_PARAM,
-} from './analytics-campaign.constants';
-import { ANALYTICS_EVENT, ANALYTICS_EVENT_CATEGORY } from './analytics-event.constants';
-import { ANALYTICS_METRIC, ANALYTICS_METRIC_UNIT } from './analytics-metric.constants';
-import { ANALYTICS_DIMENSION, ANALYTICS_DIMENSION_TYPE } from './analytics-dimension.constants';
+} from './analytics-campaign.constants.js';
+import { ANALYTICS_EVENT, ANALYTICS_EVENT_CATEGORY } from './analytics-event.constants.js';
+import { ANALYTICS_METRIC, ANALYTICS_METRIC_UNIT } from './analytics-metric.constants.js';
+import { ANALYTICS_DIMENSION, ANALYTICS_DIMENSION_TYPE } from './analytics-dimension.constants.js';
 import {
   ANALYTICS_FILTER_OPERATOR,
   ANALYTICS_FILTER_LOGIC,
   ANALYTICS_FILTER,
-} from './analytics-filter.constants';
-import { ANALYTICS_PERIOD, ANALYTICS_PERIOD_DAYS } from './analytics-period.constants';
-import { ANALYTICS_INTERVAL, ANALYTICS_INTERVAL_SECONDS } from './analytics-interval.constants';
+} from './analytics-filter.constants.js';
+import { ANALYTICS_PERIOD, ANALYTICS_PERIOD_DAYS } from './analytics-period.constants.js';
+import { ANALYTICS_INTERVAL, ANALYTICS_INTERVAL_SECONDS } from './analytics-interval.constants.js';
 import {
   ANALYTICS_AGGREGATION,
   ANALYTICS_PERCENTILE,
   ANALYTICS_AGGREGATION_LIMIT,
-} from './analytics-aggregation.constants';
+} from './analytics-aggregation.constants.js';
 import {
   ANALYTICS_COMPARISON,
   ANALYTICS_CHANGE_TYPE,
   ANALYTICS_COMPARISON_LIMIT,
-} from './analytics-comparison.constants';
+} from './analytics-comparison.constants.js';
 import {
   ANALYTICS_TREND_TYPE,
   ANALYTICS_TREND_STRENGTH,
   ANALYTICS_TREND_LIMIT,
-} from './analytics-trend.constants';
-import { ANALYTICS_PERMISSION } from './analytics-permission.constants';
+} from './analytics-trend.constants.js';
+import { ANALYTICS_PERMISSION } from './analytics-permission.constants.js';
 
 export const ANALYTICS_LIMIT = {
   MAX_DASHBOARDS: 100,

@@ -11,8 +11,8 @@ import {
   VENDOR_SUBSCRIPTION_STATUS,
   VENDOR_SUBSCRIPTION_CYCLE,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VendorSubscriptionPlanSchema = z.enum(
   Object.values(VENDOR_SUBSCRIPTION_PLAN) as [string, ...string[]]

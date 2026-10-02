@@ -1,11 +1,11 @@
 // shared-types/business/index.ts
 // Business domain barrel export — FINAL
 
-export * from './product';
-export * from './cart';
-export * from './checkout';
-export * from './payment';
-export * from './order';
-export * from './tax';
-export * from './flash-sales';
-export * from './vendor';
+export * from './product/index.js';
+export * from './cart/index.js';
+export * from './checkout/index.js';
+export * from './payment/index.js';
+export * from './order/index.js';
+export * from './tax/index.js';
+export * from './flash-sales/index.js';
+export * from './vendor/index.js';

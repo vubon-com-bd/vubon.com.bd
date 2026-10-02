@@ -10,7 +10,7 @@ import type {
   VENDOR_REPORT_FORMAT,
   VENDOR_REPORT_PERIOD,
 } from '@vubon/shared-constants/business';
-import type { VendorId, Money } from '../../common/primitives';
+import type { VendorId, Money } from '../../common/primitives/index.js';
 
 export type VendorReportTypeValue = (typeof VENDOR_REPORT_TYPE)[keyof typeof VENDOR_REPORT_TYPE];
 

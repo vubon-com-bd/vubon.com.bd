@@ -2,7 +2,7 @@
  * Live chat configuration
  * @module shared-config/support/live-chat
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const LIVE_CHAT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('LIVE_CHAT_ENABLED', false),

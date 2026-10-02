@@ -2,7 +2,7 @@
  * Vector database base configuration
  * @module shared-config/ai/vector
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const VECTOR_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('VECTOR_ENABLED', true),

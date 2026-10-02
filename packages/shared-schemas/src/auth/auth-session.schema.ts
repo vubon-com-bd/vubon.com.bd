@@ -8,7 +8,7 @@
 import { z } from 'zod';
 import { AUTH_SESSION } from '@vubon/shared-constants/auth';
 import { SESSION_STATUS } from '@vubon/shared-constants/infrastructure';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AuthSessionStatusSchema = z.enum(
   Object.values(SESSION_STATUS) as [string, ...string[]]

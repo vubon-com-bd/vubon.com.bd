@@ -6,7 +6,7 @@
  */
 
 import type { ORDER_CANCEL_REASON, ORDER_CANCEL_STATUS } from '@vubon/shared-constants/business';
-import type { OrderId, UserId, Money } from '../../common/primitives';
+import type { OrderId, UserId, Money } from '../../common/primitives/index.js';
 
 export type OrderCancelReasonValue = (typeof ORDER_CANCEL_REASON)[keyof typeof ORDER_CANCEL_REASON];
 

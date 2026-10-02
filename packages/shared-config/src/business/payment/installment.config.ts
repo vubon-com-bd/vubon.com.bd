@@ -2,7 +2,7 @@
  * Installment payment configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const INSTALLMENT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('INSTALLMENT_ENABLED', false),

@@ -2,7 +2,7 @@
  * Pinecone vector DB configuration
  * @module shared-config/ai/vector
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PINECONE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PINECONE_ENABLED', false),

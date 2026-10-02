@@ -2,7 +2,7 @@
  * SEO base configuration
  * @module shared-config/platform/seo
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const SEO_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('SEO_ENABLED', true),

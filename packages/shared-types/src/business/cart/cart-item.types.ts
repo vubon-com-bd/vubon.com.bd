@@ -5,7 +5,7 @@
  * Cart item — একটা product/variant cart-এ।
  */
 
-import type { CartId, ProductId, Money, Url } from '../../common/primitives';
+import type { CartId, ProductId, Money, Url } from '../../common/primitives/index.js';
 
 export interface CartItem {
   readonly id: string;

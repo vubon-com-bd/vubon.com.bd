@@ -2,7 +2,7 @@
  * Coupon configuration
  * @module shared-config/business/cart
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const COUPON_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('COUPON_ENABLED', true),

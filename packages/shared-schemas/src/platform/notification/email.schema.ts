@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { EMAIL_PROVIDER, EMAIL_STATUS, EMAIL_PRIORITY } from '@vubon/shared-constants/platform';
-import { EmailSchema as EmailAddressSchema } from '../../common/primitives/email.schema';
+import { EmailSchema as EmailAddressSchema } from '../../common/primitives/email.schema.js';
 
 export const EmailProviderSchema = z.enum(Object.values(EMAIL_PROVIDER) as [string, ...string[]]);
 

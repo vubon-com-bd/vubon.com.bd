@@ -6,7 +6,7 @@
  */
 
 import type { FLASH_SALE_COUPON_TYPE } from '@vubon/shared-constants/business';
-import type { Money, CouponId } from '../../common/primitives';
+import type { Money, CouponId } from '../../common/primitives/index.js';
 
 export type FlashSaleCouponTypeValue =
   (typeof FLASH_SALE_COUPON_TYPE)[keyof typeof FLASH_SALE_COUPON_TYPE];

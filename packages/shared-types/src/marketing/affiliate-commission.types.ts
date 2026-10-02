@@ -4,7 +4,7 @@
  */
 
 import type { AFFILIATE_COMMISSION_TYPE } from '@vubon/shared-constants/marketing';
-import type { Money } from '../common/primitives';
+import type { Money } from '../common/primitives/index.js';
 
 export type AffiliateCommissionTypeValue =
   (typeof AFFILIATE_COMMISSION_TYPE)[keyof typeof AFFILIATE_COMMISSION_TYPE];

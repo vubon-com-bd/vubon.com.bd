@@ -10,7 +10,7 @@ import {
   VENDOR_VERIFICATION_STATUS,
   VENDOR_VERIFICATION_TYPE,
 } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
 
 export const VendorVerificationStatusSchema = z.enum(
   Object.values(VENDOR_VERIFICATION_STATUS) as [string, ...string[]]

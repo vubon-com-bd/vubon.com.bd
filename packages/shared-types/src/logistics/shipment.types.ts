@@ -3,11 +3,11 @@
  * @module shared-types/logistics
  */
 
-import type { BaseEntity } from '../common/base';
-import type { ShipmentId, OrderId, VendorId, WarehouseId, UserId } from '../common/primitives';
-import type { Address } from '../common/geo';
-import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types';
-import type { ShipmentTypeValue } from './shipment-type.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { ShipmentId, OrderId, VendorId, WarehouseId, UserId } from '../common/primitives/index.js';
+import type { Address } from '../common/geo/index.js';
+import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types.js';
+import type { ShipmentTypeValue } from './shipment-type.types.js';
 
 export interface Shipment extends BaseEntity<ShipmentId> {
   readonly trackingNumber: string;

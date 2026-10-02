@@ -3,10 +3,10 @@
  * @module shared-types/marketing
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId, Email } from '../common/primitives';
-import type { AffiliateStatusValue } from './affiliate-status.types';
-import type { AffiliateCommission } from './affiliate-commission.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId, Email } from '../common/primitives/index.js';
+import type { AffiliateStatusValue } from './affiliate-status.types.js';
+import type { AffiliateCommission } from './affiliate-commission.types.js';
 
 export type AffiliateTypeValue =
   | 'individual'

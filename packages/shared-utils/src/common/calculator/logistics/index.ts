@@ -1,3 +1,3 @@
-export * from './distance.calculator';
-export * from './delivery-time.calculator';
-export * from './volumetric-weight.calculator';
+export * from './distance.calculator.js';
+export * from './delivery-time.calculator.js';
+export * from './volumetric-weight.calculator.js';

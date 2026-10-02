@@ -1,5 +1,5 @@
 /**
- * Slug Value Object
+ * Slug Value Objects
  * @module shared-kernel/domain/primitives
  *
  * Values আসে shared-constants/common থেকে।
@@ -7,14 +7,22 @@
 import { REGEX } from '@vubon/shared-constants/common';
 import { BaseVO } from '../base/base.vo.js';
 
-export class SlugVO extends BaseVO<string> {
-  private static readonly MAX_LENGTH = 120;
+/**
+ * Abstract base for slug VOs.
+ * Subclasses can override `maxLength()` to constrain further.
+ */
+export abstract class BaseSlugVO extends BaseVO<string> {
+  private static readonly DEFAULT_MAX_LENGTH = 120;
 
-  private constructor(value: string) {
+  protected constructor(value: string) {
     super(value);
   }
 
-  static of(raw: string): SlugVO {
+  protected static maxLength(): number {
+    return BaseSlugVO.DEFAULT_MAX_LENGTH;
+  }
+
+  protected static validateRaw(raw: string): string {
     if (typeof raw !== 'string') {
       throw new Error('Slug must be a string');
     }
@@ -23,18 +31,17 @@ export class SlugVO extends BaseVO<string> {
     if (normalized.length === 0) {
       throw new Error('Slug cannot be empty');
     }
-    if (normalized.length > SlugVO.MAX_LENGTH) {
-      throw new Error(`Slug exceeds ${SlugVO.MAX_LENGTH} chars`);
+    if (normalized.length > this.maxLength()) {
+      throw new Error(`Slug exceeds ${this.maxLength()} chars`);
     }
     if (!REGEX.SLUG.test(normalized)) {
       throw new Error(`Invalid slug format: ${raw}`);
     }
-
-    return new SlugVO(normalized);
+    return normalized;
   }
 
-  static fromName(name: string): SlugVO {
-    const slug = name
+  protected static slugifyFromName(name: string): string {
+    return name
       .normalize('NFKD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
@@ -43,6 +50,19 @@ export class SlugVO extends BaseVO<string> {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    return SlugVO.of(slug);
+  }
+}
+
+export class SlugVO extends BaseSlugVO {
+  private constructor(value: string) {
+    super(value);
+  }
+
+  static of(raw: string): SlugVO {
+    return new SlugVO(BaseSlugVO.validateRaw(raw));
+  }
+
+  static fromName(name: string): SlugVO {
+    return new SlugVO(BaseSlugVO.validateRaw(BaseSlugVO.slugifyFromName(name)));
   }
 }

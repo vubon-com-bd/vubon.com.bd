@@ -4,11 +4,11 @@
  */
 
 import { z } from 'zod';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { UsernameSchema } from '../common/primitives/name.schema';
-import { UserStatusSchema } from './user-status.schema';
-import { UserTypeSchema } from './user-type.schema';
-import { UserRoleListSchema } from './user-role.schema';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { UsernameSchema } from '../common/primitives/name.schema.js';
+import { UserStatusSchema } from './user-status.schema.js';
+import { UserTypeSchema } from './user-type.schema.js';
+import { UserRoleListSchema } from './user-role.schema.js';
 
 export const UpdateUserRequestSchema = z
   .object({

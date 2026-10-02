@@ -3,7 +3,7 @@
  * @module shared-types/common/primitives
  */
 
-import type { Branded } from '../utils/branded.types';
+import type { Branded } from '../utils/branded.types.js';
 
 export type Timestamp = Branded<number, 'Timestamp'>;
 export type UnixTimestamp = Branded<number, 'UnixTimestamp'>;

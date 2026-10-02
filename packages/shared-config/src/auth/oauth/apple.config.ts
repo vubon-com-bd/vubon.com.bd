@@ -2,7 +2,7 @@
  * Apple Sign In OAuth configuration
  * @module shared-config/auth/oauth
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const APPLE_OAUTH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('APPLE_OAUTH_ENABLED', false),

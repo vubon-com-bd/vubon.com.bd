@@ -2,39 +2,39 @@
 // Support domain barrel export
 
 // Base value types (imported by other files)
-export * from './support-agent.types';
-export * from './support-analytics.types';
-export * from './ticket-status.types';
-export * from './ticket-priority.types';
-export * from './ticket-type.types';
-export * from './ticket-channel.types';
-export * from './ticket-category.types';
+export * from './support-agent.types.js';
+export * from './support-analytics.types.js';
+export * from './ticket-status.types.js';
+export * from './ticket-priority.types.js';
+export * from './ticket-type.types.js';
+export * from './ticket-channel.types.js';
+export * from './ticket-category.types.js';
 
 // Entity types
-export * from './support.types';
-export * from './ticket.types';
-export * from './conversation.types';
-export * from './message.types';
-export * from './attachment.types';
-export * from './faq.types';
-export * from './knowledge-base.types';
-export * from './feedback.types';
-export * from './complaint.types';
-export * from './survey.types';
-export * from './live-chat.types';
-export * from './chatbot.types';
-export * from './support-sla.types';
-export * from './support-team.types';
-export * from './support-schedule.types';
-export * from './support-rule.types';
-export * from './support-automation.types';
-export * from './support-template.types';
-export * from './support-email.types';
-export * from './support-sms.types';
-export * from './support-push.types';
-export * from './support-permission.types';
+export * from './support.types.js';
+export * from './ticket.types.js';
+export * from './conversation.types.js';
+export * from './message.types.js';
+export * from './attachment.types.js';
+export * from './faq.types.js';
+export * from './knowledge-base.types.js';
+export * from './feedback.types.js';
+export * from './complaint.types.js';
+export * from './survey.types.js';
+export * from './live-chat.types.js';
+export * from './chatbot.types.js';
+export * from './support-sla.types.js';
+export * from './support-team.types.js';
+export * from './support-schedule.types.js';
+export * from './support-rule.types.js';
+export * from './support-automation.types.js';
+export * from './support-template.types.js';
+export * from './support-email.types.js';
+export * from './support-sms.types.js';
+export * from './support-push.types.js';
+export * from './support-permission.types.js';
 
 // Depends on ticket-escalation and support-analytics
-export * from './ticket-escalation.types';
-export * from './ticket-satisfaction.types';
-export * from './support-report.types';
+export * from './ticket-escalation.types.js';
+export * from './ticket-satisfaction.types.js';
+export * from './support-report.types.js';

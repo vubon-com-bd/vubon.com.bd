@@ -6,8 +6,8 @@
  */
 
 import type { VARIANT_STATUS, VARIANT_TYPE } from '@vubon/shared-constants/business';
-import type { ProductId, Money, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { ProductId, Money, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type VariantStatusValue = (typeof VARIANT_STATUS)[keyof typeof VARIANT_STATUS];
 

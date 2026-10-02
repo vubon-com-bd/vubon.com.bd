@@ -2,7 +2,7 @@
  * Push notification base configuration
  * @module shared-config/platform/notification
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PUSH_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('PUSH_ENABLED', true),

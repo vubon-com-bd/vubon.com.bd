@@ -4,8 +4,8 @@
  *
  * ⚠️ Never log the plain password.
  */
-import { pbkdf2 } from '../../infrastructure/crypto/pbkdf2';
-import { generateSalt } from './generate-salt';
+import { pbkdf2 } from '../../infrastructure/crypto/pbkdf2.js';
+import { generateSalt } from './generate-salt.js';
 
 export interface HashedPassword {
   readonly hash: string;

@@ -2,7 +2,7 @@
  * Google Cloud Storage configuration
  * @module shared-config/infrastructure/storage
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const GCS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GCS_ENABLED', false),

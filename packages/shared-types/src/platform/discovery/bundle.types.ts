@@ -4,7 +4,7 @@
  */
 
 import type { BUNDLE_TYPE, BUNDLE_STATUS, BUNDLE_PRICING } from '@vubon/shared-constants/platform';
-import type { Money } from '../../common/primitives';
+import type { Money } from '../../common/primitives/index.js';
 
 export type BundleTypeValue = (typeof BUNDLE_TYPE)[keyof typeof BUNDLE_TYPE];
 

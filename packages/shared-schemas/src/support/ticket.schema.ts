@@ -6,15 +6,15 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
 import { TICKET } from '@vubon/shared-constants/support';
-import { TicketStatusSchema } from './ticket-status.schema';
-import { TicketPrioritySchema } from './ticket-priority.schema';
-import { TicketTypeSchema } from './ticket-type.schema';
-import { TicketChannelSchema } from './ticket-channel.schema';
-import { TicketCategorySchema } from './ticket-category.schema';
+import { TicketStatusSchema } from './ticket-status.schema.js';
+import { TicketPrioritySchema } from './ticket-priority.schema.js';
+import { TicketTypeSchema } from './ticket-type.schema.js';
+import { TicketChannelSchema } from './ticket-channel.schema.js';
+import { TicketCategorySchema } from './ticket-category.schema.js';
 
 export const TicketSchema = BaseEntitySchema.extend({
   ticketNumber: z.string().min(1).max(50),

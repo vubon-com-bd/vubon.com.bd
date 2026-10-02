@@ -5,12 +5,12 @@
  * Analytics entity + aggregator।
  */
 
-import type { BaseEntity } from '../../common/base';
-import type { AnalyticsTypeValue } from './analytics-type.types';
-import type { AnalyticsCategoryValue } from './analytics-category.types';
-import type { AnalyticsStatusValue } from './analytics-status.types';
-import type { AnalyticsMetric } from './analytics-metric.types';
-import type { AnalyticsPeriod } from './analytics-period.types';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { AnalyticsTypeValue } from './analytics-type.types.js';
+import type { AnalyticsCategoryValue } from './analytics-category.types.js';
+import type { AnalyticsStatusValue } from './analytics-status.types.js';
+import type { AnalyticsMetric } from './analytics-metric.types.js';
+import type { AnalyticsPeriod } from './analytics-period.types.js';
 
 export interface Analytics extends BaseEntity<string> {
   readonly name: string;

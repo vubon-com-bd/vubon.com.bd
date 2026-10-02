@@ -7,7 +7,7 @@ import type {
   NOTIFICATION_DEVICE_TYPE,
   NOTIFICATION_DEVICE_STATUS,
 } from '@vubon/shared-constants/platform';
-import type { UserId } from '../../common/primitives';
+import type { UserId } from '../../common/primitives/index.js';
 
 export type NotificationDeviceTypeValue =
   (typeof NOTIFICATION_DEVICE_TYPE)[keyof typeof NOTIFICATION_DEVICE_TYPE];

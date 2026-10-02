@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { MoneySchema } from '../common/primitives/money.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../common/primitives/money.schema.js';
 import { AFFILIATE } from '@vubon/shared-constants/marketing';
-import { AffiliateCommissionTypeSchema } from './affiliate-status.schema';
+import { AffiliateCommissionTypeSchema } from './affiliate-status.schema.js';
 
 export const AffiliateCommissionSchema = z.object({
   affiliateId: UuidSchema,

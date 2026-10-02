@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { LogisticsAnalyticsPeriodSchema } from './logistics-analytics.schema';
+import { LogisticsAnalyticsPeriodSchema } from './logistics-analytics.schema.js';
 
 export const LogisticsReportTypeSchema = z.enum([
   'shipments',

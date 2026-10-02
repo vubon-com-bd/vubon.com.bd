@@ -6,9 +6,9 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { PositiveMoneySchema } from '../common/primitives/money.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema } from '../common/primitives/money.schema.js';
 import {
   INSURANCE_STATUS,
   INSURANCE_TYPE,

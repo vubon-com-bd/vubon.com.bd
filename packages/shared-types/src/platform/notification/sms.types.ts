@@ -4,7 +4,7 @@
  */
 
 import type { SMS_PROVIDER, SMS_STATUS, SMS_TYPE } from '@vubon/shared-constants/platform';
-import type { Phone } from '../../common/primitives';
+import type { Phone } from '../../common/primitives/index.js';
 
 export type SmsProviderValue = (typeof SMS_PROVIDER)[keyof typeof SMS_PROVIDER];
 

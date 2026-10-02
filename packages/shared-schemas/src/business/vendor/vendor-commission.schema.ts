@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { VENDOR_COMMISSION_TYPE, VENDOR_COMMISSION } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VendorCommissionTypeSchema = z.enum(
   Object.values(VENDOR_COMMISSION_TYPE) as [string, ...string[]]

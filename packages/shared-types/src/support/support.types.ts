@@ -5,16 +5,16 @@
  * Support entity + aggregator।
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
-import type { TicketStatusValue } from './ticket-status.types';
-import type { TicketPriorityValue } from './ticket-priority.types';
-import type { Ticket } from './ticket.types';
-import type { Conversation } from './conversation.types';
-import type { SupportMessage } from './message.types';
-import type { SupportAgent } from './support-agent.types';
-import type { SupportTeam } from './support-team.types';
-import type { SupportMetrics } from './support-analytics.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
+import type { TicketStatusValue } from './ticket-status.types.js';
+import type { TicketPriorityValue } from './ticket-priority.types.js';
+import type { Ticket } from './ticket.types.js';
+import type { Conversation } from './conversation.types.js';
+import type { SupportMessage } from './message.types.js';
+import type { SupportAgent } from './support-agent.types.js';
+import type { SupportTeam } from './support-team.types.js';
+import type { SupportMetrics } from './support-analytics.types.js';
 
 export interface Support extends BaseEntity<string> {
   readonly ticketId?: string;

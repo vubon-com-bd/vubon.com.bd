@@ -2,7 +2,7 @@
  * Local filesystem storage configuration (dev/default)
  * @module shared-config/infrastructure/storage
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const LOCAL_STORAGE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('LOCAL_STORAGE_ENABLED', true),

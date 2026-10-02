@@ -1,8 +1,8 @@
 // shared-config/platform/seo/index.ts
 
-export * from './seo.config';
-export * from './sitemap.config';
-export * from './robots.config';
-export * from './schema.config';
-export * from './open-graph.config';
-export * from './twitter-card.config';
+export * from './seo.config.js';
+export * from './sitemap.config.js';
+export * from './robots.config.js';
+export * from './schema.config.js';
+export * from './open-graph.config.js';
+export * from './twitter-card.config.js';

@@ -1,16 +1,16 @@
-import { USER_STATUS } from './user-status.constants';
-import { USER_TYPE } from './user-type.constants';
-import { USER_ROLE } from './user-role.constants';
-import { USER_PERMISSION } from './user-permission.constants';
-import { USER_PROFILE } from './user-profile.constants';
-import { USER_SETTINGS } from './user-settings.constants';
-import { USER_PREFERENCE } from './user-preferences.constants';
-import { USER_ADDRESS } from './user-address.constants';
-import { USER_CONTACT } from './user-contact.constants';
-import { USER_VERIFICATION } from './user-verification.constants';
-import { USER_KYC } from './user-kyc.constants';
-import { USER_ACTIVITY } from './user-activity.constants';
-import { USER_LOG } from './user-log.constants';
+import { USER_STATUS } from './user-status.constants.js';
+import { USER_TYPE } from './user-type.constants.js';
+import { USER_ROLE } from './user-role.constants.js';
+import { USER_PERMISSION } from './user-permission.constants.js';
+import { USER_PROFILE } from './user-profile.constants.js';
+import { USER_SETTINGS } from './user-settings.constants.js';
+import { USER_PREFERENCE } from './user-preferences.constants.js';
+import { USER_ADDRESS } from './user-address.constants.js';
+import { USER_CONTACT } from './user-contact.constants.js';
+import { USER_VERIFICATION } from './user-verification.constants.js';
+import { USER_KYC } from './user-kyc.constants.js';
+import { USER_ACTIVITY } from './user-activity.constants.js';
+import { USER_LOG } from './user-log.constants.js';
 
 export const USER = {
   STATUS: USER_STATUS,

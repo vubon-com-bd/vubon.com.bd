@@ -2,7 +2,7 @@
  * Application mode flags derived from NODE_ENV
  * @module shared-config/common/app
  */
-import { loadEnv } from '../env/env.loader';
+import { loadEnv } from '../env/env.loader.js';
 
 const env = loadEnv();
 

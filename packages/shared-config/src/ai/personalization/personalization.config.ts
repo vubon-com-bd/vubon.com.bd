@@ -2,7 +2,7 @@
  * AI personalization configuration
  * @module shared-config/ai/personalization
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const PERSONALIZATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('AI_PERSONALIZATION_ENABLED', true),

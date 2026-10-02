@@ -1,55 +1,55 @@
-import { SHIPMENT_STATUS, SHIPMENT_TYPE, SHIPMENT_PRIORITY, SHIPMENT } from './shipment.constants';
+import { SHIPMENT_STATUS, SHIPMENT_TYPE, SHIPMENT_PRIORITY, SHIPMENT } from './shipment.constants.js';
 import {
   DELIVERY_STATUS,
   DELIVERY_TYPE,
   DELIVERY_ATTEMPT_STATUS,
   DELIVERY,
-} from './delivery.constants';
-import { COURIER_STATUS, COURIER_TYPE, COURIER_NAME, COURIER } from './courier.constants';
-import { TRACKING_EVENT, TRACKING_STATUS, TRACKING_SOURCE, TRACKING } from './tracking.constants';
-import { WAREHOUSE_STATUS, WAREHOUSE_TYPE, WAREHOUSE_ZONE, WAREHOUSE } from './warehouse.constants';
+} from './delivery.constants.js';
+import { COURIER_STATUS, COURIER_TYPE, COURIER_NAME, COURIER } from './courier.constants.js';
+import { TRACKING_EVENT, TRACKING_STATUS, TRACKING_SOURCE, TRACKING } from './tracking.constants.js';
+import { WAREHOUSE_STATUS, WAREHOUSE_TYPE, WAREHOUSE_ZONE, WAREHOUSE } from './warehouse.constants.js';
 import {
   FULFILLMENT_STATUS,
   FULFILLMENT_TYPE,
   FULFILLMENT_PRIORITY,
   FULFILLMENT,
-} from './fulfillment.constants';
-import { DISPATCH_STATUS, DISPATCH_TYPE, DISPATCH } from './dispatch.constants';
-import { VEHICLE_STATUS, VEHICLE_TYPE, VEHICLE_FUEL_TYPE, VEHICLE } from './vehicle.constants';
-import { DRIVER_STATUS, DRIVER_TYPE, DRIVER_LICENSE_TYPE, DRIVER } from './driver.constants';
-import { ROUTE_STATUS, ROUTE_TYPE, ROUTE_OPTIMIZATION, ROUTE } from './route.constants';
-import { ZONE_STATUS, ZONE_TYPE, ZONE_PRICING_TYPE, ZONE } from './zone.constants';
+} from './fulfillment.constants.js';
+import { DISPATCH_STATUS, DISPATCH_TYPE, DISPATCH } from './dispatch.constants.js';
+import { VEHICLE_STATUS, VEHICLE_TYPE, VEHICLE_FUEL_TYPE, VEHICLE } from './vehicle.constants.js';
+import { DRIVER_STATUS, DRIVER_TYPE, DRIVER_LICENSE_TYPE, DRIVER } from './driver.constants.js';
+import { ROUTE_STATUS, ROUTE_TYPE, ROUTE_OPTIMIZATION, ROUTE } from './route.constants.js';
+import { ZONE_STATUS, ZONE_TYPE, ZONE_PRICING_TYPE, ZONE } from './zone.constants.js';
 import {
   SHIPPING_METHOD,
   SHIPPING_METHOD_STATUS,
   SHIPPING_RATE_TYPE,
   SHIPPING_METHOD_LIMIT,
-} from './shipping-method.constants';
+} from './shipping-method.constants.js';
 import {
   PACKAGING_TYPE,
   PACKAGING_MATERIAL,
   PACKAGING_STATUS,
   PACKAGING,
-} from './packaging.constants';
+} from './packaging.constants.js';
 import {
   RETURN_SHIPMENT_STATUS,
   RETURN_SHIPMENT_TYPE,
   RETURN_SHIPMENT_REASON,
   RETURN_SHIPMENT,
-} from './return-shipment.constants';
+} from './return-shipment.constants.js';
 import {
   INSURANCE_STATUS,
   INSURANCE_TYPE,
   INSURANCE_COVERAGE,
   INSURANCE_CLAIM_STATUS,
   INSURANCE,
-} from './insurance.constants';
+} from './insurance.constants.js';
 import {
   LOGISTICS_ANALYTICS_METRIC,
   LOGISTICS_ANALYTICS_PERIOD,
   LOGISTICS_ANALYTICS,
-} from './logistics-analytics.constants';
-import { LOGISTICS_PERMISSION } from './logistics-permission.constants';
+} from './logistics-analytics.constants.js';
+import { LOGISTICS_PERMISSION } from './logistics-permission.constants.js';
 
 export const LOGISTICS_LIMIT = {
   MAX_SHIPMENTS_PER_DAY: 100000,

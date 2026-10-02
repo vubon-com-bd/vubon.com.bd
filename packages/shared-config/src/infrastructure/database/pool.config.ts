@@ -2,8 +2,8 @@
  * Database connection pool configuration
  * @module shared-config/infrastructure/database
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const env = loadEnv();
 

@@ -2,7 +2,7 @@
  * Webhook base configuration
  * @module shared-config/platform/webhook
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const WEBHOOK_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('WEBHOOK_ENABLED', true),

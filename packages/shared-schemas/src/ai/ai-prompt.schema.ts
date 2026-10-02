@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { AI_PROMPT_TYPE, AI_PROMPT_STATUS, AI_PROMPT_ROLE } from '@vubon/shared-constants/ai';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
 
 export const AiPromptTypeSchema = z.enum(Object.values(AI_PROMPT_TYPE) as [string, ...string[]]);
 

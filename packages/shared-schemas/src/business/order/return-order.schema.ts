@@ -5,8 +5,8 @@
 
 import { z } from 'zod';
 import { ORDER_RETURN } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { OrderReturnReasonSchema } from './order-return.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { OrderReturnReasonSchema } from './order-return.schema.js';
 
 export const ReturnOrderRequestSchema = z
   .object({

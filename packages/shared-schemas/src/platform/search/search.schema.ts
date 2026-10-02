@@ -6,14 +6,14 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { SearchTypeSchema, SearchScopeSchema } from './search-type.schema';
-import { SearchSortSchema } from './search-sort.schema';
-import { SearchFilterSchema } from './search-filter.schema';
-import { SearchMatchSchema } from './search-match.schema';
-import { SearchBoostSchema } from './search-boost.schema';
-import { FacetSchema } from './facet.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { SearchTypeSchema, SearchScopeSchema } from './search-type.schema.js';
+import { SearchSortSchema } from './search-sort.schema.js';
+import { SearchFilterSchema } from './search-filter.schema.js';
+import { SearchMatchSchema } from './search-match.schema.js';
+import { SearchBoostSchema } from './search-boost.schema.js';
+import { FacetSchema } from './facet.schema.js';
 
 export const SearchRequestSchema = z.object({
   query: z.string().min(2).max(200),

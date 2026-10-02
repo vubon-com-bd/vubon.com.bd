@@ -5,10 +5,10 @@
  * Deal entity — flash sale-এর ভিতরে একেকটা deal।
  */
 
-import type { Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { DealStatusValue } from './deal-status.types';
-import type { DealDiscountTypeValue } from './deal-discount-type.types';
+import type { Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { DealStatusValue } from './deal-status.types.js';
+import type { DealDiscountTypeValue } from './deal-discount-type.types.js';
 
 export type DealTypeValue = 'product' | 'bundle' | 'category' | 'brand' | 'cart' | 'order';
 

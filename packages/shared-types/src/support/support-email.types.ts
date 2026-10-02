@@ -3,8 +3,8 @@
  * @module shared-types/support
  */
 
-import type { Email } from '../common/primitives';
-import type { BaseEntity } from '../common/base';
+import type { Email } from '../common/primitives/index.js';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportEmailStatusValue =
   'pending' | 'queued' | 'sent' | 'delivered' | 'failed' | 'bounced' | 'opened' | 'clicked';

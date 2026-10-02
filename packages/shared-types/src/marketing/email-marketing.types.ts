@@ -7,7 +7,7 @@ import type {
   EMAIL_MARKETING_TYPE,
   EMAIL_MARKETING_STATUS,
 } from '@vubon/shared-constants/marketing';
-import type { Email } from '../common/primitives';
+import type { Email } from '../common/primitives/index.js';
 
 export type EmailMarketingTypeValue =
   (typeof EMAIL_MARKETING_TYPE)[keyof typeof EMAIL_MARKETING_TYPE];

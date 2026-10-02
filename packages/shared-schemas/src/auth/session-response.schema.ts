@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { AuthSessionPublicSchema } from './auth-session.schema';
+import { AuthSessionPublicSchema } from './auth-session.schema.js';
 
 export const SessionListResponseSchema = z.object({
   success: z.literal(true),

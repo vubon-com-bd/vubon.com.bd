@@ -9,7 +9,7 @@ import type {
   VENDOR_WARRANTY_TYPE,
   VENDOR_WARRANTY_PERIOD,
 } from '@vubon/shared-constants/business';
-import type { VendorId, ProductId } from '../../common/primitives';
+import type { VendorId, ProductId } from '../../common/primitives/index.js';
 
 export type VendorWarrantyTypeValue =
   (typeof VENDOR_WARRANTY_TYPE)[keyof typeof VENDOR_WARRANTY_TYPE];

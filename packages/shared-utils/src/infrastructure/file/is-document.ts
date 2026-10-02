@@ -3,7 +3,7 @@
  * @module shared-utils/infrastructure/file
  */
 import { DOCUMENT_FORMAT } from '@vubon/shared-constants/common';
-import { getExtension } from './get-extension';
+import { getExtension } from './get-extension.js';
 
 const DOC_EXTS = new Set(Object.values(DOCUMENT_FORMAT).map((v) => v.toLowerCase()));
 

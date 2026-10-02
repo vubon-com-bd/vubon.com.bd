@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UserAddressSchema, UserAddressPublicSchema } from './user-address.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { UserAddressSchema, UserAddressPublicSchema } from './user-address.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 
 export const AddressResponseSchema = z.object({
   success: z.literal(true),

@@ -5,17 +5,17 @@
  * Discovery aggregator।
  */
 
-import type { UserId } from '../../common/primitives';
-import type { Recommendation } from './recommendation.types';
-import type { TrendingList } from './trending.types';
-import type { PopularList } from './popular.types';
-import type { RecentlyViewedList } from './recently-viewed.types';
-import type { FrequentlyBoughtResult } from './frequently-bought.types';
-import type { ComplementaryResult } from './complementary.types';
-import type { SubstituteResult } from './substitute.types';
-import type { UpsellResult } from './upselling.types';
-import type { CrossSellResult } from './cross-selling.types';
-import type { DiscoveryBundle } from './bundle.types';
+import type { UserId } from '../../common/primitives/index.js';
+import type { Recommendation } from './recommendation.types.js';
+import type { TrendingList } from './trending.types.js';
+import type { PopularList } from './popular.types.js';
+import type { RecentlyViewedList } from './recently-viewed.types.js';
+import type { FrequentlyBoughtResult } from './frequently-bought.types.js';
+import type { ComplementaryResult } from './complementary.types.js';
+import type { SubstituteResult } from './substitute.types.js';
+import type { UpsellResult } from './upselling.types.js';
+import type { CrossSellResult } from './cross-selling.types.js';
+import type { DiscoveryBundle } from './bundle.types.js';
 
 export interface DiscoveryResult {
   readonly userId?: UserId;

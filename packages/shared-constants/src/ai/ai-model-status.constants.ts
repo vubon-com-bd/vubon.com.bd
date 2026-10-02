@@ -1,4 +1,4 @@
-import { STATUS as COMMON_STATUS } from '../common/status.constants';
+import { STATUS as COMMON_STATUS } from '../common/status.constants.js';
 
 export const AI_MODEL_STATUS = {
   DRAFT: COMMON_STATUS.DRAFT,

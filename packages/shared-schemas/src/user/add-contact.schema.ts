@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { ContactTypeSchema } from './user-contact.schema';
+import { ContactTypeSchema } from './user-contact.schema.js';
 
 export const AddContactRequestSchema = z
   .object({

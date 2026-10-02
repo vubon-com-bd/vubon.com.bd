@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { ProductPublicSchema, ProductSummarySchema } from './product.schema';
+import { ProductPublicSchema, ProductSummarySchema } from './product.schema.js';
 
 export const ProductListResponseSchema = z.object({
   success: z.literal(true),

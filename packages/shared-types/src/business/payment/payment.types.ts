@@ -5,12 +5,12 @@
  * Payment entity + aggregator।
  */
 
-import type { PaymentId, OrderId, UserId, Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { PaymentStatusValue } from './payment-status.types';
-import type { PaymentMethodValue } from './payment-method.types';
-import type { PaymentGatewayValue } from './payment-gateway.types';
-import type { TransactionPublic } from './transaction.types';
+import type { PaymentId, OrderId, UserId, Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { PaymentStatusValue } from './payment-status.types.js';
+import type { PaymentMethodValue } from './payment-method.types.js';
+import type { PaymentGatewayValue } from './payment-gateway.types.js';
+import type { TransactionPublic } from './transaction.types.js';
 
 export type PaymentTypeValue =
   'one_time' | 'recurring' | 'installment' | 'subscription' | 'prepaid' | 'postpaid';

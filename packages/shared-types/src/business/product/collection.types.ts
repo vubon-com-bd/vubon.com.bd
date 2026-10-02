@@ -6,8 +6,8 @@
  */
 
 import type { COLLECTION_TYPE, COLLECTION_STATUS } from '@vubon/shared-constants/business';
-import type { ProductId, Slug, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { ProductId, Slug, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type CollectionTypeValue = (typeof COLLECTION_TYPE)[keyof typeof COLLECTION_TYPE];
 

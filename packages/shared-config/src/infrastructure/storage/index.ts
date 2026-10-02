@@ -1,8 +1,8 @@
 // shared-config/infrastructure/storage/index.ts
 
-export * from './storage.config';
-export * from './s3.config';
-export * from './gcs.config';
-export * from './azure-blob.config';
-export * from './local-storage.config';
-export * from './cdn.config';
+export * from './storage.config.js';
+export * from './s3.config.js';
+export * from './gcs.config.js';
+export * from './azure-blob.config.js';
+export * from './local-storage.config.js';
+export * from './cdn.config.js';

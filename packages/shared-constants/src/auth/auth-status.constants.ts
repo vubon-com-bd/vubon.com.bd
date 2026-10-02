@@ -1,4 +1,4 @@
-import { STATUS as COMMON_STATUS } from '../common/status.constants';
+import { STATUS as COMMON_STATUS } from '../common/status.constants.js';
 
 export const AUTH_STATUS = {
   ACTIVE: COMMON_STATUS.ACTIVE,

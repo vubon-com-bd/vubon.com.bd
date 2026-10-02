@@ -9,9 +9,9 @@ import type {
   VENDOR_TEAM_STATUS,
   VENDOR_TEAM_INVITE_STATUS,
 } from '@vubon/shared-constants/business';
-import type { VendorId, UserId, Email } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { VendorRoleValue } from './vendor-role.types';
+import type { VendorId, UserId, Email } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { VendorRoleValue } from './vendor-role.types.js';
 
 export type VendorTeamStatusValue = (typeof VENDOR_TEAM_STATUS)[keyof typeof VENDOR_TEAM_STATUS];
 

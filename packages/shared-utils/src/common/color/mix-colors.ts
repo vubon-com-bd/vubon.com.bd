@@ -2,8 +2,8 @@
  * Mix two hex colors by ratio (0-1, weight of first color)
  * @module shared-utils/common/color
  */
-import { hexToRgb } from './hex-to-rgb';
-import { rgbToHex } from './rgb-to-hex';
+import { hexToRgb } from './hex-to-rgb.js';
+import { rgbToHex } from './rgb-to-hex.js';
 
 export function mixColors(hexA: string, hexB: string, ratio = 0.5): string {
   if (ratio < 0 || ratio > 1) {

@@ -3,8 +3,8 @@
  * @module shared-types/marketing
  */
 
-import type { Money } from '../common/primitives';
-import type { LoyaltyTierValue } from './loyalty-tier.types';
+import type { Money } from '../common/primitives/index.js';
+import type { LoyaltyTierValue } from './loyalty-tier.types.js';
 
 export type LoyaltyRewardTypeValue =
   | 'discount'

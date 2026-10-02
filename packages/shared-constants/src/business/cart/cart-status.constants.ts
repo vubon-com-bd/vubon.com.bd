@@ -1,4 +1,4 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
+import { STATUS as COMMON_STATUS } from '../../common/status.constants.js';
 
 export const CART_STATUS = {
   ACTIVE: COMMON_STATUS.ACTIVE,

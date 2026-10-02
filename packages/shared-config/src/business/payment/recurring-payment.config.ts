@@ -2,7 +2,7 @@
  * Recurring payment configuration
  * @module shared-config/business/payment
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const RECURRING_PAYMENT_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('RECURRING_ENABLED', false),

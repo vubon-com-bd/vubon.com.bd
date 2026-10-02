@@ -2,7 +2,7 @@
  * PostgreSQL-specific configuration
  * @module shared-config/infrastructure/database
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const POSTGRES_CONFIG = Object.freeze({
   host: getOptionalEnv('POSTGRES_HOST', 'localhost'),

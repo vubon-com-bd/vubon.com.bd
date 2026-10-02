@@ -3,13 +3,13 @@
  * @module shared-types/support
  */
 
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
-import type { TicketStatusValue } from './ticket-status.types';
-import type { TicketPriorityValue } from './ticket-priority.types';
-import type { TicketTypeValue } from './ticket-type.types';
-import type { TicketChannelValue } from './ticket-channel.types';
-import type { TicketCategoryValue } from './ticket-category.types';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
+import type { TicketStatusValue } from './ticket-status.types.js';
+import type { TicketPriorityValue } from './ticket-priority.types.js';
+import type { TicketTypeValue } from './ticket-type.types.js';
+import type { TicketChannelValue } from './ticket-channel.types.js';
+import type { TicketCategoryValue } from './ticket-category.types.js';
 
 export interface Ticket extends BaseEntity<string> {
   readonly ticketNumber: string;

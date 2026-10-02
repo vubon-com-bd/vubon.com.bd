@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { CAMPAIGN } from '@vubon/shared-constants/marketing';
-import { CampaignTypeSchema } from './campaign-type.schema';
-import { CampaignStatusSchema, CampaignGoalSchema } from './campaign-status.schema';
-import { CampaignChannelSchema } from './campaign-channel.schema';
-import { CampaignBudgetSchema } from './campaign-budget.schema';
+import { CampaignTypeSchema } from './campaign-type.schema.js';
+import { CampaignStatusSchema, CampaignGoalSchema } from './campaign-status.schema.js';
+import { CampaignChannelSchema } from './campaign-channel.schema.js';
+import { CampaignBudgetSchema } from './campaign-budget.schema.js';
 
 export const CampaignMetricsSchema = z.object({
   impressions: z.number().int().nonnegative(),

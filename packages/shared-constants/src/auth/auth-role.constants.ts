@@ -1,4 +1,4 @@
-import { ROLE as COMMON_ROLE } from '../common/role.constants';
+import { ROLE as COMMON_ROLE } from '../common/role.constants.js';
 
 export const AUTH_ROLE = {
   SUPER_ADMIN: COMMON_ROLE.SUPER_ADMIN,

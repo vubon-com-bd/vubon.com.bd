@@ -4,8 +4,8 @@
  */
 
 import type { CHATBOT_TYPE, CHATBOT_STATUS, CHATBOT_INTENT } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { UserId } from '../common/primitives/index.js';
 
 export type ChatbotTypeValue = (typeof CHATBOT_TYPE)[keyof typeof CHATBOT_TYPE];
 

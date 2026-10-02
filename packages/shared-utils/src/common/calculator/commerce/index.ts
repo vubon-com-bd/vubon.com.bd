@@ -1,1 +1,1 @@
-export * from './shipping.calculator';
+export * from './shipping.calculator.js';

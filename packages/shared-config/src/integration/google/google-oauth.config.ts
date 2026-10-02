@@ -2,7 +2,7 @@
  * Google OAuth integration configuration (alias to auth/oauth/google)
  * @module shared-config/integration/google
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 export const GOOGLE_OAUTH_INTEGRATION_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('GOOGLE_OAUTH_ENABLED', false),

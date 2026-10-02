@@ -3,7 +3,7 @@
  * @module shared-types/support
  */
 
-import type { Url } from '../common/primitives';
+import type { Url } from '../common/primitives/index.js';
 
 export interface Attachment {
   readonly id: string;

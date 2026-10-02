@@ -2,7 +2,7 @@
  * Convert RGB to hex string
  * @module shared-utils/common/color
  */
-import type { Rgb } from './hex-to-rgb';
+import type { Rgb } from './hex-to-rgb.js';
 
 export function rgbToHex(rgb: Rgb): string {
   const toHex = (n: number): string => {

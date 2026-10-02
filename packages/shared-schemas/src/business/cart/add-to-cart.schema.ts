@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { CartTypeSchema } from './cart.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { CartTypeSchema } from './cart.schema.js';
 
 export const AddToCartRequestSchema = z
   .object({

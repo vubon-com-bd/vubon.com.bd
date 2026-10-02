@@ -2,7 +2,7 @@
  * In-memory cache configuration (LRU-based)
  * @module shared-config/infrastructure/cache
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const MEMORY_CACHE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('MEMORY_CACHE_ENABLED', true),

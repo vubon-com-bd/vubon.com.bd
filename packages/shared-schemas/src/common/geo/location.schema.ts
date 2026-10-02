@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { AddressSchema } from './address.schema';
-import { LatLngSchema } from './coordinates.schema';
+import { AddressSchema } from './address.schema.js';
+import { LatLngSchema } from './coordinates.schema.js';
 
 export const LocationSchema = z.object({
   address: AddressSchema,

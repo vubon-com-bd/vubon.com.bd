@@ -1,11 +1,11 @@
 // shared-utils/infrastructure/file/index.ts
 
-export * from './get-extension';
-export * from './get-mime-type';
-export * from './format-file-size';
-export * from './is-image';
-export * from './is-video';
-export * from './is-audio';
-export * from './is-document';
-export * from './is-archive';
-export * from './sanitize-filename';
+export * from './get-extension.js';
+export * from './get-mime-type.js';
+export * from './format-file-size.js';
+export * from './is-image.js';
+export * from './is-video.js';
+export * from './is-audio.js';
+export * from './is-document.js';
+export * from './is-archive.js';
+export * from './sanitize-filename.js';

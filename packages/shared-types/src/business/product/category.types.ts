@@ -6,9 +6,9 @@
  */
 
 import type { CATEGORY_STATUS } from '@vubon/shared-constants/business';
-import type { CategoryId } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { Slug, Url } from '../../common/primitives';
+import type { CategoryId } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { Slug, Url } from '../../common/primitives/index.js';
 
 export type CategoryStatusValue = (typeof CATEGORY_STATUS)[keyof typeof CATEGORY_STATUS];
 

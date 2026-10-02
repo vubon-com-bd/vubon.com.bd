@@ -2,7 +2,7 @@
  * CSRF protection configuration
  * @module shared-config/security/csrf
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 import { SECURITY } from '@vubon/shared-constants/security';
 
 export const CSRF_CONFIG = Object.freeze({

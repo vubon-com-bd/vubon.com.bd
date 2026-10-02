@@ -4,7 +4,7 @@
  *
  * ⚠️ 'unsafe-inline' and 'unsafe-eval' FORBIDDEN in script-src.
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
 
 const isDev = getOptionalEnv('NODE_ENV', 'development') === 'development';
 

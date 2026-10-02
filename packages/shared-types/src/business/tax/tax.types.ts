@@ -5,10 +5,10 @@
  * Tax configuration + calculation।
  */
 
-import type { Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { TaxTypeValue, TaxCategoryValue } from './tax-type.types';
-import type { TaxRateTypeValue, TaxInclusionValue } from './tax-rate.types';
+import type { Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { TaxTypeValue, TaxCategoryValue } from './tax-type.types.js';
+import type { TaxRateTypeValue, TaxInclusionValue } from './tax-rate.types.js';
 
 export type TaxStatusValue = 'active' | 'inactive' | 'draft' | 'archived' | 'expired';
 

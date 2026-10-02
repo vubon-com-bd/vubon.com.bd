@@ -6,7 +6,7 @@
  */
 
 import type { ABANDONED_CART_STATUS } from '@vubon/shared-constants/business';
-import type { CartId, UserId, Email, Money } from '../../common/primitives';
+import type { CartId, UserId, Email, Money } from '../../common/primitives/index.js';
 
 export type AbandonedCartStatusValue =
   (typeof ABANDONED_CART_STATUS)[keyof typeof ABANDONED_CART_STATUS];

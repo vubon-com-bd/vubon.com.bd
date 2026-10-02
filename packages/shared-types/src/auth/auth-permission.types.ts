@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_PERMISSION } from '@vubon/shared-constants/auth';
-import type { PermissionValue } from '../common/enums';
+import type { PermissionValue } from '../common/enums/index.js';
 
 export type AuthPermissionValue = (typeof AUTH_PERMISSION)[keyof typeof AUTH_PERMISSION];
 

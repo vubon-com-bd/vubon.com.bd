@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_SOCIAL } from '@vubon/shared-constants/auth';
-import type { UserId, Email, Url } from '../common/primitives';
+import type { UserId, Email, Url } from '../common/primitives/index.js';
 
 export type SocialProviderValue = (typeof AUTH_SOCIAL)[keyof typeof AUTH_SOCIAL];
 

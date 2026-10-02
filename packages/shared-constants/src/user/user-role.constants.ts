@@ -1,4 +1,4 @@
-import { AUTH_ROLE } from '../auth/auth-role.constants';
+import { AUTH_ROLE } from '../auth/auth-role.constants.js';
 
 export const USER_ROLE = {
   SUPER_ADMIN: AUTH_ROLE.SUPER_ADMIN,

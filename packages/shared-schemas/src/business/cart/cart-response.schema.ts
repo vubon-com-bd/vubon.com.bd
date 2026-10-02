@@ -4,9 +4,9 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { CartPublicSchema, CartSummarySchema } from './cart.schema';
-import { CartTotalsSchema } from './cart.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { CartPublicSchema, CartSummarySchema } from './cart.schema.js';
+import { CartTotalsSchema } from './cart.schema.js';
 
 export const CartResponseSchema = z.object({
   success: z.literal(true),

@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { ApiErrorSchema } from './error-response.schema';
+import { ApiErrorSchema } from './error-response.schema.js';
 
 export const BaseResponseSchema = z.object({
   success: z.boolean(),

@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
 import {
   SUPPORT_RULE_TYPE,
   SUPPORT_RULE_CONDITION,

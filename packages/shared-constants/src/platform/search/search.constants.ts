@@ -1,20 +1,20 @@
-import { SEARCH_TYPE, SEARCH_SCOPE } from './search-type.constants';
-import { SEARCH_SORT, SEARCH_SORT_ORDER, SEARCH_SORT_DEFAULT } from './search-sort.constants';
-import { SEARCH_FILTER_TYPE, SEARCH_FILTER_RANGE, SEARCH_FILTER } from './search-filter.constants';
-import { SEARCH_OPERATOR, SEARCH_BOOLEAN, SEARCH_WILDCARD } from './search-operator.constants';
-import { SEARCH_MATCH_TYPE, SEARCH_FUZZINESS, SEARCH_MATCH } from './search-match.constants';
-import { SEARCH_BOOST_FIELD, SEARCH_BOOST, SEARCH_BOOST_LIMIT } from './search-boost.constants';
+import { SEARCH_TYPE, SEARCH_SCOPE } from './search-type.constants.js';
+import { SEARCH_SORT, SEARCH_SORT_ORDER, SEARCH_SORT_DEFAULT } from './search-sort.constants.js';
+import { SEARCH_FILTER_TYPE, SEARCH_FILTER_RANGE, SEARCH_FILTER } from './search-filter.constants.js';
+import { SEARCH_OPERATOR, SEARCH_BOOLEAN, SEARCH_WILDCARD } from './search-operator.constants.js';
+import { SEARCH_MATCH_TYPE, SEARCH_FUZZINESS, SEARCH_MATCH } from './search-match.constants.js';
+import { SEARCH_BOOST_FIELD, SEARCH_BOOST, SEARCH_BOOST_LIMIT } from './search-boost.constants.js';
 import {
   SEARCH_ANALYTICS_METRIC,
   SEARCH_ANALYTICS_PERIOD,
   SEARCH_ANALYTICS,
-} from './search-analytics.constants';
-import { SEARCH_SUGGESTION_TYPE, SEARCH_SUGGESTION } from './search-suggestion.constants';
-import { SEARCH_SYNONYM_TYPE, SEARCH_SYNONYM } from './search-synonym.constants';
-import { SEARCH_INDEX_TYPE, SEARCH_INDEX_STATUS, SEARCH_INDEX } from './search-index.constants';
-import { SEARCH_RELEVANCE_ALGORITHM, SEARCH_RELEVANCE } from './search-relevance.constants';
-import { AUTOCOMPLETE_TYPE, AUTOCOMPLETE } from './autocomplete.constants';
-import { FACET_TYPE, FACET_FIELD, FACET_SORT, FACET } from './facet.constants';
+} from './search-analytics.constants.js';
+import { SEARCH_SUGGESTION_TYPE, SEARCH_SUGGESTION } from './search-suggestion.constants.js';
+import { SEARCH_SYNONYM_TYPE, SEARCH_SYNONYM } from './search-synonym.constants.js';
+import { SEARCH_INDEX_TYPE, SEARCH_INDEX_STATUS, SEARCH_INDEX } from './search-index.constants.js';
+import { SEARCH_RELEVANCE_ALGORITHM, SEARCH_RELEVANCE } from './search-relevance.constants.js';
+import { AUTOCOMPLETE_TYPE, AUTOCOMPLETE } from './autocomplete.constants.js';
+import { FACET_TYPE, FACET_FIELD, FACET_SORT, FACET } from './facet.constants.js';
 
 export const SEARCH_LIMIT = {
   MIN_QUERY_LENGTH: 2,

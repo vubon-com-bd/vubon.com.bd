@@ -1,9 +1,9 @@
-import { CART_STATUS } from './cart-status.constants';
-import { COUPON, COUPON_LIMIT } from './coupon.constants';
-import { COUPON_TYPE } from './coupon-type.constants';
-import { COUPON_DISCOUNT_TYPE } from './coupon-discount-type.constants';
-import { VOUCHER, VOUCHER_LIMIT } from './voucher.constants';
-import { ABANDONED_CART } from './abandoned-cart.constants';
+import { CART_STATUS } from './cart-status.constants.js';
+import { COUPON, COUPON_LIMIT } from './coupon.constants.js';
+import { COUPON_TYPE } from './coupon-type.constants.js';
+import { COUPON_DISCOUNT_TYPE } from './coupon-discount-type.constants.js';
+import { VOUCHER, VOUCHER_LIMIT } from './voucher.constants.js';
+import { ABANDONED_CART } from './abandoned-cart.constants.js';
 
 export const CART_TYPE = {
   GUEST: 'guest',

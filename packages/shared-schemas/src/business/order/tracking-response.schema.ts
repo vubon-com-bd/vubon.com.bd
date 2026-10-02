@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { OrderTrackingSummarySchema } from './order-tracking.schema';
-import { OrderReturnPublicSchema } from './order-return.schema';
+import { OrderTrackingSummarySchema } from './order-tracking.schema.js';
+import { OrderReturnPublicSchema } from './order-return.schema.js';
 
 export const TrackingResponseSchema = z.object({
   success: z.literal(true),

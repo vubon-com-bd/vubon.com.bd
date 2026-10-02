@@ -2,8 +2,8 @@
  * Compress/decompress string using gzip + base64
  * @module shared-utils/infrastructure/compression
  */
-import { gzip } from './gzip';
-import { gunzip } from './gunzip';
+import { gzip } from './gzip.js';
+import { gunzip } from './gunzip.js';
 
 export async function compressString(value: string): Promise<string> {
   const encoder = new TextEncoder();

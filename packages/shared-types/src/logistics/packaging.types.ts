@@ -10,8 +10,8 @@ import type {
   PACKAGING_MATERIAL,
   PACKAGING_STATUS,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { Url } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Url } from '../common/primitives/index.js';
 
 export type PackagingTypeValue = (typeof PACKAGING_TYPE)[keyof typeof PACKAGING_TYPE];
 

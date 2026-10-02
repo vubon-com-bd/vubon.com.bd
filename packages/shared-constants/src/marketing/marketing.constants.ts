@@ -1,67 +1,67 @@
-import { CAMPAIGN_TYPE, CAMPAIGN_STATUS, CAMPAIGN_GOAL, CAMPAIGN } from './campaign.constants';
+import { CAMPAIGN_TYPE, CAMPAIGN_STATUS, CAMPAIGN_GOAL, CAMPAIGN } from './campaign.constants.js';
 import {
   PROMOTION_TYPE,
   PROMOTION_STATUS,
   PROMOTION_APPLIES_TO,
   PROMOTION,
-} from './promotion.constants';
+} from './promotion.constants.js';
 import {
   AFFILIATE_STATUS,
   AFFILIATE_TYPE,
   AFFILIATE_COMMISSION_TYPE,
   AFFILIATE,
-} from './affiliate.constants';
+} from './affiliate.constants.js';
 import {
   REFERRAL_STATUS,
   REFERRAL_TYPE,
   REFERRAL_REWARD_TYPE,
   REFERRAL,
-} from './referral.constants';
+} from './referral.constants.js';
 import {
   LOYALTY_STATUS,
   LOYALTY_TIER,
   LOYALTY_POINT_TYPE,
   LOYALTY_EARN_RULE,
   LOYALTY,
-} from './loyalty.constants';
+} from './loyalty.constants.js';
 import {
   EMAIL_MARKETING_TYPE,
   EMAIL_MARKETING_STATUS,
   EMAIL_MARKETING,
-} from './email-marketing.constants';
-import { SMS_MARKETING_TYPE, SMS_MARKETING_STATUS, SMS_MARKETING } from './sms-marketing.constants';
+} from './email-marketing.constants.js';
+import { SMS_MARKETING_TYPE, SMS_MARKETING_STATUS, SMS_MARKETING } from './sms-marketing.constants.js';
 import {
   SOCIAL_MEDIA_PLATFORM,
   SOCIAL_MEDIA_POST_TYPE,
   SOCIAL_MEDIA_STATUS,
   SOCIAL_MEDIA,
-} from './social-media.constants';
+} from './social-media.constants.js';
 import {
   LEAD_STATUS,
   LEAD_SOURCE,
   LEAD_QUALITY,
   LEAD_GENERATION,
-} from './lead-generation.constants';
+} from './lead-generation.constants.js';
 import {
   MARKETING_ANALYTICS_METRIC,
   MARKETING_ANALYTICS_PERIOD,
   MARKETING_ANALYTICS_ATTRIBUTION,
   MARKETING_ANALYTICS,
-} from './marketing-analytics.constants';
+} from './marketing-analytics.constants.js';
 import {
   MARKETING_REPORT_TYPE,
   MARKETING_REPORT_FORMAT,
   MARKETING_REPORT_SCHEDULE,
   MARKETING_REPORT,
-} from './marketing-report.constants';
+} from './marketing-report.constants.js';
 import {
   MARKETING_AUTOMATION_TYPE,
   MARKETING_AUTOMATION_TRIGGER,
   MARKETING_AUTOMATION_ACTION,
   MARKETING_AUTOMATION_STATUS,
   MARKETING_AUTOMATION,
-} from './marketing-automation.constants';
-import { MARKETING_PERMISSION } from './marketing-permission.constants';
+} from './marketing-automation.constants.js';
+import { MARKETING_PERMISSION } from './marketing-permission.constants.js';
 
 export const MARKETING_LIMIT = {
   MAX_CAMPAIGNS: 10000,

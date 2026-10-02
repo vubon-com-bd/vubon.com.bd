@@ -9,7 +9,7 @@ import type {
   SUPPORT_RULE_ACTION,
   SUPPORT_RULE_STATUS,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportRuleTypeValue = (typeof SUPPORT_RULE_TYPE)[keyof typeof SUPPORT_RULE_TYPE];
 

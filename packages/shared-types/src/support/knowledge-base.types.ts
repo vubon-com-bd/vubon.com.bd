@@ -8,8 +8,8 @@ import type {
   KNOWLEDGE_BASE_TYPE,
   KNOWLEDGE_BASE_VISIBILITY,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
-import type { Slug } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { Slug } from '../common/primitives/index.js';
 
 export type KnowledgeBaseStatusValue =
   (typeof KNOWLEDGE_BASE_STATUS)[keyof typeof KNOWLEDGE_BASE_STATUS];

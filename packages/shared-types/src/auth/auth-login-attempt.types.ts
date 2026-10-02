@@ -6,7 +6,7 @@
  */
 
 import type { AUTH_LOGIN_ATTEMPT, AUTH_LOGIN_ATTEMPT_STATUS } from '@vubon/shared-constants/auth';
-import type { UserId, Email, Phone, IpAddress } from '../common/primitives';
+import type { UserId, Email, Phone, IpAddress } from '../common/primitives/index.js';
 
 export type LoginAttemptStatusValue =
   (typeof AUTH_LOGIN_ATTEMPT_STATUS)[keyof typeof AUTH_LOGIN_ATTEMPT_STATUS];

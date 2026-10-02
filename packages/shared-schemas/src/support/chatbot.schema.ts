@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { CHATBOT_TYPE, CHATBOT_STATUS, CHATBOT_INTENT } from '@vubon/shared-constants/support';
 
 export const ChatbotTypeSchema = z.enum(Object.values(CHATBOT_TYPE) as [string, ...string[]]);

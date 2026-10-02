@@ -2,7 +2,7 @@
  * Support ticket configuration
  * @module shared-config/support/ticket
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const TICKET_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('TICKET_ENABLED', true),

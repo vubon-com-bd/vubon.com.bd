@@ -9,7 +9,7 @@ import type {
   FLASH_SALE_VOUCHER_TYPE,
   FLASH_SALE_VOUCHER_STATUS,
 } from '@vubon/shared-constants/business';
-import type { Money } from '../../common/primitives';
+import type { Money } from '../../common/primitives/index.js';
 
 export type FlashSaleVoucherTypeValue =
   (typeof FLASH_SALE_VOUCHER_TYPE)[keyof typeof FLASH_SALE_VOUCHER_TYPE];

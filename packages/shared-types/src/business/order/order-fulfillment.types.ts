@@ -9,7 +9,7 @@ import type {
   ORDER_FULFILLMENT_STATUS,
   ORDER_FULFILLMENT_TYPE,
 } from '@vubon/shared-constants/business';
-import type { OrderId, VendorId, Money } from '../../common/primitives';
+import type { OrderId, VendorId, Money } from '../../common/primitives/index.js';
 
 export type OrderFulfillmentStatusValue =
   (typeof ORDER_FULFILLMENT_STATUS)[keyof typeof ORDER_FULFILLMENT_STATUS];

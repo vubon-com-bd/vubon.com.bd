@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { USER_SETTINGS } from '@vubon/shared-constants/user';
-import { LocaleSchema, LanguageSchema, TimezoneSchema } from '../common/enums/locale.schema';
+import { LocaleSchema, LanguageSchema, TimezoneSchema } from '../common/enums/locale.schema.js';
 
 export const ThemeSchema = z.enum(Object.values(USER_SETTINGS) as [string, ...string[]]);
 

@@ -6,8 +6,8 @@
  */
 
 import type { BRAND_STATUS } from '@vubon/shared-constants/business';
-import type { BrandId, Slug, Url } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
+import type { BrandId, Slug, Url } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
 export type BrandStatusValue = (typeof BRAND_STATUS)[keyof typeof BRAND_STATUS];
 

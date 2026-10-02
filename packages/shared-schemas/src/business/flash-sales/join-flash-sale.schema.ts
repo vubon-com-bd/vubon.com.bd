@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { ParticipantTypeSchema } from './flash-sale-participant.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { ParticipantTypeSchema } from './flash-sale-participant.schema.js';
 
 export const JoinFlashSaleRequestSchema = z
   .object({

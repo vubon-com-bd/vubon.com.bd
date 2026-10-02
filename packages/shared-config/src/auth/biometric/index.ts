@@ -1,3 +1,3 @@
 // shared-config/auth/biometric/index.ts
 
-export * from './biometric.config';
+export * from './biometric.config.js';

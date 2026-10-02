@@ -7,10 +7,10 @@
 
 import { z } from 'zod';
 import { COUPON_STATUS, COUPON_LIMIT } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
-import { CouponTypeSchema } from './coupon-type.schema';
-import { CouponDiscountTypeSchema, CouponAppliesToSchema } from './coupon-discount-type.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
+import { CouponTypeSchema } from './coupon-type.schema.js';
+import { CouponDiscountTypeSchema, CouponAppliesToSchema } from './coupon-discount-type.schema.js';
 
 export const CouponStatusSchema = z.enum(Object.values(COUPON_STATUS) as [string, ...string[]]);
 

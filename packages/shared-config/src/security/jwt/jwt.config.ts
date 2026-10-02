@@ -2,8 +2,8 @@
  * JWT base configuration
  * @module shared-config/security/jwt
  */
-import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper';
-import { JWT_SECRET_CONFIG } from './jwt-secret.config';
+import { getOptionalEnv, getOptionalEnvBool } from '../../common/env/env.helper.js';
+import { JWT_SECRET_CONFIG } from './jwt-secret.config.js';
 
 export const JWT_CONFIG = Object.freeze({
   secret: JWT_SECRET_CONFIG.secret,

@@ -8,7 +8,7 @@ import type {
   SUPPORT_AUTOMATION_TRIGGER,
   SUPPORT_AUTOMATION_STATUS,
 } from '@vubon/shared-constants/support';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type SupportAutomationTypeValue =
   (typeof SUPPORT_AUTOMATION_TYPE)[keyof typeof SUPPORT_AUTOMATION_TYPE];

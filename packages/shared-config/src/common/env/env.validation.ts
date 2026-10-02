@@ -2,7 +2,7 @@
  * Environment assertions & safety checks
  * @module shared-config/common/env
  */
-import { loadEnv } from './env.loader';
+import { loadEnv } from './env.loader.js';
 
 export function isProduction(): boolean {
   return loadEnv().NODE_ENV === 'production';

@@ -1,4 +1,4 @@
-import { ROLE as COMMON_ROLE } from '../../common/role.constants';
+import { ROLE as COMMON_ROLE } from '../../common/role.constants.js';
 
 export const VENDOR_ROLE = {
   OWNER: 'vendor_owner',

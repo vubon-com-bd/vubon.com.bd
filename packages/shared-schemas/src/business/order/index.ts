@@ -2,19 +2,19 @@
 // Order sub-domain barrel export
 
 // Base
-export * from './order.schema';
-export * from './order-status.schema';
-export * from './order-item.schema';
-export * from './order-cancel.schema';
-export * from './order-return.schema';
-export * from './order-tracking.schema';
-export * from './order-fulfillment.schema';
+export * from './order.schema.js';
+export * from './order-status.schema.js';
+export * from './order-item.schema.js';
+export * from './order-cancel.schema.js';
+export * from './order-return.schema.js';
+export * from './order-tracking.schema.js';
+export * from './order-fulfillment.schema.js';
 
 // Requests
-export * from './cancel-order.schema';
-export * from './return-order.schema';
-export * from './track-order.schema';
+export * from './cancel-order.schema.js';
+export * from './return-order.schema.js';
+export * from './track-order.schema.js';
 
 // Responses
-export * from './order-response.schema';
-export * from './tracking-response.schema';
+export * from './order-response.schema.js';
+export * from './tracking-response.schema.js';

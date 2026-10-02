@@ -10,8 +10,8 @@ import type {
   FULFILLMENT_TYPE,
   FULFILLMENT_PRIORITY,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
-import type { OrderId, VendorId, WarehouseId } from '../common/primitives';
+import type { BaseEntity } from '../common/base/index.js';
+import type { OrderId, VendorId, WarehouseId } from '../common/primitives/index.js';
 
 export type FulfillmentStatusValue = (typeof FULFILLMENT_STATUS)[keyof typeof FULFILLMENT_STATUS];
 

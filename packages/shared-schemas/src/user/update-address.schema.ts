@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { AddressSchema } from '../common/geo/address.schema';
-import { AddressTypeSchema } from './user-address.schema';
+import { AddressSchema } from '../common/geo/address.schema.js';
+import { AddressTypeSchema } from './user-address.schema.js';
 
 export const UpdateAddressRequestSchema = AddressSchema.partial()
   .extend({

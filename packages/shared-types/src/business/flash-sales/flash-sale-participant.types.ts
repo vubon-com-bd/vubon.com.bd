@@ -9,7 +9,7 @@ import type {
   FLASH_SALE_PARTICIPANT_TYPE,
   FLASH_SALE_PARTICIPANT_STATUS,
 } from '@vubon/shared-constants/business';
-import type { VendorId, ProductId, CategoryId, BrandId } from '../../common/primitives';
+import type { VendorId, ProductId, CategoryId, BrandId } from '../../common/primitives/index.js';
 
 export type ParticipantTypeValue =
   (typeof FLASH_SALE_PARTICIPANT_TYPE)[keyof typeof FLASH_SALE_PARTICIPANT_TYPE];

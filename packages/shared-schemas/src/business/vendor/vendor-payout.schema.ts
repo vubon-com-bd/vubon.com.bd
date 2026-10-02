@@ -7,10 +7,10 @@
 
 import { z } from 'zod';
 import { VENDOR_PAYOUT_METHOD, VENDOR_PAYOUT_CYCLE } from '@vubon/shared-constants/business';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { PositiveMoneySchema, MoneySchema } from '../../common/primitives/money.schema';
-import { VendorPayoutStatusSchema } from './vendor-payout-status.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { PositiveMoneySchema, MoneySchema } from '../../common/primitives/money.schema.js';
+import { VendorPayoutStatusSchema } from './vendor-payout-status.schema.js';
 
 export const VendorPayoutMethodSchema = z.enum(
   Object.values(VENDOR_PAYOUT_METHOD) as [string, ...string[]]

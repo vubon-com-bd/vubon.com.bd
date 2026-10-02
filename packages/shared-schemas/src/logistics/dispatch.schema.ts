@@ -6,8 +6,8 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
 import { DISPATCH_STATUS, DISPATCH_TYPE } from '@vubon/shared-constants/logistics';
 
 export const DispatchStatusSchema = z.enum(Object.values(DISPATCH_STATUS) as [string, ...string[]]);

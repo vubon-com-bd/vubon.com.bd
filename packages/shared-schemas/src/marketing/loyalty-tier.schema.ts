@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { LoyaltyTierSchema } from './loyalty-status.schema';
+import { LoyaltyTierSchema } from './loyalty-status.schema.js';
 
 export const LoyaltyTierHistorySchema = z.object({
   userId: z.string().min(1),

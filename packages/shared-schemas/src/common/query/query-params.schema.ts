@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { PageBasedPaginationSchema } from './pagination.schema';
-import { SortQuerySchema } from './sort.schema';
-import { OptionalSearchQuerySchema } from './search.schema';
-import { FilterListSchema } from './filter.schema';
+import { PageBasedPaginationSchema } from './pagination.schema.js';
+import { SortQuerySchema } from './sort.schema.js';
+import { OptionalSearchQuerySchema } from './search.schema.js';
+import { FilterListSchema } from './filter.schema.js';
 
 export const DateRangeQuerySchema = z.object({
   fromDate: z.string().datetime().optional(),

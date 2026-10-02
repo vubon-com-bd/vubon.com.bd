@@ -3,7 +3,7 @@
  * @module shared-utils/infrastructure/file
  */
 import { IMAGE_FORMAT } from '@vubon/shared-constants/common';
-import { getExtension } from './get-extension';
+import { getExtension } from './get-extension.js';
 
 const IMAGE_EXTS = new Set(Object.values(IMAGE_FORMAT).map((v) => v.toLowerCase()));
 

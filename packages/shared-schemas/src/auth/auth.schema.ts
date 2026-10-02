@@ -6,14 +6,14 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { PhoneSchema } from '../common/primitives/phone.schema';
-import { AuthStatusSchema } from './auth-status.schema';
-import { AuthTypeSchema } from './auth-type.schema';
-import { AuthProviderSchema } from './auth-provider.schema';
-import { AuthMethodSchema } from './auth-method.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { PhoneSchema } from '../common/primitives/phone.schema.js';
+import { AuthStatusSchema } from './auth-status.schema.js';
+import { AuthTypeSchema } from './auth-type.schema.js';
+import { AuthProviderSchema } from './auth-provider.schema.js';
+import { AuthMethodSchema } from './auth-method.schema.js';
 
 export const AuthSchema = BaseEntitySchema.extend({
   userId: UuidSchema,

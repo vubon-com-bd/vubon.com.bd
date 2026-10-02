@@ -7,9 +7,9 @@
 
 import { z } from 'zod';
 import { VENDOR_INVOICE_STATUS, VENDOR_INVOICE_TYPE } from '@vubon/shared-constants/business';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema.js';
 
 export const VendorInvoiceStatusSchema = z.enum(
   Object.values(VENDOR_INVOICE_STATUS) as [string, ...string[]]

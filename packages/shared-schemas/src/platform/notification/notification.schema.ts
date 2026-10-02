@@ -6,16 +6,16 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { NotificationTypeSchema } from './notification-type.schema';
-import { NotificationChannelSchema } from './notification-channel.schema';
-import { NotificationStatusSchema } from './notification-status.schema';
-import { NotificationPrioritySchema } from './notification-priority.schema';
-import { NotificationCategorySchema } from './notification-category.schema';
-import { NotificationDeliveryMetadataSchema } from './notification-delivery-status.schema';
-import { NotificationReadMetadataSchema } from './notification-read-status.schema';
-import { NotificationActionSchema } from './notification-action.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { NotificationTypeSchema } from './notification-type.schema.js';
+import { NotificationChannelSchema } from './notification-channel.schema.js';
+import { NotificationStatusSchema } from './notification-status.schema.js';
+import { NotificationPrioritySchema } from './notification-priority.schema.js';
+import { NotificationCategorySchema } from './notification-category.schema.js';
+import { NotificationDeliveryMetadataSchema } from './notification-delivery-status.schema.js';
+import { NotificationReadMetadataSchema } from './notification-read-status.schema.js';
+import { NotificationActionSchema } from './notification-action.schema.js';
 
 export const NotificationSchema = BaseEntitySchema.extend({
   userId: UuidSchema,

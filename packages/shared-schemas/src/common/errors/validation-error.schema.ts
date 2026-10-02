@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { ErrorDetailSchema } from './base-error.schema';
+import { ErrorDetailSchema } from './base-error.schema.js';
 
 export const ValidationErrorSchema = z.object({
   name: z.literal('ValidationError'),

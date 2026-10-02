@@ -6,11 +6,11 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../common/base/base-entity.schema';
-import { UuidSchema } from '../common/primitives/uuid.schema';
-import { EmailSchema } from '../common/primitives/email.schema';
-import { ReferralStatusSchema, ReferralTypeSchema } from './referral-status.schema';
-import { ReferralRewardSchema } from './referral-reward.schema';
+import { BaseEntitySchema } from '../common/base/base-entity.schema.js';
+import { UuidSchema } from '../common/primitives/uuid.schema.js';
+import { EmailSchema } from '../common/primitives/email.schema.js';
+import { ReferralStatusSchema, ReferralTypeSchema } from './referral-status.schema.js';
+import { ReferralRewardSchema } from './referral-reward.schema.js';
 
 export const ReferralSchema = BaseEntitySchema.extend({
   referrerId: UuidSchema,

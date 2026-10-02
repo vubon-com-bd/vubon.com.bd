@@ -10,7 +10,7 @@ import type {
   VEHICLE_TYPE,
   VEHICLE_FUEL_TYPE,
 } from '@vubon/shared-constants/logistics';
-import type { BaseEntity } from '../common/base';
+import type { BaseEntity } from '../common/base/index.js';
 
 export type VehicleStatusValue = (typeof VEHICLE_STATUS)[keyof typeof VEHICLE_STATUS];
 

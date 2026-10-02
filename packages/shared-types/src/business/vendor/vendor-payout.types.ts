@@ -6,9 +6,9 @@
  */
 
 import type { VENDOR_PAYOUT_METHOD, VENDOR_PAYOUT_CYCLE } from '@vubon/shared-constants/business';
-import type { VendorId, Money } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { VendorPayoutStatusValue } from './vendor-payout-status.types';
+import type { VendorId, Money } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { VendorPayoutStatusValue } from './vendor-payout-status.types.js';
 
 export type VendorPayoutMethodValue =
   (typeof VENDOR_PAYOUT_METHOD)[keyof typeof VENDOR_PAYOUT_METHOD];

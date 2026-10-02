@@ -7,8 +7,8 @@
 
 import { z } from 'zod';
 import { FLASH_SALE_COUPON_TYPE, FLASH_SALE_COUPON } from '@vubon/shared-constants/business';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
 
 export const FlashSaleCouponTypeSchema = z.enum(
   Object.values(FLASH_SALE_COUPON_TYPE) as [string, ...string[]]

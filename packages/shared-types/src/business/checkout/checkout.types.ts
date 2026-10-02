@@ -5,13 +5,13 @@
  * Checkout session — cart → order-এ যাওয়ার মাঝের state।
  */
 
-import type { CartId, UserId, Money, Email, Phone } from '../../common/primitives';
-import type { BaseEntity } from '../../common/base';
-import type { Address } from '../../common/geo';
-import type { CartItem } from '../cart/cart-item.types';
-import type { CartTotals } from '../cart/cart.types';
-import type { CheckoutStatusValue } from './checkout-status.types';
-import type { CheckoutStepValue, CheckoutStepState } from './checkout-step.types';
+import type { CartId, UserId, Money, Email, Phone } from '../../common/primitives/index.js';
+import type { BaseEntity } from '../../common/base/index.js';
+import type { Address } from '../../common/geo/index.js';
+import type { CartItem } from '../cart/cart-item.types.js';
+import type { CartTotals } from '../cart/cart.types.js';
+import type { CheckoutStatusValue } from './checkout-status.types.js';
+import type { CheckoutStepValue, CheckoutStepState } from './checkout-step.types.js';
 
 export type CheckoutTypeValue = 'guest' | 'registered' | 'express' | 'one_click' | 'subscription';
 

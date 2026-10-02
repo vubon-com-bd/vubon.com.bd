@@ -11,9 +11,9 @@ import {
   REPORT_DASHBOARD_STATUS,
   REPORT_DASHBOARD_LAYOUT,
 } from '@vubon/shared-constants/platform';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { ReportWidgetPublicSchema } from './report-widget.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { ReportWidgetPublicSchema } from './report-widget.schema.js';
 
 export const ReportDashboardTypeSchema = z.enum(
   Object.values(REPORT_DASHBOARD_TYPE) as [string, ...string[]]

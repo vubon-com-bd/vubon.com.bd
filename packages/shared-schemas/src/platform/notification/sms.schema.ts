@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 import { SMS_PROVIDER, SMS_STATUS, SMS_TYPE } from '@vubon/shared-constants/platform';
-import { PhoneSchema } from '../../common/primitives/phone.schema';
+import { PhoneSchema } from '../../common/primitives/phone.schema.js';
 
 export const SmsProviderSchema = z.enum(Object.values(SMS_PROVIDER) as [string, ...string[]]);
 

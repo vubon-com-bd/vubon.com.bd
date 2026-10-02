@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { ReportTypeSchema } from './report-type.schema';
-import { ReportFormatSchema } from './report-format.schema';
-import { ReportStatusSchema } from './report-status.schema';
-import { ReportPrioritySchema } from './report-priority.schema';
-import { ReportFilterSchema } from './report-filter.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { ReportTypeSchema } from './report-type.schema.js';
+import { ReportFormatSchema } from './report-format.schema.js';
+import { ReportStatusSchema } from './report-status.schema.js';
+import { ReportPrioritySchema } from './report-priority.schema.js';
+import { ReportFilterSchema } from './report-filter.schema.js';
 
 export const ReportSchema = BaseEntitySchema.extend({
   name: z.string().min(1).max(200),

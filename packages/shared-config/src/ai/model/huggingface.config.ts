@@ -2,7 +2,7 @@
  * Hugging Face configuration
  * @module shared-config/ai/model
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const HUGGINGFACE_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('HUGGINGFACE_ENABLED', false),

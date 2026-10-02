@@ -6,7 +6,7 @@
  */
 
 import type { USER_ACTIVITY, USER_ACTIVITY_CATEGORY } from '@vubon/shared-constants/user';
-import type { UserId, IpAddress } from '../common/primitives';
+import type { UserId, IpAddress } from '../common/primitives/index.js';
 
 export type ActivityTypeValue = (typeof USER_ACTIVITY)[keyof typeof USER_ACTIVITY];
 

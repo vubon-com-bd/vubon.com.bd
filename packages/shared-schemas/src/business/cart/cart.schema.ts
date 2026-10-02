@@ -6,13 +6,13 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema } from '../../common/base/base-entity.schema';
-import { UuidSchema } from '../../common/primitives/uuid.schema';
-import { MoneySchema } from '../../common/primitives/money.schema';
-import { CartStatusSchema } from './cart-status.schema';
-import { CartItemSchema, CartItemPublicSchema } from './cart-item.schema';
-import { CouponPublicSchema } from './coupon.schema';
-import { VoucherPublicSchema } from './voucher.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema.js';
+import { UuidSchema } from '../../common/primitives/uuid.schema.js';
+import { MoneySchema } from '../../common/primitives/money.schema.js';
+import { CartStatusSchema } from './cart-status.schema.js';
+import { CartItemSchema, CartItemPublicSchema } from './cart-item.schema.js';
+import { CouponPublicSchema } from './coupon.schema.js';
+import { VoucherPublicSchema } from './voucher.schema.js';
 
 export const CartTypeSchema = z.enum(['guest', 'user', 'wishlist', 'saved', 'subscription']);
 

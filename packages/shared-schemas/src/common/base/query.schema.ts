@@ -7,7 +7,7 @@
  */
 
 import { z } from 'zod';
-import { PaginationQuerySchema } from './pagination.schema';
+import { PaginationQuerySchema } from './pagination.schema.js';
 
 export const BaseQuerySchema = PaginationQuerySchema;
 

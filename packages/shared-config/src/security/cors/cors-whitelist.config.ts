@@ -2,8 +2,8 @@
  * CORS whitelist — explicit allow list per environment
  * @module shared-config/security/cors
  */
-import { getOptionalEnv } from '../../common/env/env.helper';
-import { loadEnv } from '../../common/env/env.loader';
+import { getOptionalEnv } from '../../common/env/env.helper.js';
+import { loadEnv } from '../../common/env/env.loader.js';
 
 const env = loadEnv().NODE_ENV;
 

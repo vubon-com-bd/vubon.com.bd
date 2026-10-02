@@ -2,7 +2,7 @@
  * Firebase Cloud Messaging configuration
  * @module shared-config/platform/notification
  */
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const FCM_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('FCM_ENABLED', false),

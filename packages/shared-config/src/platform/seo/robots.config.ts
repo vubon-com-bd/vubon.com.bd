@@ -2,7 +2,7 @@
  * Robots.txt configuration
  * @module shared-config/platform/seo
  */
-import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper';
+import { getOptionalEnvBool, getOptionalEnvInt } from '../../common/env/env.helper.js';
 
 export const ROBOTS_CONFIG = Object.freeze({
   enabled: getOptionalEnvBool('ROBOTS_ENABLED', true),
