@@ -27,3 +27,8 @@ coverage/
 # Uploads
 storage/
 uploads/
+
+# Jest coverage (generated)
+coverage-report/
+coverage/
+test-results.json

@@ -98,3 +98,8 @@ dump.rdb
 # ─── Snapshot Files ────────────────────────────────────────────
 *.test.ts.snap
 __snapshots__/
+
+# Jest coverage output (generated — do NOT commit)
+coverage-report/
+coverage/
+coverage-tmp/
