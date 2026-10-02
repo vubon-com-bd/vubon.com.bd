@@ -98,6 +98,9 @@ importers:
       '@types/node':
         specifier: ^20.19.43
         version: 20.19.43
+      globals:
+        specifier: 17.13.0
+        version: 17.13.0
       prisma:
         specifier: ^5.10.0
         version: 5.22.0
@@ -264,6 +267,145 @@ importers:
       ts-jest:
         specifier: ^29.1.0
         version: 29.4.12(@babel/core@7.29.7)(@jest/transform@30.5.2)(@jest/types@30.5.1)(babel-jest@29.7.0(@babel/core@7.29.7))(jest-util@29.7.0)(jest@29.7.0(@types/node@20.19.43)(ts-node@10.9.2(@types/node@20.19.43)(typescript@5.9.3)))(typescript@5.9.3)
+      ts-loader:
+        specifier: ^9.5.0
+        version: 9.6.2(typescript@5.9.3)(webpack@5.97.1)
+      ts-node:
+        specifier: ^10.9.0
+        version: 10.9.2(@types/node@20.19.43)(typescript@5.9.3)
+      tsc-alias:
+        specifier: ^1.9.5
+        version: 1.9.5
+      tsconfig-paths:
+        specifier: ^4.2.0
+        version: 4.2.0
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  apps/cart-service:
+    dependencies:
+      '@nestjs/common':
+        specifier: ^12.1.0
+        version: 12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/core':
+        specifier: ^12.1.0
+        version: 12.1.0(@nestjs/common@12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@12.1.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/cqrs':
+        specifier: ^12.0.0
+        version: 12.0.0(@nestjs/common@12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/event-emitter':
+        specifier: ^12.0.1
+        version: 12.0.1(@nestjs/common@12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.0)
+      '@nestjs/platform-express':
+        specifier: ^12.1.0
+        version: 12.1.0(@nestjs/common@12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.0)
+      '@nestjs/swagger':
+        specifier: ^12.0.2
+        version: 12.0.2(@nestjs/common@12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.0)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(typescript@5.9.3)
+      '@prisma/client':
+        specifier: ^5.10.0
+        version: 5.22.0(prisma@5.22.0)
+      '@vubon/shared-api':
+        specifier: workspace:*
+        version: link:../../packages/shared-api
+      '@vubon/shared-auth':
+        specifier: workspace:*
+        version: link:../../packages/shared-auth
+      '@vubon/shared-config':
+        specifier: workspace:*
+        version: link:../../packages/shared-config
+      '@vubon/shared-constants':
+        specifier: workspace:*
+        version: link:../../packages/shared-constants
+      '@vubon/shared-kernel':
+        specifier: workspace:*
+        version: link:../../packages/shared-kernel
+      '@vubon/shared-schemas':
+        specifier: workspace:*
+        version: link:../../packages/shared-schemas
+      '@vubon/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
+      '@vubon/shared-utils':
+        specifier: workspace:*
+        version: link:../../packages/shared-utils
+      bcryptjs:
+        specifier: ^2.4.3
+        version: 2.4.3
+      bullmq:
+        specifier: ^5.4.0
+        version: 5.81.5
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
+      class-validator:
+        specifier: ^0.14.0
+        version: 0.14.4
+      dotenv:
+        specifier: 18.0.1
+        version: 18.0.1
+      ioredis:
+        specifier: ^5.3.2
+        version: 5.11.1
+      reflect-metadata:
+        specifier: ^0.2.0
+        version: 0.2.2
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.2
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@jest/globals':
+        specifier: 29.7.0
+        version: 29.7.0
+      '@nestjs/cli':
+        specifier: ^12.0.7
+        version: 12.0.7(@types/node@20.19.43)(prettier@3.9.8)(ts-loader@9.6.2(typescript@5.9.3)(webpack@5.97.1))(tsconfig-paths-webpack-plugin@4.2.0)(webpack-node-externals@3.0.0)(webpack@5.97.1)
+      '@nestjs/schematics':
+        specifier: ^12.0.5
+        version: 12.0.5(chokidar@5.0.0)(prettier@3.9.8)(typescript@5.9.3)
+      '@nestjs/testing':
+        specifier: ^12.1.0
+        version: 12.1.0(@nestjs/common@12.1.0(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.0)(@nestjs/platform-express@12.1.0)
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.25
+      '@types/jest':
+        specifier: ^29.5.0
+        version: 29.5.14
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      '@types/supertest':
+        specifier: 7.2.1
+        version: 7.2.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.0.0
+        version: 8.70.0(@typescript-eslint/parser@8.70.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.0.0
+        version: 8.70.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      eslint:
+        specifier: ^9.0.0
+        version: 9.39.5(jiti@2.7.0)
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.19.43)(ts-node@10.9.2(@types/node@20.19.43)(typescript@5.9.3))
+      prisma:
+        specifier: 5.22.0
+        version: 5.22.0
+      supertest:
+        specifier: 7.3.0
+        version: 7.3.0
+      ts-jest:
+        specifier: ^29.1.0
+        version: 29.4.12(@babel/core@7.29.7)(@jest/transform@30.5.2)(@jest/types@30.5.1)(babel-jest@29.7.0(@babel/core@7.29.7))(jest-util@30.5.1)(jest@29.7.0(@types/node@20.19.43)(ts-node@10.9.2(@types/node@20.19.43)(typescript@5.9.3)))(typescript@5.9.3)
       ts-loader:
         specifier: ^9.5.0
         version: 9.6.2(typescript@5.9.3)(webpack@5.97.1)
@@ -717,39 +859,7 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
 
-  packages/shared-constants:
-    dependencies:
-      zod:
-        specifier: 4.5.4
-        version: 4.5.4
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.43
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.0.0
-        version: 8.70.0(@typescript-eslint/parser@8.70.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
-      '@typescript-eslint/parser':
-        specifier: ^8.0.0
-        version: 8.70.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
-      eslint:
-        specifier: ^9.0.0
-        version: 9.39.5(jiti@2.7.0)
-      eslint-plugin-prettier:
-        specifier: ^5.0.0
-        version: 5.5.6(@types/eslint@9.6.1)(eslint-config-prettier@9.1.2(eslint@9.39.5(jiti@2.7.0)))(eslint@9.39.5(jiti@2.7.0))(prettier@3.9.8)
-      globals:
-        specifier: ^15.0.0
-        version: 15.15.0
-      prettier:
-        specifier: ^3.0.0
-        version: 3.9.8
-      tsc-alias:
-        specifier: ^1.9.5
-        version: 1.9.5
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
+  packages/shared-constants: {}
 
   packages/shared-hooks:
     dependencies:
@@ -3596,6 +3706,10 @@ packages:
 
   globals@15.15.0:
     resolution: {integrity: sha512-7ACyT3wmyp3I61S4fG682L0VA2RGD9otkqGJIwNUMF1SWUombIIk+af1unuDYgMm082aHYwD+mzJvv9Iu8dsgg==}
+    engines: {node: '>=18'}
+
+  globals@17.13.0:
+    resolution: {integrity: sha512-RwMTC61u7hrG3ZJMkZQOK4JLJrKS8QtoTii63EmWvFXHqycY9FObBJQCbsLxSO8kjKhWE5kV1GC+Vb1g3RI0Zg==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -8374,6 +8488,8 @@ snapshots:
   globals@14.0.0: {}
 
   globals@15.15.0: {}
+
+  globals@17.13.0: {}
 
   globalthis@1.0.4:
     dependencies:
