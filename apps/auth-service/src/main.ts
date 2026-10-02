@@ -3,27 +3,27 @@
  * @module auth-service
  *
  * Env loading order:
- *   1. Root .env (shared vars)   ← ../../.env
- *   2. Auth-service .env (overrides) ← ./.env
+ *   1. Root .env (shared vars)   ← ../../../.env
+ *   2. Auth-service .env (overrides) ← ../.env
  *
  * Uses explicit dotenv.config() rather than @nestjs/config defaults
  * so we control the precedence precisely.
  */
+import 'reflect-metadata';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as dotenv from 'dotenv';
 
-// ─── 1. Load root .env (shared) ───────────────────────────────────
-dotenv.config({
-  path: path.resolve(__dirname, '../../../.env'),
-});
+// ─── ESM-safe __dirname ────────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ─── 2. Load auth-service .env (overrides) ───────────────────────
-dotenv.config({
-  path: path.resolve(__dirname, '../.env'),
-  override: true,
-});
+// ─── 1. Load root .env (shared) ────────────────────────────────
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
-import 'reflect-metadata';
+// ─── 2. Load auth-service .env (overrides) ─────────────────────
+dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -36,10 +36,10 @@ async function bootstrap(): Promise<void> {
     logger: ['error', 'warn', 'log', 'debug'],
   });
 
-  // ─── Global prefix ─────────────────────────────────────────────
+  // ─── Global prefix ───────────────────────────────────────────
   app.setGlobalPrefix('api/v1');
 
-  // ─── Global validation pipe ────────────────────────────────────
+  // ─── Global validation pipe ──────────────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -49,7 +49,7 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  // ─── CORS ──────────────────────────────────────────────────────
+  // ─── CORS ────────────────────────────────────────────────────
   const corsOrigins = (process.env.CORS_ORIGINS ?? '')
     .split(',')
     .map((o) => o.trim())
@@ -60,7 +60,7 @@ async function bootstrap(): Promise<void> {
     credentials: true,
   });
 
-  // ─── Swagger (dev only) ────────────────────────────────────────
+  // ─── Swagger (dev only) ──────────────────────────────────────
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('Vubon Auth Service')
@@ -73,7 +73,7 @@ async function bootstrap(): Promise<void> {
     logger.log('Swagger enabled at /api/docs');
   }
 
-  // ─── Graceful shutdown ─────────────────────────────────────────
+  // ─── Graceful shutdown ───────────────────────────────────────
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3001);

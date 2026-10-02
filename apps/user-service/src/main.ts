@@ -9,24 +9,25 @@
  * Uses explicit dotenv.config() rather than @nestjs/config defaults
  * so we control the precedence precisely.
  */
+import 'reflect-metadata';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as dotenv from 'dotenv';
 
-// ─── 1. Load root .env (shared) ───────────────────────────────────
-dotenv.config({
-  path: path.resolve(__dirname, '../../../.env'),
-});
+// ─── ESM-safe __dirname ────────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ─── 2. Load user-service .env (overrides) ────────────────────────
-dotenv.config({
-  path: path.resolve(__dirname, '../.env'),
-  override: true,
-});
+// ─── 1. Load root .env (shared) ────────────────────────────────
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
-import 'reflect-metadata';
+// ─── 2. Load user-service .env (overrides) ─────────────────────
+dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { AppModule } from './module/modules/app.module.js';
 
 const SERVICE_NAME = 'user-service';
@@ -40,26 +41,26 @@ async function bootstrap(): Promise<void> {
     logger: ['error', 'warn', 'log', 'debug'],
   });
 
-  // ─── Global prefix ──────────────────────────────────
+  // ─── Global prefix ───────────────────────────────────────────
   app.setGlobalPrefix(API_PREFIX);
 
-  // ─── CORS ───────────────────────────────────────────
+  // ─── CORS ────────────────────────────────────────────────────
   app.enableCors({
     origin: true,
     credentials: true,
   });
 
-  // ─── Validation ─────────────────────────────────────
+  // ─── Validation ──────────────────────────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: { enableImplicitConversion: true },
-    })
+    }),
   );
 
-  // ─── Swagger ────────────────────────────────────────
+  // ─── Swagger ─────────────────────────────────────────────────
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Vubon User Service')
     .setDescription('User identity, profile, KYC, and activity APIs')
@@ -72,7 +73,7 @@ async function bootstrap(): Promise<void> {
         name: 'Authorization',
         in: 'header',
       },
-      'bearer'
+      'bearer',
     )
     .addTag('users')
     .addTag('user-profile')
@@ -90,19 +91,15 @@ async function bootstrap(): Promise<void> {
     swaggerOptions: { persistAuthorization: true },
   });
 
-  // ─── Graceful shutdown ──────────────────────────────
+  // ─── Graceful shutdown ───────────────────────────────────────
   app.enableShutdownHooks();
 
-  // ─── Listen ─────────────────────────────────────────
+  // ─── Listen ──────────────────────────────────────────────────
   const port = Number(process.env.PORT) || DEFAULT_PORT;
   await app.listen(port);
 
-  logger.log(
-    `🚀 ${SERVICE_NAME} listening on http://localhost:${port}/${API_PREFIX}`
-  );
-  logger.log(
-    `📚 Swagger docs at http://localhost:${port}/${API_PREFIX}/docs`
-  );
+  logger.log(`🚀 ${SERVICE_NAME} listening on http://localhost:${port}/${API_PREFIX}`);
+  logger.log(`📚 Swagger docs at http://localhost:${port}/${API_PREFIX}/docs`);
 }
 
 bootstrap().catch((err) => {
