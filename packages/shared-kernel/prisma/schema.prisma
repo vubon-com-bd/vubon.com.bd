@@ -876,3 +876,74 @@ model PricingRule {
   @@index([isActive])
   @@map("pricing_rules")
 }
+
+// ═══════════════════════════════════════════════════════════════
+// CART DOMAIN — cart-service
+// Persistent models only: SavedItem, AbandonedCart, CartMerger
+// (Cart, CartItem, CartCoupon, CartVoucher are Redis-primary)
+// ═══════════════════════════════════════════════════════════════
+
+model SavedItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  productId   String   @db.Uuid
+  variantId   String?  @db.Uuid
+  quantity    Int      @default(1)
+  status      String   @db.VarChar(30) @default("active")
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([productId])
+  @@index([userId, productId, variantId])
+  @@map("saved_items")
+}
+
+model AbandonedCart {
+  id                       String    @id @default(uuid()) @db.Uuid
+  cartId                   String    @db.Uuid
+  userId                   String?   @db.Uuid
+  email                    String?   @db.VarChar(255)
+  status                   String    @db.VarChar(30) @default("pending")
+  reminderType             String    @db.VarChar(30) @default("email")
+  itemCount                Int       @default(0)
+  cartValue                Decimal   @db.Decimal(12, 2)
+  currency                 String    @db.VarChar(3) @default("BDT")
+  abandonedAt              DateTime  @default(now())
+  remindersSent            Int       @default(0)
+  lastReminderAt           DateTime?
+  recoveredAt              DateTime?
+  recoveredOrderId         String?   @db.Uuid
+  recoveryDiscountPercent  Decimal?  @db.Decimal(5, 2)
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  deletedAt                DateTime?
+
+  @@index([cartId])
+  @@index([userId])
+  @@index([status])
+  @@index([abandonedAt])
+  @@index([status, abandonedAt])
+  @@map("abandoned_carts")
+}
+
+model CartMerger {
+  id              String   @id @default(uuid()) @db.Uuid
+  sourceCartId    String   @db.Uuid
+  targetCartId    String   @db.Uuid
+  strategy        String   @db.VarChar(30)
+  itemsMerged     Int      @default(0)
+  conflicts       Int      @default(0)
+  mergedAt        DateTime @default(now())
+  mergedBy        String?  @db.Uuid
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([sourceCartId])
+  @@index([targetCartId])
+  @@index([mergedAt])
+  @@map("cart_mergers")
+}

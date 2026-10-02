@@ -130,6 +130,16 @@
       "types": "./dist/business/product/index.d.ts",
       "import": "./dist/business/product/index.js",
       "require": "./dist/business/product/index.js"
+    },
+    "./business": {
+      "types": "./dist/business/index.d.ts",
+      "import": "./dist/business/index.js",
+      "require": "./dist/business/index.js"
+    },
+    "./business/cart": {
+      "types": "./dist/business/cart/index.d.ts",
+      "import": "./dist/business/cart/index.js",
+      "require": "./dist/business/cart/index.js"
     }
   },
   "scripts": {
