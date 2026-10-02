@@ -22,6 +22,16 @@ jobs:
   e2e-tests:
     name: 🎭 E2E Tests (${{ matrix.service }})
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -30,6 +40,7 @@ jobs:
           - user-service
           - auth-service
           - product-service
+          - cart-service
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://test:test@localhost:5432/vubon_test
