@@ -1,0 +1,44 @@
+/**
+ * ProductCacheInterceptor — caches GET responses via Redis.
+ * @module product-service/interfaces/interceptors
+ */
+import {
+  CallHandler,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { Observable, of, tap } from 'rxjs';
+import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
+import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
+
+export const PRODUCT_CACHE_INTERCEPTOR = Symbol('PRODUCT_CACHE_INTERCEPTOR');
+
+@Injectable()
+export class ProductCacheInterceptor implements NestInterceptor {
+  constructor(
+    @Inject(RedisService) private readonly redis: RedisService,
+  ) {}
+
+  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
+    const req = context.switchToHttp().getRequest<{
+      method?: string;
+      originalUrl?: string;
+    }>();
+
+    if (req.method !== 'GET' || !req.originalUrl) {
+      return next.handle();
+    }
+
+    const key = `http:product:${req.originalUrl}`;
+    const cached = await this.redis.get<unknown>(key);
+    if (cached !== null) return of(cached);
+
+    return next.handle().pipe(
+      tap((data) => {
+        void this.redis.set(key, data, CACHE_TTL.FIVE_MINUTES);
+      }),
+    );
+  }
+}

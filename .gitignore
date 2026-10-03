@@ -1,25 +1,106 @@
-# Dependencies
+# ═══════════════════════════════════════════════════════════════
+# Vubon.com.bd — Git Ignore Rules (Monorepo-wide)
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Dependencies ──────────────────────────────────────────────
 node_modules/
 .pnpm-store/
 
-# Build outputs
+# ─── Environment Files ─────────────────────────────────────────
+# Ignore all .env files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+.env.test
+
+# Backups of env files
+.env.backup.*
+.env.*.backup.*
+
+# Keep templates
+!.env.example
+!**/.env.example
+!.env.production.example
+!**/.env.production.example
+
+# ─── Build Output ──────────────────────────────────────────────
 dist/
-.next/
-out/
 build/
+out/
 *.tsbuildinfo
 
-# Environment files
-.env*
-.env.*.local
+# ─── Prisma ────────────────────────────────────────────────────
+prisma/migrations/**/*.sql
+!prisma/migrations/migration_lock.toml
 
-# Logs
+# ─── Test Coverage ─────────────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+
+# ─── Logs ──────────────────────────────────────────────────────
 *.log
+logs/
+service.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS files
+# ─── OS Files ──────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
-# IDE
+# ─── IDE / Editor ──────────────────────────────────────────────
 .vscode/
 .idea/
+*.iml
+*.sublime-*
+
+# ─── Cache ─────────────────────────────────────────────────────
+.cache/
+.eslintcache
+.prettier-cache
+.turbo/
+.parcel-cache/
+
+# ─── Local Storage ─────────────────────────────────────────────
+storage/
+uploads/
+
+# ─── Backup / Scratch Files ────────────────────────────────────
+*.bak
+*.bak.*
+package.json.backup.*
+.backups/
+*.pre-esm
+*.pre-bundler
+*.pre-tscalias
+*.pre-dist
+*.pre-loose
+*.pre-spec-exclude
+*.pre-*
+tmp/
+temp/
+.scratch/
+
+# ─── Jest Skipped Tests ────────────────────────────────────────
+.skip/
+
+# ─── Redis Runtime ─────────────────────────────────────────────
+dump.rdb
+
+# ─── Snapshot Files ────────────────────────────────────────────
+*.test.ts.snap
+__snapshots__/
+
+# Jest coverage output (generated — do NOT commit)
+coverage-report/
+coverage/
+coverage-tmp/
+.env.bak-*

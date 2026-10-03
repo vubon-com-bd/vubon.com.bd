@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": false,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vubon/shared-config": ["../shared-config/dist/index.d.ts"],
+      "@vubon/shared-config/common": ["../shared-config/dist/common/index.d.ts"],
+      "@vubon/shared-config/*": ["../shared-config/dist/*"],
+
+      "@vubon/shared-constants": ["../shared-constants/dist/index.d.ts"],
+      "@vubon/shared-constants/common": ["../shared-constants/dist/common/index.d.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/dist/*"],
+
+      "@vubon/shared-types": ["../shared-types/dist/index.d.ts"],
+      "@vubon/shared-types/common": ["../shared-types/dist/common/index.d.ts"],
+      "@vubon/shared-types/*": ["../shared-types/dist/*"],
+
+      "@vubon/shared-utils": ["../shared-utils/dist/index.d.ts"],
+      "@vubon/shared-utils/common": ["../shared-utils/dist/common/index.d.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/dist/*"],
+
+      "@vubon/shared-schemas": ["../shared-schemas/dist/index.d.ts"],
+      "@vubon/shared-schemas/common": ["../shared-schemas/dist/common/index.d.ts"],
+      "@vubon/shared-schemas/*": ["../shared-schemas/dist/*"]
+    },
+    "types": ["node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

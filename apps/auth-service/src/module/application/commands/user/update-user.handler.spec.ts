@@ -1,0 +1,39 @@
+/**
+ * UpdateUserHandler — Unit Tests
+ */
+import { jest } from '@jest/globals';
+
+import { UpdateUserHandler } from './update-user.handler.js';
+import { UpdateUserCommand } from './update-user.command.js';
+
+const mockUserService = () => ({
+  update: jest.fn<() => Promise<unknown>>(),
+  toResponse: jest.fn<() => unknown>(),
+});
+
+describe('UpdateUserHandler', () => {
+  let handler: UpdateUserHandler;
+  let userService: ReturnType<typeof mockUserService>;
+
+  beforeEach(() => {
+    userService = mockUserService();
+    handler = new UpdateUserHandler(userService as never);
+  });
+
+  it('should have correct commandType', () => {
+    expect(handler.commandType).toBe('UpdateUserCommand');
+  });
+
+  it('should delegate to service', async () => {
+    const entity = { id: 'user-1' };
+    const dto = { id: 'user-1', name: 'New Name' };
+    userService.update.mockResolvedValue(entity);
+    userService.toResponse.mockReturnValue(dto);
+
+    const command = new UpdateUserCommand('user-1' as never, { name: 'New Name' } as never);
+    const result = await handler.execute(command);
+
+    expect(userService.update).toHaveBeenCalledWith('user-1', command.input);
+    expect(result).toEqual(dto);
+  });
+});

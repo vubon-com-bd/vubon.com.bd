@@ -1,0 +1,452 @@
+export const ERROR_CODE = {
+  // ─── Auth ──────────────────────────────────────────────
+  AUTH_INVALID_CREDENTIALS: 'AUTH-001',
+  AUTH_TOKEN_EXPIRED: 'AUTH-002',
+  AUTH_TOKEN_INVALID: 'AUTH-003',
+  AUTH_UNAUTHORIZED: 'AUTH-004',
+  AUTH_FORBIDDEN: 'AUTH-005',
+  AUTH_MFA_REQUIRED: 'AUTH-006',
+  AUTH_ACCOUNT_LOCKED: 'AUTH-007',
+  AUTH_SESSION_EXPIRED: 'AUTH-008',
+  AUTH_SESSION_REVOKED: 'AUTH-009',
+  AUTH_MFA_INVALID: 'AUTH-010',
+  AUTH_UNTRUSTED_DEVICE: 'AUTH-011',
+  AUTH_SOCIAL_ALREADY_LINKED: 'AUTH-012',
+  AUTH_OAUTH_FAILED: 'AUTH-013',
+  AUTH_SSO_FAILED: 'AUTH-014',
+  AUTH_BIOMETRIC_FAILED: 'AUTH-015',
+  AUTH_VERIFICATION_EXPIRED: 'AUTH-016',
+  AUTH_WEAK_PASSWORD: 'AUTH-017',
+  AUTH_INVALID_ROLE: 'AUTH-018',
+  AUTH_INVALID_EMAIL: 'AUTH-019',
+  AUTH_INVALID_NAME: 'AUTH-020',
+  AUTH_INVALID_PHONE: 'AUTH-021',
+  AUTH_INVALID_STATUS: 'AUTH-022',
+  AUTH_INVALID_TYPE: 'AUTH-023',
+  AUTH_INVALID_TOKEN_FORMAT: 'AUTH-024',
+  AUTH_TOO_MANY_ATTEMPTS: 'AUTH-025',
+
+  // ─── Auth (Extended) ───────────────────────────────
+  AUTH_PASSWORD_MISMATCH: 'AUTH-026',
+  AUTH_SESSION_NOT_FOUND: 'AUTH-027',
+  AUTH_TOKEN_NOT_FOUND: 'AUTH-028',
+  AUTH_TOKEN_REVOKED: 'AUTH-029',
+  AUTH_MFA_NOT_FOUND: 'AUTH-030',
+  AUTH_MFA_ALREADY_ENABLED: 'AUTH-031',
+  AUTH_MFA_DISABLED: 'AUTH-032',
+  AUTH_ACCOUNT_NOT_LOCKED: 'AUTH-033',
+  AUTH_DEVICE_NOT_FOUND: 'AUTH-034',
+  AUTH_DEVICE_ALREADY_REGISTERED: 'AUTH-035',
+  AUTH_SOCIAL_NOT_LINKED: 'AUTH-036',
+  AUTH_SOCIAL_PROVIDER_ERROR: 'AUTH-037',
+  AUTH_SSO_NOT_CONFIGURED: 'AUTH-038',
+  AUTH_BIOMETRIC_NOT_ENROLLED: 'AUTH-039',
+  AUTH_VERIFICATION_NOT_FOUND: 'AUTH-040',
+  AUTH_VERIFICATION_CODE_MISMATCH: 'AUTH-041',
+  AUTH_ROLE_NOT_FOUND: 'AUTH-042',
+  AUTH_ROLE_ALREADY_ASSIGNED: 'AUTH-043',
+  AUTH_PERMISSION_DENIED: 'AUTH-044',
+
+  // ─── Validation ────────────────────────────────────────
+  VAL_REQUIRED: 'VAL-001',
+  VAL_INVALID_FORMAT: 'VAL-002',
+  VAL_OUT_OF_RANGE: 'VAL-003',
+  VAL_DUPLICATE: 'VAL-004',
+
+  // ─── User ──────────────────────────────────────────────
+  USER_NOT_FOUND: 'USR-001',
+  USER_ALREADY_EXISTS: 'USR-002',
+  USER_INACTIVE: 'USR-003',
+
+  // ─── Product ───────────────────────────────────────────
+  PRODUCT_NOT_FOUND: 'PRD-001',
+  PRODUCT_OUT_OF_STOCK: 'PRD-002',
+
+  // ─── Cart ──────────────────────────────────────────────
+  CART_EMPTY: 'CRT-001',
+  CART_ITEM_NOT_FOUND: 'CRT-002',
+
+  // ─── Order ─────────────────────────────────────────────
+  ORDER_NOT_FOUND: 'ORD-001',
+  ORDER_ALREADY_CANCELLED: 'ORD-002',
+
+  // ─── Payment (Basic) ───────────────────────────────────
+  PAYMENT_FAILED: 'PAY-001',
+  PAYMENT_DECLINED: 'PAY-002',
+
+  // ─── Payment (Extended) ────────────────────────────────
+  PAYMENT_NOT_FOUND: 'PAY-003',
+  PAYMENT_ALREADY_COMPLETED: 'PAY-004',
+  PAYMENT_OPERATION_FAILED: 'PAY-005',
+  PAYMENT_INVALID_METHOD: 'PAY-006',
+  PAYMENT_METHOD_NOT_SUPPORTED: 'PAY-007',
+  PAYMENT_METHOD_OPERATION_FAILED: 'PAY-008',
+  PAYMENT_GATEWAY_TIMEOUT: 'PAY-009',
+  PAYMENT_GATEWAY_UNAVAILABLE: 'PAY-010',
+  PAYMENT_VERIFICATION_FAILED: 'PAY-011',
+  PAYMENT_SIGNATURE_INVALID: 'PAY-012',
+
+  // ─── Transaction ───────────────────────────────────────
+  TRANSACTION_NOT_FOUND: 'TXN-001',
+  TRANSACTION_CONFLICT: 'TXN-002',
+  TRANSACTION_OPERATION_FAILED: 'TXN-003',
+
+  // ─── Refund ────────────────────────────────────────────
+  REFUND_NOT_FOUND: 'RFD-001',
+  REFUND_WINDOW_EXPIRED: 'RFD-002',
+  REFUND_OPERATION_FAILED: 'RFD-003',
+
+  // ─── Subscription ──────────────────────────────────────
+  SUBSCRIPTION_NOT_FOUND: 'SUB-001',
+  SUBSCRIPTION_EXPIRED: 'SUB-002',
+  SUBSCRIPTION_OPERATION_FAILED: 'SUB-003',
+
+  // ─── Invoice ───────────────────────────────────────────
+  INVOICE_NOT_FOUND: 'INV-001',
+  INVOICE_OVERDUE: 'INV-002',
+  INVOICE_OPERATION_FAILED: 'INV-003',
+
+  // ─── Idempotency ───────────────────────────────────────
+  DUPLICATE_REQUEST: 'IDP-001',
+
+  // ─── Webhook ───────────────────────────────────────────
+  WEBHOOK_PROCESSING_FAILED: 'WHK-001',
+  WEBHOOK_SIGNATURE_INVALID: 'WHK-002',
+
+  // ─── Vendor ────────────────────────────────────────────
+  VENDOR_NOT_FOUND: 'VND-001',
+  VENDOR_SLUG_EXISTS: 'VND-002',
+  VENDOR_NOT_APPROVED: 'VND-003',
+  VENDOR_NOT_ACTIVE: 'VND-004',
+  VENDOR_SUSPENDED: 'VND-005',
+  VENDOR_INVALID_STATE: 'VND-006',
+  VENDOR_VERIFICATION_NOT_FOUND: 'VND-V01',
+  VENDOR_VERIFICATION_EXPIRED: 'VND-V02',
+  VENDOR_VERIFICATION_NOT_ALLOWED: 'VND-V03',
+  VENDOR_APPROVAL_NOT_FOUND: 'VND-A01',
+  VENDOR_APPROVAL_INVALID_STATE: 'VND-A02',
+  VENDOR_SUSPENSION_NOT_FOUND: 'VND-S01',
+  VENDOR_ALREADY_SUSPENDED: 'VND-S02',
+  VENDOR_COMMISSION_NOT_CALCULATED: 'VND-C01',
+  VENDOR_COMMISSION_NOT_FOUND: 'VND-C02',
+  VENDOR_PAYOUT_NOT_FOUND: 'VND-P01',
+  VENDOR_PAYOUT_LIMIT_EXCEEDED: 'VND-P02',
+  VENDOR_PAYOUT_NOT_ALLOWED: 'VND-P03',
+  VENDOR_SETTLEMENT_NOT_FOUND: 'VND-ST1',
+  VENDOR_SETTLEMENT_NOT_DUE: 'VND-ST2',
+  VENDOR_DOCUMENT_NOT_FOUND: 'VND-D01',
+  VENDOR_DOCUMENT_EXPIRED: 'VND-D02',
+  VENDOR_TEAM_MEMBER_NOT_FOUND: 'VND-T01',
+  VENDOR_TEAM_LIMIT_EXCEEDED: 'VND-T02',
+  VENDOR_SUBSCRIPTION_NOT_FOUND: 'VND-SUB1',
+  VENDOR_SUBSCRIPTION_EXPIRED: 'VND-SUB2',
+  VENDOR_TIER_REQUIREMENT_NOT_MET: 'VND-TR1',
+
+  // ─── Logistics (Shipment) ──────────────────────────────
+  SHIPMENT_NOT_FOUND: 'LOG-001',
+  SHIPMENT_CANNOT_BE_CANCELLED: 'LOG-002',
+  INVALID_SHIPMENT_NUMBER: 'LOG-003',
+
+  // ─── Logistics (Delivery) ──────────────────────────────
+  DELIVERY_FAILED: 'LOG-004',
+  DELIVERY_WINDOW_EXPIRED: 'LOG-005',
+  DELIVERY_ATTEMPT_EXCEEDED: 'LOG-006',
+
+  // ─── Logistics (Tracking) ──────────────────────────────
+  TRACKING_NOT_FOUND: 'LOG-007',
+  INVALID_TRACKING_NUMBER: 'LOG-008',
+
+  // ─── Logistics (Courier) ───────────────────────────────
+  COURIER_NOT_FOUND: 'LOG-009',
+  COURIER_UNAVAILABLE: 'LOG-010',
+  COURIER_RATE_NOT_FOUND: 'LOG-011',
+
+  // ─── Logistics (Warehouse) ─────────────────────────────
+  WAREHOUSE_NOT_FOUND: 'LOG-012',
+  CAPACITY_EXCEEDED: 'LOG-013',
+
+  // ─── Logistics (Fulfillment) ───────────────────────────
+  FULFILLMENT_FAILED: 'LOG-014',
+  ITEM_NOT_AVAILABLE: 'LOG-015',
+
+  // ─── Logistics (Dispatch) ──────────────────────────────
+  DISPATCH_ALREADY_STARTED: 'LOG-016',
+  DISPATCH_NOT_FOUND: 'LOG-017',
+
+  // ─── Logistics (Vehicle) ───────────────────────────────
+  VEHICLE_NOT_AVAILABLE: 'LOG-018',
+  VEHICLE_NOT_FOUND: 'LOG-019',
+
+  // ─── Logistics (Driver) ────────────────────────────────
+  DRIVER_NOT_AVAILABLE: 'LOG-020',
+  DRIVER_NOT_FOUND: 'LOG-021',
+
+  // ─── Logistics (Route) ─────────────────────────────────
+  ROUTE_NOT_FOUND: 'LOG-022',
+  ROUTE_TOO_LONG: 'LOG-023',
+
+  // ─── Logistics (Zone) ──────────────────────────────────
+  ZONE_NOT_COVERED: 'LOG-024',
+  ZONE_NOT_FOUND: 'LOG-025',
+
+  // ─── Logistics (Shipping) ──────────────────────────────
+  SHIPPING_RATE_NOT_FOUND: 'LOG-026',
+  WEIGHT_LIMIT_EXCEEDED: 'LOG-027',
+
+  // ─── Logistics (Return) ────────────────────────────────
+  RETURN_WINDOW_EXPIRED: 'LOG-028',
+  RETURN_SHIPMENT_NOT_FOUND: 'LOG-029',
+
+  // ─── Logistics (Insurance) ─────────────────────────────
+  INSURANCE_NOT_AVAILABLE: 'LOG-030',
+  INSURANCE_CLAIM_FAILED: 'LOG-031',
+
+  // ─── Marketing (Campaign) ─────────────────────────────
+  CAMPAIGN_NOT_FOUND: 'MKT-001',
+  CAMPAIGN_ALREADY_LAUNCHED: 'MKT-002',
+  CAMPAIGN_INVALID_STATE: 'MKT-003',
+  MARKETING_BUDGET_EXCEEDED: 'MKT-004',
+
+  // ─── Marketing (Promotion) ─────────────────────────────
+  PROMOTION_NOT_FOUND: 'MKT-010',
+  PROMOTION_NOT_APPLICABLE: 'MKT-011',
+  PROMOTION_STACKING_ERROR: 'MKT-012',
+  PROMOTION_CODE_DUPLICATE: 'MKT-013',
+  PROMOTION_EXPIRED: 'MKT-014',
+
+  // ─── Marketing (Affiliate) ─────────────────────────────
+  AFFILIATE_NOT_FOUND: 'MKT-020',
+  AFFILIATE_PAYOUT_ERROR: 'MKT-021',
+  AFFILIATE_CODE_DUPLICATE: 'MKT-022',
+  AFFILIATE_INVALID_STATE: 'MKT-023',
+
+  // ─── Marketing (Referral) ──────────────────────────────
+  REFERRAL_NOT_FOUND: 'MKT-030',
+  REFERRAL_EXPIRED: 'MKT-031',
+  REFERRAL_INVALID_STATE: 'MKT-032',
+
+  // ─── Marketing (Loyalty) ───────────────────────────────
+  LOYALTY_NOT_FOUND: 'MKT-040',
+  LOYALTY_INSUFFICIENT_POINTS: 'MKT-041',
+  LOYALTY_TIER_NOT_MET: 'MKT-042',
+  LOYALTY_REWARD_NOT_FOUND: 'MKT-043',
+
+  // ─── Marketing (Email) ─────────────────────────────────
+  EMAIL_MARKETING_NOT_FOUND: 'MKT-050',
+  EMAIL_ALREADY_SENT: 'MKT-051',
+  EMAIL_SPAM_SCORE_TOO_HIGH: 'MKT-052',
+  EMAIL_TEMPLATE_NOT_FOUND: 'MKT-053',
+
+  // ─── Marketing (SMS) ───────────────────────────────────
+  SMS_MARKETING_NOT_FOUND: 'MKT-060',
+  SMS_ALREADY_SENT: 'MKT-061',
+
+  // ─── Marketing (Social) ────────────────────────────────
+  SOCIAL_POST_NOT_FOUND: 'MKT-070',
+  SOCIAL_PLATFORM_UNSUPPORTED: 'MKT-071',
+
+  // ─── Marketing (SEO) ───────────────────────────────────
+  SEO_KEYWORD_ERROR: 'MKT-080',
+  SEO_SCORE_TOO_LOW: 'MKT-081',
+
+  // ─── Marketing (Lead) ──────────────────────────────────
+  LEAD_NOT_FOUND: 'MKT-090',
+  LEAD_INVALID_STATE: 'MKT-091',
+  LEAD_ALREADY_CONVERTED: 'MKT-092',
+  LEAD_SCORE_TOO_LOW: 'MKT-093',
+
+  // ─── Marketing (Automation) ────────────────────────────
+  AUTOMATION_NOT_FOUND: 'MKT-100',
+  WORKFLOW_FAILED: 'MKT-101',
+  WORKFLOW_INVALID_STATE: 'MKT-102',
+
+  // ─── AI (Model) ────────────────────────────────────────
+  AI_MODEL_NOT_FOUND: 'AI-001',
+  AI_MODEL_NOT_DEPLOYED: 'AI-002',
+  AI_MODEL_DEPRECATED: 'AI-003',
+  AI_MODEL_ALREADY_EXISTS: 'AI-004',
+  AI_MODEL_INVALID_STATE: 'AI-005',
+  AI_MODEL_OPERATION_FAILED: 'AI-006',
+  AI_MODEL_NOT_DEPLOYABLE: 'AI-007',
+  AI_MODEL_VERSION_CONFLICT: 'AI-008',
+
+  // ─── AI (Provider) ─────────────────────────────────────
+  AI_PROVIDER_NOT_FOUND: 'AI-010',
+  AI_PROVIDER_UNAVAILABLE: 'AI-011',
+  AI_PROVIDER_TIMEOUT: 'AI-012',
+  AI_PROVIDER_RATE_LIMIT: 'AI-013',
+  AI_PROVIDER_AUTH_FAILED: 'AI-014',
+  AI_PROVIDER_INVALID_CONFIG: 'AI-015',
+
+  // ─── AI (Training) ─────────────────────────────────────
+  AI_TRAINING_NOT_FOUND: 'AI-020',
+  AI_TRAINING_FAILED: 'AI-021',
+  AI_TRAINING_IN_PROGRESS: 'AI-022',
+  AI_TRAINING_CANNOT_PAUSE: 'AI-023',
+  AI_TRAINING_CANNOT_CANCEL: 'AI-024',
+  AI_TRAINING_INSUFFICIENT_DATA: 'AI-025',
+  AI_TRAINING_CONFIG_INVALID: 'AI-026',
+
+  // ─── AI (Embedding) ────────────────────────────────────
+  AI_EMBEDDING_NOT_FOUND: 'AI-030',
+  AI_EMBEDDING_FAILED: 'AI-031',
+  AI_EMBEDDING_DIMENSION_MISMATCH: 'AI-032',
+  AI_EMBEDDING_BATCH_TOO_LARGE: 'AI-033',
+  AI_EMBEDDING_INPUT_TOO_LONG: 'AI-034',
+
+  // ─── AI (Vector) ───────────────────────────────────────
+  AI_VECTOR_NOT_FOUND: 'AI-040',
+  AI_VECTOR_INDEX_NOT_FOUND: 'AI-041',
+  AI_VECTOR_INDEX_NOT_READY: 'AI-042',
+  AI_VECTOR_INDEX_REBUILD_FAILED: 'AI-043',
+  AI_VECTOR_SEARCH_FAILED: 'AI-044',
+  AI_VECTOR_DIMENSION_MISMATCH: 'AI-045',
+
+  // ─── AI (Similarity) ───────────────────────────────────
+  AI_SIMILARITY_COMPUTE_FAILED: 'AI-050',
+  AI_SIMILARITY_THRESHOLD_INVALID: 'AI-051',
+  AI_SIMILARITY_DIMENSION_MISMATCH: 'AI-052',
+
+  // ─── AI (Cluster) ──────────────────────────────────────
+  AI_CLUSTER_NOT_FOUND: 'AI-060',
+  AI_CLUSTER_FAILED: 'AI-061',
+  AI_CLUSTER_INSUFFICIENT_DATA: 'AI-062',
+  AI_CLUSTER_INVALID_K: 'AI-063',
+
+  // ─── AI (Forecast) ─────────────────────────────────────
+  AI_FORECAST_NOT_FOUND: 'AI-070',
+  AI_FORECAST_FAILED: 'AI-071',
+  AI_FORECAST_INSUFFICIENT_DATA: 'AI-072',
+  AI_FORECAST_HORIZON_INVALID: 'AI-073',
+
+  // ─── AI (Recommendation) ───────────────────────────────
+  AI_RECOMMENDATION_NOT_FOUND: 'AI-080',
+  AI_RECOMMENDATION_FAILED: 'AI-081',
+  AI_RECOMMENDATION_NO_RESULTS: 'AI-082',
+  AI_RECOMMENDATION_INSUFFICIENT_HISTORY: 'AI-083',
+  AI_RECOMMENDATION_STRATEGY_UNSUPPORTED: 'AI-084',
+
+  // ─── AI (Personalization) ──────────────────────────────
+  AI_PERSONALIZATION_NOT_FOUND: 'AI-090',
+  AI_PERSONALIZATION_FAILED: 'AI-091',
+  AI_PERSONALIZATION_PROFILE_NOT_FOUND: 'AI-092',
+  AI_PERSONALIZATION_INSUFFICIENT_HISTORY: 'AI-093',
+
+  // ─── AI (Search) ───────────────────────────────────────
+  AI_SEARCH_FAILED: 'AI-100',
+  AI_SEARCH_INVALID_QUERY: 'AI-101',
+  AI_SEARCH_MODEL_NOT_FOUND: 'AI-102',
+  AI_SEARCH_TIMEOUT: 'AI-103',
+
+  // ─── AI (Ranking) ──────────────────────────────────────
+  AI_RANKING_FAILED: 'AI-110',
+  AI_RANKING_ALGORITHM_UNSUPPORTED: 'AI-111',
+  AI_RANKING_NO_FEATURES: 'AI-112',
+
+  // ─── AI (Insight) ──────────────────────────────────────
+  AI_INSIGHT_NOT_FOUND: 'AI-120',
+  AI_INSIGHT_GENERATION_FAILED: 'AI-121',
+  AI_INSIGHT_INSUFFICIENT_DATA: 'AI-122',
+  AI_ANOMALY_DETECTION_FAILED: 'AI-123',
+
+  // ─── AI (Prompt) ───────────────────────────────────────
+  AI_PROMPT_NOT_FOUND: 'AI-130',
+  AI_PROMPT_TOO_LONG: 'AI-131',
+  AI_PROMPT_TEMPLATE_NOT_FOUND: 'AI-132',
+  AI_PROMPT_INVALID_VARIABLES: 'AI-133',
+  AI_PROMPT_CONTENT_FILTERED: 'AI-134',
+
+  // ─── AI (Completion) ───────────────────────────────────
+  AI_COMPLETION_FAILED: 'AI-140',
+  AI_COMPLETION_TOKEN_LIMIT_EXCEEDED: 'AI-141',
+  AI_COMPLETION_EMPTY: 'AI-142',
+
+  // ─── AI (Feature) ──────────────────────────────────────
+  AI_FEATURE_NOT_FOUND: 'AI-150',
+  AI_FEATURE_DISABLED: 'AI-151',
+  AI_FEATURE_FLAG_NOT_FOUND: 'AI-152',
+
+  // ─── AI (Analytics) ────────────────────────────────────
+  AI_ANALYTICS_NOT_FOUND: 'AI-160',
+  AI_ANALYTICS_RECORDING_FAILED: 'AI-161',
+
+  // ─── AI (General) ──────────────────────────────────────
+  AI_OPERATION_FAILED: 'AI-999',
+
+  // ─── Support (Ticket) ──────────────────────────────────
+  SUPPORT_TICKET_NOT_FOUND: 'SUP-001',
+  SUPPORT_TICKET_ALREADY_CLOSED: 'SUP-002',
+  SUPPORT_TICKET_ALREADY_RESOLVED: 'SUP-003',
+  SUPPORT_TICKET_INVALID_TRANSITION: 'SUP-004',
+  SUPPORT_TICKET_TERMINAL: 'SUP-005',
+  SUPPORT_TICKET_ALREADY_ASSIGNED: 'SUP-006',
+
+  // ─── Support (Escalation) ──────────────────────────────
+  SUPPORT_ESCALATION_NOT_FOUND: 'SUP-010',
+  SUPPORT_ESCALATION_NOT_ALLOWED: 'SUP-011',
+  SUPPORT_ESCALATION_ALREADY_RESOLVED: 'SUP-012',
+
+  // ─── Support (Assignment) ──────────────────────────────
+  SUPPORT_NO_AGENT_AVAILABLE: 'SUP-020',
+  SUPPORT_AGENT_NOT_AVAILABLE: 'SUP-021',
+  SUPPORT_AGENT_CAPACITY_EXCEEDED: 'SUP-022',
+
+  // ─── Support (Message / Conversation) ──────────────────
+  SUPPORT_MESSAGE_NOT_FOUND: 'SUP-030',
+  SUPPORT_MESSAGE_CANNOT_EDIT: 'SUP-031',
+  SUPPORT_CONVERSATION_CLOSED_FOR_MESSAGE: 'SUP-032',
+  SUPPORT_CONVERSATION_NOT_FOUND: 'SUP-040',
+  SUPPORT_CONVERSATION_ALREADY_CLOSED: 'SUP-041',
+  SUPPORT_CONVERSATION_TERMINAL: 'SUP-042',
+
+  // ─── Support (Feedback) ────────────────────────────────
+  SUPPORT_FEEDBACK_NOT_FOUND: 'SUP-050',
+  SUPPORT_FEEDBACK_ALREADY_SUBMITTED: 'SUP-051',
+  SUPPORT_FEEDBACK_ALREADY_REVIEWED: 'SUP-052',
+
+  // ─── Support (Complaint) ───────────────────────────────
+  SUPPORT_COMPLAINT_NOT_FOUND: 'SUP-060',
+  SUPPORT_COMPLAINT_ALREADY_RESOLVED: 'SUP-061',
+  SUPPORT_COMPLAINT_SEVERITY_INVALID: 'SUP-062',
+
+  // ─── Support (Survey) ──────────────────────────────────
+  SUPPORT_SURVEY_NOT_FOUND: 'SUP-070',
+  SUPPORT_SURVEY_ALREADY_COMPLETED: 'SUP-071',
+  SUPPORT_SURVEY_NOT_ACCEPTING: 'SUP-072',
+
+  // ─── Support (Live Chat) ───────────────────────────────
+  SUPPORT_CHAT_NOT_FOUND: 'SUP-080',
+  SUPPORT_CHAT_ALREADY_ENDED: 'SUP-081',
+  SUPPORT_CHAT_TERMINAL: 'SUP-082',
+
+  // ─── Support (Chatbot) ─────────────────────────────────
+  SUPPORT_CHATBOT_NOT_FOUND: 'SUP-090',
+  SUPPORT_CHATBOT_NOT_OPERATIONAL: 'SUP-091',
+  SUPPORT_CHATBOT_INTENT_NOT_FOUND: 'SUP-092',
+
+  // ─── Support (Agent) ───────────────────────────────────
+  SUPPORT_AGENT_NOT_FOUND: 'SUP-100',
+  SUPPORT_AGENT_UNAVAILABLE: 'SUP-101',
+
+  // ─── Support (SLA) ─────────────────────────────────────
+  SUPPORT_SLA_NOT_FOUND: 'SUP-110',
+  SUPPORT_SLA_BREACHED: 'SUP-111',
+
+  // ─── Support (Rule) ────────────────────────────────────
+  SUPPORT_RULE_NOT_FOUND: 'SUP-120',
+  SUPPORT_RULE_INACTIVE: 'SUP-121',
+
+  // ─── Support (Automation) ──────────────────────────────
+  SUPPORT_AUTOMATION_NOT_FOUND: 'SUP-130',
+  SUPPORT_AUTOMATION_DISABLED: 'SUP-131',
+
+  // ─── Server ────────────────────────────────────────────
+  SERVER_INTERNAL: 'SRV-001',
+  SERVER_UNAVAILABLE: 'SRV-002',
+  SERVER_TIMEOUT: 'SRV-003',
+
+  // ─── Rate Limit ────────────────────────────────────────
+  RATE_LIMIT_EXCEEDED: 'RATE-001',
+} as const;
+
+export type ErrorCodeType = (typeof ERROR_CODE)[keyof typeof ERROR_CODE];

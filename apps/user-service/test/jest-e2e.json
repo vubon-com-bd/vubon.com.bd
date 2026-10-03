@@ -1,0 +1,38 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": "<rootDir>/../tsconfig.spec.json"
+      }
+    ]
+  },
+  "extensionsToTreatAsEsm": [".ts"],
+  "transformIgnorePatterns": [
+    "node_modules/(?!(\\.pnpm/[^/]+/node_modules/)?(@nestjs|@vubon|@apollo|graphql|rxjs)/)"
+  ],
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@/(.*)$": "<rootDir>/../src/$1",
+    "^@domain/(.*)$": "<rootDir>/../src/module/domain/$1",
+    "^@application/(.*)$": "<rootDir>/../src/module/application/$1",
+    "^@infrastructure/(.*)$": "<rootDir>/../src/module/infrastructure/$1",
+    "^@interfaces/(.*)$": "<rootDir>/../src/module/interfaces/$1",
+    "^@modules/(.*)$": "<rootDir>/../src/module/modules/$1",
+    "^@vubon/shared-kernel/(.*)$": "<rootDir>/../../../packages/shared-kernel/dist/$1",
+    "^@vubon/shared-kernel$": "<rootDir>/../../../packages/shared-kernel/dist/index.js",
+    "^@vubon/shared-constants/(.*)$": "<rootDir>/../../../packages/shared-constants/dist/$1",
+    "^@vubon/shared-constants$": "<rootDir>/../../../packages/shared-constants/dist/index.js",
+    "^@vubon/shared-types/(.*)$": "<rootDir>/../../../packages/shared-types/dist/$1",
+    "^@vubon/shared-types$": "<rootDir>/../../../packages/shared-types/dist/index.js",
+    "^@vubon/shared-schemas/(.*)$": "<rootDir>/../../../packages/shared-schemas/dist/$1",
+    "^@vubon/shared-schemas$": "<rootDir>/../../../packages/shared-schemas/dist/index.js",
+    "^@vubon/shared-config/(.*)$": "<rootDir>/../../../packages/shared-config/dist/$1",
+    "^@vubon/shared-config$": "<rootDir>/../../../packages/shared-config/dist/index.js"
+  }
+}
