@@ -8,6 +8,10 @@ import {
   ORDER_FULFILLMENT_TYPE,
   ORDER_FULFILLMENT,
 } from './order-fulfillment.constants.js';
+import { ORDER_CHANNEL } from './order-channel.constants.js';
+import { ORDER_SOURCE } from './order-source.constants.js';
+import { ORDER_NOTE } from './order-note.constants.js';
+import { ORDER_HISTORY_TYPE, ORDER_HISTORY } from './order-history.constants.js';
 
 export const ORDER_TYPE = {
   REGULAR: 'regular',
@@ -33,6 +37,10 @@ export const ORDER = {
   TYPE: ORDER_TYPE,
   STATUS: ORDER_STATUS,
   PRIORITY: ORDER_PRIORITY,
+  CHANNEL: ORDER_CHANNEL,
+  SOURCE: ORDER_SOURCE,
+  NOTE: ORDER_NOTE,
+  HISTORY: { TYPE: ORDER_HISTORY_TYPE, ...ORDER_HISTORY },
   ITEM: {
     STATUS: ORDER_ITEM_STATUS,
     TYPE: ORDER_ITEM_TYPE,

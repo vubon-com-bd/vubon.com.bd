@@ -121,3 +121,23 @@ export interface OrderStats {
   readonly currency: string;
   readonly byStatus: Readonly<Record<OrderStatusValue, number>>;
 }
+
+// ─────────────────────────────────────────────
+// Order Channel & Source (extended)
+// ─────────────────────────────────────────────
+import type { ORDER_CHANNEL, ORDER_SOURCE } from '@vubon/shared-constants/business';
+
+export type OrderChannelValue = (typeof ORDER_CHANNEL)[keyof typeof ORDER_CHANNEL];
+export type OrderSourceValue = (typeof ORDER_SOURCE)[keyof typeof ORDER_SOURCE];
+
+export interface OrderChannelMetadata {
+  readonly value: OrderChannelValue;
+  readonly label: string;
+  readonly isOnline: boolean;
+}
+
+export interface OrderSourceMetadata {
+  readonly value: OrderSourceValue;
+  readonly label: string;
+  readonly isSystemGenerated: boolean;
+}

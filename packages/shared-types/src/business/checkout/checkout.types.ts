@@ -1,104 +1,99 @@
 /**
- * Checkout Core Types
+ * Checkout Types
  * @module shared-types/business/checkout
  *
- * Checkout session — cart → order-এ যাওয়ার মাঝের state।
+ * Values come from shared-constants/business/checkout.
  */
-
-import type { CartId, UserId, Money, Email, Phone } from '../../common/primitives/index.js';
-import type { BaseEntity } from '../../common/base/index.js';
+import type {
+  CHECKOUT_STATUS,
+  CHECKOUT_STEP,
+  CHECKOUT_TYPE,
+} from '@vubon/shared-constants/business/checkout';
+import type {
+  CheckoutId,
+  UserId,
+  CartId,
+  Money,
+  Url,
+} from '../../common/primitives/index.js';
 import type { Address } from '../../common/geo/index.js';
-import type { CartItem } from '../cart/cart-item.types.js';
-import type { CartTotals } from '../cart/cart.types.js';
-import type { CheckoutStatusValue } from './checkout-status.types.js';
-import type { CheckoutStepValue, CheckoutStepState } from './checkout-step.types.js';
+import type { BaseEntity } from '../../common/base/index.js';
 
-export type CheckoutTypeValue = 'guest' | 'registered' | 'express' | 'one_click' | 'subscription';
+export type CheckoutStatusValue = (typeof CHECKOUT_STATUS)[keyof typeof CHECKOUT_STATUS];
+export type CheckoutStepValue = (typeof CHECKOUT_STEP)[keyof typeof CHECKOUT_STEP];
+export type CheckoutTypeValue = (typeof CHECKOUT_TYPE)[keyof typeof CHECKOUT_TYPE];
 
-export interface Checkout extends BaseEntity<string> {
-  readonly cartId: CartId;
-  readonly userId?: UserId;
+export interface Checkout extends BaseEntity<CheckoutId> {
+  readonly customerId: UserId;
+  readonly cartId?: CartId;
+  readonly status: CheckoutStatusValue;
+  readonly currentStep: CheckoutStepValue;
   readonly type: CheckoutTypeValue;
-  readonly status: CheckoutStatusValue;
-  readonly currentStep: CheckoutStepValue;
-  readonly steps: readonly CheckoutStepState[];
-  readonly email?: Email;
-  readonly phone?: Phone;
-  readonly shippingAddress?: Address;
-  readonly billingAddress?: Address;
-  readonly items: readonly CartItem[];
-  readonly totals: CartTotals;
-  readonly currency: string;
-  readonly paymentMethod?: string;
-  readonly paymentIntentId?: string;
-  readonly shippingMethodId?: string;
-  readonly notes?: string;
-  readonly reservedUntil?: string;
-  readonly expiresAt: string;
-  readonly completedAt?: string;
-}
 
-export interface CheckoutPublic {
-  readonly id: string;
-  readonly status: CheckoutStatusValue;
-  readonly currentStep: CheckoutStepValue;
-  readonly steps: readonly CheckoutStepState[];
-  readonly items: readonly CartItem[];
-  readonly totals: CartTotals;
-  readonly currency: string;
-}
-
-export interface CheckoutSummary {
-  readonly id: string;
-  readonly status: CheckoutStatusValue;
-  readonly itemCount: number;
+  readonly subtotal: Money;
+  readonly discountAmount: Money;
+  readonly taxAmount: Money;
+  readonly shippingAmount: Money;
   readonly total: Money;
   readonly currency: string;
+
+  readonly shippingAddress?: Address;
+  readonly billingAddress?: Address;
+  readonly shippingAddressId?: string;
+  readonly billingAddressId?: string;
+  readonly shippingMethodId?: string;
+  readonly paymentMethod?: string;
+
+  readonly orderId?: string;
   readonly expiresAt: string;
 }
 
-export interface CheckoutCreateInput {
-  readonly cartId: CartId;
-  readonly userId?: UserId;
+export interface CheckoutDTO {
+  readonly id: CheckoutId;
+  readonly customerId: UserId;
+  readonly cartId?: CartId;
+  readonly status: CheckoutStatusValue;
+  readonly currentStep: CheckoutStepValue;
   readonly type: CheckoutTypeValue;
-  readonly email: Email;
-  readonly phone?: Phone;
-}
-
-export interface CheckoutShippingInput {
-  readonly shippingAddress: Address;
+  readonly subtotal: Money;
+  readonly discountAmount: Money;
+  readonly taxAmount: Money;
+  readonly shippingAmount: Money;
+  readonly total: Money;
+  readonly currency: string;
+  readonly shippingAddress?: Address;
   readonly billingAddress?: Address;
   readonly shippingMethodId?: string;
+  readonly paymentMethod?: string;
+  readonly orderId?: string;
+  readonly expiresAt: string;
+  readonly isReadyToConfirm: boolean;
+  readonly remainingSteps: readonly string[];
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
 
-export interface CheckoutPaymentInput {
+export interface StartCheckoutInput {
+  readonly customerId: UserId;
+  readonly cartId?: CartId;
+  readonly type?: CheckoutTypeValue;
+  readonly currency?: string;
+}
+
+export interface SelectAddressInput {
+  readonly checkoutId: CheckoutId;
+  readonly shippingAddress: Address;
+  readonly billingAddress?: Address;
+}
+
+export interface SelectShippingInput {
+  readonly checkoutId: CheckoutId;
+  readonly shippingMethodId: string;
+  readonly shippingCost: Money;
+}
+
+export interface SelectPaymentInput {
+  readonly checkoutId: CheckoutId;
   readonly paymentMethod: string;
   readonly paymentGateway?: string;
-  readonly returnUrl?: string;
-}
-
-export interface CheckoutCompleteInput {
-  readonly checkoutId: string;
-  readonly paymentIntentId: string;
-  readonly idempotencyKey?: string;
-}
-
-export interface CheckoutCompleteResult {
-  readonly success: boolean;
-  readonly orderId?: string;
-  readonly orderNumber?: string;
-  readonly redirectUrl?: string;
-  readonly error?: string;
-}
-
-export interface CheckoutValidationResult {
-  readonly valid: boolean;
-  readonly errors: readonly CheckoutValidationError[];
-}
-
-export interface CheckoutValidationError {
-  readonly step: CheckoutStepValue;
-  readonly field: string;
-  readonly message: string;
-  readonly code?: string;
 }

@@ -135,6 +135,16 @@
       "types": "./dist/business/cart/index.d.ts",
       "import": "./dist/business/cart/index.js",
       "require": "./dist/business/cart/index.js"
+    },
+    "./business/order": {
+      "types": "./dist/business/order/index.d.ts",
+      "import": "./dist/business/order/index.js",
+      "require": "./dist/business/order/index.js"
+    },
+    "./business/checkout": {
+      "types": "./dist/business/checkout/index.d.ts",
+      "import": "./dist/business/checkout/index.js",
+      "require": "./dist/business/checkout/index.js"
     }
   },
   "scripts": {

@@ -1,0 +1,29 @@
+import { getOptionalEnvInt, getOptionalEnvBool } from '@vubon/shared-config/common';
+import { DELIVERY } from '@vubon/shared-constants/logistics';
+
+export const DELIVERY_CONFIG = Object.freeze({
+  MAX_ATTEMPTS: getOptionalEnvInt('DELIVERY_MAX_ATTEMPTS', DELIVERY.MAX_ATTEMPTS),
+  ATTEMPT_INTERVAL_HOURS: getOptionalEnvInt(
+    'DELIVERY_ATTEMPT_INTERVAL_HOURS',
+    DELIVERY.ATTEMPT_INTERVAL_HOURS,
+  ),
+  GRACE_PERIOD_MINUTES: getOptionalEnvInt(
+    'DELIVERY_GRACE_PERIOD_MINUTES',
+    DELIVERY.GRACE_PERIOD_MINUTES,
+  ),
+  RESCHEDULE_WINDOW_HOURS: getOptionalEnvInt(
+    'DELIVERY_RESCHEDULE_WINDOW_HOURS',
+    DELIVERY.RESCHEDULE_WINDOW_HOURS,
+  ),
+  PROOF_REQUIRED: getOptionalEnvBool('DELIVERY_PROOF_REQUIRED', DELIVERY.PROOF_REQUIRED),
+  SIGNATURE_REQUIRED: getOptionalEnvBool(
+    'DELIVERY_SIGNATURE_REQUIRED',
+    DELIVERY.SIGNATURE_REQUIRED,
+  ),
+  CONTACTLESS_AVAILABLE: getOptionalEnvBool(
+    'DELIVERY_CONTACTLESS',
+    DELIVERY.CONTACTLESS_AVAILABLE,
+  ),
+});
+
+export type DeliveryConfigType = typeof DELIVERY_CONFIG;
