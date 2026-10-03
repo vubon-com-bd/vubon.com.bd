@@ -103,3 +103,4 @@ __snapshots__/
 coverage-report/
 coverage/
 coverage-tmp/
+.env.bak-*
