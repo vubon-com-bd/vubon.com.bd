@@ -42,6 +42,7 @@ jobs:
           - product-service
           - cart-service
           - order-service
+          - payment-service
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://test:test@localhost:5432/vubon_test
@@ -85,7 +86,7 @@ jobs:
 
       - name: Run unit tests for ${{ matrix.service }}
         working-directory: apps/${{ matrix.service }}
-        run: pnpm test -- --coverage --json --outputFile=./test-results.json || true
+        run: pnpm test:ci || true
 
       - name: 📊 Generate failure summary
         if: always()

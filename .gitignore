@@ -104,3 +104,7 @@ coverage-report/
 coverage/
 coverage-tmp/
 .env.bak-*
+
+# CI test artifacts
+test-results.json
+e2e-results.json

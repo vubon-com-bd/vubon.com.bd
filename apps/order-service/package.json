@@ -19,7 +19,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "docs:build": "cd docs && node extract-docs.cjs",
-    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest test/unit"
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest test/unit",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest test/unit --json --outputFile=./test-results.json",
+    "test:e2e:ci": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand --json --outputFile=./e2e-results.json"
   },
   "dependencies": {
     "@nestjs/bullmq": "12.0.0",

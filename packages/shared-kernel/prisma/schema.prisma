@@ -1289,3 +1289,153 @@ model OrderTracking {
   @@index([trackingNumber])
   @@map("order_tracking")
 }
+
+// ═══════════════════════════════════════════════════════════════
+// PAYMENT DOMAIN — payment-service
+// ═══════════════════════════════════════════════════════════════
+
+model Payment {
+  id               String    @id @default(uuid()) @db.Uuid
+  orderId          String    @db.Uuid
+  userId           String    @db.Uuid
+  type             String    @default("one_time") @db.VarChar(30)
+  status           String    @default("pending") @db.VarChar(30)
+  method           String    @db.VarChar(50)
+  gateway          String?   @db.VarChar(50)
+  amount           Decimal   @db.Decimal(14, 2)
+  currency         String    @default("BDT") @db.VarChar(3)
+  gatewayPaymentId String?   @db.VarChar(255)
+  gatewayOrderId   String?   @db.VarChar(255)
+  gatewaySignature String?   @db.VarChar(500)
+  idempotencyKey   String?   @unique @db.VarChar(128)
+  refundedAmount   Decimal   @default(0) @db.Decimal(14, 2)
+  retryAttempts    Int       @default(0)
+  authorizedAt     DateTime?
+  capturedAt       DateTime?
+  failedAt         DateTime?
+  cancelledAt      DateTime?
+  expiredAt        DateTime?
+  failureReason    String?   @db.VarChar(500)
+  failureCode      String?   @db.VarChar(50)
+  metadata         Json?
+  version          Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  transactions  Transaction[]
+  refunds       Refund[]
+  webhookEvents WebhookEvent[]
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@index([gateway])
+  @@index([currency])
+  @@index([createdAt])
+  @@index([status, authorizedAt])
+  @@index([status, createdAt])
+  @@index([deletedAt])
+  @@map("payments")
+}
+
+model Transaction {
+  id                   String    @id @default(uuid()) @db.Uuid
+  paymentId            String    @db.Uuid
+  orderId              String?   @db.Uuid
+  userId               String?   @db.Uuid
+  type                 String    @db.VarChar(30)
+  status               String    @default("pending") @db.VarChar(30)
+  amount               Decimal   @db.Decimal(14, 2)
+  currency             String    @default("BDT") @db.VarChar(3)
+  gateway              String?   @db.VarChar(50)
+  gatewayTransactionId String?   @db.VarChar(255)
+  reference            String?   @db.VarChar(128)
+  idempotencyKey       String?   @db.VarChar(128)
+  errorCode            String?   @db.VarChar(50)
+  errorMessage         String?   @db.VarChar(500)
+  metadata             Json?
+  processedAt          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([orderId])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([gateway])
+  @@index([createdAt])
+  @@index([idempotencyKey])
+  @@index([deletedAt])
+  @@map("payment_transactions")
+}
+
+model Refund {
+  id              String    @id @default(uuid()) @db.Uuid
+  paymentId       String    @db.Uuid
+  transactionId   String?   @db.Uuid
+  orderId         String?   @db.Uuid
+  status          String    @default("pending") @db.VarChar(30)
+  amount          Decimal   @db.Decimal(14, 2)
+  currency        String    @default("BDT") @db.VarChar(3)
+  reason          String?   @db.VarChar(500)
+  gatewayRefundId String?   @db.VarChar(255)
+  processedAt     DateTime?
+  failedAt        DateTime?
+  failureReason   String?   @db.VarChar(500)
+  failureCode     String?   @db.VarChar(50)
+  metadata        Json?
+  version         Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([deletedAt])
+  @@map("payment_refunds")
+}
+
+model WebhookEvent {
+  id             String    @id @default(uuid()) @db.Uuid
+  gateway        String    @db.VarChar(50)
+  gatewayEventId String    @db.VarChar(255)
+  eventType      String    @db.VarChar(100)
+  paymentId      String?   @db.Uuid
+  payload        Json
+  signature      String?   @db.VarChar(500)
+  verified       Boolean   @default(false)
+  processed      Boolean   @default(false)
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(5)
+  lastError      String?   @db.VarChar(500)
+  receivedAt     DateTime  @default(now())
+  verifiedAt     DateTime?
+  processedAt    DateTime?
+  failedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@unique([gateway, gatewayEventId])
+  @@index([gateway])
+  @@index([eventType])
+  @@index([paymentId])
+  @@index([verified])
+  @@index([processed])
+  @@index([receivedAt])
+  @@index([processed, receivedAt])
+  @@index([deletedAt])
+  @@map("payment_webhook_events")
+}

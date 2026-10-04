@@ -17,7 +17,9 @@
     "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest --json --outputFile=./test-results.json",
+    "test:e2e:ci": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand --json --outputFile=./e2e-results.json"
   },
   "dependencies": {
     "@nestjs/common": "^12.1.0",
