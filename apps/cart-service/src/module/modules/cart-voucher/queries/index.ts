@@ -1,0 +1,1 @@
+// No dedicated voucher queries

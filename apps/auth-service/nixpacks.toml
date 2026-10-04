@@ -1,0 +1,29 @@
+# ═══════════════════════════════════════════════════════════════
+# Nixpacks config — alternative to Dockerfile
+# Used only if Railway builds without Docker.
+# ═══════════════════════════════════════════════════════════════
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "openssl", "pnpm"]
+
+[phases.install]
+cmds = [
+  "cd /app && pnpm install --frozen-lockfile",
+]
+
+[phases.build]
+cmds = [
+  "cd /app/packages/shared-constants && pnpm build || true",
+  "cd /app/packages/shared-types     && pnpm build || true",
+  "cd /app/packages/shared-schemas   && pnpm build || true",
+  "cd /app/packages/shared-utils     && pnpm build || true",
+  "cd /app/packages/shared-config    && pnpm build || true",
+  "cd /app/packages/shared-kernel    && pnpm build || true",
+  "cd /app/packages/shared-api       && pnpm build || true",
+  "cd /app/packages/shared-auth      && pnpm build || true",
+  "cd /app/packages/shared-kernel && pnpm prisma generate",
+  "cd /app/apps/auth-service && pnpm build",
+]
+
+[start]
+cmd = "cd /app/packages/shared-kernel && npx prisma migrate deploy && cd /app/apps/auth-service && node dist/main.js"

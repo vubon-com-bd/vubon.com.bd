@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src/index.ts"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"],
+      "@vubon/shared-schemas": ["../shared-schemas/src/index.ts"],
+      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src/index.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"],
+      "@vubon/shared-config": ["../shared-config/src/index.ts"],
+      "@vubon/shared-config/*": ["../shared-config/src/*"],
+      "@vubon/shared-api": ["../shared-api/src/index.ts"],
+      "@vubon/shared-api/*": ["../shared-api/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

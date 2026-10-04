@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build artifacts
+dist
+build
+coverage
+coverage-report
+coverage-tmp
+
+# Env files
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Test outputs
+test/**/*.snap
+*.log
+
+# Dev tools
+.git
+.github
+.vscode
+.idea
+.editorconfig
+.eslintcache
+.prettiercache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.md
+!README.md
+!ARCHITECTURE.md
+!TESTING.md
+!DEPLOYMENT.md

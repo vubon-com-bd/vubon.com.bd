@@ -1,0 +1,22 @@
+/**
+ * Cart Config
+ * @module cart-service/infrastructure/config
+ */
+import { getOptionalEnv, getOptionalEnvInt } from './_helpers.js';
+import { CART_LIMIT } from '@vubon/shared-constants/business/cart';
+
+export const CART_CONFIG = Object.freeze({
+  DEFAULT_CURRENCY: getOptionalEnv('CART_DEFAULT_CURRENCY', 'BDT'),
+  DEFAULT_TYPE: getOptionalEnv('CART_DEFAULT_TYPE', 'user'),
+  MAX_ITEMS: CART_LIMIT.MAX_ITEMS,
+  MAX_QUANTITY_PER_ITEM: CART_LIMIT.MAX_QUANTITY_PER_ITEM,
+  MIN_QUANTITY_PER_ITEM: CART_LIMIT.MIN_QUANTITY_PER_ITEM,
+  EXPIRY_HOURS: CART_LIMIT.EXPIRY_HOURS,
+  GUEST_CART_EXPIRY_HOURS: CART_LIMIT.GUEST_CART_EXPIRY_HOURS,
+  AUTO_MERGE_ON_LOGIN: CART_LIMIT.AUTO_MERGE_ON_LOGIN,
+  ALLOW_GUEST_CHECKOUT: CART_LIMIT.ALLOW_GUEST_CHECKOUT,
+  SESSION_TTL_SECONDS: CART_LIMIT.SESSION_TTL_SECONDS,
+  CACHE_TTL_SECONDS: getOptionalEnvInt('CART_CACHE_TTL', 300),
+} as const);
+
+export type CartConfig = typeof CART_CONFIG;

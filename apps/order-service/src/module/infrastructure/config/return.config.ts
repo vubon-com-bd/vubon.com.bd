@@ -1,0 +1,34 @@
+import { getOptionalEnvInt, getOptionalEnvBool } from '@vubon/shared-config/common';
+import { ORDER_RETURN } from '@vubon/shared-constants/business/order';
+
+export const RETURN_CONFIG = Object.freeze({
+  WINDOW_DAYS: getOptionalEnvInt('ORDER_RETURN_WINDOW_DAYS', ORDER_RETURN.WINDOW_DAYS),
+  MAX_DAYS_AFTER_DELIVERY: getOptionalEnvInt(
+    'ORDER_RETURN_MAX_DAYS',
+    ORDER_RETURN.MAX_DAYS_AFTER_DELIVERY,
+  ),
+  PICKUP_WINDOW_DAYS: getOptionalEnvInt(
+    'ORDER_RETURN_PICKUP_WINDOW_DAYS',
+    ORDER_RETURN.PICKUP_WINDOW_DAYS,
+  ),
+  INSPECTION_DAYS: getOptionalEnvInt(
+    'ORDER_RETURN_INSPECTION_DAYS',
+    ORDER_RETURN.INSPECTION_DAYS,
+  ),
+  REFUND_PROCESSING_DAYS: getOptionalEnvInt(
+    'ORDER_RETURN_REFUND_PROCESSING_DAYS',
+    ORDER_RETURN.REFUND_PROCESSING_DAYS,
+  ),
+  RESTOCK_FEE_PERCENT: getOptionalEnvInt(
+    'ORDER_RETURN_RESTOCK_FEE_PERCENT',
+    ORDER_RETURN.RESTOCK_FEE_PERCENT,
+  ),
+  FREE_RETURN: getOptionalEnvBool('ORDER_RETURN_FREE', ORDER_RETURN.FREE_RETURN),
+  MAX_IMAGES: getOptionalEnvInt('ORDER_RETURN_MAX_IMAGES', ORDER_RETURN.MAX_IMAGES),
+  MAX_REASON_LENGTH: getOptionalEnvInt(
+    'ORDER_RETURN_MAX_REASON_LENGTH',
+    ORDER_RETURN.MAX_REASON_LENGTH,
+  ),
+});
+
+export type ReturnConfigType = typeof RETURN_CONFIG;

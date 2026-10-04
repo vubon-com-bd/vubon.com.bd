@@ -1,0 +1,57 @@
+/**
+ * Utility classes — common patterns.
+ * For Tailwind projects, these are supplementary.
+ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-2 > * + * { margin-top: 8px; }
+.stack-3 > * + * { margin-top: 12px; }
+.stack-4 > * + * { margin-top: 16px; }
+.stack-6 > * + * { margin-top: 24px; }
+
+.hstack {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.hstack-2 > * + * { margin-left: 8px; }
+.hstack-3 > * + * { margin-left: 12px; }
+.hstack-4 > * + * { margin-left: 16px; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

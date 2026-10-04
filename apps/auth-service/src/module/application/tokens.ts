@@ -1,0 +1,70 @@
+/**
+ * DI Tokens — Application-wide single source of truth
+ * @module auth-service/application
+ *
+ * All @Inject() tokens are declared here to avoid duplicate-name
+ * collisions between command handlers, query handlers and services.
+ */
+
+// ─── Repositories (infrastructure impl) ──────────────────
+export const USER_REPO = 'USER_REPO';
+export const USER_PROFILE_REPO = 'USER_PROFILE_REPO';
+export const USER_SETTINGS_REPO = 'USER_SETTINGS_REPO';
+export const USER_PREFERENCES_REPO = 'USER_PREFERENCES_REPO';
+export const USER_ADDRESS_REPO = 'USER_ADDRESS_REPO';
+export const USER_CONTACT_REPO = 'USER_CONTACT_REPO';
+export const USER_VERIFICATION_REPO = 'USER_VERIFICATION_REPO';
+export const USER_KYC_REPO = 'USER_KYC_REPO';
+export const USER_ACTIVITY_REPO = 'USER_ACTIVITY_REPO';
+
+export const AUTH_SESSION_REPO = 'AUTH_SESSION_REPO';
+export const AUTH_TOKEN_REPO = 'AUTH_TOKEN_REPO';
+export const AUTH_MFA_REPO = 'AUTH_MFA_REPO';
+export const AUTH_RECOVERY_CODE_REPO = 'AUTH_RECOVERY_CODE_REPO';
+export const AUTH_ACCOUNT_LOCK_REPO = 'AUTH_ACCOUNT_LOCK_REPO';
+export const AUTH_LOGIN_ATTEMPT_REPO = 'AUTH_LOGIN_ATTEMPT_REPO';
+export const AUTH_DEVICE_REPO = 'AUTH_DEVICE_REPO';
+export const AUTH_SOCIAL_REPO = 'AUTH_SOCIAL_REPO';
+export const AUTH_OAUTH_REPO = 'AUTH_OAUTH_REPO';
+export const AUTH_SSO_REPO = 'AUTH_SSO_REPO';
+export const AUTH_2FA_REPO = 'AUTH_2FA_REPO';
+export const AUTH_BIOMETRIC_REPO = 'AUTH_BIOMETRIC_REPO';
+export const AUTH_PERMISSION_REPO = 'AUTH_PERMISSION_REPO';
+export const AUTH_ROLE_REPO = 'AUTH_ROLE_REPO';
+
+// ─── Cross-cutting infra services ────────────────────────
+export const PASSWORD_HASHER = 'PASSWORD_HASHER';
+export const TOKEN_SIGNER = 'TOKEN_SIGNER';
+export const RECOVERY_CODE_GENERATOR = 'RECOVERY_CODE_GENERATOR';
+export const TOTP_SERVICE = 'TOTP_SERVICE';
+export const ID_GENERATOR = 'ID_GENERATOR';
+export const UNIT_OF_WORK = 'UNIT_OF_WORK';
+
+// ─── Application services (impl) ─────────────────────────
+export const AUTH_SERVICE = 'AUTH_SERVICE';
+export const AUTH_SESSION_SERVICE = 'AUTH_SESSION_SERVICE';
+export const AUTH_TOKEN_SERVICE = 'AUTH_TOKEN_SERVICE';
+export const AUTH_MFA_SERVICE = 'AUTH_MFA_SERVICE';
+export const AUTH_RECOVERY_CODE_SERVICE = 'AUTH_RECOVERY_CODE_SERVICE';
+export const AUTH_ACCOUNT_LOCK_SERVICE = 'AUTH_ACCOUNT_LOCK_SERVICE';
+export const AUTH_LOGIN_ATTEMPT_SERVICE = 'AUTH_LOGIN_ATTEMPT_SERVICE';
+export const AUTH_SOCIAL_SERVICE = 'AUTH_SOCIAL_SERVICE';
+export const AUTH_OAUTH_SERVICE = 'AUTH_OAUTH_SERVICE';
+export const AUTH_SSO_SERVICE = 'AUTH_SSO_SERVICE';
+export const AUTH_2FA_SERVICE = 'AUTH_2FA_SERVICE';
+export const AUTH_BIOMETRIC_SERVICE = 'AUTH_BIOMETRIC_SERVICE';
+export const AUTH_PERMISSION_SERVICE = 'AUTH_PERMISSION_SERVICE';
+export const AUTH_ROLE_SERVICE = 'AUTH_ROLE_SERVICE';
+export const AUTH_SETTINGS_SERVICE = 'AUTH_SETTINGS_SERVICE';
+
+export const USER_SERVICE = 'USER_SERVICE';
+export const USER_PROFILE_SERVICE = 'USER_PROFILE_SERVICE';
+export const USER_SETTINGS_SERVICE = 'USER_SETTINGS_SERVICE';
+export const USER_PREFERENCES_SERVICE = 'USER_PREFERENCES_SERVICE';
+export const USER_ADDRESS_SERVICE = 'USER_ADDRESS_SERVICE';
+export const USER_CONTACT_SERVICE = 'USER_CONTACT_SERVICE';
+export const USER_VERIFICATION_SERVICE = 'USER_VERIFICATION_SERVICE';
+export const USER_KYC_SERVICE = 'USER_KYC_SERVICE';
+export const USER_ACTIVITY_SERVICE = 'USER_ACTIVITY_SERVICE';
+export const USER_PERMISSION_SERVICE = 'USER_PERMISSION_SERVICE';
+export const USER_ROLE_SERVICE = 'USER_ROLE_SERVICE';

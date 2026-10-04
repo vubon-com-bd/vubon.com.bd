@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "types": ["node", "jest"],
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "../../src/**/*.ts",
+    "./**/*.ts",
+    "../../../packages/**/dist/**/*.d.ts"
+  ],
+  "exclude": ["node_modules", "../../dist"]
+}

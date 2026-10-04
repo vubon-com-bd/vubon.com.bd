@@ -1,0 +1,32 @@
+/**
+ * DeleteAddressHandler — Unit Tests
+ */
+import { jest } from '@jest/globals';
+
+import { DeleteAddressHandler } from './delete-address.handler.js';
+import { DeleteAddressCommand } from './delete-address.command.js';
+
+const mockService = () => ({ remove: jest.fn<() => Promise<unknown>>() });
+
+describe('DeleteAddressHandler', () => {
+  let handler: DeleteAddressHandler;
+  let service: ReturnType<typeof mockService>;
+
+  beforeEach(() => {
+    service = mockService();
+    handler = new DeleteAddressHandler(service as never);
+  });
+
+  it('should have correct commandType', () => {
+    expect(handler.commandType).toBe('DeleteAddressCommand');
+  });
+
+  it('should delegate remove', async () => {
+    service.remove.mockResolvedValue(undefined);
+    const command = new DeleteAddressCommand({ addressId: 'addr-1' } as never);
+
+    await handler.execute(command);
+
+    expect(service.remove).toHaveBeenCalledWith('addr-1');
+  });
+});
