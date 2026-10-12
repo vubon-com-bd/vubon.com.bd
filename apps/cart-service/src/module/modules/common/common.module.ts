@@ -23,6 +23,7 @@ import {
   KernelPipesModule,
   KernelConfigModule,
 } from '@vubon/shared-kernel/modules/common';
+import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
 @Global()
 @Module({
@@ -40,6 +41,7 @@ import {
     KernelFiltersModule,
     KernelPipesModule,
     KernelConfigModule,
+    EventBridgeModule,
   ],
   exports: [
     PrismaModule,
@@ -54,6 +56,7 @@ import {
     KernelFiltersModule,
     KernelPipesModule,
     KernelConfigModule,
+    EventBridgeModule,
   ],
 })
 export class CommonModule {}

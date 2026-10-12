@@ -3,6 +3,7 @@
  * @module payment-service/modules/payment
  */
 import { Module } from '@nestjs/common';
+import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { PaymentController } from '../../interfaces/controllers/rest/payment.controller.js';
@@ -19,7 +20,7 @@ import { PaymentStatusGuard } from '../../interfaces/guards/payment-status.guard
 import { PaymentCacheInterceptor } from '../../interfaces/interceptors/payment-cache.interceptor.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, EventBridgeModule],
   controllers: [PaymentController],
   providers: [
     PaymentService,

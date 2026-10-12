@@ -14,7 +14,8 @@ describe('UnsuspendUserHandler', () => {
 
   beforeEach(() => {
     userRepo = createUserRepositoryMock();
-    handler = new UnsuspendUserHandler(userRepo);
+    const mockEventBridge = { publishFromEntity: async () => undefined };
+    handler = new UnsuspendUserHandler(userRepo, mockEventBridge as never);
   });
 
   it('should reactivate suspended user', async () => {

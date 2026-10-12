@@ -56,6 +56,10 @@ const mockTxRepo = {
   countByPaymentId: jest.fn(),
 };
 
+const mockEventBridge = {
+  publishFromEntity: jest.fn().mockResolvedValue(undefined),
+};
+
 function makePayment(): PaymentEntity {
   return PaymentEntity.create({
     id: UUID,
@@ -80,6 +84,7 @@ describe('PaymentService', () => {
     service = new PaymentService(
       mockPaymentRepo as unknown as PaymentRepository,
       mockTxRepo as unknown as TransactionRepository,
+      mockEventBridge as never,
     );
   });
 

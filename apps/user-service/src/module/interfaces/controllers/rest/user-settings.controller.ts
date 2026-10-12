@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { UpdateSettingsCommand } from '@application/commands/settings/update-settings.command';
 import { ResetSettingsCommand } from '@application/commands/settings/reset-settings.command';
 import { GetSettingsQuery } from '@application/queries/settings/get-settings.query';

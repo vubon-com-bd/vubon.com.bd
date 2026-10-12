@@ -2,11 +2,11 @@
  * CommonModule — cross-cutting infrastructure for order-service
  * @module order-service/modules/common
  *
- * Composes shared-kernel cross-cutting modules + order-service
- * persistence/queue modules. Mirrors cart-service's pattern.
- *
- * NOTE: KernelCqrsModule is intentionally NOT imported here because
- * AppModule already uses CqrsModule.forRoot().
+ * NOTE: EventBridgeModule is NOT imported here. It imports CqrsModule
+ * (regular) which creates a second CQRS instance in @Global scope and
+ * breaks CommandBus's ModuleRef resolution. Feature modules that need
+ * DomainEventBridgeService (e.g., OrderModule) import EventBridgeModule
+ * directly, reusing the CqrsModule.forRoot() context from AppModule.
  */
 import { Global, Module } from '@nestjs/common';
 import { PrismaModule } from '@vubon/shared-kernel/prisma';
@@ -28,7 +28,6 @@ import {
 @Global()
 @Module({
   imports: [
-    // Kernel globals
     PrismaModule,
     RedisModule,
     KernelEventBusModule,

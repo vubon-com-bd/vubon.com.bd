@@ -2,6 +2,7 @@
  * PublicProfileModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PublicProfileController } from '@interfaces/controllers/rest/public-profile.controller';
 import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
@@ -11,7 +12,8 @@ import { UserProfileModule } from '../user-profile/user-profile.module.js';
 @Module({
   imports: [CqrsModule, PrismaModule, UserModule, UserProfileModule],
   controllers: [PublicProfileController],
-  providers: [],
+  providers: [
+    Reflector,],
   exports: [],
 })
 export class PublicProfileModule {}

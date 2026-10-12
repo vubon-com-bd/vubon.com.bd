@@ -25,6 +25,48 @@
       "import": "./dist/common/index.js",
       "require": "./dist/common/index.js",
       "types": "./dist/common/index.d.ts"
+    },
+    "./generator": {
+      "types": "./dist/generator/index.d.ts",
+      "import": "./dist/generator/index.js",
+      "require": "./dist/generator/index.js",
+      "default": "./dist/generator/index.js"
+    },
+    "./generator/business": {
+      "types": "./dist/generator/business/index.d.ts",
+      "import": "./dist/generator/business/index.js",
+      "require": "./dist/generator/business/index.js",
+      "default": "./dist/generator/business/index.js"
+    },
+    "./validator": {
+      "types": "./dist/validator/index.d.ts",
+      "import": "./dist/validator/index.js",
+      "require": "./dist/validator/index.js",
+      "default": "./dist/validator/index.js"
+    },
+    "./validator/business": {
+      "types": "./dist/validator/business/index.d.ts",
+      "import": "./dist/validator/business/index.js",
+      "require": "./dist/validator/business/index.js",
+      "default": "./dist/validator/business/index.js"
+    },
+    "./calculator": {
+      "types": "./dist/calculator/index.d.ts",
+      "import": "./dist/calculator/index.js",
+      "require": "./dist/calculator/index.js",
+      "default": "./dist/calculator/index.js"
+    },
+    "./calculator/logistics": {
+      "types": "./dist/calculator/logistics/index.d.ts",
+      "import": "./dist/calculator/logistics/index.js",
+      "require": "./dist/calculator/logistics/index.js",
+      "default": "./dist/calculator/logistics/index.js"
+    },
+    "./formatter": {
+      "types": "./dist/formatter/index.d.ts",
+      "import": "./dist/formatter/index.js",
+      "require": "./dist/formatter/index.js",
+      "default": "./dist/formatter/index.js"
     }
   },
   "scripts": {

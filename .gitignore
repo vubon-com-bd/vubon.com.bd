@@ -108,3 +108,4 @@ coverage-tmp/
 # CI test artifacts
 test-results.json
 e2e-results.json
+dump.rdb

@@ -64,6 +64,14 @@ import { QuietHoursSaga } from '../../application/sagas/quiet-hours.saga.js';
 // Guards / interceptors
 import { NotificationOwnerGuard } from '../../interfaces/guards/notification-owner.guard.js';
 import { NotificationStatusGuard } from '../../interfaces/guards/notification-status.guard.js';
+// Cross-service event handlers
+import { OrderEventsHandler } from '../../infrastructure/handlers/order-events.handler.js';
+import { PaymentEventsHandler } from '../../infrastructure/handlers/payment-events.handler.js';
+import { LogisticsEventsHandler } from '../../infrastructure/handlers/logistics-events.handler.js';
+import { UserEventsHandler } from '../../infrastructure/handlers/user-events.handler.js';
+import { VendorEventsHandler } from '../../infrastructure/handlers/vendor-events.handler.js';
+import { CartEventsHandler } from '../../infrastructure/handlers/cart-events.handler.js';
+
 
 @Module({
   imports: [CqrsModule, EventBridgeModule],
@@ -117,6 +125,14 @@ import { NotificationStatusGuard } from '../../interfaces/guards/notification-st
 
     NotificationOwnerGuard,
     NotificationStatusGuard,
+
+    // Cross-service event handlers
+    OrderEventsHandler,
+    PaymentEventsHandler,
+    LogisticsEventsHandler,
+    UserEventsHandler,
+    VendorEventsHandler,
+    CartEventsHandler,
   ],
   exports: [
     NotificationService,

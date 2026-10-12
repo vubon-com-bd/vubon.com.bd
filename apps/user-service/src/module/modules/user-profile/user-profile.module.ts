@@ -2,6 +2,7 @@
  * UserProfileModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserProfileController } from '@interfaces/controllers/rest/user-profile.controller';
 import { UserProfileService } from '@application/services/impl/user-profile.service';
@@ -26,6 +27,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, RedisModule, UserModule],
   controllers: [UserProfileController],
   providers: [
+    Reflector,
     UserProfileService,
     { provide: USER_PROFILE_REPOSITORY, useClass: UserProfilePrismaRepository },
     UserProfileCacheRepository,

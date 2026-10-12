@@ -2,6 +2,7 @@
  * UserKycModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserKycController } from '@interfaces/controllers/rest/user-kyc.controller';
 import { UserKycService } from '@application/services/impl/user-kyc.service';
@@ -27,6 +28,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, RedisModule, UserModule],
   controllers: [UserKycController],
   providers: [
+    Reflector,
     UserKycService,
     { provide: USER_KYC_REPOSITORY, useClass: UserKycPrismaRepository },
     UserKycCacheRepository,

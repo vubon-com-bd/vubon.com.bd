@@ -14,7 +14,8 @@ describe('DeactivateUserHandler', () => {
 
   beforeEach(() => {
     userRepo = createUserRepositoryMock();
-    handler = new DeactivateUserHandler(userRepo);
+    const mockEventBridge = { publishFromEntity: async () => undefined };
+    handler = new DeactivateUserHandler(userRepo, mockEventBridge as never);
   });
 
   const buildUser = () =>

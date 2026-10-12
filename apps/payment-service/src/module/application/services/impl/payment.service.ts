@@ -48,6 +48,7 @@ import { PaymentFeeService } from '../../../domain/services/payment-fee.service.
 import { PaymentIdempotencyService } from '../../../domain/services/payment-idempotency.service.js';
 import { PaymentTransactionLedgerService } from '../../../domain/services/payment-transaction-ledger.service.js';
 
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { PaymentMapper } from '../../mappers/payment.mapper.js';
 import {
   PaymentNotFoundApplicationError,
@@ -80,6 +81,7 @@ export class PaymentService implements IPaymentService {
   constructor(
     @Inject(PAYMENT_REPOSITORY) private readonly paymentRepo: PaymentRepository,
     @Inject(TRANSACTION_REPOSITORY) private readonly transactionRepo: TransactionRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   // ═══════════════ INITIATE ═══════════════
@@ -163,6 +165,7 @@ export class PaymentService implements IPaymentService {
     }
 
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
 
     // ─── Record ledger-side "intent" transaction (pending) ───
     const tx = TransactionEntity.create({
@@ -225,6 +228,7 @@ export class PaymentService implements IPaymentService {
     }
 
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
     return PaymentMapper.toResponse(saved);
   }
 
@@ -236,6 +240,7 @@ export class PaymentService implements IPaymentService {
     const payment = await this.loadPayment(dto.paymentId);
     payment.capture(dto.amount);
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
 
     // Record a successful "capture" transaction
     await this.recordSuccessfulTransaction(
@@ -254,6 +259,7 @@ export class PaymentService implements IPaymentService {
     const payment = await this.loadPayment(paymentId);
     payment.markPaid();
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
     this.logger.log(`Payment ${saved.id} marked PAID`);
     return PaymentMapper.toResponse(saved);
   }
@@ -265,6 +271,7 @@ export class PaymentService implements IPaymentService {
     const code = dto.code ? FailureCodeVO.create(dto.code) : undefined;
     payment.fail(reason, code);
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
     this.logger.warn(`Payment ${saved.id} failed — ${reason.value}`);
     return PaymentMapper.toResponse(saved);
   }
@@ -274,6 +281,7 @@ export class PaymentService implements IPaymentService {
     const payment = await this.loadPayment(dto.paymentId);
     payment.cancel(dto.reason, actorId);
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
     this.logger.log(`Payment ${saved.id} cancelled`);
     return PaymentMapper.toResponse(saved);
   }
@@ -283,6 +291,7 @@ export class PaymentService implements IPaymentService {
     const payment = await this.loadPayment(dto.paymentId);
     payment.retry();
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
     this.logger.log(
       `Payment ${saved.id} retried — attempt ${saved.retryAttempts}`,
     );
@@ -297,6 +306,7 @@ export class PaymentService implements IPaymentService {
     const payment = await this.loadPayment(dto.paymentId);
     payment.markChargeback(dto.amount, dto.reason);
     const saved = await this.paymentRepo.save(payment);
+    await this.eventBridge.publishFromEntity(saved);
     this.logger.warn(`Payment ${saved.id} marked CHARGEBACK`);
     return PaymentMapper.toResponse(saved);
   }

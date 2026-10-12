@@ -3,6 +3,7 @@
  */
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { SuspendUserCommand } from './suspend-user.command.js';
 import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
 import type { UserRepository } from '@domain/repositories/user.repository.interface';
@@ -20,7 +21,8 @@ export class SuspendUserHandler
 {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async execute(command: SuspendUserCommand): Promise<UserResponseDTO> {
@@ -32,6 +34,7 @@ export class SuspendUserHandler
     try {
       user.suspend(reason, new Date().toISOString());
       await this.userRepo.save(user);
+      await this.eventBridge.publishFromEntity(user);
       return UserMapper.toResponse(user);
     } catch (err) {
       const reason2 = err instanceof Error ? err.message : 'unknown error';

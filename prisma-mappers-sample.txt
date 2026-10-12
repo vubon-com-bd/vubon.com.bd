@@ -1,0 +1,760 @@
+════════ shipment.prisma.mapper.ts ════════
+/**
+ * ShipmentPrismaMapper — row ↔ domain entity
+ * @module logistics-service/infrastructure/persistence/prisma
+ *
+ * Persistence format: LogisticsShipment + LogisticsShipmentPackage[] (child relation)
+ */
+import { ShipmentEntity } from '../../../domain/entities/shipment.entity.js';
+import { ShipmentIdVO } from '../../../domain/value-objects/primitives/shipment-id.vo.js';
+import { OrderIdVO } from '../../../domain/value-objects/primitives/order-id.vo.js';
+import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo.js';
+import { VendorIdVO } from '../../../domain/value-objects/primitives/vendor-id.vo.js';
+import { WarehouseIdVO } from '../../../domain/value-objects/primitives/warehouse-id.vo.js';
+import { CourierIdVO } from '../../../domain/value-objects/primitives/courier-id.vo.js';
+import { ShipmentStatusVO } from '../../../domain/value-objects/primitives/shipment-status.vo.js';
+import { ShipmentTypeVO } from '../../../domain/value-objects/primitives/shipment-type.vo.js';
+import { ShipmentPriorityVO } from '../../../domain/value-objects/primitives/shipment-priority.vo.js';
+import { TrackingNumberVO } from '../../../domain/value-objects/primitives/tracking-number.vo.js';
+import { NotesVO } from '../../../domain/value-objects/primitives/notes.vo.js';
+import { CodAmountVO } from '../../../domain/value-objects/primitives/cod-amount.vo.js';
+import { DeclaredValueVO } from '../../../domain/value-objects/primitives/declared-value.vo.js';
+import { ShippingCostVO } from '../../../domain/value-objects/primitives/shipping-cost.vo.js';
+import { WeightKgVO } from '../../../domain/value-objects/primitives/weight-kg.vo.js';
+import { DimensionCmVO } from '../../../domain/value-objects/primitives/dimension-cm.vo.js';
+import { AddressDetailsVO } from '../../../domain/value-objects/composites/address-details.vo.js';
+import { ShipmentDimensionsVO } from '../../../domain/value-objects/composites/shipment-dimensions.vo.js';
+import { PackageRefVO } from '../../../domain/value-objects/composites/package-ref.vo.js';
+import { CustomerRefVO } from '../../../domain/value-objects/composites/customer-ref.vo.js';
+import { AddressVO } from '@vubon/shared-kernel/domain/primitives';
+import type { Address, Phone, Email } from '@vubon/shared-types/common';
+
+export interface PrismaShipmentPackageRow {
+  id: string;
+  shipmentId: string;
+  orderItemId: string;
+  productId: string | null;
+  variantId: string | null;
+  sku: string | null;
+  name: string | null;
+  quantity: number;
+  sortOrder: number;
+  createdAt: Date;
+}
+
+export interface PrismaShipmentRow {
+  id: string;
+  trackingNumber: string;
+  orderId: string;
+  userId: string | null;
+  vendorId: string | null;
+  warehouseId: string | null;
+  courierId: string | null;
+  type: string;
+  priority: string;
+  status: string;
+  shippingLine1: string;
+  shippingLine2: string | null;
+  shippingCity: string;
+  shippingState: string | null;
+  shippingDistrict: string | null;
+  shippingDivision: string | null;
+  shippingPostalCode: string | null;
+  shippingCountry: string;
+  shippingLandmark: string | null;
+  shippingLatitude: number | null;
+  shippingLongitude: number | null;
+  pickupLine1: string | null;
+  pickupLine2: string | null;
+  pickupCity: string | null;
+  pickupState: string | null;
+  pickupDistrict: string | null;
+  pickupDivision: string | null;
+  pickupPostalCode: string | null;
+  pickupCountry: string | null;
+  pickupLandmark: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  customerEmail: string | null;
+  actualWeightKg: unknown;
+  volumetricWeightKg: unknown;
+  lengthCm: unknown;
+  widthCm: unknown;
+  heightCm: unknown;
+  itemCount: number;
+  isCOD: boolean;
+  codAmount: unknown;
+  isInsured: boolean;
+  declaredValue: unknown;
+  shippingCost: unknown;
+  currency: string;
+  courierTrackingNumber: string | null;
+  labelUrl: string | null;
+  estimatedDeliveryAt: Date | null;
+  pickedUpAt: Date | null;
+  deliveredAt: Date | null;
+  returnedAt: Date | null;
+  cancelledAt: Date | null;
+  failureReason: string | null;
+  notes: string | null;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+}
+
+export interface PrismaShipmentRowWithPackages extends PrismaShipmentRow {
+  packages: PrismaShipmentPackageRow[];
+}
+
+const toNum = (v: unknown): number => {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') return Number(v);
+  if (v && typeof v === 'object' && 'toNumber' in v && typeof (v as { toNumber: () => number }).toNumber === 'function') {
+    return (v as { toNumber: () => number }).toNumber();
+  }
+  return Number(v);
+};
+
+const toIso = (d: Date | null | undefined): string | undefined =>
+  d ? new Date(d).toISOString() : undefined;
+
+const toIsoOrNull = (d: Date | null | undefined): string | null =>
+  d ? new Date(d).toISOString() : null;
+
+export class ShipmentPrismaMapper {
+  static toDomain(raw: PrismaShipmentRowWithPackages): ShipmentEntity {
+    const shippingAddress = AddressDetailsVO.reconstitute({
+      address: AddressVO.of({
+        line1: raw.shippingLine1,
+        line2: raw.shippingLine2 ?? undefined,
+        city: raw.shippingCity,
+        state: raw.shippingState ?? undefined,
+        postalCode: raw.shippingPostalCode ?? undefined,
+        country: raw.shippingCountry,
+      } as Address),
+      latitude: raw.shippingLatitude ?? undefined,
+      longitude: raw.shippingLongitude ?? undefined,
+    });
+
+    const pickupAddress = raw.pickupLine1 && raw.pickupCity && raw.pickupCountry
+      ? AddressDetailsVO.reconstitute({
+          address: AddressVO.of({
+            line1: raw.pickupLine1,
+            line2: raw.pickupLine2 ?? undefined,
+            city: raw.pickupCity,
+            state: raw.pickupState ?? undefined,
+            postalCode: raw.pickupPostalCode ?? undefined,
+            country: raw.pickupCountry,
+          } as Address),
+        })
+      : undefined;
+
+    const customer = raw.customerName && raw.customerPhone
+      ? CustomerRefVO.reconstitute({
+          userId: raw.userId ? (raw.userId as never) : undefined,
+          name: raw.customerName,
+          phone: raw.customerPhone as Phone,
+          email: raw.customerEmail ? (raw.customerEmail as Email) : undefined,
+        })
+      : undefined;
+
+    const dimensionsValue = raw.lengthCm !== null && raw.widthCm !== null && raw.heightCm !== null
+      ? {
+          lengthCm: toNum(raw.lengthCm),
+          widthCm: toNum(raw.widthCm),
+          heightCm: toNum(raw.heightCm),
+        }
+      : undefined;
+
+    const dimensions = ShipmentDimensionsVO.reconstitute({
+      actualWeightKg: WeightKgVO.reconstitute(toNum(raw.actualWeightKg)),
+      volumetricWeightKg: raw.volumetricWeightKg !== null
+        ? WeightKgVO.reconstitute(toNum(raw.volumetricWeightKg))
+        : undefined,
+      dimensions: dimensionsValue ? DimensionCmVO.reconstitute(dimensionsValue) : undefined,
+    });
+
+    const packages = raw.packages
+      .slice()
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((p) => PackageRefVO.reconstitute({
+        orderItemId: p.orderItemId,
+        productId: p.productId ?? undefined,
+        variantId: p.variantId ?? undefined,
+        sku: p.sku ?? undefined,
+        quantity: p.quantity,
+        name: p.name ?? undefined,
+      }));
+
+    return ShipmentEntity.reconstitute({
+      id: raw.id,
+      createdAt: new Date(raw.createdAt).toISOString(),
+      updatedAt: new Date(raw.updatedAt).toISOString(),
+      deletedAt: raw.deletedAt ? new Date(raw.deletedAt).toISOString() : null,
+      version: raw.version,
+      props: {
+        trackingNumber: TrackingNumberVO.reconstitute(raw.trackingNumber),
+        orderId: OrderIdVO.reconstitute(raw.orderId),
+        userId: raw.userId ? UserIdVO.reconstitute(raw.userId) : undefined,
+        vendorId: raw.vendorId ? VendorIdVO.reconstitute(raw.vendorId) : undefined,
+        warehouseId: raw.warehouseId ? WarehouseIdVO.reconstitute(raw.warehouseId) : undefined,
+        courierId: raw.courierId ? CourierIdVO.reconstitute(raw.courierId) : undefined,
+        type: ShipmentTypeVO.reconstitute(raw.type),
+        priority: ShipmentPriorityVO.reconstitute(raw.priority),
+        status: ShipmentStatusVO.reconstitute(raw.status),
+        dimensions,
+        shippingAddress,
+        pickupAddress,
+        customer,
+        packages,
+        itemCount: raw.itemCount,
+        isCOD: raw.isCOD,
+        codAmount: raw.codAmount !== null
+          ? CodAmountVO.reconstitute(toNum(raw.codAmount), raw.currency)
+          : undefined,
+        isInsured: raw.isInsured,
+        declaredValue: raw.declaredValue !== null
+          ? DeclaredValueVO.reconstitute(toNum(raw.declaredValue), raw.currency)
+          : undefined,
+        shippingCost: raw.shippingCost !== null
+          ? ShippingCostVO.reconstitute(toNum(raw.shippingCost), raw.currency)
+          : undefined,
+        courierTrackingNumber: raw.courierTrackingNumber ?? undefined,
+        labelUrl: raw.labelUrl ?? undefined,
+        estimatedDeliveryAt: toIso(raw.estimatedDeliveryAt),
+        pickedUpAt: toIso(raw.pickedUpAt),
+        deliveredAt: toIso(raw.deliveredAt),
+        returnedAt: toIso(raw.returnedAt),
+        cancelledAt: toIso(raw.cancelledAt),
+        failureReason: raw.failureReason ?? undefined,
+        notes: raw.notes ? NotesVO.reconstitute(raw.notes) : undefined,
+      },
+    });
+  }
+
+  static toPersistence(entity: ShipmentEntity): Record<string, unknown> {
+    const addr = entity.shippingAddress.toAddress();
+    const pickup = entity.pickupAddress?.toAddress();
+    const dims = entity.dimensions;
+    const customer = entity.customer;
+
+    return {
+      id: entity.id,
+      trackingNumber: entity.trackingNumber.value,
+      orderId: entity.orderId.value,
+      userId: entity.userId?.value ?? null,
+      vendorId: entity.vendorId?.value ?? null,
+      warehouseId: entity.warehouseId?.value ?? null,
+      courierId: entity.courierId?.value ?? null,
+      type: entity.type.value,
+      priority: entity.priority.value,
+      status: entity.status.value,
+      shippingLine1: addr.line1,
+      shippingLine2: addr.line2 ?? null,
+      shippingCity: addr.city,
+      shippingState: addr.state ?? null,
+      shippingDistrict: (addr as { district?: string }).district ?? null,
+      shippingDivision: (addr as { division?: string }).division ?? null,
+      shippingPostalCode: addr.postalCode ?? null,
+      shippingCountry: addr.country,
+      shippingLandmark: (addr as { landmark?: string }).landmark ?? null,
+      shippingLatitude: entity.shippingAddress.latitude ?? null,
+      shippingLongitude: entity.shippingAddress.longitude ?? null,
+      pickupLine1: pickup?.line1 ?? null,
+      pickupLine2: pickup?.line2 ?? null,
+      pickupCity: pickup?.city ?? null,
+      pickupState: pickup?.state ?? null,
+      pickupDistrict: (pickup as { district?: string } | undefined)?.district ?? null,
+      pickupDivision: (pickup as { division?: string } | undefined)?.division ?? null,
+      pickupPostalCode: pickup?.postalCode ?? null,
+      pickupCountry: pickup?.country ?? null,
+      pickupLandmark: (pickup as { landmark?: string } | undefined)?.landmark ?? null,
+      customerName: customer?.name ?? null,
+      customerPhone: customer?.phone ?? null,
+      customerEmail: customer?.email ?? null,
+      actualWeightKg: dims.actualWeightKg.value,
+      volumetricWeightKg: dims.volumetricWeightKg?.value ?? null,
+      lengthCm: dims.dimensions?.lengthCm ?? null,
+      widthCm: dims.dimensions?.widthCm ?? null,
+      heightCm: dims.dimensions?.heightCm ?? null,
+      itemCount: entity.itemCount,
+      isCOD: entity.isCOD,
+      codAmount: entity.codAmount?.amount ?? null,
+      isInsured: entity.isInsured,
+      declaredValue: entity.declaredValue?.amount ?? null,
+      shippingCost: entity.shippingCost?.amount ?? null,
+      currency: entity.declaredValue?.currency ?? entity.codAmount?.currency ?? entity.shippingCost?.currency ?? 'BDT',
+      courierTrackingNumber: entity.courierTrackingNumber ?? null,
+      labelUrl: entity.labelUrl ?? null,
+      estimatedDeliveryAt: entity.estimatedDeliveryAt ? new Date(entity.estimatedDeliveryAt) : null,
+      pickedUpAt: entity.pickedUpAt ? new Date(entity.pickedUpAt) : null,
+      deliveredAt: entity.deliveredAt ? new Date(entity.deliveredAt) : null,
+      returnedAt: entity.returnedAt ? new Date(entity.returnedAt) : null,
+      cancelledAt: entity.cancelledAt ? new Date(entity.cancelledAt) : null,
+      failureReason: entity.failureReason ?? null,
+      notes: entity.notes?.value ?? null,
+      version: entity.version,
+      updatedAt: new Date(entity.updatedAt),
+      packages: {
+        create: entity.packages.map((p, idx) => ({
+          orderItemId: p.orderItemId,
+          productId: p.productId ?? null,
+          variantId: p.variantId ?? null,
+          sku: p.sku ?? null,
+          name: p.name ?? null,
+          quantity: p.quantity,
+          sortOrder: idx,
+        })),
+      },
+    };
+  }
+}
+
+════════ courier.prisma.mapper.ts ════════
+/**
+ * CourierPrismaMapper — row ↔ domain entity
+ * @module logistics-service/infrastructure/persistence/prisma
+ */
+import { CourierEntity } from '../../../domain/entities/courier.entity.js';
+import { CourierIdVO } from '../../../domain/value-objects/primitives/courier-id.vo.js';
+import { CourierStatusVO } from '../../../domain/value-objects/primitives/courier-status.vo.js';
+import { CourierTypeVO } from '../../../domain/value-objects/primitives/courier-type.vo.js';
+import { CourierNameVO } from '../../../domain/value-objects/primitives/courier-name.vo.js';
+import { CourierConfigVO } from '../../../domain/value-objects/composites/courier-config.vo.js';
+import type { Phone, Email, Url } from '@vubon/shared-types/common';
+
+export interface PrismaCourierRow {
+  id: string;
+  code: string;
+  name: string;
+  displayName: string;
+  type: string;
+  status: string;
+  logoUrl: string | null;
+  website: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  trackingUrlTemplate: string | null;
+  apiEnabled: boolean;
+  apiBaseUrl: string | null;
+  apiKeyName: string | null;
+  webhookSecretName: string | null;
+  apiTimeoutMs: number;
+  retryAttempts: number;
+  coverageZones: string[];
+  supportsCOD: boolean;
+  supportsInsurance: boolean;
+  supportsInternational: boolean;
+  averageDeliveryDays: number;
+  isDefault: boolean;
+  priority: number;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+}
+
+export class CourierPrismaMapper {
+  static toDomain(raw: PrismaCourierRow): CourierEntity {
+    const config = raw.apiBaseUrl && raw.apiKeyName
+      ? CourierConfigVO.reconstitute({
+          baseUrl: raw.apiBaseUrl,
+          apiKeyName: raw.apiKeyName,
+          webhookSecretName: raw.webhookSecretName ?? undefined,
+          timeoutMs: raw.apiTimeoutMs,
+          retryAttempts: raw.retryAttempts,
+          isEnabled: raw.apiEnabled,
+        })
+      : undefined;
+
+    return CourierEntity.reconstitute({
+      id: raw.id,
+      createdAt: new Date(raw.createdAt).toISOString(),
+      updatedAt: new Date(raw.updatedAt).toISOString(),
+      deletedAt: raw.deletedAt ? new Date(raw.deletedAt).toISOString() : null,
+      version: raw.version,
+      props: {
+        name: raw.name,
+        code: CourierNameVO.reconstitute(raw.code),
+        displayName: raw.displayName,
+        type: CourierTypeVO.reconstitute(raw.type),
+        status: CourierStatusVO.reconstitute(raw.status),
+        logoUrl: raw.logoUrl ? (raw.logoUrl as Url) : undefined,
+        website: raw.website ? (raw.website as Url) : undefined,
+        contactPhone: raw.contactPhone ? (raw.contactPhone as Phone) : undefined,
+        contactEmail: raw.contactEmail ? (raw.contactEmail as Email) : undefined,
+        trackingUrlTemplate: raw.trackingUrlTemplate ?? undefined,
+        apiEnabled: raw.apiEnabled,
+        config,
+        coverageZones: raw.coverageZones,
+        supportsCOD: raw.supportsCOD,
+        supportsInsurance: raw.supportsInsurance,
+        supportsInternational: raw.supportsInternational,
+        averageDeliveryDays: raw.averageDeliveryDays,
+        isDefault: raw.isDefault,
+        priority: raw.priority,
+      },
+    });
+  }
+
+  static toPersistence(entity: CourierEntity): Record<string, unknown> {
+    return {
+      id: entity.id,
+      code: entity.code.value,
+      name: entity.name,
+      displayName: entity.displayName,
+      type: entity.type.value,
+      status: entity.status.value,
+      logoUrl: entity.logoUrl ?? null,
+      website: entity.website ?? null,
+      contactPhone: entity.contactPhone ?? null,
+      contactEmail: entity.contactEmail ?? null,
+      trackingUrlTemplate: entity.trackingUrlTemplate ?? null,
+      apiEnabled: entity.apiEnabled,
+      apiBaseUrl: entity.config?.baseUrl ?? null,
+      apiKeyName: entity.config?.apiKeyName ?? null,
+      webhookSecretName: entity.config?.webhookSecretName ?? null,
+      apiTimeoutMs: entity.config?.timeoutMs ?? 30000,
+      retryAttempts: entity.config?.retryAttempts ?? 3,
+      coverageZones: [...entity.coverageZones],
+      supportsCOD: entity.supportsCOD,
+      supportsInsurance: entity.supportsInsurance,
+      supportsInternational: entity.supportsInternational,
+      averageDeliveryDays: entity.averageDeliveryDays,
+      isDefault: entity.isDefault,
+      priority: entity.priority,
+      version: entity.version,
+      updatedAt: new Date(entity.updatedAt),
+    };
+  }
+}
+
+════════ warehouse.prisma.mapper.ts ════════
+/**
+ * WarehousePrismaMapper — row ↔ domain entity
+ * @module logistics-service/infrastructure/persistence/prisma
+ */
+import { WarehouseEntity } from '../../../domain/entities/warehouse.entity.js';
+import { WarehouseIdVO } from '../../../domain/value-objects/primitives/warehouse-id.vo.js';
+import { WarehouseStatusVO } from '../../../domain/value-objects/primitives/warehouse-status.vo.js';
+import { WarehouseCodeVO } from '../../../domain/value-objects/primitives/warehouse-code.vo.js';
+import { WarehouseTypeVO } from '../../../domain/value-objects/primitives/warehouse-type.vo.js';
+import { AddressDetailsVO } from '../../../domain/value-objects/composites/address-details.vo.js';
+import { CapacityVO } from '../../../domain/value-objects/composites/capacity.vo.js';
+import { AddressVO } from '@vubon/shared-kernel/domain/primitives';
+import type { Address, Phone, Email, UserId } from '@vubon/shared-types/common';
+
+export interface PrismaWarehouseRow {
+  id: string;
+  code: string;
+  name: string;
+  type: string;
+  status: string;
+  zone: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  addressCity: string;
+  addressState: string | null;
+  addressDistrict: string | null;
+  addressDivision: string | null;
+  addressPostalCode: string | null;
+  addressCountry: string;
+  latitude: number | null;
+  longitude: number | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  managerId: string | null;
+  capacityM3: unknown;
+  usedM3: unknown;
+  capacityKg: unknown;
+  usedKg: unknown;
+  maxSkus: number;
+  operatingHoursStart: number | null;
+  operatingHoursEnd: number | null;
+  timezone: string;
+  isDefault: boolean;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+}
+
+const toNum = (v: unknown): number => {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') return Number(v);
+  if (v && typeof v === 'object' && 'toNumber' in v && typeof (v as { toNumber: () => number }).toNumber === 'function') {
+    return (v as { toNumber: () => number }).toNumber();
+  }
+  return Number(v);
+};
+
+export class WarehousePrismaMapper {
+  static toDomain(raw: PrismaWarehouseRow): WarehouseEntity {
+    const address = AddressDetailsVO.reconstitute({
+      address: AddressVO.of({
+        line1: raw.addressLine1,
+        line2: raw.addressLine2 ?? undefined,
+        city: raw.addressCity,
+        state: raw.addressState ?? undefined,
+        postalCode: raw.addressPostalCode ?? undefined,
+        country: raw.addressCountry,
+      } as Address),
+      contactName: raw.contactName ?? undefined,
+      contactPhone: raw.contactPhone ? (raw.contactPhone as Phone) : undefined,
+      latitude: raw.latitude ?? undefined,
+      longitude: raw.longitude ?? undefined,
+    });
+
+    return WarehouseEntity.reconstitute({
+      id: raw.id,
+      createdAt: new Date(raw.createdAt).toISOString(),
+      updatedAt: new Date(raw.updatedAt).toISOString(),
+      deletedAt: raw.deletedAt ? new Date(raw.deletedAt).toISOString() : null,
+      version: raw.version,
+      props: {
+        code: WarehouseCodeVO.reconstitute(raw.code),
+        name: raw.name,
+        type: WarehouseTypeVO.reconstitute(raw.type),
+        status: WarehouseStatusVO.reconstitute(raw.status),
+        address,
+        contactName: raw.contactName ?? undefined,
+        contactPhone: raw.contactPhone ? (raw.contactPhone as Phone) : undefined,
+        contactEmail: raw.contactEmail ? (raw.contactEmail as Email) : undefined,
+        managerId: raw.managerId ? (raw.managerId as UserId) : undefined,
+        capacity: CapacityVO.reconstitute({
+          capacityM3: toNum(raw.capacityM3),
+          usedM3: toNum(raw.usedM3),
+          capacityKg: toNum(raw.capacityKg),
+          usedKg: toNum(raw.usedKg),
+        }),
+        maxSkus: raw.maxSkus,
+        zone: raw.zone,
+        operatingHoursStart: raw.operatingHoursStart ?? undefined,
+        operatingHoursEnd: raw.operatingHoursEnd ?? undefined,
+        timezone: raw.timezone,
+        isDefault: raw.isDefault,
+      },
+    });
+  }
+
+  static toPersistence(entity: WarehouseEntity): Record<string, unknown> {
+    const addr = entity.address.toAddress();
+    return {
+      id: entity.id,
+      code: entity.code.value,
+      name: entity.name,
+      type: entity.type.value,
+      status: entity.status.value,
+      zone: entity.zone,
+      addressLine1: addr.line1,
+      addressLine2: addr.line2 ?? null,
+      addressCity: addr.city,
+      addressState: addr.state ?? null,
+      addressDistrict: (addr as { district?: string }).district ?? null,
+      addressDivision: (addr as { division?: string }).division ?? null,
+      addressPostalCode: addr.postalCode ?? null,
+      addressCountry: addr.country,
+      latitude: entity.address.latitude ?? null,
+      longitude: entity.address.longitude ?? null,
+      contactName: entity.contactName ?? null,
+      contactPhone: entity.contactPhone ?? null,
+      contactEmail: entity.contactEmail ?? null,
+      managerId: entity.managerId ?? null,
+      capacityM3: entity.capacity.capacityM3,
+      usedM3: entity.capacity.usedM3,
+      capacityKg: entity.capacity.capacityKg,
+      usedKg: entity.capacity.usedKg,
+      maxSkus: entity.maxSkus,
+      operatingHoursStart: entity.operatingHoursStart ?? null,
+      operatingHoursEnd: entity.operatingHoursEnd ?? null,
+      timezone: entity.timezone,
+      isDefault: entity.isDefault,
+      version: entity.version,
+      updatedAt: new Date(entity.updatedAt),
+    };
+  }
+}
+
+════════ vehicle.prisma.mapper.ts ════════
+/**
+ * VehiclePrismaMapper
+ * @module logistics-service/infrastructure/persistence/prisma
+ */
+import { VehicleEntity } from '../../../domain/entities/vehicle.entity.js';
+import { VehicleIdVO } from '../../../domain/value-objects/primitives/vehicle-id.vo.js';
+import { VehicleStatusVO } from '../../../domain/value-objects/primitives/vehicle-status.vo.js';
+import { VehicleTypeVO } from '../../../domain/value-objects/primitives/vehicle-type.vo.js';
+import { VehicleFuelTypeVO } from '../../../domain/value-objects/primitives/vehicle-fuel-type.vo.js';
+import { DriverIdVO } from '../../../domain/value-objects/primitives/driver-id.vo.js';
+
+export interface PrismaVehicleRow {
+  id: string; registrationNumber: string; type: string; status: string; fuelType: string;
+  make: string; model: string; year: number; color: string | null;
+  maxWeightKg: unknown; maxVolumeM3: unknown; capacity: number | null; mileageKm: unknown;
+  lastServiceAt: Date | null; nextServiceAt: Date | null;
+  insuranceExpiresAt: Date | null; registrationExpiresAt: Date | null;
+  assignedDriverId: string | null; isActive: boolean; version: number;
+  createdAt: Date; updatedAt: Date; deletedAt: Date | null;
+}
+
+const toNum = (v: unknown): number => {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') return Number(v);
+  if (v && typeof v === 'object' && 'toNumber' in v && typeof (v as { toNumber: () => number }).toNumber === 'function') {
+    return (v as { toNumber: () => number }).toNumber();
+  }
+  return Number(v);
+};
+const toIso = (d: Date | null): string | undefined => d ? new Date(d).toISOString() : undefined;
+
+export class VehiclePrismaMapper {
+  static toDomain(raw: PrismaVehicleRow): VehicleEntity {
+    return VehicleEntity.reconstitute({
+      id: raw.id,
+      createdAt: new Date(raw.createdAt).toISOString(),
+      updatedAt: new Date(raw.updatedAt).toISOString(),
+      deletedAt: raw.deletedAt ? new Date(raw.deletedAt).toISOString() : null,
+      version: raw.version,
+      props: {
+        registrationNumber: raw.registrationNumber,
+        type: VehicleTypeVO.reconstitute(raw.type),
+        status: VehicleStatusVO.reconstitute(raw.status),
+        fuelType: VehicleFuelTypeVO.reconstitute(raw.fuelType),
+        make: raw.make, model: raw.model, year: raw.year,
+        color: raw.color ?? undefined,
+        maxWeightKg: toNum(raw.maxWeightKg),
+        maxVolumeM3: raw.maxVolumeM3 !== null ? toNum(raw.maxVolumeM3) : undefined,
+        capacity: raw.capacity ?? undefined,
+        mileageKm: toNum(raw.mileageKm),
+        lastServiceAt: toIso(raw.lastServiceAt),
+        nextServiceAt: toIso(raw.nextServiceAt),
+        insuranceExpiresAt: toIso(raw.insuranceExpiresAt),
+        registrationExpiresAt: toIso(raw.registrationExpiresAt),
+        assignedDriverId: raw.assignedDriverId ? DriverIdVO.reconstitute(raw.assignedDriverId) : undefined,
+        isActive: raw.isActive,
+      },
+    });
+  }
+
+  static toPersistence(entity: VehicleEntity): Record<string, unknown> {
+    return {
+      id: entity.id,
+      registrationNumber: entity.registrationNumber,
+      type: entity.type.value,
+      status: entity.status.value,
+      fuelType: entity.fuelType.value,
+      make: entity.make, model: entity.model, year: entity.year,
+      color: entity.color ?? null,
+      maxWeightKg: entity.maxWeightKg,
+      maxVolumeM3: entity.maxVolumeM3 ?? null,
+      capacity: entity.capacity ?? null,
+      mileageKm: entity.mileageKm,
+      lastServiceAt: entity.lastServiceAt ? new Date(entity.lastServiceAt) : null,
+      nextServiceAt: entity.nextServiceAt ? new Date(entity.nextServiceAt) : null,
+      insuranceExpiresAt: entity.insuranceExpiresAt ? new Date(entity.insuranceExpiresAt) : null,
+      registrationExpiresAt: entity.registrationExpiresAt ? new Date(entity.registrationExpiresAt) : null,
+      assignedDriverId: entity.assignedDriverId?.value ?? null,
+      isActive: entity.isActive,
+      version: entity.version,
+      updatedAt: new Date(entity.updatedAt),
+    };
+  }
+}
+
+════════ driver.prisma.mapper.ts ════════
+/**
+ * DriverPrismaMapper
+ * @module logistics-service/infrastructure/persistence/prisma
+ */
+import { DriverEntity } from '../../../domain/entities/driver.entity.js';
+import { DriverIdVO } from '../../../domain/value-objects/primitives/driver-id.vo.js';
+import { DriverStatusVO } from '../../../domain/value-objects/primitives/driver-status.vo.js';
+import { DriverTypeVO } from '../../../domain/value-objects/primitives/driver-type.vo.js';
+import { DriverLicenseTypeVO } from '../../../domain/value-objects/primitives/driver-license-type.vo.js';
+import { VehicleIdVO } from '../../../domain/value-objects/primitives/vehicle-id.vo.js';
+import { WarehouseIdVO } from '../../../domain/value-objects/primitives/warehouse-id.vo.js';
+import type { Phone, Email, UserId } from '@vubon/shared-types/common';
+
+export interface PrismaDriverRow {
+  id: string; userId: string | null; name: string; phone: string; email: string | null;
+  status: string; type: string; licenseNumber: string; licenseType: string; licenseExpiresAt: Date;
+  dateOfBirth: Date | null; address: string | null; vehicleId: string | null; warehouseId: string | null;
+  rating: unknown; totalDeliveries: number; totalDistanceKm: unknown;
+  cashLimit: unknown; cashInHand: unknown; isAvailable: boolean; lastActiveAt: Date | null;
+  version: number; createdAt: Date; updatedAt: Date; deletedAt: Date | null;
+}
+
+const toNum = (v: unknown): number => {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') return Number(v);
+  if (v && typeof v === 'object' && 'toNumber' in v && typeof (v as { toNumber: () => number }).toNumber === 'function') {
+    return (v as { toNumber: () => number }).toNumber();
+  }
+  return Number(v);
+};
+const toIso = (d: Date | null): string | undefined => d ? new Date(d).toISOString() : undefined;
+
+export class DriverPrismaMapper {
+  static toDomain(raw: PrismaDriverRow): DriverEntity {
+    return DriverEntity.reconstitute({
+      id: raw.id,
+      createdAt: new Date(raw.createdAt).toISOString(),
+      updatedAt: new Date(raw.updatedAt).toISOString(),
+      deletedAt: raw.deletedAt ? new Date(raw.deletedAt).toISOString() : null,
+      version: raw.version,
+      props: {
+        userId: raw.userId ? (raw.userId as UserId) : undefined,
+        name: raw.name,
+        phone: raw.phone as Phone,
+        email: raw.email ? (raw.email as Email) : undefined,
+        status: DriverStatusVO.reconstitute(raw.status),
+        type: DriverTypeVO.reconstitute(raw.type),
+        licenseNumber: raw.licenseNumber,
+        licenseType: DriverLicenseTypeVO.reconstitute(raw.licenseType),
+        licenseExpiresAt: new Date(raw.licenseExpiresAt).toISOString(),
+        dateOfBirth: toIso(raw.dateOfBirth),
+        address: raw.address ?? undefined,
+        vehicleId: raw.vehicleId ? VehicleIdVO.reconstitute(raw.vehicleId) : undefined,
+        warehouseId: raw.warehouseId ? WarehouseIdVO.reconstitute(raw.warehouseId) : undefined,
+        rating: raw.rating !== null ? toNum(raw.rating) : undefined,
+        totalDeliveries: raw.totalDeliveries,
+        totalDistanceKm: toNum(raw.totalDistanceKm),
+        cashLimit: toNum(raw.cashLimit),
+        cashInHand: toNum(raw.cashInHand),
+        isAvailable: raw.isAvailable,
+        lastActiveAt: toIso(raw.lastActiveAt),
+      },
+    });
+  }
+
+  static toPersistence(entity: DriverEntity): Record<string, unknown> {
+    return {
+      id: entity.id,
+      userId: entity.userId ?? null,
+      name: entity.name,
+      phone: entity.phone,
+      email: entity.email ?? null,
+      status: entity.status.value,
+      type: entity.type.value,
+      licenseNumber: entity.licenseNumber,
+      licenseType: entity.licenseType.value,
+      licenseExpiresAt: new Date(entity.licenseExpiresAt),
+      dateOfBirth: entity.dateOfBirth ? new Date(entity.dateOfBirth) : null,
+      address: entity.address ?? null,
+      vehicleId: entity.vehicleId?.value ?? null,
+      warehouseId: entity.warehouseId?.value ?? null,
+      rating: entity.rating ?? null,
+      totalDeliveries: entity.totalDeliveries,
+      totalDistanceKm: entity.totalDistanceKm,
+      cashLimit: entity.cashLimit,
+      cashInHand: entity.cashInHand,
+      isAvailable: entity.isAvailable,
+      lastActiveAt: entity.lastActiveAt ? new Date(entity.lastActiveAt) : null,
+      version: entity.version,
+      updatedAt: new Date(entity.updatedAt),
+    };
+  }
+}
+

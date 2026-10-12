@@ -1,26 +1,20 @@
 /**
- * CQRS Module
+ * CQRS Module (kernel wrapper)
  * @module shared-kernel/modules/common
  *
- * Wraps @nestjs/cqrs and registers shared TOKENS।
+ * Wraps @nestjs/cqrs. NOTE: CqrsModule must be imported by consumers directly
+ * via `@nestjs/cqrs` because it requires internal ModuleRef injection
+ * that doesn't propagate through a @Global() wrapper.
  */
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { TOKENS } from '../tokens.js';
 
-@Global()
+/**
+ * Deprecated: kept for backwards compatibility.
+ * Consumers should import CqrsModule from '@nestjs/cqrs' directly.
+ */
 @Module({
   imports: [CqrsModule],
-  providers: [
-    {
-      provide: TOKENS.COMMAND_BUS_NAME,
-      useValue: 'vubon-command-bus',
-    },
-    {
-      provide: TOKENS.QUERY_BUS_NAME,
-      useValue: 'vubon-query-bus',
-    },
-  ],
-  exports: [CqrsModule, TOKENS.COMMAND_BUS_NAME, TOKENS.QUERY_BUS_NAME],
+  exports: [CqrsModule],
 })
 export class KernelCqrsModule {}

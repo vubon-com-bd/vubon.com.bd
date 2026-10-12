@@ -5,6 +5,7 @@ import type { DeleteCartRequestDTO } from '../../dtos/requests/cart/delete-cart.
 import type { CartResponseDTO } from '../../dtos/responses/cart-response.dto.js';
 import type { CartSummaryResponseDTO } from '../../dtos/responses/cart-summary-response.dto.js';
 import type { CartTotalsResponseDTO } from '../../dtos/responses/cart-totals-response.dto.js';
+import type { InitiateCheckoutRequestDTO } from '../../dtos/requests/checkout/initiate-checkout.dto.js';
 
 export const CART_SERVICE = Symbol('CART_SERVICE');
 
@@ -17,4 +18,5 @@ export interface ICartService {
   getByUserId(userId: string): Promise<CartResponseDTO | null>;
   getSummary(cartId: string): Promise<CartSummaryResponseDTO>;
   recalculateTotals(cartId: string): Promise<CartTotalsResponseDTO>;
+  initiateCheckout(dto: InitiateCheckoutRequestDTO, actorId?: string): Promise<CartResponseDTO>;
 }

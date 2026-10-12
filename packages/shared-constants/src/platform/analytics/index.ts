@@ -18,3 +18,7 @@ export * from './analytics-trend.constants.js';
 export * from './analytics-status.constants.js';
 export * from './analytics-permission.constants.js';
 export * from './analytics-report.constants.js';
+export * from './analytics-cohort.constants.js';
+export * from './analytics-metric-type.constants.js';
+export * from './analytics-granularity.constants.js';
+export * from './analytics-kpi.constants.js';

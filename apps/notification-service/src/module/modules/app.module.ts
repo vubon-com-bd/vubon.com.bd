@@ -11,6 +11,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 
 import { CommonModule } from './common/index.js';
 import { NotificationModule } from './notification/index.js';
@@ -37,4 +38,8 @@ import { HealthModule } from './health/index.js';
     HealthModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(eventBus: EventBusService) {
+    eventBus.setServiceName('notification');
+  }
+}

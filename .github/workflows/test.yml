@@ -43,6 +43,7 @@ jobs:
           - cart-service
           - order-service
           - payment-service
+          - vendor-service
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://test:test@localhost:5432/vubon_test

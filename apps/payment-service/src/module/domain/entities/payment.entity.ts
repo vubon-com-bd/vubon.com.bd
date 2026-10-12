@@ -352,6 +352,8 @@ export class PaymentEntity extends AggregateRoot<string> {
         aggregateId: this.id,
         payload: {
           paymentId: this.id,
+          orderId: this._orderId.value,
+          userId: this._userId.value,
           gatewayPaymentId: this._gatewayPaymentId?.value,
           capturedAt: now,
           amount: this._amount,
@@ -381,6 +383,7 @@ export class PaymentEntity extends AggregateRoot<string> {
         payload: {
           paymentId: this.id,
           orderId: this._orderId.value,
+          userId: this._userId.value,
           paidAt: now,
           amount: this._amount,
           currency: this._currency,
@@ -409,6 +412,8 @@ export class PaymentEntity extends AggregateRoot<string> {
         aggregateId: this.id,
         payload: {
           paymentId: this.id,
+          orderId: this._orderId.value,
+          userId: this._userId.value,
           failedAt: now,
           reason: reason.value,
           code: code?.value,
@@ -536,6 +541,8 @@ export class PaymentEntity extends AggregateRoot<string> {
         aggregateId: this.id,
         payload: {
           paymentId: this.id,
+          orderId: this._orderId.value,
+          userId: this._userId.value,
           refundId,
           refundedAt: now,
           amount: refundAmount,

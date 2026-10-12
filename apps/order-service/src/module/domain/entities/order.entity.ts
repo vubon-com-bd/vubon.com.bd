@@ -18,6 +18,7 @@ import { PaymentIdVO } from '../value-objects/primitives/payment-id.vo.js';
 import { OrderNoteVO } from '../value-objects/primitives/order-note.vo.js';
 
 import { OrderItemEntity } from './order-item.entity.js';
+import type { OrderCreatedAddressSnapshot } from '../events/order.events.js';
 
 import {
   OrderCreatedEvent,
@@ -67,6 +68,8 @@ export interface OrderEntityProps {
   readonly deliveredAt?: string;
   readonly cancelledAt?: string;
   readonly completedAt?: string;
+  // ─── Phase 2: transient snapshot (in-memory only at create) ───
+  readonly shippingAddressSnapshot?: OrderCreatedAddressSnapshot;
 }
 
 export class OrderEntity extends AggregateRoot<string> {
@@ -85,6 +88,7 @@ export class OrderEntity extends AggregateRoot<string> {
   private _trackingNumber?: string;
   private _notes?: OrderNoteVO;
   private _customerNotes?: OrderNoteVO;
+  private _shippingAddressSnapshot?: OrderCreatedAddressSnapshot;
   private _confirmedAt?: string;
   private _shippedAt?: string;
   private _deliveredAt?: string;
@@ -124,6 +128,7 @@ export class OrderEntity extends AggregateRoot<string> {
     this._trackingNumber = props.trackingNumber;
     this._notes = props.notes;
     this._customerNotes = props.customerNotes;
+    this._shippingAddressSnapshot = props.shippingAddressSnapshot;
     this._confirmedAt = props.confirmedAt;
     this._shippedAt = props.shippedAt;
     this._deliveredAt = props.deliveredAt;
@@ -166,6 +171,7 @@ export class OrderEntity extends AggregateRoot<string> {
   get shippingAmount(): number { return this._shippingAmount; }
   get total(): number { return this._total; }
   get items(): readonly OrderItemEntity[] { return [...this._items]; }
+  get shippingAddressSnapshot(): OrderCreatedAddressSnapshot | undefined { return this._shippingAddressSnapshot; }
   get paymentId(): PaymentIdVO | undefined { return this._paymentId; }
   get paymentStatus(): string | undefined { return this._paymentStatus; }
   get paymentMethod(): string | undefined { return this._paymentMethod; }
@@ -610,9 +616,11 @@ export class OrderEntity extends AggregateRoot<string> {
     props: OrderEntityProps;
     items: readonly OrderItemEntity[];
     now: string;
+    shippingAddressSnapshot?: OrderCreatedAddressSnapshot;
   }): OrderEntity {
     const entity = new OrderEntity(params.id, params.now, params.now, params.props);
     entity._items = [...params.items];
+    entity._shippingAddressSnapshot = params.shippingAddressSnapshot ?? params.props.shippingAddressSnapshot;
     entity.recalculateTotal();
     entity.addDomainEvent(
       new OrderCreatedEvent({
@@ -626,6 +634,21 @@ export class OrderEntity extends AggregateRoot<string> {
           currency: params.props.currency,
           status: params.props.status.value,
           type: params.props.type.value,
+          // Phase 1 enrich
+          paymentMethod: params.props.paymentMethod,
+          isCOD: params.props.paymentMethod === 'cod',
+          shippingMethod: params.props.shippingMethod,
+          items: entity.items.map((i) => ({
+            productId: i.productId.value,
+            variantId: i.variantId?.value,
+            vendorId: i.vendorId?.value,
+            sku: i.sku,
+            name: i.name,
+            quantity: i.quantity.value,
+            unitPrice: i.price.amount,
+            imageUrl: i.imageUrl,
+          })),
+          shippingAddress: entity._shippingAddressSnapshot,
         },
         version: 1,
       }),

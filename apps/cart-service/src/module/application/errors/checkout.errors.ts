@@ -1,15 +1,24 @@
 /**
- * Checkout application errors
+ * Cart checkout application errors
  * @module cart-service/application/errors
  */
 import { ApplicationError } from '@vubon/shared-kernel/application/errors';
 import { ERROR_CODE } from '@vubon/shared-constants/common';
 
-export class CheckoutNotAllowedError extends ApplicationError {
-  readonly code = ERROR_CODE.VAL_REQUIRED;
-  readonly httpStatus = 409;
-  constructor(cartId: string, reason: string) {
-    super(`Checkout not allowed for cart "${cartId}": ${reason}`, { cartId, reason });
-    this.name = 'CheckoutNotAllowedError';
+export class CartCheckoutNotEligibleError extends ApplicationError {
+  readonly code = ERROR_CODE.CART_EMPTY;
+  readonly httpStatus = 422;
+  constructor(public readonly cartId: string, public readonly reason: string) {
+    super(`Cart "${cartId}" is not eligible for checkout: ${reason}`, { cartId, reason });
+    this.name = 'CartCheckoutNotEligibleError';
+  }
+}
+
+export class CartCheckoutGuestNotAllowedError extends ApplicationError {
+  readonly code = ERROR_CODE.AUTH_UNAUTHORIZED;
+  readonly httpStatus = 401;
+  constructor(public readonly cartId: string) {
+    super(`Guest cart "${cartId}" cannot be checked out — login required`, { cartId });
+    this.name = 'CartCheckoutGuestNotAllowedError';
   }
 }

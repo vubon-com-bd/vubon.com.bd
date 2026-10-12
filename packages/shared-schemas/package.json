@@ -66,10 +66,10 @@
       "require": "./dist/marketing/index.js",
       "types": "./dist/marketing/index.d.ts"
     },
-    "./notification": {
-      "import": "./dist/notification/index.js",
-      "require": "./dist/notification/index.js",
-      "types": "./dist/notification/index.d.ts"
+    "./platform/notification": {
+      "import": "./dist/platform/notification/index.js",
+      "require": "./dist/platform/notification/index.js",
+      "types": "./dist/platform/notification/index.d.ts"
     },
     "./support": {
       "import": "./dist/support/index.js",

@@ -22,3 +22,5 @@ export const CART_COMMAND_HANDLERS = [
   DeleteCartHandler,
   RecoverCartHandler,
 ] as const;
+export * from './initiate-checkout.command.js';
+export * from './initiate-checkout.handler.js';

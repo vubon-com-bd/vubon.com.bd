@@ -480,6 +480,47 @@ export const API_ROUTES = Object.freeze({
     DETAIL: '/logistics/routes/:id',
   }),
 
+  // ── Logistics Extended ─────────────────────────────
+  ZONE: Object.freeze({
+    LIST: '/logistics/zones',
+    DETAIL: '/logistics/zones/:id',
+    CREATE: '/logistics/zones',
+    UPDATE: '/logistics/zones/:id',
+  }),
+
+  SHIPPING_METHOD: Object.freeze({
+    LIST: '/logistics/shipping-methods',
+    DETAIL: '/logistics/shipping-methods/:id',
+    CREATE: '/logistics/shipping-methods',
+    UPDATE: '/logistics/shipping-methods/:id',
+  }),
+
+  PACKAGING: Object.freeze({
+    LIST: '/logistics/packagings',
+    DETAIL: '/logistics/packagings/:id',
+    CREATE: '/logistics/packagings',
+    UPDATE: '/logistics/packagings/:id',
+  }),
+
+  RETURN_SHIPMENT: Object.freeze({
+    LIST: '/logistics/return-shipments',
+    DETAIL: '/logistics/return-shipments/:id',
+    CREATE: '/logistics/return-shipments',
+    APPROVE: '/logistics/return-shipments/:id/approve',
+    REJECT: '/logistics/return-shipments/:id/reject',
+  }),
+
+  INSURANCE: Object.freeze({
+    LIST: '/logistics/insurances',
+    DETAIL: '/logistics/insurances/:id',
+    CLAIM: '/logistics/insurances/:id/claim',
+  }),
+
+  LOGISTICS_ANALYTICS: Object.freeze({
+    METRICS: '/logistics/analytics/metrics',
+    REPORT: '/logistics/analytics/report',
+  }),
+
   // ─────────────────────────────────────────────
   // Upload
   // ─────────────────────────────────────────────

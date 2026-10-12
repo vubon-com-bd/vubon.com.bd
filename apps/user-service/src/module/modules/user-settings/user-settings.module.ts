@@ -2,6 +2,7 @@
  * UserSettingsModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserSettingsController } from '@interfaces/controllers/rest/user-settings.controller';
 import { UserSettingsService } from '@application/services/impl/user-settings.service';
@@ -16,6 +17,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, UserModule],
   controllers: [UserSettingsController],
   providers: [
+    Reflector,
     UserSettingsService,
     { provide: USER_SETTINGS_REPOSITORY, useClass: UserSettingsPrismaRepository },
     UpdateSettingsHandler,

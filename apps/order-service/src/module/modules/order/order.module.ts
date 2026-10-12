@@ -3,6 +3,7 @@
  * @module order-service/modules/order
  */
 import { Module } from '@nestjs/common';
+import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { OrderController } from '../../interfaces/controllers/rest/order.controller.js';
@@ -20,9 +21,11 @@ import { OrderCancelSaga } from '../../application/sagas/order-cancel.saga.js';
 import { OwnOrderGuard } from '../../interfaces/guards/own-order.guard.js';
 import { OrderStatusGuard } from '../../interfaces/guards/order-status.guard.js';
 import { OrderCacheInterceptor } from '../../interfaces/interceptors/order-cache.interceptor.js';
+import { PaymentEventsHandler } from '../../infrastructure/handlers/payment-events.handler.js';
+import { CartEventsHandler } from '../../infrastructure/handlers/cart-events.handler.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, EventBridgeModule],
   controllers: [OrderController],
   providers: [
     OrderService,
@@ -40,6 +43,8 @@ import { OrderCacheInterceptor } from '../../interfaces/interceptors/order-cache
     OwnOrderGuard,
     OrderStatusGuard,
     OrderCacheInterceptor,
+    PaymentEventsHandler,
+    CartEventsHandler,
   ],
   exports: [OrderService, ORDER_SERVICE],
 })

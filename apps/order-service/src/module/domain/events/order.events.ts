@@ -36,6 +36,38 @@ export interface OrderCreatedPayload {
   readonly currency: string;
   readonly status: string;
   readonly type: string;
+  // ─── Phase 1 enrichment (order-service → logistics shipment creation) ───
+  readonly paymentMethod?: string;
+  readonly isCOD: boolean;
+  readonly shippingMethod?: string;
+  readonly items: readonly OrderCreatedItemPayload[];
+  readonly shippingAddress?: OrderCreatedAddressSnapshot;
+}
+
+export interface OrderCreatedItemPayload {
+  readonly productId: string;
+  readonly variantId?: string;
+  readonly vendorId?: string;
+  readonly sku: string;
+  readonly name: string;
+  readonly quantity: number;
+  readonly unitPrice: number;
+  readonly imageUrl?: string;
+}
+
+export interface OrderCreatedAddressSnapshot {
+  readonly fullName?: string;
+  readonly phone?: string;
+  readonly line1: string;
+  readonly line2?: string;
+  readonly city: string;
+  readonly state?: string;
+  readonly district?: string;
+  readonly division?: string;
+  readonly postalCode?: string;
+  readonly country: string;
+  readonly landmark?: string;
+  readonly label?: string;
 }
 
 export interface OrderUpdatedPayload {

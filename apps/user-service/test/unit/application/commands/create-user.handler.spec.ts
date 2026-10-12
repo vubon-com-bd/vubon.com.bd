@@ -12,7 +12,8 @@ describe('CreateUserHandler', () => {
 
   beforeEach(() => {
     userRepo = createUserRepositoryMock();
-    handler = new CreateUserHandler(userRepo);
+    const mockEventBridge = { publishFromEntity: async () => undefined };
+    handler = new CreateUserHandler(userRepo, mockEventBridge as never);
   });
 
   const buildCommand = () =>

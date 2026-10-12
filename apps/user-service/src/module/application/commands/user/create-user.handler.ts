@@ -4,6 +4,7 @@
  */
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { CreateUserCommand } from './create-user.command.js';
 import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
 import type { UserRepository } from '@domain/repositories/user.repository.interface';
@@ -25,7 +26,8 @@ export class CreateUserHandler
 {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<UserResponseDTO> {
@@ -54,6 +56,7 @@ export class CreateUserHandler
       });
 
       await this.userRepo.save(user);
+      await this.eventBridge.publishFromEntity(user);
 
       return UserMapper.toResponse(user);
     } catch (err) {

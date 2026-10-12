@@ -20,10 +20,15 @@ describe('InventoryService', () => {
   let service: InventoryService;
   let repo: MockedInventoryRepository;
 
+  const mockEventBridge = {
+    publish: jest.fn().mockResolvedValue(undefined),
+    publishBatch: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(() => {
     repo = createMockInventoryRepository();
     repo.save.mockImplementation(async (e) => e);
-    service = new InventoryService(repo);
+    service = new InventoryService(repo, mockEventBridge as never);
   });
 
   describe('update()', () => {

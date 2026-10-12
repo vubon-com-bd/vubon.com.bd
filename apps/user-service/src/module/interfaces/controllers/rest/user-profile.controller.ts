@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { UpdateProfileCommand } from '@application/commands/profile/update-profile.command';
 import { UpdateAvatarCommand } from '@application/commands/profile/update-avatar.command';
 import { UpdateBioCommand } from '@application/commands/profile/update-bio.command';

@@ -17,7 +17,8 @@ describe('SuspendUserHandler', () => {
 
   beforeEach(() => {
     userRepo = createUserRepositoryMock();
-    handler = new SuspendUserHandler(userRepo);
+    const mockEventBridge = { publishFromEntity: async () => undefined };
+    handler = new SuspendUserHandler(userRepo, mockEventBridge as never);
   });
 
   const buildUser = () =>

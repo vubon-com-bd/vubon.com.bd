@@ -3,6 +3,7 @@
  */
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { DeleteUserCommand } from './delete-user.command.js';
 import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
 import type { UserRepository } from '@domain/repositories/user.repository.interface';
@@ -18,7 +19,8 @@ export class DeleteUserHandler
 {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async execute(command: DeleteUserCommand): Promise<{ success: true }> {
@@ -38,6 +40,7 @@ export class DeleteUserHandler
         await this.userRepo.delete(id.value);
       } else {
         await this.userRepo.save(user);
+      await this.eventBridge.publishFromEntity(user);
       }
       return { success: true };
     } catch (err) {

@@ -4,7 +4,7 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { ListActivitiesQuery } from '@application/queries/activity/list-activities.query';
 import { GetUserStatsQuery } from '@application/queries/activity/get-user-stats.query';
 import { ListActivityQueryDto } from '../../dtos/requests/activity.request.dto.js';

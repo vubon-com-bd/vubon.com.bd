@@ -82,9 +82,14 @@ describe('CartService', () => {
   let repo: jest.Mocked<CartRepository>;
   let svc: CartService;
 
+  const mockEventBridge = {
+    publishFromEntity: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(() => {
+    jest.clearAllMocks();
     repo = makeCartRepo();
-    svc = new CartService(repo);
+    svc = new CartService(repo, mockEventBridge as never);
   });
 
   describe('create()', () => {

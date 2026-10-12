@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { SubmitKycCommand } from '@application/commands/kyc/submit-kyc.command';
 import { VerifyKycCommand } from '@application/commands/kyc/verify-kyc.command';
 import { RejectKycCommand } from '@application/commands/kyc/reject-kyc.command';

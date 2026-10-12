@@ -52,6 +52,8 @@ export interface PaymentAuthorizedPayload {
 
 export interface PaymentCapturedPayload {
   readonly paymentId: string;
+  readonly orderId: string;
+  readonly userId: string;
   readonly gatewayPaymentId?: string;
   readonly capturedAt: string;
   readonly amount: number;
@@ -61,6 +63,7 @@ export interface PaymentCapturedPayload {
 export interface PaymentPaidPayload {
   readonly paymentId: string;
   readonly orderId: string;
+  readonly userId: string;
   readonly paidAt: string;
   readonly amount: number;
   readonly currency: string;
@@ -68,6 +71,8 @@ export interface PaymentPaidPayload {
 
 export interface PaymentFailedPayload {
   readonly paymentId: string;
+  readonly orderId: string;
+  readonly userId: string;
   readonly failedAt: string;
   readonly reason: string;
   readonly code?: string;
@@ -94,6 +99,8 @@ export interface PaymentExpiredPayload {
 
 export interface PaymentRefundedPayload {
   readonly paymentId: string;
+  readonly orderId: string;
+  readonly userId: string;
   readonly refundId?: string;
   readonly refundedAt: string;
   readonly amount: number;

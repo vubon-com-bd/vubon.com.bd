@@ -17,7 +17,6 @@ import {
 
 // Kernel guards — no Reflector dependency
 import {
-  JwtAuthGuard,
   PublicGuard,
   OwnerGuard,
   RateLimitGuard,
@@ -30,7 +29,8 @@ import {
   DomainExceptionFilter,
 } from '@vubon/shared-kernel/interfaces';
 
-// LOCAL guards — with Reflector
+// LOCAL guards — with Reflector (user-service's own @nestjs/core)
+import { JwtAuthGuard } from '@interfaces/guards/jwt-auth.guard';
 import { RolesGuard } from '@interfaces/guards/roles.guard';
 import { PermissionsGuard } from '@interfaces/guards/permissions.guard';
 

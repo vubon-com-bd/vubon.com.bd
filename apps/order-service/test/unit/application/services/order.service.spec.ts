@@ -1,5 +1,7 @@
+import { jest } from '@jest/globals';
 import { OrderService } from '../../../../src/module/application/services/impl/order.service.js';
 import { OrderNotFoundApplicationError } from '../../../../src/module/application/errors/order.errors.js';
+import type { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import {
   makeOrder,
   makeMockOrderRepo,
@@ -9,11 +11,28 @@ import {
 
 describe('OrderService', () => {
   let repo: ReturnType<typeof makeMockOrderRepo>;
+  let eventBridge: {
+    publish: jest.Mock;
+    publishAll: jest.Mock;
+    publishInProcess: jest.Mock;
+    publishPersistent: jest.Mock;
+    publishFromEntity: jest.Mock;
+  };
   let service: OrderService;
 
   beforeEach(() => {
     repo = makeMockOrderRepo();
-    service = new OrderService(repo as never);
+    eventBridge = {
+      publish: jest.fn().mockResolvedValue(undefined),
+      publishAll: jest.fn().mockResolvedValue(undefined),
+      publishInProcess: jest.fn(),
+      publishPersistent: jest.fn().mockResolvedValue(undefined),
+      publishFromEntity: jest.fn().mockResolvedValue(undefined),
+    };
+    service = new OrderService(
+      repo as never,
+      eventBridge as unknown as DomainEventBridgeService,
+    );
   });
 
   describe('create()', () => {

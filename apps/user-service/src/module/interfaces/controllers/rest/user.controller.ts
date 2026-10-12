@@ -17,11 +17,8 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { CurrentUser, type CurrentUserShape } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { CreateUserCommand } from '@application/commands/user/create-user.command';
 import { UpdateUserCommand } from '@application/commands/user/update-user.command';
 import { DeleteUserCommand } from '@application/commands/user/delete-user.command';

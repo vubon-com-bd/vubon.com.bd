@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { AddContactCommand } from '@application/commands/contact/add-contact.command';
 import { UpdateContactCommand } from '@application/commands/contact/update-contact.command';
 import { DeleteContactCommand } from '@application/commands/contact/delete-contact.command';

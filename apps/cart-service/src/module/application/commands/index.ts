@@ -27,3 +27,5 @@ export const ALL_COMMAND_HANDLERS = [
   ...GUEST_COMMAND_HANDLERS,
   ...CHECKOUT_COMMAND_HANDLERS,
 ] as const;
+export * from './cart/initiate-checkout.command.js';
+export * from './cart/initiate-checkout.handler.js';

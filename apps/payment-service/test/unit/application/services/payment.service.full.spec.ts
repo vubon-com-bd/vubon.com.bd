@@ -89,7 +89,8 @@ describe('PaymentService — full paths', () => {
   beforeEach(() => {
     pr = mockRepo();
     tx = mockTx();
-    svc = new PaymentService(pr as never, tx as never);
+    const mockEventBridge = { publishFromEntity: jest.fn().mockResolvedValue(undefined) };
+    svc = new PaymentService(pr as never, tx as never, mockEventBridge as never);
   });
 
   it('initiate without idempotencyKey uses derived key', async () => {

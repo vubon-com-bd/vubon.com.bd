@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import { AddAddressCommand } from '@application/commands/address/add-address.command';
 import { UpdateAddressCommand } from '@application/commands/address/update-address.command';
 import { DeleteAddressCommand } from '@application/commands/address/delete-address.command';

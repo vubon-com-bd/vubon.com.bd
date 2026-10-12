@@ -33,6 +33,7 @@ import {
   ProductSkuConflictError,
 } from '../../errors/product.errors.js';
 import { ProductDetailAssembler } from '../../mappers/product-detail.assembler.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
 @Injectable()
 export class ProductService implements IProductService {
@@ -42,6 +43,7 @@ export class ProductService implements IProductService {
     @Inject(INVENTORY_REPOSITORY) private readonly inventoryRepo: InventoryRepository,
     @Inject(PRICING_REPOSITORY) private readonly pricingRepo: PricingRepository,
     @Inject(ATTRIBUTE_REPOSITORY) private readonly attributeRepo: AttributeRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async create(dto: CreateProductRequestDTO, actorId: string): Promise<ProductResponseDTO> {
@@ -84,7 +86,8 @@ export class ProductService implements IProductService {
       },
     });
 
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     void actorId;
     return ProductMapper.toResponse(product);
   }
@@ -117,7 +120,8 @@ export class ProductService implements IProductService {
       else product.unfeature(actorId);
     }
 
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     return ProductMapper.toResponse(product);
   }
 
@@ -125,7 +129,8 @@ export class ProductService implements IProductService {
     const product = await this.productRepo.findById(productId);
     if (!product) throw new ProductNotFoundApplicationError(productId);
     product.publish(actorId, new Date().toISOString());
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     return ProductMapper.toResponse(product);
   }
 
@@ -133,7 +138,8 @@ export class ProductService implements IProductService {
     const product = await this.productRepo.findById(productId);
     if (!product) throw new ProductNotFoundApplicationError(productId);
     product.unpublish(actorId, reason, new Date().toISOString());
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     return ProductMapper.toResponse(product);
   }
 
@@ -141,7 +147,8 @@ export class ProductService implements IProductService {
     const product = await this.productRepo.findById(productId);
     if (!product) throw new ProductNotFoundApplicationError(productId);
     product.archive(actorId, new Date().toISOString());
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     return ProductMapper.toResponse(product);
   }
 
@@ -149,14 +156,16 @@ export class ProductService implements IProductService {
     const product = await this.productRepo.findById(productId);
     if (!product) throw new ProductNotFoundApplicationError(productId);
     product.softDelete(actorId, new Date().toISOString());
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
   }
 
   async feature(productId: string, actorId: string): Promise<ProductResponseDTO> {
     const product = await this.productRepo.findById(productId);
     if (!product) throw new ProductNotFoundApplicationError(productId);
     product.feature(actorId);
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     return ProductMapper.toResponse(product);
   }
 
@@ -164,7 +173,8 @@ export class ProductService implements IProductService {
     const product = await this.productRepo.findById(productId);
     if (!product) throw new ProductNotFoundApplicationError(productId);
     product.unfeature(actorId);
-    await this.productRepo.save(product);
+    const _saved = await this.productRepo.save(product);
+    await this.eventBridge.publishFromEntity(_saved);
     return ProductMapper.toResponse(product);
   }
 
@@ -212,7 +222,8 @@ export class ProductService implements IProductService {
         barcode: undefined,
       },
     });
-    await this.productRepo.save(copy);
+    const _savedCopy = await this.productRepo.save(copy);
+    await this.eventBridge.publishFromEntity(_savedCopy);
     void actorId;
     return ProductMapper.toResponse(copy);
   }

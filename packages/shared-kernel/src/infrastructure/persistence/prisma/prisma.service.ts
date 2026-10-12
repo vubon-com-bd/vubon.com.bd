@@ -39,7 +39,7 @@ export class PrismaService
         `⚠️ Prisma connection skipped (engine unavailable in this environment): ${msg.slice(0, 120)}`,
       );
       this.logger.warn(
-        '⚠️ Auth service will start WITHOUT database — endpoints will return 503 until a compatible engine is available.',
+        '⚠️ Service will start WITHOUT database — endpoints will return 503 until a compatible engine is available.',
       );
     }
   }

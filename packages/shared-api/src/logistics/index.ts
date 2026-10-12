@@ -14,3 +14,8 @@ export * from './dispatch';
 export * from './vehicle';
 export * from './driver';
 export * from './route';
+export * from './zone';
+export * from './shipping-method';
+export * from './packaging';
+export * from './return-shipment';
+export * from './insurance';

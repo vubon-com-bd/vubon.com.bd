@@ -24,7 +24,11 @@ import type { DeleteCartRequestDTO } from '../../dtos/requests/cart/delete-cart.
 import type { CartResponseDTO } from '../../dtos/responses/cart-response.dto.js';
 import type { CartSummaryResponseDTO } from '../../dtos/responses/cart-summary-response.dto.js';
 import type { CartTotalsResponseDTO } from '../../dtos/responses/cart-totals-response.dto.js';
+import type { InitiateCheckoutRequestDTO } from '../../dtos/requests/checkout/initiate-checkout.dto.js';
 import { CartNotFoundApplicationError } from '../../errors/cart.errors.js';
+import { CartCheckoutNotEligibleError, CartCheckoutGuestNotAllowedError } from '../../errors/checkout.errors.js';
+import { CanCheckoutSpecification } from '../../../domain/specifications/can-checkout.specification.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
 @Injectable()
 export class CartService implements ICartService {
@@ -32,6 +36,7 @@ export class CartService implements ICartService {
 
   constructor(
     @Inject(CART_REPOSITORY) private readonly cartRepo: CartRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async create(dto: CreateCartRequestDTO, _actorId?: string): Promise<CartResponseDTO> {
@@ -58,6 +63,7 @@ export class CartService implements ICartService {
     });
 
     const saved = await this.cartRepo.save(cart);
+    await this.eventBridge.publishFromEntity(saved);
     return CartMapper.toResponse(saved);
   }
 
@@ -66,6 +72,7 @@ export class CartService implements ICartService {
     const now = new Date().toISOString();
     (cart as unknown as { updatedAt: string }).updatedAt = now;
     const saved = await this.cartRepo.save(cart);
+    await this.eventBridge.publishFromEntity(saved);
     return CartMapper.toResponse(saved);
     void dto;
   }
@@ -74,13 +81,15 @@ export class CartService implements ICartService {
     const cart = await this.loadCart(dto.cartId);
     cart.clear(dto.clearedBy);
     const saved = await this.cartRepo.save(cart);
+    await this.eventBridge.publishFromEntity(saved);
     return CartMapper.toResponse(saved);
   }
 
   async delete(dto: DeleteCartRequestDTO): Promise<void> {
     const cart = await this.loadCart(dto.cartId);
     cart.softDelete(dto.deletedBy);
-    await this.cartRepo.save(cart);
+    const saved = await this.cartRepo.save(cart);
+    await this.eventBridge.publishFromEntity(saved);
     await this.cartRepo.softDelete(dto.cartId, dto.deletedBy);
   }
 
@@ -104,6 +113,42 @@ export class CartService implements ICartService {
     cart.recalculateTotals({});
     await this.cartRepo.save(cart);
     return CartMapper.totalsToResponse(cart.totals);
+  }
+
+
+  async initiateCheckout(dto: InitiateCheckoutRequestDTO, actorId?: string): Promise<CartResponseDTO> {
+    const cart = await this.loadCart(dto.cartId);
+
+    // 1. Guest cart block
+    if (!cart.userId) {
+      throw new CartCheckoutGuestNotAllowedError(cart.id);
+    }
+
+    // 2. Eligibility check
+    const spec = new CanCheckoutSpecification();
+    if (!spec.isSatisfiedBy({ cart })) {
+      throw new CartCheckoutNotEligibleError(cart.id, spec.explain({ cart }) ?? 'unknown');
+    }
+
+    // 3. State transition + event
+    const now = new Date().toISOString();
+    cart.markCheckoutInitiated(
+      {
+        customerId: cart.userId.value,
+        shippingAddress: dto.shippingAddress as never,
+        billingAddress: dto.billingAddress as never,
+        paymentMethod: dto.paymentMethod,
+        shippingMethod: dto.shippingMethod,
+        customerNotes: dto.customerNotes,
+        notes: dto.notes,
+      },
+      now,
+    );
+
+    const saved = await this.cartRepo.save(cart);
+    await this.eventBridge.publishFromEntity(saved);
+    void actorId;
+    return CartMapper.toResponse(saved);
   }
 
   private async loadCart(cartId: string): Promise<CartEntity> {

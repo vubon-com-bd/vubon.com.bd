@@ -17,6 +17,7 @@ import { UpdateCartCommand } from '../../../application/commands/cart/update-car
 import { ClearCartCommand } from '../../../application/commands/cart/clear-cart.command.js';
 import { DeleteCartCommand } from '../../../application/commands/cart/delete-cart.command.js';
 import { RecoverCartCommand } from '../../../application/commands/cart/recover-cart.command.js';
+import { InitiateCartCheckoutCommand } from '../../../application/commands/cart/initiate-checkout.command.js';
 import { GetCartQuery } from '../../../application/queries/cart/get-cart.query.js';
 import { GetCartByUserQuery } from '../../../application/queries/cart/get-cart-by-user.query.js';
 import { GetCartSummaryQuery } from '../../../application/queries/cart/get-cart-summary.query.js';
@@ -25,6 +26,7 @@ import {
   CreateCartHttpDTO, UpdateCartHttpDTO, ClearCartHttpDTO, DeleteCartHttpDTO, RecoverCartHttpDTO,
 } from '../../dtos/requests/cart.request.dto.js';
 import type { CartHttpResponseDTO } from '../../dtos/responses/cart.response.dto.js';
+import { InitiateCheckoutHttpDTO } from '../../dtos/requests/checkout.request.dto.js';
 
 @ApiTags('carts')
 @ApiBearerAuth('bearer')
@@ -106,4 +108,29 @@ export class CartController extends BaseController {
   ): Promise<void> {
     await this.commandBus.execute(new DeleteCartCommand({ cartId, deletedBy: user.userId, ...dto }));
   }
+
+  @Post(':id/checkout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Initiate checkout for cart (emits cart.checkout_initiated)' })
+  async initiateCheckout(
+    @Param('id') id: string,
+    @Body() dto: InitiateCheckoutHttpDTO,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<CartHttpResponseDTO> {
+    return this.commandBus.execute(
+      new InitiateCartCheckoutCommand(
+        {
+          cartId: id,
+          shippingAddress: dto.shippingAddress as never,
+          billingAddress: dto.billingAddress as never,
+          paymentMethod: dto.paymentMethod,
+          shippingMethod: dto.shippingMethod,
+          customerNotes: dto.customerNotes,
+          notes: dto.notes,
+        },
+        user.userId,
+      ),
+    );
+  }
+
 }

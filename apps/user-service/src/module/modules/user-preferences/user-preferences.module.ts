@@ -2,6 +2,7 @@
  * UserPreferencesModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserPreferencesController } from '@interfaces/controllers/rest/user-preferences.controller';
 import { UserPreferencesService } from '@application/services/impl/user-preferences.service';
@@ -21,6 +22,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, RedisModule, UserModule],
   controllers: [UserPreferencesController],
   providers: [
+    Reflector,
     UserPreferencesService,
     { provide: USER_PREFERENCES_REPOSITORY, useClass: UserPreferencesPrismaRepository },
     UserPreferencesCacheRepository,

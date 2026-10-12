@@ -2,6 +2,7 @@
  * UserActivityModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserActivityController } from '@interfaces/controllers/rest/user-activity.controller';
 import { UserActivityService } from '@application/services/impl/user-activity.service';
@@ -18,6 +19,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, UserModule],
   controllers: [UserActivityController],
   providers: [
+    Reflector,
     UserActivityService,
     { provide: USER_ACTIVITY_REPOSITORY, useClass: UserActivityPrismaRepository },
     ListActivitiesHandler,

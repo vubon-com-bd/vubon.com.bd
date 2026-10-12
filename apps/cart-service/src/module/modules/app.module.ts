@@ -8,6 +8,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 // Common
 import { CommonModule } from './common/index.js';
+import { HandlersModule } from './handlers/index.js';
 
 // Infrastructure
 import { RedisRepositoriesModule } from '../infrastructure/persistence/redis/redis-repositories.module.js';
@@ -36,6 +37,7 @@ import { HealthModule } from './health/health.module.js';
 
     // Common (global)
     CommonModule,
+    HandlersModule,
 
     // Infrastructure
     RedisRepositoriesModule,

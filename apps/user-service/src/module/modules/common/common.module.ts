@@ -1,34 +1,36 @@
 /**
  * CommonModule — global providers for user-service
  *
- * NOTE: KernelGuardsModule, KernelInterceptorsModule, KernelFiltersModule,
- * KernelPipesModule — এই ৪টা module import করা হয়নি কারণ এগুলোর
- * providers (RolesGuard, PermissionsGuard, LoggingInterceptor, ...)
- * shared-kernel এর নিজস্ব @nestjs/core instance দিয়ে compile হয়েছে,
- * যেটা user-service এর @nestjs/core থেকে আলাদা (pnpm peer-dep mismatch)।
- *
- * এর ফলে "Nest can't resolve dependencies of the RolesGuard (?)" error আসে।
- *
- * Solution: এই guards/interceptors/filters গুলো app.module.ts এ APP_GUARD,
- * APP_INTERCEPTOR, APP_FILTER token দিয়ে register করা হয়েছে — NestJS নিজেই
- * user-service এর @nestjs/core দিয়ে instantiate করবে।
+ * NOTE: Kernel guards/interceptors/filters are compiled with shared-kernel's
+ * own @nestjs/core, creating a peer-dep token mismatch with user-service's
+ * @nestjs/core. Therefore:
+ *   - We import only KernelConfigModule + KernelEventBusModule.
+ *   - Guards/interceptors/filters are provided LOCALLY (see app.module.ts).
+ *   - `Reflector` is provided HERE as @Global() so every module (UserModule,
+ *     UserProfileModule, ...) can inject it when instantiating local guards
+ *     referenced via `@UseGuards(...)` on controllers.
  */
 import { Global, Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import {
   KernelConfigModule,
   KernelEventBusModule,
 } from '@vubon/shared-kernel/modules';
+import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
 @Global()
 @Module({
   imports: [
     KernelConfigModule,
     KernelEventBusModule,
+    EventBridgeModule,
   ],
-  providers: [],
+  providers: [Reflector],
   exports: [
+    Reflector,
     KernelConfigModule,
     KernelEventBusModule,
+    EventBridgeModule,
   ],
 })
 export class CommonModule {}

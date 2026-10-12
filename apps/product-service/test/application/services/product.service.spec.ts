@@ -51,6 +51,10 @@ describe('ProductService', () => {
   let service: ProductService;
   let productRepo: MockedProductRepository;
 
+  const mockEventBridge = {
+    publishFromEntity: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(() => {
     productRepo = createMockProductRepository();
     productRepo.existsBySlug.mockResolvedValue(false);
@@ -63,6 +67,7 @@ describe('ProductService', () => {
       createMockInventoryRepository(),
       createMockPricingRepository(),
       noopAttributeRepo(),
+      mockEventBridge as never,
     );
   });
 

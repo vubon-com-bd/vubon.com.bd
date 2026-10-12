@@ -2,6 +2,7 @@
  * UserAddressModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserAddressController } from '@interfaces/controllers/rest/user-address.controller';
 import { UserAddressService } from '@application/services/impl/user-address.service';
@@ -25,6 +26,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, UserModule],
   controllers: [UserAddressController],
   providers: [
+    Reflector,
     UserAddressService,
     { provide: USER_ADDRESS_REPOSITORY, useClass: UserAddressPrismaRepository },
     AddAddressHandler,

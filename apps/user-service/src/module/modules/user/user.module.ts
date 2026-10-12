@@ -2,6 +2,7 @@
  * UserModule — feature module for user CRUD + onboarding
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserController } from '@interfaces/controllers/rest/user.controller';
 import { UserService } from '@application/services/impl/user.service';
@@ -31,6 +32,7 @@ import { RedisModule } from '@infrastructure/persistence/cache/redis.module';
   imports: [CqrsModule, PrismaModule, RedisModule],
   controllers: [UserController],
   providers: [
+    Reflector,
     UserService,
     { provide: USER_REPOSITORY, useClass: UserPrismaRepository },
     UserCacheRepository,

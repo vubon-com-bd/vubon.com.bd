@@ -300,6 +300,11 @@
       "types": "./dist/business/checkout/index.d.ts",
       "import": "./dist/business/checkout/index.js",
       "require": "./dist/business/checkout/index.js"
+    },
+    "./platform/notification": {
+      "types": "./dist/platform/notification/index.d.ts",
+      "import": "./dist/platform/notification/index.js",
+      "require": "./dist/platform/notification/index.js"
     }
   },
   "scripts": {

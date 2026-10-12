@@ -35,6 +35,7 @@ import { OrderNumberService } from '../../../domain/services/order-number.servic
 import { OrderTotalService } from '../../../domain/services/order-total.service.js';
 import { OrderMapper } from '../../mappers/order.mapper.js';
 import { OrderNotFoundApplicationError } from '../../errors/order.errors.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type { CreateOrderRequestDTO } from '../../dtos/requests/order/create-order.dto.js';
 import type { UpdateOrderRequestDTO } from '../../dtos/requests/order/update-order.dto.js';
 import type { ConfirmOrderStatusRequestDTO } from '../../dtos/requests/order/confirm-order.dto.js';
@@ -49,6 +50,7 @@ import type { OrderDetailResponseDTO } from '../../dtos/responses/order-detail-r
 export class OrderService implements IOrderService {
   constructor(
     @Inject(ORDER_REPOSITORY) private readonly orderRepo: OrderRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async create(dto: CreateOrderRequestDTO, _actorId?: string): Promise<OrderResponseDTO> {
@@ -117,9 +119,11 @@ export class OrderService implements IOrderService {
         notes: dto.notes ? OrderNoteVO.create(dto.notes) : undefined,
         customerNotes: dto.customerNotes ? OrderNoteVO.create(dto.customerNotes) : undefined,
       },
+      shippingAddressSnapshot: dto.shippingAddress as never,
     });
 
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 
@@ -133,6 +137,7 @@ export class OrderService implements IOrderService {
     }
 
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 
@@ -146,6 +151,7 @@ export class OrderService implements IOrderService {
     const paymentId = dto.paymentId ? PaymentIdVO.create(dto.paymentId) : undefined;
     order.confirm(paymentId);
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     void actorId;
     return OrderMapper.toResponse(saved);
   }
@@ -154,6 +160,7 @@ export class OrderService implements IOrderService {
     const order = await this.loadOrder(dto.orderId);
     order.putOnHold(dto.reason);
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 
@@ -161,6 +168,7 @@ export class OrderService implements IOrderService {
     const order = await this.loadOrder(dto.orderId);
     order.release(actorId);
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 
@@ -173,6 +181,7 @@ export class OrderService implements IOrderService {
     const order = await this.loadOrder(orderId);
     order.ship(trackingNumber, courierId);
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 
@@ -180,6 +189,7 @@ export class OrderService implements IOrderService {
     const order = await this.loadOrder(orderId);
     order.deliver(receivedBy);
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 
@@ -187,6 +197,7 @@ export class OrderService implements IOrderService {
     const order = await this.loadOrder(orderId);
     order.complete();
     const saved = await this.orderRepo.save(order);
+    await this.eventBridge.publishFromEntity(saved);
     return OrderMapper.toResponse(saved);
   }
 

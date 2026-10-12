@@ -17,6 +17,7 @@ export const CART_EVENT_TYPE = {
   EXPIRED: 'cart.expired',
   STATUS_CHANGED: 'cart.status.changed',
   PRICE_CHANGED: 'cart.price.changed',
+  CHECKOUT_INITIATED: 'cart.checkout_initiated',
 } as const;
 
 export interface CartCreatedPayload {
@@ -241,6 +242,74 @@ export class CartPriceChangedEvent extends BaseDomainEvent<
     super({
       id: p.id ?? newEventId(),
       type: CART_EVENT_TYPE.PRICE_CHANGED,
+      aggregateId: p.aggregateId,
+      aggregateType: CART_AGGREGATE_TYPE,
+      payload: p.payload,
+      occurredAt: p.occurredAt ?? now(),
+      version: p.version ?? 1,
+      metadata: p.metadata,
+    });
+  }
+}
+
+// ═══ Checkout Initiated Event ═══
+
+export interface CartCheckoutItemPayload {
+  readonly productId: string;
+  readonly variantId?: string;
+  readonly vendorId?: string;
+  readonly sku: string;
+  readonly name: string;
+  readonly quantity: number;
+  readonly unitPrice: number;
+}
+
+export interface CartCheckoutAddressPayload {
+  readonly line1: string;
+  readonly line2?: string;
+  readonly city: string;
+  readonly state?: string;
+  readonly district?: string;
+  readonly division?: string;
+  readonly postalCode?: string;
+  readonly country: string;
+  readonly landmark?: string;
+  readonly label?: string;
+  readonly fullName?: string;
+  readonly phone?: string;
+}
+
+export interface CartCheckoutInitiatedPayload {
+  readonly cartId: string;
+  readonly customerId: string;
+  readonly items: readonly CartCheckoutItemPayload[];
+  readonly shippingAddress: CartCheckoutAddressPayload;
+  readonly billingAddress?: CartCheckoutAddressPayload;
+  readonly paymentMethod?: string;
+  readonly shippingMethod?: string;
+  readonly currency: string;
+  readonly subtotal: number;
+  readonly total: number;
+  readonly customerNotes?: string;
+  readonly notes?: string;
+  readonly initiatedAt: string;
+}
+
+export class CartCheckoutInitiatedEvent extends BaseDomainEvent<
+  typeof CART_EVENT_TYPE.CHECKOUT_INITIATED,
+  CartCheckoutInitiatedPayload
+> {
+  constructor(p: {
+    aggregateId: string;
+    payload: CartCheckoutInitiatedPayload;
+    version?: number;
+    id?: string;
+    occurredAt?: Timestamp;
+    metadata?: DomainEventMetadata;
+  }) {
+    super({
+      id: p.id ?? newEventId(),
+      type: CART_EVENT_TYPE.CHECKOUT_INITIATED,
       aggregateId: p.aggregateId,
       aggregateType: CART_AGGREGATE_TYPE,
       payload: p.payload,

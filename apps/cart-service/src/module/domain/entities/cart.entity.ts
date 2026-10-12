@@ -6,6 +6,7 @@ import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
 import { CART_LIMIT, CART_STATUS } from '@vubon/shared-constants/business/cart';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { InvariantViolationError } from '@vubon/shared-kernel/domain/errors/invariant.error';
 import { CartIdVO } from '../value-objects/primitives/cart-id.vo.js';
 import { CartStatusVO } from '../value-objects/primitives/cart-status.vo.js';
 import { CartTypeVO } from '../value-objects/primitives/cart-type.vo.js';
@@ -22,6 +23,7 @@ import {
   CartExpiredEvent,
   CartStatusChangedEvent,
   CartPriceChangedEvent,
+  CartCheckoutInitiatedEvent,
 } from '../events/cart.events.js';
 import {
   ItemAddedEvent,
@@ -515,4 +517,96 @@ export class CartEntity extends AggregateRoot<string> {
     }
     return entity;
   }
+
+  // ═══ Checkout ═══
+
+  markCheckoutInitiated(
+    checkout: {
+      readonly customerId: string;
+      readonly shippingAddress: {
+        readonly line1: string;
+        readonly line2?: string;
+        readonly city: string;
+        readonly state?: string;
+        readonly district?: string;
+        readonly division?: string;
+        readonly postalCode?: string;
+        readonly country: string;
+        readonly landmark?: string;
+        readonly label?: string;
+        readonly fullName?: string;
+        readonly phone?: string;
+      };
+      readonly billingAddress?: {
+        readonly line1: string;
+        readonly line2?: string;
+        readonly city: string;
+        readonly state?: string;
+        readonly district?: string;
+        readonly division?: string;
+        readonly postalCode?: string;
+        readonly country: string;
+        readonly landmark?: string;
+        readonly label?: string;
+        readonly fullName?: string;
+        readonly phone?: string;
+      };
+      readonly paymentMethod?: string;
+      readonly shippingMethod?: string;
+      readonly customerNotes?: string;
+      readonly notes?: string;
+    },
+    now: string,
+  ): void {
+    if (!this.isActive()) {
+      throw new InvariantViolationError(
+        `Cart cannot checkout from status "${this._status.value}"`,
+        'CART_NOT_ACTIVE',
+      );
+    }
+    if (this.isEmpty) {
+      throw new InvariantViolationError('Cart is empty — cannot checkout', 'CART_EMPTY');
+    }
+    if (!this._userId) {
+      throw new InvariantViolationError('Guest cart cannot checkout — customerId required', 'GUEST_CART');
+    }
+
+    this._status = CartStatusVO.create(CART_STATUS.CONVERTED);
+
+    this.addDomainEvent(
+      new CartCheckoutInitiatedEvent({
+        aggregateId: this.id,
+        payload: {
+          cartId: this.id,
+          customerId: checkout.customerId,
+          items: this._items.map((i) => ({
+            productId: i.productId.value,
+            variantId: i.variantId?.value,
+            vendorId: i.vendorId?.value,
+            sku: i.sku,
+            name: i.name,
+            quantity: i.quantity.value,
+            unitPrice: i.unitPrice,
+          })),
+          shippingAddress: checkout.shippingAddress,
+          billingAddress: checkout.billingAddress,
+          paymentMethod: checkout.paymentMethod,
+          shippingMethod: checkout.shippingMethod,
+          currency: this._currency,
+          subtotal: this._totals.subtotal,
+          total: this._totals.grandTotal,
+          customerNotes: checkout.customerNotes,
+          notes: checkout.notes,
+          initiatedAt: now,
+        },
+        version: this.version + 1,
+      }),
+    );
+
+    this.touch(now);
+    this.incrementVersion();
+  }
+
+  // ═══ Private touch helper (if not existing) ═══
+
 }

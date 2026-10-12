@@ -2,6 +2,7 @@
  * UserContactModule
  */
 import { Module } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UserContactController } from '@interfaces/controllers/rest/user-contact.controller';
 import { UserContactService } from '@application/services/impl/user-contact.service';
@@ -24,6 +25,7 @@ import { UserModule } from '../user/user.module.js';
   imports: [CqrsModule, PrismaModule, UserModule],
   controllers: [UserContactController],
   providers: [
+    Reflector,
     UserContactService,
     { provide: USER_CONTACT_REPOSITORY, useClass: UserContactPrismaRepository },
     AddContactHandler,

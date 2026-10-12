@@ -3,6 +3,7 @@
  */
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { UpdateUserCommand } from './update-user.command.js';
 import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
 import type { UserRepository } from '@domain/repositories/user.repository.interface';
@@ -22,7 +23,8 @@ export class UpdateUserHandler
 {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UserRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async execute(command: UpdateUserCommand): Promise<UserResponseDTO> {
@@ -53,6 +55,7 @@ export class UpdateUserHandler
       }
 
       await this.userRepo.save(user);
+      await this.eventBridge.publishFromEntity(user);
       return UserMapper.toResponse(user);
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'unknown error';
