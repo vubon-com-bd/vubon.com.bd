@@ -1,6 +1,6 @@
 /**
  * AUTH SERVICE — TESTING DOCUMENTATION
- * @module auth-service/docs
+ * @module identity-service/docs
  *
  * ══════════════════════════════════════════════════════════════════
  *  🧪 TEST OVERVIEW
@@ -62,7 +62,7 @@ export const LAYER_DISTRIBUTION = {
  *  🚀 TEST COMMANDS
  * ══════════════════════════════════════════════════════════════════
  *
- *  From apps/auth-service/
+ *  From apps/identity-service/
  *  ─────────────────────────────────────────────────────────────
  *    pnpm test                       — All tests
  *    pnpm test:watch                 — Watch mode

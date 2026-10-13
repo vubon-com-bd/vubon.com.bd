@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED from docs/testing.doc.ts. Do not edit directly. -->
 
 AUTH SERVICE — TESTING DOCUMENTATION
-@module auth-service/docs
+@module identity-service/docs
 
 ══════════════════════════════════════════════════════════════════
  🧪 TEST OVERVIEW
@@ -44,7 +44,7 @@ AUTH SERVICE — TESTING DOCUMENTATION
  🚀 TEST COMMANDS
 ══════════════════════════════════════════════════════════════════
 
- From apps/auth-service/
+ From apps/identity-service/
  ─────────────────────────────────────────────────────────────
    pnpm test                       — All tests
    pnpm test:watch                 — Watch mode

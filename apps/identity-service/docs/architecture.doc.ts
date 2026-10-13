@@ -1,6 +1,6 @@
 /**
  * AUTH SERVICE — ARCHITECTURE DOCUMENTATION
- * @module auth-service/docs
+ * @module identity-service/docs
  *
  * ══════════════════════════════════════════════════════════════════
  *  📐 CLEAN ARCHITECTURE — 5 LAYERS
@@ -25,7 +25,7 @@
  */
 
 export const AUTH_SERVICE_ARCHITECTURE = {
-  name: 'auth-service',
+  name: 'identity-service',
   version: '1.0.0',
   layers: 5,
   endpoints: 70,

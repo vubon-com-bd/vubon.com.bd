@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `@vubon/auth-service`.
+All notable changes to `@vubon/identity-service`.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 

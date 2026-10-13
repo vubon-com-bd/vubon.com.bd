@@ -1,6 +1,6 @@
 /**
  * AUTH SERVICE — API DOCUMENTATION
- * @module auth-service/docs
+ * @module identity-service/docs
  *
  * ══════════════════════════════════════════════════════════════════
  *  🌐 REST API — Base URL

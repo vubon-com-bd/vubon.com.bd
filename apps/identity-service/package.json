@@ -15,7 +15,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand --forceExit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest --json --outputFile=./test-results.json",
@@ -24,7 +24,8 @@
     "test:e2e:custom:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --watch",
     "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --runInBand",
     "test:unit:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --watch",
-    "test:unit:cov": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --coverage"
+    "test:unit:cov": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --coverage",
+    "test:all": "pnpm test:unit && pnpm test:e2e:custom"
   },
   "dependencies": {
     "@apollo/server": "5.5.1",

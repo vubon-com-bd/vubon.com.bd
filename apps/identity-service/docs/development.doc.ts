@@ -1,6 +1,6 @@
 /**
  * AUTH SERVICE — DEVELOPMENT SETUP GUIDE
- * @module auth-service/docs
+ * @module identity-service/docs
  *
  * ══════════════════════════════════════════════════════════════════
  *  🛠️ PREREQUISITES
@@ -66,7 +66,7 @@ export const PREREQUISITES = {
  *
  *  Step 4 — Generate Prisma client
  *  ─────────────────────────────────────────────────────────────
- *    cd apps/auth-service
+ *    cd apps/identity-service
  *    pnpm prisma generate
  *
  *  Step 5 — Run migrations
@@ -97,7 +97,7 @@ export const SETUP_COMMANDS = {
     '# Edit .env with your values',
   ],
   prisma: [
-    'cd apps/auth-service',
+    'cd apps/identity-service',
     'pnpm prisma generate',
     'pnpm prisma migrate dev',
   ],
@@ -148,10 +148,10 @@ export const SETUP_COMMANDS = {
  *  EMAIL_SMTP_USER=noreply@vubon.com.bd
  *  EMAIL_SMTP_PASSWORD=<app-password>
  *
- *  apps/auth-service/.env.local (service-specific overrides)
+ *  apps/identity-service/.env.local (service-specific overrides)
  *  ─────────────────────────────────────────────────────────────
  *  PORT=3001
- *  APP_NAME=auth-service
+ *  APP_NAME=identity-service
  *  AUTH_LOGIN_MAX_ATTEMPTS=5
  *  BCRYPT_ROUNDS=12
  *  PASSWORD_MIN_LENGTH=8
@@ -179,7 +179,7 @@ export const ENV_VARS = {
   },
   authService: {
     PORT: '3001',
-    APP_NAME: 'auth-service',
+    APP_NAME: 'identity-service',
     AUTH_LOGIN_MAX_ATTEMPTS: '5',
     BCRYPT_ROUNDS: '12',
     PASSWORD_MIN_LENGTH: '8',
@@ -194,7 +194,7 @@ export const ENV_VARS = {
  *  📜 NPM/PNPM SCRIPTS
  * ══════════════════════════════════════════════════════════════════
  *
- *  From apps/auth-service/
+ *  From apps/identity-service/
  *  ─────────────────────────────────────────────────────────────
  *    pnpm start:dev           — Start in watch mode
  *    pnpm start:prod          — Start production build
@@ -212,7 +212,7 @@ export const ENV_VARS = {
  *    pnpm -r build            — Build all packages
  *    pnpm -r type-check       — Type check all
  *    pnpm --filter @vubon/shared-kernel build
- *    pnpm --filter @vubon/auth-service start:dev
+ *    pnpm --filter @vubon/identity-service start:dev
  */
 
 export const SCRIPTS = {
@@ -241,7 +241,7 @@ export const SCRIPTS = {
  *
  *  vubon.com.bd/
  *  ├── apps/
- *  │   ├── auth-service/         ← You are here
+ *  │   ├── identity-service/         ← You are here
  *  │   ├── user-service/
  *  │   ├── product-service/
  *  │   └── ... (more services)
@@ -257,7 +257,7 @@ export const SCRIPTS = {
  *  ├── pnpm-workspace.yaml
  *  └── tsconfig.base.json
  *
- *  apps/auth-service/
+ *  apps/identity-service/
  *  ├── src/
  *  │   ├── main.ts               ← Bootstrap
  *  │   └── module/
@@ -278,7 +278,7 @@ export const SCRIPTS = {
 
 export const PROJECT_STRUCTURE = {
   root: {
-    apps: ['auth-service', 'user-service', 'product-service'],
+    apps: ['identity-service', 'user-service', 'product-service'],
     packages: [
       'shared-kernel',
       'shared-constants',

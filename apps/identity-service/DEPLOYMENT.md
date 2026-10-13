@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED from docs/deployment.doc.ts. Do not edit directly. -->
 
 AUTH SERVICE — DEPLOYMENT GUIDE
-@module auth-service/docs
+@module identity-service/docs
 
 ══════════════════════════════════════════════════════════════════
  🚀 DEPLOYMENT OPTIONS
@@ -52,7 +52,7 @@ AUTH SERVICE — DEPLOYMENT GUIDE
  ─────────────────────────────────────────────────────────────
    cd ~/vubon.com.bd
    railway init
-   # Select: New Project → Name: vubon-auth-service
+   # Select: New Project → Name: vubon-identity-service
 
  Step 4 — Add PostgreSQL
  ─────────────────────────────────────────────────────────────
@@ -86,30 +86,30 @@ AUTH SERVICE — DEPLOYMENT GUIDE
  🐳 DOCKERFILE (Multi-stage)
 ══════════════════════════════════════════════════════════════════
 
- Create: apps/auth-service/Dockerfile
+ Create: apps/identity-service/Dockerfile
  ─────────────────────────────────────────────────────────────
    FROM node:22-alpine AS builder
    WORKDIR /app
    RUN corepack enable
    COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-   COPY apps/auth-service ./apps/auth-service
+   COPY apps/identity-service ./apps/identity-service
    COPY packages ./packages
    RUN pnpm install --frozen-lockfile
-   RUN pnpm --filter @vubon/auth-service build
+   RUN pnpm --filter @vubon/identity-service build
 
    FROM node:22-alpine
    WORKDIR /app
    RUN corepack enable
    COPY --from=builder /app /app
    EXPOSE 3001
-   CMD ["node", "apps/auth-service/dist/main.js"]
+   CMD ["node", "apps/identity-service/dist/main.js"]
 
  ─────────────────────────────────────────────────────────────
  Build:
-   docker build -t auth-service .
+   docker build -t identity-service .
 
  Run:
-   docker run -p 3001:3001 --env-file .env auth-service
+   docker run -p 3001:3001 --env-file .env identity-service
 
  ══════════════════════════════════════════════════════════════════
  ⚙️ CI/CD — GitHub Actions
@@ -117,11 +117,11 @@ AUTH SERVICE — DEPLOYMENT GUIDE
 
  File: .github/workflows/deploy.yml
  ─────────────────────────────────────────────────────────────
-   name: Deploy Auth Service
+   name: Deploy Identity Service
    on:
      push:
        branches: [main]
-       paths: ['apps/auth-service/**', 'packages/**']
+       paths: ['apps/identity-service/**', 'packages/**']
 
    jobs:
      test:
@@ -133,8 +133,8 @@ AUTH SERVICE — DEPLOYMENT GUIDE
          - uses: actions/setup-node@v4
            with: { node-version: 22, cache: pnpm }
          - run: pnpm install --frozen-lockfile
-         - run: pnpm --filter @vubon/auth-service type-check
-         - run: pnpm --filter @vubon/auth-service test
+         - run: pnpm --filter @vubon/identity-service type-check
+         - run: pnpm --filter @vubon/identity-service test
 
      deploy:
        needs: test
@@ -142,7 +142,7 @@ AUTH SERVICE — DEPLOYMENT GUIDE
        steps:
          - uses: actions/checkout@v4
          - run: npm i -g @railway/cli
-         - run: railway up --service auth-service
+         - run: railway up --service identity-service
            env:
              RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
@@ -198,7 +198,7 @@ AUTH SERVICE — DEPLOYMENT GUIDE
 
  Step 2 — Run Prisma migrations
  ─────────────────────────────────────────────────────────────
-   railway run pnpm --filter @vubon/auth-service prisma migrate deploy
+   railway run pnpm --filter @vubon/identity-service prisma migrate deploy
 
  Step 3 — Test register endpoint
  ─────────────────────────────────────────────────────────────

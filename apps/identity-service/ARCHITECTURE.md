@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED from docs/architecture.doc.ts. Do not edit directly. -->
 
 AUTH SERVICE — ARCHITECTURE DOCUMENTATION
-@module auth-service/docs
+@module identity-service/docs
 
 ══════════════════════════════════════════════════════════════════
  📐 CLEAN ARCHITECTURE — 5 LAYERS

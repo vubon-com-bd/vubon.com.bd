@@ -1,8 +1,8 @@
-# 🔐 auth-service
+# 🔐 identity-service
 
 Authentication and authorization microservice for **Vubon.com.bd**.
 
-Part of the `@vubon/auth-service` workspace package.
+Part of the `@vubon/identity-service` workspace package.
 
 ---
 
@@ -10,9 +10,9 @@ Part of the `@vubon/auth-service` workspace package.
 
 | Field | Value |
 |-------|-------|
-| Name | `auth-service` |
+| Name | `identity-service` |
 | Version | 1.0.0 |
-| Package | `@vubon/auth-service` |
+| Package | `@vubon/identity-service` |
 | Runtime | Node.js ≥ 22 |
 | Framework | NestJS 12 |
 | ORM | Prisma 5 + PostgreSQL |
@@ -66,7 +66,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
 ## 📁 Folder Structure
 
-    apps/auth-service/
+    apps/identity-service/
     ├── docs/                              # source-of-truth docs (.doc.ts)
     │   ├── architecture.doc.ts
     │   ├── api.doc.ts
@@ -106,8 +106,8 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
 ### 2. Configure environment
 
-    cp apps/auth-service/.env.example apps/auth-service/.env
-    # Edit apps/auth-service/.env with your values
+    cp apps/identity-service/.env.example apps/identity-service/.env
+    # Edit apps/identity-service/.env with your values
 
 ### 3. Generate Prisma client (from shared-kernel)
 
@@ -120,7 +120,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
 ### 5. Start the service
 
-    cd apps/auth-service
+    cd apps/identity-service
     pnpm start:dev
 
 Server: **http://localhost:3001/api/v1**
@@ -181,7 +181,7 @@ Full OpenAPI: `http://localhost:3001/api/docs-json`
 
 ## 🧪 Testing
 
-    cd apps/auth-service
+    cd apps/identity-service
     pnpm test          # unit tests
     pnpm test:cov      # coverage
     pnpm test:e2e      # E2E
@@ -208,7 +208,7 @@ Details in [TESTING.md](./TESTING.md).
 
 The `.md` files are auto-generated from `docs/*.doc.ts`. To regenerate:
 
-    cd apps/auth-service/docs
+    cd apps/identity-service/docs
     node extract-docs.cjs
 
 Edit the `.doc.ts` sources — never edit the `.md` files directly.
@@ -222,7 +222,7 @@ Deployed as a Docker container. See [DEPLOYMENT.md](./DEPLOYMENT.md).
 Key points:
 
 - **Root Directory** — leave empty (repo root)
-- **Dockerfile Path** — `apps/auth-service/Dockerfile`
+- **Dockerfile Path** — `apps/identity-service/Dockerfile`
 - **Start command** — `node dist/main`
 - **Health check** — `/api/docs-json`
 

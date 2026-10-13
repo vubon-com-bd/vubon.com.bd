@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED from docs/api.doc.ts. Do not edit directly. -->
 
 AUTH SERVICE — API DOCUMENTATION
-@module auth-service/docs
+@module identity-service/docs
 
 ══════════════════════════════════════════════════════════════════
  🌐 REST API — Base URL

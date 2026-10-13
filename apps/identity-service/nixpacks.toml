@@ -22,8 +22,8 @@ cmds = [
   "cd /app/packages/shared-api       && pnpm build || true",
   "cd /app/packages/shared-auth      && pnpm build || true",
   "cd /app/packages/shared-kernel && pnpm prisma generate",
-  "cd /app/apps/auth-service && pnpm build",
+  "cd /app/apps/identity-service && pnpm build",
 ]
 
 [start]
-cmd = "cd /app/packages/shared-kernel && npx prisma migrate deploy && cd /app/apps/auth-service && node dist/main.js"
+cmd = "cd /app/packages/shared-kernel && npx prisma migrate deploy && cd /app/apps/identity-service && node dist/main.js"
