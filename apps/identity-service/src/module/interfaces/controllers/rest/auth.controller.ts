@@ -13,6 +13,7 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard.js';
 import {
   CurrentUser,
   Public,
@@ -87,6 +88,7 @@ export class AuthController extends BaseController {
   // ═══ LOGOUT ═══
   @Post('logout')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
   @ApiLogout()
   async logout(
     @Body() dto: LogoutHttpDTO,
