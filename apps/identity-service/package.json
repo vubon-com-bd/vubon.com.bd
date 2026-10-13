@@ -21,7 +21,10 @@
     "test:ci": "NODE_OPTIONS=--experimental-vm-modules jest --json --outputFile=./test-results.json",
     "test:e2e:ci": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand --json --outputFile=./e2e-results.json",
     "test:e2e:custom": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --runInBand --forceExit",
-    "test:e2e:custom:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --watch"
+    "test:e2e:custom:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --watch",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --runInBand",
+    "test:unit:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --watch",
+    "test:unit:cov": "NODE_OPTIONS=--experimental-vm-modules jest --config ./test/unit/jest.config.ts --coverage"
   },
   "dependencies": {
     "@apollo/server": "5.5.1",
