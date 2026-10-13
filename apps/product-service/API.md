@@ -1,342 +1,488 @@
-# API
+# API Reference — Product Service
 
-PRODUCT SERVICE — API DOCUMENTATION
-@module product-service/docs
+Complete REST API documentation. All endpoints use JSON.
 
-══════════════════════════════════════════════════════════════════
- 🌐 REST API — Base URL
-══════════════════════════════════════════════════════════════════
-
- Development:   http://localhost:4002/api/v1
- Production:    https://product.vubon.com.bd/api/v1
- Swagger UI:    /api/v1/docs
- OpenAPI JSON:  /api/v1/docs-json
-
- Auth:         Bearer JWT in Authorization header
- Content-Type: application/json
+**Base URL:** `http://localhost:3002`
+**Swagger UI:** `http://localhost:3002/api/docs`
+**OpenAPI JSON:** `http://localhost:3002/api/docs-json`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📦 PRODUCT ENDPOINTS
-══════════════════════════════════════════════════════════════════
+## 🔐 Authentication
 
- GET    /products                           — List (paginated)
- GET    /products/search                    — Full-text search
- GET    /products/:productId                — Get detail
- POST   /products                           — Create (admin/vendor)
- PATCH  /products/:productId                — Update (admin/vendor)
- DELETE /products/:productId                — Soft delete (admin)
- POST   /products/:productId/publish        — Publish
- POST   /products/:productId/unpublish      — Unpublish
- POST   /products/:productId/archive        — Archive
- POST   /products/:productId/feature        — Feature / unfeature (admin)
- POST   /products/:productId/duplicate      — Duplicate with new name
+Most endpoints require a JWT Bearer token:
 
- Query params (list):
-   • page        (default: 1)
-   • limit       (default: 20, max: 100)
-   • status      (draft | pending | approved | published | archived | ...)
-   • type        (physical | digital | service | subscription | bundle | ...)
-   • categoryId  (uuid)
-   • brandId     (uuid)
-   • isFeatured  (true | false)
-   • search      (free text)
+\`\`\`
+Authorization: Bearer <your-jwt-token>
+\`\`\`
+
+Public endpoints (no auth):
+- `GET /health`
+- `GET /public/products/*`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🎨 VARIANT ENDPOINTS
-══════════════════════════════════════════════════════════════════
+## 📊 Endpoints Summary
 
- GET    /products/:productId/variants               — List variants
- POST   /products/:productId/variants               — Add variant
- PATCH  /products/:productId/variants/:variantId    — Update variant
- DELETE /products/:productId/variants/:variantId    — Remove variant
-
- Variant fields:
-   • name      (required, 1-100 chars)
-   • sku       (required, unique, 2-64 chars)
-   • barcode   (optional, max 64)
-   • type      (size | color | material | style | weight | volume | pack)
-   • options   (array of { name, value }, 1-50 items)
-   • price     (positive decimal)
-   • cost      (optional)
-   • weight    (optional, kg)
-   • imageUrl  (optional)
-
- Business rules:
-   • Max 100 variants per product
-   • SKU must be unique across all variants
-   • At least one option required
+| Group | Count | Base Path |
+|-------|-------|-----------|
+| Health | 1 | `/health` |
+| Products | 15 | `/products` |
+| Public Products | 3 | `/public/products` |
+| Variants | 5 | `/product-variants` |
+| Attributes | 4 | `/products/:productId/attributes` |
+| Inventory | 6 | `/product-inventory` |
+| Pricing | 6 | `/product-pricing` |
+| Pricing Rules | 6 | `/product-pricing-rules` |
+| Collections | 9 | `/product-collections` |
+| Reviews | 9 | `/product-reviews` |
+| Media | 3 | `/products/:productId/media` |
+| Brands | 7 | `/brands` |
+| Categories | 10 | `/categories` |
+| **TOTAL** | **59** | |
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🏷️  ATTRIBUTE ENDPOINTS
-══════════════════════════════════════════════════════════════════
+## 🏥 Health
 
- GET    /products/:productId/attributes              — List
- POST   /products/:productId/attributes              — Add
- PATCH  /products/:productId/attributes/:attrId      — Update
- DELETE /products/:productId/attributes/:attrId      — Remove
+### `GET /health`
 
- Attribute types:
-   text | number | boolean | select | multiselect | date | color
+Service health check. Public endpoint.
 
- Business rules:
-   • Max 50 attributes per product
-   • Select/multiselect require options array
-   • Values validated against type
+**Response 200:**
+\`\`\`json
+{
+  "service": "product-service",
+  "status": "ok",
+  "timestamp": "2026-10-14T01:00:00.000Z"
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📦 INVENTORY ENDPOINTS
-══════════════════════════════════════════════════════════════════
+## 🛍️ Products
 
- GET    /inventory/low-stock                     — Low stock list
- GET    /inventory/product/:productId            — Inventory by product
- PATCH  /inventory/:inventoryId/adjust           — Adjust stock (+/-)
- POST   /inventory/:inventoryId/reserve          — Reserve stock
- POST   /inventory/:inventoryId/release          — Release reserved
+### `POST /products`
 
- Business rules:
-   • available = quantity - reserved
-   • Cannot reserve more than available
-   • LOW_STOCK when qty <= threshold
-   • OUT_OF_STOCK when qty = 0
+Create a new product (auth required).
 
----
+**Request:**
+\`\`\`json
+{
+  "name": "Premium T-Shirt",
+  "slug": "premium-t-shirt",
+  "sku": "TSHIRT-001",
+  "type": "physical",
+  "categoryId": "uuid",
+  "price": 1250.00,
+  "currency": "BDT",
+  "description": "Soft cotton",
+  "tags": ["summer", "cotton"],
+  "images": ["https://example.com/img.jpg"]
+}
+\`\`\`
 
-══════════════════════════════════════════════════════════════════
- 💰 PRICING ENDPOINTS
-══════════════════════════════════════════════════════════════════
+**Headers:**
+- `Idempotency-Key: <unique-key>` (optional — for safe retries)
 
- GET    /pricing/product/:productId                       — Get pricing
- GET    /pricing/product/:productId/quote                 — Quote total
- PATCH  /pricing/:pricingId                               — Update price
- POST   /pricing/product/:productId/discount              — Apply discount
- POST   /pricing/product/:productId/discount/remove       — Remove discount
+**Response 201:**
+\`\`\`json
+{
+  "success": true,
+  "productId": "uuid",
+  "status": "draft",
+  "slug": "premium-t-shirt"
+}
+\`\`\`
 
- Business rules:
-   • sellingPrice <= basePrice
-   • Discount max 90%
-   • Tax rate 0-1
-   • Tax inclusive/exclusive based on flag
+### `GET /products`
 
----
+List products (paginated, auth required).
 
-══════════════════════════════════════════════════════════════════
- 📚 COLLECTION ENDPOINTS
-══════════════════════════════════════════════════════════════════
+**Query:**
+- `page` (number, default: 1)
+- `limit` (number, default: 20, max: 100)
+- `status` (string)
+- `type` (string)
+- `categoryId` (uuid)
+- `brandId` (uuid)
+- `isFeatured` (boolean)
+- `inStock` (boolean)
+- `minPrice`, `maxPrice` (number)
+- `search` (string)
+- `sortBy` (createdAt | updatedAt | name | price | totalStock)
+- `sortDir` (asc | desc)
 
- GET    /collections                                — List
- GET    /collections/featured                       — Featured
- GET    /collections/active                         — Active
- GET    /collections/:collectionId                  — Get by ID
- POST   /collections                                — Create (admin)
- PATCH  /collections/:collectionId                  — Update
- POST   /collections/:collectionId/products/:productId   — Add product
- DELETE /collections/:collectionId/products/:productId   — Remove product
- DELETE /collections/:collectionId                  — Delete
+**Response 200:**
+\`\`\`json
+{
+  "items": [{
+    "id": "uuid",
+    "name": "Premium T-Shirt",
+    "slug": "premium-t-shirt",
+    "sku": "TSHIRT-001",
+    "thumbnailUrl": "...",
+    "type": "physical",
+    "status": "published",
+    "totalStock": 100,
+    "isFeatured": false,
+    "createdAt": "2026-10-14T00:00:00.000Z"
+  }],
+  "total": 150,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 8,
+  "hasNext": true,
+  "hasPrev": false
+}
+\`\`\`
 
- Collection types:
-   manual | automatic | seasonal | featured | trending |
-   new_arrival | best_seller
+### `GET /products/:id`
 
- Business rules:
-   • Max 500 products per collection
-   • Automatic collections reject manual product add
-   • startAt < endAt
+Get product by ID (auth required).
 
----
+**Response 200:** Full ProductResponseDTO
 
-══════════════════════════════════════════════════════════════════
- ⭐ REVIEW ENDPOINTS
-══════════════════════════════════════════════════════════════════
+**Response 404:**
+\`\`\`json
+{
+  "statusCode": 404,
+  "code": "PRD-001",
+  "message": "Product \"uuid\" not found",
+  "context": { "resource": "Product", "resourceId": "uuid" },
+  "timestamp": "..."
+}
+\`\`\`
 
- GET    /reviews/product/:productId                 — List reviews
- GET    /reviews/product/:productId/stats           — Rating stats
- POST   /reviews                                    — Submit review
- PATCH  /reviews/:reviewId                          — Update own review
- POST   /reviews/:reviewId/approve                  — Approve (moderator)
- POST   /reviews/:reviewId/reject                   — Reject (moderator)
- DELETE /reviews/:reviewId                          — Delete own review
+### `GET /products/by-slug/:slug`
 
- Business rules:
-   • Rating 1-5
-   • One review per user per product
-   • Edit window: 24 hours
-   • Auto-flag spam when reportCount >= 5
-   • Verified purchase toggle
+Get product by slug.
 
----
+### `GET /products/:id/detail`
 
-══════════════════════════════════════════════════════════════════
- 🖼️  MEDIA ENDPOINTS
-══════════════════════════════════════════════════════════════════
+Get product with variants + attributes.
 
- GET    /media/product/:productId            — List media
- POST   /media                               — Add media
- DELETE /media/:mediaId                      — Remove media
+### `GET /products/:id/public`
 
- Media types: image | video | document
+Get public product (customer-safe — no PII).
 
- Business rules:
-   • Image: max 5 MB
-   • Video: max 100 MB
-   • Document: max 10 MB
-   • Only images can be primary
+### `GET /products/:id/related`
 
----
+Get related products (same category).
 
-══════════════════════════════════════════════════════════════════
- 🏢 BRAND ENDPOINTS
-══════════════════════════════════════════════════════════════════
+**Query:** `limit` (default: 10)
 
- GET    /brands                             — (via query) Get
- GET    /brands/featured                    — Featured
- GET    /brands/slug/:slug                  — By slug
- GET    /brands/:brandId                    — By ID
- POST   /brands                             — Create (admin)
- PATCH  /brands/:brandId                    — Update
- POST   /brands/:brandId/activate           — Activate
- POST   /brands/:brandId/deactivate         — Deactivate
- POST   /brands/:brandId/feature            — Feature
- DELETE /brands/:brandId                    — Delete (admin)
+### `GET /products/search`
 
- Business rules:
-   • Slug unique
-   • Cannot delete brand with products
+Search products.
 
----
+**Query:** `q` (required), `limit` (default: 20)
 
-══════════════════════════════════════════════════════════════════
- 📂 CATEGORY ENDPOINTS
-══════════════════════════════════════════════════════════════════
+### `GET /products/featured`
 
- GET    /categories                         — Roots
- GET    /categories/tree                    — Full tree
- GET    /categories/parent/:parentId        — Children
- GET    /categories/:categoryId             — Get by ID
- POST   /categories                         — Create (admin)
- PATCH  /categories/:categoryId             — Update
- POST   /categories/:categoryId/move        — Move to new parent
- DELETE /categories/:categoryId             — Delete (admin)
+Get featured products.
 
- Business rules:
-   • Max depth: 5 levels
-   • Cannot move into own descendant
-   • Cannot delete with children
+**Query:** `limit` (default: 20)
 
----
+### `GET /products/stats`
 
-══════════════════════════════════════════════════════════════════
- 🌐 PUBLIC ENDPOINTS (no auth)
-══════════════════════════════════════════════════════════════════
+Get product statistics.
 
- GET    /public/products                    — Published products
- GET    /public/products/search             — Search published
- GET    /public/products/:slug              — Detail by slug
+**Response 200:**
+\`\`\`json
+{
+  "total": 150,
+  "publishedCount": 120,
+  "draftCount": 25,
+  "outOfStockCount": 5,
+  "totalStockUnits": 15000,
+  "byStatus": { "published": 120, "draft": 25 },
+  "byType": { "physical": 100, "digital": 50 }
+}
+\`\`\`
 
- Response excludes:
-   ❌ Vendor details
-   ❌ Internal pricing
-   ❌ Unpublished variants
+### `PATCH /products/:id`
 
- Includes:
-   ✅ id, name, slug, price, currency
-   ✅ images, tags, category, brand
-   ✅ totalStock (from published inventory)
-   ✅ review summary
+Update product (auth + owner guard).
 
----
+### `POST /products/:id/publish`
 
-══════════════════════════════════════════════════════════════════
- 📋 COMMON RESPONSE CODES
-══════════════════════════════════════════════════════════════════
+Publish product (auth + owner guard).
 
- 200 OK              — Success
- 201 Created         — Resource created
- 204 No Content      — Successful delete
- 400 Bad Request     — Validation failure / business rule
- 401 Unauthorized    — Missing / invalid token
- 403 Forbidden       — Insufficient permissions
- 404 Not Found       — Resource not found
- 409 Conflict        — Duplicate (slug, sku)
- 422 Unprocessable   — Domain validation failure
- 429 Too Many        — Rate limit exceeded
- 500 Internal        — Server error
- 503 Unavailable     — Dependency down
+**Response 200:** Updated ProductResponseDTO with `status: "published"`
+
+### `POST /products/:id/archive`
+
+Archive product.
+
+### `POST /products/:id/duplicate`
+
+Duplicate product.
+
+**Response 201:** New ProductCreateResponseDTO
+
+### `DELETE /products/:id`
+
+Delete product (draft only).
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔐 AUTHENTICATION
-══════════════════════════════════════════════════════════════════
+## 🌐 Public Products
 
- All protected endpoints require:
+No authentication required.
 
-   Authorization: Bearer <access_token>
-
- Token issued by auth-service:
-   • Access token  — 15 min TTL
-   • Refresh token — 7 days TTL
-
- Role-based access:
-   • Public          — read-only published products
-   • Vendor          — own products; create/update/publish
-   • Admin           — any product; feature; delete; brand; category
-   • Moderator       — review approve/reject
+### `GET /public/products/featured`
+### `GET /public/products/search?q=<term>`
+### `GET /public/products/:id`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📄 EXAMPLE REQUESTS
-══════════════════════════════════════════════════════════════════
+## 🎨 Product Variants
 
- Create product:
+### `POST /product-variants`
 
-   POST /api/v1/products
-   {
-     "name": "Wireless Bluetooth Headphones",
-     "slug": "wireless-bluetooth-headphones",
-     "sku": "WBH-00001",
-     "type": "physical",
-     "categoryId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-     "brandId": "3d4b0d0f-1a2b-4c3d-8e9f-123456789abc",
-     "description": "Premium wireless headphones",
-     "price": 2499.99,
-     "currency": "BDT",
-     "tags": ["wireless", "audio"],
-     "images": ["https://cdn.vubon.com.bd/p/1.jpg"]
-   }
+Add variant to product.
 
- Add variant:
+**Request:**
+\`\`\`json
+{
+  "productId": "uuid",
+  "name": "T-Shirt - Medium",
+  "sku": "TSHIRT-M",
+  "type": "size",
+  "options": [{ "name": "size", "value": "M" }],
+  "price": 1250.00
+}
+\`\`\`
 
-   POST /api/v1/products/:productId/variants
-   {
-     "name": "Red / Large",
-     "sku": "WBH-RED-L",
-     "type": "color",
-     "options": [
-       { "name": "Color", "value": "Red" },
-       { "name": "Size", "value": "L" }
-     ],
-     "price": 2699.99
-   }
+### `GET /product-variants?page=1&limit=20`
 
- Adjust inventory:
+### `GET /product-variants/:id`
 
-   PATCH /api/v1/inventory/:inventoryId/adjust
-   { "delta": 50, "reason": "manual restock", "reference": "PO-2024-001" }
+### `GET /product-variants/stats`
 
- Apply discount:
+### `PATCH /product-variants/:id`
 
-   POST /api/v1/pricing/product/:productId/discount
-   { "discountPercent": 20 }
+---
 
- Public search:
+## 📦 Product Attributes
 
-   GET /api/v1/public/products/search?q=headphones&page=1&limit=20
+### `POST /products/:productId/attributes`
+
+**Request:**
+\`\`\`json
+{
+  "name": "Color",
+  "type": "text",
+  "values": [{ "value": "Red", "label": "Red" }]
+}
+\`\`\`
+
+### `GET /products/:productId/attributes`
+### `PATCH /products/:productId/attributes/:attributeId`
+### `DELETE /products/:productId/attributes/:attributeId`
+
+---
+
+## 📊 Product Inventory
+
+### `GET /product-inventory/check-stock?productId=<uuid>&quantity=<number>`
+
+**Response 200:**
+\`\`\`json
+{
+  "inventoryId": "uuid",
+  "sku": "TSHIRT-001",
+  "available": 100,
+  "canFulfill": true,
+  "requestedQuantity": 5
+}
+\`\`\`
+
+### `GET /product-inventory/stats`
+
+### `GET /product-inventory/by-product/:productId`
+
+### `GET /product-inventory/:id`
+
+### `POST /product-inventory/:id/adjust`
+
+**Request:**
+\`\`\`json
+{ "delta": 10, "reason": "restock", "reference": "PO-123" }
+\`\`\`
+
+### `POST /product-inventory/:id/update`
+
+---
+
+## 💰 Product Pricing
+
+### `GET /product-pricing/stats`
+
+### `GET /product-pricing/by-product/:productId`
+
+### `GET /product-pricing/by-product/:productId/public`
+
+### `POST /product-pricing/calculate`
+
+Calculate price with discount + VAT + AIT.
+
+**Request:**
+\`\`\`json
+{
+  "productId": "uuid",
+  "quantity": 2,
+  "currency": "BDT",
+  "applyAit": true
+}
+\`\`\`
+
+**Response 200:**
+\`\`\`json
+{
+  "basePrice": 2000,
+  "discountAmount": 100,
+  "finalPrice": 1900,
+  "discountPercent": 5,
+  "vat": 285,
+  "ait": 95,
+  "grossAmount": 2280,
+  "netAmount": 1900,
+  "currency": "BDT"
+}
+\`\`\`
+
+### `PATCH /product-pricing/by-product/:productId`
+
+### `GET /product-pricing/:id`
+
+---
+
+## 🏷️ Product Pricing Rules
+
+### `POST /product-pricing-rules`
+### `GET /product-pricing-rules?page=1&limit=20`
+### `GET /product-pricing-rules/active`
+### `GET /product-pricing-rules/:id`
+### `PATCH /product-pricing-rules/:id`
+### `DELETE /product-pricing-rules/:id`
+
+---
+
+## 📚 Product Collections
+
+### `POST /product-collections`
+### `GET /product-collections?page=1&limit=20`
+### `GET /product-collections/stats`
+### `GET /product-collections/by-slug/:slug`
+### `GET /product-collections/:id`
+### `PATCH /product-collections/:id`
+### `DELETE /product-collections/:id`
+### `POST /product-collections/:id/products/:productId`
+### `DELETE /product-collections/:id/products/:productId`
+
+---
+
+## ⭐ Product Reviews
+
+### `POST /product-reviews`
+
+**Request:**
+\`\`\`json
+{
+  "productId": "uuid",
+  "rating": 5,
+  "title": "Great product",
+  "comment": "This is a test review comment."
+}
+\`\`\`
+
+### `GET /product-reviews?page=1&limit=20`
+### `GET /product-reviews/stats/:productId`
+### `GET /product-reviews/:id`
+### `PATCH /product-reviews/:id`
+### `DELETE /product-reviews/:id`
+### `POST /product-reviews/:id/approve`
+### `POST /product-reviews/:id/reject`
+### `POST /product-reviews/:id/helpful`
+
+---
+
+## 📷 Product Media
+
+### `GET /products/:productId/media`
+### `POST /products/:productId/media`
+### `DELETE /products/:productId/media/:mediaUrl`
+
+---
+
+## 🏢 Brands
+
+### `POST /brands`
+### `GET /brands?page=1&limit=20`
+### `GET /brands/stats`
+### `GET /brands/by-slug/:slug`
+### `GET /brands/:id`
+### `PATCH /brands/:id`
+### `DELETE /brands/:id`
+
+---
+
+## 📂 Categories
+
+### `POST /categories`
+### `GET /categories?page=1&limit=20`
+### `GET /categories/tree`
+### `GET /categories/roots`
+### `GET /categories/stats`
+### `GET /categories/by-slug/:slug`
+### `GET /categories/:id`
+### `PATCH /categories/:id`
+### `DELETE /categories/:id`
+### `POST /categories/:id/move`
+
+---
+
+## 📋 Error Responses
+
+All errors follow this format:
+
+\`\`\`json
+{
+  "statusCode": 404,
+  "code": "PRD-001",
+  "message": "Product \"uuid\" not found",
+  "context": { ... },
+  "timestamp": "2026-10-14T01:00:00.000Z"
+}
+\`\`\`
+
+### Common Error Codes
+
+| Code | HTTP | Meaning |
+|------|------|---------|
+| `PRD-001` | 404 | Product not found |
+| `PRD-002` | 409 | Product out of stock |
+| `VAL-001` | 422 | Validation failed |
+| `VAL-004` | 409 | Duplicate (slug/sku) |
+| `USR-001` | 404 | User not found |
+| `AUTH-005` | 403 | Forbidden |
+| `SERVER_INTERNAL` | 500 | Internal error |
+
+---
+
+## 🔄 HTTP Status Codes
+
+| Status | Meaning |
+|--------|---------|
+| 200 | OK |
+| 201 | Created |
+| 400 | Bad Request |
+| 401 | Unauthorized (no/invalid JWT) |
+| 403 | Forbidden (owner check) |
+| 404 | Not Found |
+| 409 | Conflict (duplicate) |
+| 422 | Unprocessable (validation) |
+| 500 | Internal Server Error |
+| 503 | Service Unavailable (DB down) |

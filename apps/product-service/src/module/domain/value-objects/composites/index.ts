@@ -1,13 +1,15 @@
-// domain/value-objects/composites/index.ts — Composite VOs barrel export
+// product-service/domain/value-objects/composites/index.ts
+// Barrel — 12 composite VOs
+
 export * from './product.vo.js';
-export * from './variant.vo.js';
-export * from './variant-option-set.vo.js';
-export * from './category.vo.js';
+export * from './product-variant.vo.js';
+export * from './product-attribute.vo.js';
+export * from './product-inventory.vo.js';
+export * from './product-pricing.vo.js';
+export * from './product-pricing-rule.vo.js';
+export * from './product-collection.vo.js';
+export * from './product-review.vo.js';
+export * from './product-media.vo.js';
+export * from './product-seo.vo.js';
 export * from './brand.vo.js';
-export * from './inventory.vo.js';
-export * from './pricing.vo.js';
-export * from './review.vo.js';
-export * from './media.vo.js';
-export * from './attribute.vo.js';
-export * from './collection.vo.js';
-export * from './product-aggregate.vo.js';
+export * from './category.vo.js';

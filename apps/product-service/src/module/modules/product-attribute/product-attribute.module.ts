@@ -1,22 +1,27 @@
 /**
- * ProductAttributeModule
+ * ProductAttributeModule — attribute feature wiring
+ * @module product-service/modules/product-attribute
  */
 import { Module } from '@nestjs/common';
-import { PrismaRepositoriesModule } from '../../infrastructure/persistence/prisma/repositories.module.js';
+import { CqrsModule } from '@nestjs/cqrs';
+
 import { ProductAttributeController } from '../../interfaces/controllers/rest/product-attribute.controller.js';
-import { AttributeService } from '../../application/services/impl/attribute.service.js';
-import { ATTRIBUTE_SERVICE } from '../../application/services/interfaces/attribute.service.interface.js';
-import { ATTRIBUTE_COMMAND_HANDLERS } from '../../application/commands/attribute/index.js';
-import { ATTRIBUTE_QUERY_HANDLERS } from '../../application/queries/attribute/index.js';
+
+import { ATTRIBUTE_COMMAND_HANDLERS } from './commands/index.js';
+import { ATTRIBUTE_QUERY_HANDLERS } from './queries/index.js';
+
+import { ProductAttributeService } from '../../application/services/impl/product-attribute.service.js';
+import { ATTRIBUTE_SERVICE } from '../../application/services/interfaces/product-attribute.service.interface.js';
 
 @Module({
-  imports: [PrismaRepositoriesModule],
+  imports: [CqrsModule],
   controllers: [ProductAttributeController],
   providers: [
-    AttributeService,
-    { provide: ATTRIBUTE_SERVICE, useExisting: AttributeService },
-    ...ATTRIBUTE_COMMAND_HANDLERS,
-    ...ATTRIBUTE_QUERY_HANDLERS],
-  exports: [AttributeService, ATTRIBUTE_SERVICE],
+    ProductAttributeService,
+    { provide: ATTRIBUTE_SERVICE, useExisting: ProductAttributeService },
+    ...(ATTRIBUTE_COMMAND_HANDLERS as readonly unknown[] as never[]),
+    ...(ATTRIBUTE_QUERY_HANDLERS as readonly unknown[] as never[]),
+  ],
+  exports: [ProductAttributeService, ATTRIBUTE_SERVICE],
 })
 export class ProductAttributeModule {}

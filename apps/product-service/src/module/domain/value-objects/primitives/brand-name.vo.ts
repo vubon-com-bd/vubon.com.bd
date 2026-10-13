@@ -3,27 +3,25 @@
  * @module product-service/domain/value-objects/primitives
  */
 import { BaseNameVO } from '@vubon/shared-kernel/domain/primitives';
-
-const MIN_LENGTH = 2;
-const MAX_LENGTH = 100;
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { BRAND } from '@vubon/shared-constants/business';
 
 export class BrandNameVO extends BaseNameVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
 
   static create(raw: string): BrandNameVO {
     if (typeof raw !== 'string') {
-      throw new Error('BrandName must be a string');
+      throw new ValidationError('BrandName must be a string', 'name');
     }
-    const trimmed = raw.trim();
-    if (trimmed.length < MIN_LENGTH || trimmed.length > MAX_LENGTH) {
-      throw new Error(`BrandName must be ${MIN_LENGTH}-${MAX_LENGTH} characters`);
+    const normalized = raw.trim().replace(/\s+/g, ' ');
+    if (normalized.length < BRAND.NAME_MIN_LENGTH || normalized.length > BRAND.NAME_MAX_LENGTH) {
+      throw new ValidationError(
+        `BrandName must be ${BRAND.NAME_MIN_LENGTH}-${BRAND.NAME_MAX_LENGTH} chars`,
+        'name',
+      );
     }
-    return new BrandNameVO(trimmed);
+    return new BrandNameVO(normalized);
   }
 
-  static reconstitute(raw: string): BrandNameVO {
-    return new BrandNameVO(raw);
-  }
+  static reconstitute(raw: string): BrandNameVO { return new BrandNameVO(raw); }
 }

@@ -1,4 +1,4 @@
-// domain/errors/index.ts — Domain errors barrel export
+// product-service/domain/errors/index.ts
 export * from './product.errors.js';
 export * from './variant.errors.js';
 export * from './inventory.errors.js';

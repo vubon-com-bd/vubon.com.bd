@@ -1,35 +1,45 @@
 /**
- * Pricing domain errors
+ * Pricing Domain Errors
  * @module product-service/domain/errors
  */
-import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
-import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
-export class PricingNotFoundError extends NotFoundError {
-  constructor(pricingId: string) {
-    super('ProductPricing', pricingId);
-    this.name = 'PricingNotFoundError';
+export class InvalidPricingTypeError extends ValidationError {
+  constructor(value: string, allowed: readonly string[]) {
+    super(`Invalid pricing type "${value}". Allowed: ${allowed.join(', ')}`, 'pricingType');
+    this.name = 'InvalidPricingTypeError';
   }
 }
 
-export class InvalidPriceError extends ValidationError {
-  constructor(value: number, reason: string) {
-    super(`Invalid price "${value}": ${reason}`, 'price');
-    this.name = 'InvalidPriceError';
+export class InvalidDiscountError extends ValidationError {
+  constructor(reason: string) {
+    super(`Invalid discount: ${reason}`, 'discount');
+    this.name = 'InvalidDiscountError';
   }
 }
 
-export class PricingRuleConflictError extends BusinessRuleError {
-  constructor(ruleId: string, reason: string) {
-    super(`Pricing rule "${ruleId}" conflict: ${reason}`, 'PRICING_RULE_CONFLICT', { ruleId, reason });
-    this.name = 'PricingRuleConflictError';
+export class PriceNegativeError extends ValidationError {
+  constructor(amount: number) {
+    super(`Price cannot be negative (got ${amount})`, 'price');
+    this.name = 'PriceNegativeError';
   }
 }
 
-export class DiscountExceededError extends BusinessRuleError {
-  constructor(discount: number, max: number) {
-    super(`Discount ${discount}% exceeds maximum ${max}%`, 'DISCOUNT_EXCEEDED', { discount, max });
-    this.name = 'DiscountExceededError';
+export class DiscountExceedsPriceError extends BusinessRuleError {
+  constructor(price: number, discount: number) {
+    super(
+      `Discount ${discount} cannot exceed price ${price}`,
+      'DISCOUNT_EXCEEDS_PRICE',
+      { price, discount },
+    );
+    this.name = 'DiscountExceedsPriceError';
+  }
+}
+
+export class PricingRuleInactiveError extends BusinessRuleError {
+  constructor(ruleId: string) {
+    super(`Pricing rule "${ruleId}" is inactive`, 'PRICING_RULE_INACTIVE', { ruleId });
+    this.name = 'PricingRuleInactiveError';
   }
 }

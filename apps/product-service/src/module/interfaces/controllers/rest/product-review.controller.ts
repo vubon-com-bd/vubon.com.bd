@@ -1,107 +1,146 @@
 /**
- * ProductReviewController
+ * ProductReviewController — REST endpoints
+ * @module product-service/interfaces/controllers/rest
  */
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject,
+  Param, Patch, Post, Query, UseGuards, UseInterceptors,
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Public, Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
-import { SubmitReviewCommand } from '../../../application/commands/review/submit-review.command.js';
-import { UpdateReviewCommand } from '../../../application/commands/review/update-review.command.js';
-import { ApproveReviewCommand } from '../../../application/commands/review/approve-review.command.js';
-import { RejectReviewCommand } from '../../../application/commands/review/reject-review.command.js';
-import { DeleteReviewCommand } from '../../../application/commands/review/delete-review.command.js';
-import { ListReviewsByProductQuery } from '../../../application/queries/review/list-reviews-by-product.query.js';
-import { GetReviewStatsQuery } from '../../../application/queries/review/get-review-stats.query.js';
+import {
+  REVIEW_SERVICE,
+  type IProductReviewService,
+} from '../../../application/services/interfaces/product-review.service.interface.js';
 
-import { SubmitReviewRequestDTO, UpdateReviewRequestDTO } from '../../dtos/requests/review.request.dto.js';
-import { ReviewResponseDTO, ReviewStatsResponseDTO } from '../../dtos/responses/review.response.dto.js';
+import {
+  SubmitReviewHttpDTO,
+  UpdateReviewHttpDTO,
+  ListReviewsHttpQueryDTO,
+  RejectReviewHttpDTO,
+} from '../../dtos/requests/review.request.dto.js';
 
-@ApiTags('reviews')
+import type {
+  ReviewHttpResponseDTO,
+  ReviewListHttpResponseDTO,
+  ReviewStatsHttpResponseDTO,
+} from '../../dtos/responses/review.response.dto.js';
+
+import { ReviewControllerMapper } from '../../mappers/review.controller.mapper.js';
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+import {
+  ApiReviewTag,
+  ApiSubmitReview,
+  ApiUpdateReview,
+  ApiApproveReview,
+  ApiRejectReview,
+  ApiListReviews,
+  ApiGetReviewStats,
+} from '../../swagger/review.swagger.js';
+
+@ApiReviewTag()
 @ApiBearerAuth('bearer')
-@Controller('reviews')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('product-reviews')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ProductLoggingInterceptor, ProductTimeoutInterceptor)
 export class ProductReviewController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(REVIEW_SERVICE)
+    private readonly reviewService: IProductReviewService,
   ) {
     super();
   }
 
   @Post()
-  @ApiOperation({ summary: 'Submit a review' })
   @HttpCode(HttpStatus.CREATED)
+  @ApiSubmitReview()
   async submit(
-    @Body() dto: SubmitReviewRequestDTO,
+    @Body() dto: SubmitReviewHttpDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<ReviewResponseDTO> {
-    return this.commandBus.execute(
-      new SubmitReviewCommand({ ...dto, userId: user.userId } as never),
-    );
+  ): Promise<ReviewHttpResponseDTO> {
+    const appDto = ReviewControllerMapper.toSubmitAppDto(dto, user.userId);
+    const result = await this.reviewService.submit(appDto);
+    return ReviewControllerMapper.toHttpResponse(result);
   }
 
-  @Get('product/:productId')
-  @Public()
-  @ApiOperation({ summary: 'List reviews for a product' })
-  async listByProduct(
-    @Param('productId') productId: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-  ): Promise<{ items: readonly ReviewResponseDTO[]; total: number }> {
-    return this.queryBus.execute(new ListReviewsByProductQuery(productId, Number(page), Number(limit)));
-  }
-
-  @Get('product/:productId/stats')
-  @Public()
-  @ApiOperation({ summary: 'Get review stats for a product' })
-  async stats(@Param('productId') productId: string): Promise<ReviewStatsResponseDTO | null> {
-    return this.queryBus.execute(new GetReviewStatsQuery(productId));
-  }
-
-  @Patch(':reviewId')
-  @ApiOperation({ summary: 'Update own review' })
+  @Patch(':id')
+  @ApiUpdateReview()
   async update(
-    @Param('reviewId') reviewId: string,
-    @Body() dto: UpdateReviewRequestDTO,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ReviewResponseDTO> {
-    return this.commandBus.execute(
-      new UpdateReviewCommand({ ...dto, reviewId, updatedBy: user.userId } as never),
-    );
+    @Param('id') id: string,
+    @Body() dto: UpdateReviewHttpDTO,
+  ): Promise<ReviewHttpResponseDTO> {
+    const patch = ReviewControllerMapper.toUpdatePatch(dto);
+    const result = await this.reviewService.update({ reviewId: id, ...patch });
+    return ReviewControllerMapper.toHttpResponse(result);
   }
 
-  @Post(':reviewId/approve')
-  @Roles('admin', 'moderator')
-  @ApiOperation({ summary: 'Approve a review' })
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  @ApiApproveReview()
   async approve(
-    @Param('reviewId') reviewId: string,
+    @Param('id') id: string,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<ReviewResponseDTO> {
-    return this.commandBus.execute(new ApproveReviewCommand(reviewId, user.userId));
+  ): Promise<ReviewHttpResponseDTO> {
+    const result = await this.reviewService.approve({ reviewId: id, approvedBy: user.userId });
+    return ReviewControllerMapper.toHttpResponse(result);
   }
 
-  @Post(':reviewId/reject')
-  @Roles('admin', 'moderator')
-  @ApiOperation({ summary: 'Reject a review' })
+  @Post(':id/reject')
+  @HttpCode(HttpStatus.OK)
+  @ApiRejectReview()
   async reject(
-    @Param('reviewId') reviewId: string,
-    @Body() body: { reason: string },
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ReviewResponseDTO> {
-    return this.commandBus.execute(new RejectReviewCommand(reviewId, body.reason, user.userId));
+    @Param('id') id: string,
+    @Body() dto: RejectReviewHttpDTO,
+  ): Promise<ReviewHttpResponseDTO> {
+    const result = await this.reviewService.reject({ reviewId: id, reason: dto.reason });
+    return ReviewControllerMapper.toHttpResponse(result);
   }
 
-  @Delete(':reviewId')
-  @ApiOperation({ summary: 'Delete own review' })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(
-    @Param('reviewId') reviewId: string,
+  @Post(':id/helpful')
+  @HttpCode(HttpStatus.OK)
+  async markHelpful(
+    @Param('id') id: string,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<void> {
-    await this.commandBus.execute(new DeleteReviewCommand(reviewId, user.userId));
+  ): Promise<ReviewHttpResponseDTO> {
+    const result = await this.reviewService.markHelpful(id, user.userId);
+    return ReviewControllerMapper.toHttpResponse(result);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiRejectReview()
+  async delete(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<{ readonly success: true; readonly reviewId: string }> {
+    return this.reviewService.delete({ reviewId: id, actorId: user.userId });
+  }
+
+  @Get('stats/:productId')
+  @ApiGetReviewStats()
+  async stats(@Param('productId') productId: string): Promise<ReviewStatsHttpResponseDTO> {
+    const result = await this.reviewService.getStats(productId);
+    return ReviewControllerMapper.toStatsHttp(result);
+  }
+
+  @Get()
+  @ApiListReviews()
+  async list(@Query() q: ListReviewsHttpQueryDTO): Promise<ReviewListHttpResponseDTO> {
+    const options = ReviewControllerMapper.toListOptions(q);
+    const result = await this.reviewService.list(options);
+    return ReviewControllerMapper.toListHttp(result);
+  }
+
+  @Get(':id')
+  @ApiUpdateReview()
+  async getById(@Param('id') id: string): Promise<ReviewHttpResponseDTO> {
+    const result = await this.reviewService.getById(id);
+    return ReviewControllerMapper.toHttpResponse(result);
   }
 }

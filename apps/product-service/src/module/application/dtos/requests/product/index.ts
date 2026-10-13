@@ -1,4 +1,4 @@
-// dtos/requests/product/index.ts
+// product-service/application/dtos/requests/product/index.ts
 export * from './create-product.dto.js';
 export * from './update-product.dto.js';
 export * from './delete-product.dto.js';

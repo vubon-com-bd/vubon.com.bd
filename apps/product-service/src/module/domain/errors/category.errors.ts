@@ -1,11 +1,11 @@
 /**
- * Category domain errors
+ * Category Domain Errors
  * @module product-service/domain/errors
  */
-import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
-import { ConflictError } from '@vubon/shared-kernel/domain/errors/conflict.error';
-import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
+import { ConflictError } from '@vubon/shared-kernel/domain/errors/conflict.error';
+import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
 export class CategoryNotFoundError extends NotFoundError {
   constructor(categoryId: string) {
@@ -14,10 +14,10 @@ export class CategoryNotFoundError extends NotFoundError {
   }
 }
 
-export class CategorySlugExistsError extends ConflictError {
+export class CategorySlugAlreadyExistsError extends ConflictError {
   constructor(slug: string) {
     super(`Category slug "${slug}" already exists`, 'slug');
-    this.name = 'CategorySlugExistsError';
+    this.name = 'CategorySlugAlreadyExistsError';
   }
 }
 
@@ -29,15 +29,23 @@ export class InvalidCategoryStatusError extends ValidationError {
 }
 
 export class CategoryDepthExceededError extends BusinessRuleError {
-  constructor(depth: number, max: number) {
-    super(`Category depth ${depth} exceeds max ${max}`, 'CATEGORY_DEPTH_EXCEEDED', { depth, max });
+  constructor(limit: number, attempted: number) {
+    super(
+      `Category depth exceeds max ${limit} (attempted ${attempted})`,
+      'CATEGORY_DEPTH_EXCEEDED',
+      { limit, attempted },
+    );
     this.name = 'CategoryDepthExceededError';
   }
 }
 
-export class CategoryHasChildrenError extends BusinessRuleError {
-  constructor(categoryId: string) {
-    super(`Category "${categoryId}" has children and cannot be deleted`, 'CATEGORY_HAS_CHILDREN', { categoryId });
-    this.name = 'CategoryHasChildrenError';
+export class CategoryCircularReferenceError extends BusinessRuleError {
+  constructor(categoryId: string, parentId: string) {
+    super(
+      `Circular reference: category "${categoryId}" cannot have ancestor "${parentId}" as parent`,
+      'CATEGORY_CIRCULAR_REFERENCE',
+      { categoryId, parentId },
+    );
+    this.name = 'CategoryCircularReferenceError';
   }
 }

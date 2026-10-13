@@ -1,37 +1,29 @@
 /**
- * product-service Bootstrap (ESM-compatible)
+ * Product Service — Bootstrap
+ * @module product-service
  */
-import 'reflect-metadata';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import * as dotenv from 'dotenv';
-
-// ESM-safe __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Load env from monorepo root, then override with service-local
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
-
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { AppModule } from './module/modules/app.module.js';
 
-const SERVICE_NAME = 'product-service';
-const SERVICE_VERSION = '1.0.0';
-const DEFAULT_PORT = 4002;
-const API_PREFIX = 'api/v1';
+// ─── Global Filters (exception handling) ────
+import { DomainExceptionFilter } from '@vubon/shared-kernel/interfaces/filters';
+import { HttpExceptionFilter } from '@vubon/shared-kernel/interfaces/filters';
 
 async function bootstrap(): Promise<void> {
-  const logger = new Logger(SERVICE_NAME);
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log', 'debug'],
+    logger: ['error', 'warn', 'log'],
   });
 
-  app.setGlobalPrefix(API_PREFIX);
-  app.enableCors({ origin: true, credentials: true });
+  // ─── Global prefix ────────────────────────
+  // (Product service uses root routes — no prefix)
+  // app.setGlobalPrefix('api/v1');
+
+  // ─── Global Pipes ─────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -41,41 +33,37 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  // ─── Global Filters (ORDER MATTERS!) ──────
+  // 1. DomainExceptionFilter — catches DomainError / ApplicationError
+  // 2. HttpExceptionFilter — catches NestJS HttpException
+  app.useGlobalFilters(
+    new DomainExceptionFilter(),
+    new HttpExceptionFilter(),
+  );
+
+  // ─── Swagger Setup ────────────────────────
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Vubon Product Service')
-    .setDescription('Product catalog, variants, inventory, pricing, brand, category, and collection APIs')
-    .setVersion(SERVICE_VERSION)
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', name: 'Authorization', in: 'header' },
-      'bearer',
-    )
-    .addTag('products')
-    .addTag('product-variants')
-    .addTag('product-attributes')
-    .addTag('inventory')
-    .addTag('pricing')
-    .addTag('collections')
-    .addTag('reviews')
-    .addTag('media')
-    .addTag('brands')
-    .addTag('categories')
-    .addTag('public-products')
+    .setTitle('Vubon Product Service API')
+    .setDescription('Enterprise Product Catalog Microservice API')
+    .setVersion('1.0')
+    .addBearerAuth()
     .build();
-
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup(`${API_PREFIX}/docs`, app, document, {
-    swaggerOptions: { persistAuthorization: true },
-  });
+  SwaggerModule.setup('api/docs', app, document);
 
-  app.enableShutdownHooks();
-  const port = Number(process.env.PORT) || DEFAULT_PORT;
+  // ─── Start server ─────────────────────────
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT') || 3002;
+
   await app.listen(port);
 
-  logger.log(`🚀 ${SERVICE_NAME} listening on http://localhost:${port}/${API_PREFIX}`);
-  logger.log(`📚 Swagger docs at http://localhost:${port}/${API_PREFIX}/docs`);
+  logger.log(`🚀 Product Service is running on: http://localhost:${port}`);
+  logger.log(`📚 Swagger Docs: http://localhost:${port}/api/docs`);
 }
 
-bootstrap().catch((err) => {
-  console.error('❌ Bootstrap failed:', err);
+bootstrap().catch((err: unknown) => {
+  const msg = err instanceof Error ? err.message : String(err);
+  // eslint-disable-next-line no-console
+  console.error('❌ Bootstrap failed:', msg);
   process.exit(1);
 });

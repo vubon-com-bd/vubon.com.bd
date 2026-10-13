@@ -1,53 +1,139 @@
 /**
- * Pricing Request DTOs
+ * Pricing HTTP Request DTOs
  * @module product-service/interfaces/dtos/requests
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsBoolean, IsEnum, IsInt, IsNumber, IsObject, IsOptional,
+  IsString, IsUUID, Length, Min,
+} from 'class-validator';
 
-export class UpdatePriceRequestDTO {
+const PRICING_TYPE_VALUES = ['fixed', 'dynamic', 'tiered', 'auction', 'negotiable'];
+
+export class UpdatePriceHttpDTO {
   @ApiProperty()
-  readonly pricingId!: string;
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  readonly sellingPrice!: number;
 
-  @ApiPropertyOptional({ example: 2499.99 })
-  readonly basePrice?: number;
-
-  @ApiPropertyOptional({ example: 1999.99 })
-  readonly sellingPrice?: number;
-
-  @ApiPropertyOptional({ example: 2999.99 })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
   readonly compareAtPrice?: number;
 
-  @ApiPropertyOptional({ example: 1500.0 })
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
   readonly costPrice?: number;
 
-  @ApiProperty()
-  readonly updatedBy!: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly reason?: string;
+
+  @ApiPropertyOptional({ enum: ['admin', 'vendor', 'staff'] })
+  @IsOptional()
+  @IsEnum(['admin', 'vendor', 'staff'])
+  readonly actorRole?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  readonly bypassMinMargin?: boolean;
 }
 
-export class ApplyDiscountRequestDTO {
-  @ApiProperty()
-  readonly productId!: string;
-
-  @ApiProperty({ example: 15, description: 'Discount percent 0-90' })
-  readonly discountPercent!: number;
-
-  @ApiProperty()
-  readonly actorId!: string;
-}
-
-export class CreatePricingRuleRequestDTO {
-  @ApiProperty()
+export class CreatePricingRuleHttpDTO {
+  @ApiProperty({ example: 'Bulk discount' })
+  @IsString()
+  @Length(1, 150)
   readonly name!: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: PRICING_TYPE_VALUES })
+  @IsEnum(PRICING_TYPE_VALUES)
   readonly type!: string;
 
-  @ApiProperty()
-  readonly conditions!: Record<string, unknown>;
+  @ApiProperty({ example: { minQuantity: 10 } })
+  @IsObject()
+  readonly conditions!: Readonly<Record<string, unknown>>;
 
-  @ApiProperty()
+  @ApiProperty({ example: 5 })
+  @IsNumber()
   readonly priceAdjustment!: number;
 
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  readonly isPercent!: boolean;
+
+  @ApiPropertyOptional({ example: 10 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly priority?: number;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  readonly isActive?: boolean;
+}
+
+export class UpdatePricingRuleHttpDTO {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly name?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  readonly conditions?: Readonly<Record<string, unknown>>;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  readonly priceAdjustment?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  readonly isPercent?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly priority?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  readonly isActive?: boolean;
+}
+
+export class CalculatePriceHttpDTO {
   @ApiProperty()
-  readonly isActive!: boolean;
+  @IsUUID()
+  readonly productId!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  readonly variantId?: string;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @Min(1)
+  readonly quantity!: number;
+
+  @ApiPropertyOptional({ example: 'BDT', minLength: 3, maxLength: 3 })
+  @IsOptional()
+  @IsString()
+  @Length(3, 3)
+  readonly currency?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  readonly applyAit?: boolean;
 }

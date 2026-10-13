@@ -1,8 +1,9 @@
 /**
- * SetDefaultVariantRequestDTO
+ * Set Default Variant Request DTO
+ * @module product-service/application/dtos/requests/variant
  */
 export interface SetDefaultVariantRequestDTO {
   readonly productId: string;
   readonly variantId: string;
-  readonly changedBy: string;
+  readonly actorId?: string;
 }

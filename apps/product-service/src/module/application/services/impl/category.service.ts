@@ -1,133 +1,289 @@
 /**
- * CategoryService
+ * CategoryService — orchestrates category use cases
+ * @module product-service/application/services/impl
+ *
+ * Real business logic:
+ *  - Depth validation on create/move
+ *  - Circular reference prevention
+ *  - Tree assembly
  */
-import { Injectable, Inject } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { ICategoryService } from '../interfaces/category.service.interface.js';
-import { CATEGORY_REPOSITORY, type CategoryRepository } from '../../../domain/repositories/category.repository.interface.js';
+
+import {
+  CATEGORY_REPOSITORY,
+  type CategoryRepository,
+  type CategoryListFilter,
+  type CategoryListOptions,
+} from '../../../domain/repositories/category.repository.interface.js';
 import { CategoryEntity } from '../../../domain/entities/category.entity.js';
+import { CategoryVO } from '../../../domain/value-objects/composites/category.vo.js';
+import { CategoryIdVO } from '../../../domain/value-objects/primitives/category-id.vo.js';
 import { CategoryNameVO } from '../../../domain/value-objects/primitives/category-name.vo.js';
 import { CategorySlugVO } from '../../../domain/value-objects/primitives/category-slug.vo.js';
 import { CategoryPathVO } from '../../../domain/value-objects/primitives/category-path.vo.js';
-import { CategoryIdVO } from '../../../domain/value-objects/primitives/category-id.vo.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+
 import { CategoryMapper } from '../../mappers/category.mapper.js';
-import { CATEGORY_STATUS } from '@vubon/shared-constants/business/product';
-import type { CreateCategoryRequestDTO } from '../../dtos/requests/category/create-category.dto.js';
-import type { UpdateCategoryRequestDTO } from '../../dtos/requests/category/update-category.dto.js';
-import type { CategoryResponseDTO, CategoryTreeResponseDTO } from '../../dtos/responses/category-response.dto.js';
-import { CategoryNotFoundApplicationError, CategorySlugConflictError } from '../../errors/category.errors.js';
+import type {
+  ICategoryService,
+  CategoryListOptionsDTO,
+  CategoryListFilterDTO,
+} from '../interfaces/category.service.interface.js';
+import {
+  CategoryNotFoundApplicationError,
+  CategoryCreateError,
+  CategoryUpdateError,
+  CategorySlugConflictApplicationError,
+  CategoryDepthExceededApplicationError,
+} from '../../errors/category.errors.js';
+import type {
+  CreateCategoryRequestDTO,
+  UpdateCategoryRequestDTO,
+  DeleteCategoryRequestDTO,
+} from '../../dtos/requests/category/index.js';
+import type {
+  CategoryResponseDTO,
+  CategoryPublicResponseDTO,
+  CategorySummaryResponseDTO,
+  CategoryListResponseDTO,
+  CategoryTreeNodeDTO,
+  CategoryTreeResponseDTO,
+  CategoryStatsResponseDTO,
+} from '../../dtos/responses/category-response.dto.js';
+
+const MAX_DEPTH = 5;
 
 @Injectable()
 export class CategoryService implements ICategoryService {
-  constructor(@Inject(CATEGORY_REPOSITORY) private readonly categoryRepo: CategoryRepository) {}
+  private readonly logger = new Logger(CategoryService.name);
 
-  async create(dto: CreateCategoryRequestDTO, actorId: string): Promise<CategoryResponseDTO> {
-    const slug = CategorySlugVO.create(dto.slug);
-    if (await this.categoryRepo.existsBySlug(slug)) throw new CategorySlugConflictError(dto.slug);
+  constructor(
+    @Inject(CATEGORY_REPOSITORY)
+    private readonly repo: CategoryRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+  ) {}
 
-    let parentPath = CategoryPathVO.root();
-    let parentIdVO: CategoryIdVO | undefined;
-    if (dto.parentId) {
-      const parent = await this.categoryRepo.findById(dto.parentId);
-      if (!parent) throw new CategoryNotFoundApplicationError(dto.parentId);
-      parentPath = parent.path;
-      parentIdVO = parent.toIdVO();
-      parent.markHasChildren(true);
-      await this.categoryRepo.save(parent);
+  // ═══════════════ COMMANDS ═══════════════
+  async create(dto: CreateCategoryRequestDTO): Promise<CategoryResponseDTO> {
+    if (await this.repo.existsBySlug(dto.slug)) {
+      throw new CategorySlugConflictApplicationError(dto.slug);
     }
 
-    const newId = randomUUID();
-    const fullPath = parentIdVO ? parentPath.append(newId) : CategoryPathVO.create([newId]);
+    // ─── Parent + path resolution ───
+    let parentId: CategoryIdVO | undefined;
+    let path: CategoryPathVO;
+
+    if (dto.parentId) {
+      const parent = await this.load(dto.parentId);
+      parentId = parent.categoryId;
+      const childPath = parent.path.append(parent.id);
+      if (childPath.depth > MAX_DEPTH) {
+        throw new CategoryDepthExceededApplicationError(MAX_DEPTH, childPath.depth);
+      }
+      path = childPath;
+    } else {
+      const id = randomUUID();
+      path = CategoryPathVO.create([id]);
+    }
+
     const now = new Date().toISOString();
-    const category = CategoryEntity.create({
-      id: newId,
-      now,
-      props: {
+    const id = parentId ? randomUUID() : path.leafId!;
+
+    try {
+      const vo = CategoryVO.create({
+        id: CategoryIdVO.create(id),
         name: CategoryNameVO.create(dto.name),
-        slug,
+        slug: CategorySlugVO.create(dto.slug),
         description: dto.description,
-        parentId: parentIdVO,
-        path: fullPath,
-        status: CATEGORY_STATUS.ACTIVE,
+        parentId,
+        path,
+        status: 'active',
         imageUrl: dto.imageUrl,
+        iconUrl: dto.iconUrl,
         sortOrder: dto.sortOrder ?? 0,
         productCount: 0,
-        isFeatured: false,
-        hasChildren: false,
-      },
+        isFeatured: dto.isFeatured ?? false,
+      });
+
+      const entity = CategoryEntity.create({ id, vo, now });
+      const saved = await this.repo.save(entity);
+      await this.eventBridge.publishFromEntity(saved);
+
+      this.logger.log(`Category "${saved.name.value}" (${saved.id}) created at depth ${saved.depth}`);
+      return CategoryMapper.toResponse(saved);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new CategoryCreateError(msg);
+    }
+  }
+
+  async update(dto: UpdateCategoryRequestDTO): Promise<CategoryResponseDTO> {
+    const entity = await this.load(dto.categoryId);
+    const current = entity.vo.value;
+
+    const nextVo = CategoryVO.create({
+      ...current,
+      name: dto.name ? CategoryNameVO.create(dto.name) : current.name,
+      description: dto.description !== undefined ? dto.description : current.description,
+      imageUrl: dto.imageUrl !== undefined ? dto.imageUrl : current.imageUrl,
+      iconUrl: dto.iconUrl !== undefined ? dto.iconUrl : current.iconUrl,
+      status: dto.status ?? current.status,
+      sortOrder: dto.sortOrder ?? current.sortOrder,
+      isFeatured: dto.isFeatured ?? current.isFeatured,
     });
-    await this.categoryRepo.save(category);
-    void actorId;
-    return CategoryMapper.toResponse(category);
-  }
 
-  async update(dto: UpdateCategoryRequestDTO, actorId: string): Promise<CategoryResponseDTO> {
-    const category = await this.categoryRepo.findById(dto.categoryId);
-    if (!category) throw new CategoryNotFoundApplicationError(dto.categoryId);
-    if (dto.name !== undefined) {
-      category.rename(CategoryNameVO.create(dto.name), category.slug, actorId);
+    try {
+      const updated = CategoryEntity.reconstitute({
+        id: entity.id,
+        createdAt: entity.createdAt,
+        updatedAt: new Date().toISOString(),
+        vo: nextVo,
+        version: entity.version,
+      });
+
+      const saved = await this.repo.save(updated);
+      await this.eventBridge.publishFromEntity(saved);
+      this.logger.log(`Category ${saved.id} updated`);
+      return CategoryMapper.toResponse(saved);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new CategoryUpdateError(dto.categoryId, msg);
     }
-    category.updateMedia({
-      imageUrl: dto.imageUrl,
-      description: dto.description,
-      sortOrder: dto.sortOrder,
-      isFeatured: dto.isFeatured,
-    }, actorId);
-    await this.categoryRepo.save(category);
-    return CategoryMapper.toResponse(category);
   }
 
-  async remove(categoryId: string, actorId: string): Promise<void> {
-    const category = await this.categoryRepo.findById(categoryId);
-    if (!category) throw new CategoryNotFoundApplicationError(categoryId);
-    category.softDelete(actorId);
-    await this.categoryRepo.save(category);
+  async delete(
+    dto: DeleteCategoryRequestDTO,
+  ): Promise<{ readonly success: true; readonly categoryId: string }> {
+    const entity = await this.load(dto.categoryId);
+
+    try {
+      entity.delete(dto.actorId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new CategoryUpdateError(dto.categoryId, msg);
+    }
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Category ${saved.id} deleted`);
+    return { success: true, categoryId: saved.id };
   }
 
-  async move(categoryId: string, newParentId: string | null, actorId: string): Promise<CategoryResponseDTO> {
-    const category = await this.categoryRepo.findById(categoryId);
-    if (!category) throw new CategoryNotFoundApplicationError(categoryId);
-    let newParentIdVO: CategoryIdVO | undefined;
-    let newParentPath = CategoryPathVO.root();
+  async move(
+    categoryId: string,
+    newParentId?: string,
+    _actorId?: string,
+  ): Promise<CategoryResponseDTO> {
+    const entity = await this.load(categoryId);
+
+    let newParent: CategoryEntity | undefined;
     if (newParentId) {
-      const parent = await this.categoryRepo.findById(newParentId);
-      if (!parent) throw new CategoryNotFoundApplicationError(newParentId);
-      newParentIdVO = parent.toIdVO();
-      newParentPath = parent.path;
+      newParent = await this.load(newParentId);
+      if (newParent.path.depth + 1 > MAX_DEPTH) {
+        throw new CategoryDepthExceededApplicationError(MAX_DEPTH, newParent.path.depth + 1);
+      }
     }
-    category.moveTo({ newParentId: newParentIdVO, newParentPath, changedBy: actorId });
-    await this.categoryRepo.save(category);
-    return CategoryMapper.toResponse(category);
+
+    try {
+      entity.moveTo(newParent?.categoryId, newParent?.path);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new CategoryUpdateError(categoryId, msg);
+    }
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Category ${saved.id} moved to parent ${newParentId ?? 'root'}`);
+    return CategoryMapper.toResponse(saved);
   }
 
-  async activate(categoryId: string, actorId: string): Promise<CategoryResponseDTO> {
-    const c = await this.categoryRepo.findById(categoryId);
-    if (!c) throw new CategoryNotFoundApplicationError(categoryId);
-    c.activate(actorId);
-    await this.categoryRepo.save(c);
-    return CategoryMapper.toResponse(c);
+  // ═══════════════ QUERIES ═══════════════
+  async getById(id: string): Promise<CategoryResponseDTO> {
+    const entity = await this.load(id);
+    return CategoryMapper.toResponse(entity);
   }
 
-  async deactivate(categoryId: string, actorId: string): Promise<CategoryResponseDTO> {
-    const c = await this.categoryRepo.findById(categoryId);
-    if (!c) throw new CategoryNotFoundApplicationError(categoryId);
-    c.deactivate(actorId);
-    await this.categoryRepo.save(c);
-    return CategoryMapper.toResponse(c);
+  async getBySlug(slug: string): Promise<CategoryResponseDTO> {
+    const entity = await this.repo.findBySlug(slug);
+    if (!entity) throw new CategoryNotFoundApplicationError(slug);
+    return CategoryMapper.toResponse(entity);
   }
 
-  async getTree(): Promise<readonly CategoryTreeResponseDTO[]> {
-    const tree = await this.categoryRepo.findTree();
-    return CategoryMapper.toTree(tree);
+  async getPublic(id: string): Promise<CategoryPublicResponseDTO> {
+    const entity = await this.load(id);
+    return CategoryMapper.toPublicResponse(entity);
   }
 
-  async getById(categoryId: string): Promise<CategoryResponseDTO | null> {
-    const c = await this.categoryRepo.findById(categoryId);
-    return c ? CategoryMapper.toResponse(c) : null;
+  async list(options: CategoryListOptionsDTO): Promise<CategoryListResponseDTO> {
+    const result = await this.repo.findPaginated({
+      page: options.page,
+      limit: options.limit,
+      sortBy: options.sortBy,
+      sortDir: options.sortDir,
+      filter: options.filter as CategoryListFilter | undefined,
+    } as CategoryListOptions);
+    return CategoryMapper.toListResponse(result.items, result.total, result.page, result.limit);
   }
 
-  async getBySlug(slug: string): Promise<CategoryResponseDTO | null> {
-    const c = await this.categoryRepo.findBySlug(CategorySlugVO.create(slug));
-    return c ? CategoryMapper.toResponse(c) : null;
+  async listRoots(): Promise<readonly CategorySummaryResponseDTO[]> {
+    const entities = await this.repo.findRoots();
+    return entities.map((e) => CategoryMapper.toSummary(e));
+  }
+
+  async listChildren(parentId: string): Promise<readonly CategorySummaryResponseDTO[]> {
+    const entities = await this.repo.findChildren(CategoryIdVO.create(parentId));
+    return entities.map((e) => CategoryMapper.toSummary(e));
+  }
+
+  async getTree(rootId?: string): Promise<CategoryTreeResponseDTO> {
+    const all = rootId
+      ? await this.repo.findDescendants([rootId])
+      : await this.repo.loadTree();
+
+    // Group by parentId
+    const grouped = new Map<string | undefined, CategoryEntity[]>();
+    for (const c of all) {
+      const parent = c.parentId?.value;
+      if (!grouped.has(parent)) grouped.set(parent, []);
+      grouped.get(parent)!.push(c);
+    }
+
+    const buildNodes = (parentId: string | undefined): CategoryTreeNodeDTO[] => {
+      const children = grouped.get(parentId) ?? [];
+      return children.map((c) =>
+        CategoryMapper.toTreeNode(c, buildNodes(c.id)),
+      );
+    };
+
+    const roots = rootId
+      ? buildNodes(rootId)
+      : buildNodes(undefined);
+
+    let totalNodes = 0;
+    let maxDepth = 0;
+    const walk = (nodes: readonly CategoryTreeNodeDTO[]): void => {
+      for (const n of nodes) {
+        totalNodes++;
+        maxDepth = Math.max(maxDepth, 1 + (n.children.length > 0 ? 0 : 0));
+        walk(n.children);
+      }
+    };
+    walk(roots);
+
+    return CategoryMapper.toTreeResponse(roots, totalNodes, maxDepth);
+  }
+
+  async getStats(filter?: CategoryListFilterDTO): Promise<CategoryStatsResponseDTO> {
+    const stats = await this.repo.getStats(filter as CategoryListFilter | undefined);
+    return CategoryMapper.toStatsResponse(stats);
+  }
+
+  // ═══════════════ HELPERS ═══════════════
+  private async load(id: string): Promise<CategoryEntity> {
+    const vo = CategoryIdVO.create(id);
+    const entity = await this.repo.findByIdVO(vo);
+    if (!entity) throw new CategoryNotFoundApplicationError(id);
+    return entity;
   }
 }

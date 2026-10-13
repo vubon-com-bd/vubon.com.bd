@@ -1,30 +1,89 @@
 /**
- * PricingMapper
+ * PricingMapper — Entity → Response DTO
+ * @module product-service/application/mappers
  */
-import { ProductPricingEntity } from '../../domain/entities/product-pricing.entity.js';
-import type { PricingResponseDTO } from '../dtos/responses/pricing-response.dto.js';
-import type { ProductId, VariantId, Money } from '@vubon/shared-types/common';
+import type { ProductPricingEntity } from '../../domain/entities/product-pricing.entity.js';
+import type { PricingTypeValue } from '@vubon/shared-types/business/product';
+import type {
+  PricingResponseDTO,
+  PricingPublicResponseDTO,
+  PricingListResponseDTO,
+  PricingStatsResponseDTO,
+  PriceCalculationResponseDTO,
+} from '../dtos/responses/pricing-response.dto.js';
 
 export class PricingMapper {
-  static toResponse(p: ProductPricingEntity): PricingResponseDTO {
+  static toResponse(entity: ProductPricingEntity): PricingResponseDTO {
+    const vo = entity.vo;
     return {
-      id: p.id,
-      productId: p.productId.value as ProductId,
-      variantId: p.variantId?.value as VariantId | undefined,
-      type: p.type,
-      basePrice: p.basePrice.amount as Money,
-      sellingPrice: p.sellingPrice.amount as Money,
-      compareAtPrice: p.compareAtPrice ? (p.compareAtPrice.amount as Money) : undefined,
-      costPrice: p.costPrice ? (p.costPrice.amount as Money) : undefined,
-      wholesalePrice: p.wholesalePrice ? (p.wholesalePrice.amount as Money) : undefined,
-      msrp: p.msrp ? (p.msrp.amount as Money) : undefined,
-      currency: p.sellingPrice.currency,
-      taxRate: p.taxRate.value,
-      taxInclusive: p.taxInclusive,
-      discountPercent: p.discountPercent.value,
-      effectiveFrom: p.effectiveFrom,
-      effectiveTo: p.effectiveTo,
-      updatedAt: p.updatedAt,
+      id: entity.id,
+      productId: vo.productId.value,
+      variantId: vo.variantId?.value,
+      type: vo.type.value as PricingTypeValue,
+      basePrice: vo.basePrice.value,
+      sellingPrice: vo.sellingPrice.value,
+      compareAtPrice: vo.compareAtPrice?.value,
+      costPrice: vo.costPrice?.value,
+      wholesalePrice: vo.wholesalePrice?.value,
+      msrp: vo.msrp?.value,
+      currency: vo.currency.value,
+      taxInclusive: vo.taxInclusive,
+      discountPercent: vo.discountPercent,
+      discountAmount: vo.hasDiscount() ? vo.discountAmount : undefined,
+      marginPercent: vo.hasMargin() ? vo.marginPercent : undefined,
+      effectiveFrom: vo.effectiveFrom,
+      effectiveTo: vo.effectiveTo,
+      updatedAt: vo.updatedAt,
     };
+  }
+
+  static toPublicResponse(entity: ProductPricingEntity): PricingPublicResponseDTO {
+    const vo = entity.vo;
+    return {
+      sellingPrice: vo.sellingPrice.value,
+      compareAtPrice: vo.compareAtPrice?.value,
+      currency: vo.currency.value,
+      discountPercent: vo.discountPercent,
+    };
+  }
+
+  static toListResponse(
+    entities: readonly ProductPricingEntity[],
+    total: number,
+    page: number,
+    limit: number,
+  ): PricingListResponseDTO {
+    return {
+      items: entities.map((e) => this.toResponse(e)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  static toStatsResponse(stats: {
+    total: number;
+    averageSellingPrice: number;
+    minPrice: number;
+    maxPrice: number;
+    discountedCount: number;
+    byCurrency: Readonly<Record<string, number>>;
+  }): PricingStatsResponseDTO {
+    return { ...stats };
+  }
+
+  static toCalculationResponse(input: {
+    basePrice: number;
+    discountAmount: number;
+    finalPrice: number;
+    discountPercent: number;
+    vat: number;
+    ait: number;
+    grossAmount: number;
+    netAmount: number;
+    currency: string;
+  }): PriceCalculationResponseDTO {
+    return { ...input };
   }
 }

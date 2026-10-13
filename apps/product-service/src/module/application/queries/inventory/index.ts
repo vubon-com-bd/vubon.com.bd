@@ -1,13 +1,5 @@
-// application/queries/inventory/index.ts
-export * from './list-inventory-by-product.query.js';
-export * from './list-inventory-by-product.handler.js';
-export * from './list-low-stock.query.js';
-export * from './list-low-stock.handler.js';
-
-import { ListInventoryByProductHandler } from './list-inventory-by-product.handler.js';
-import { ListLowStockHandler } from './list-low-stock.handler.js';
-
-export const INVENTORY_QUERY_HANDLERS = [
-  ListInventoryByProductHandler,
-  ListLowStockHandler,
-] as const;
+// product-service/application/queries/inventory/index.ts
+export * from './get-inventory.query.js';
+export * from './get-inventory.handler.js';
+export * from './check-stock.query.js';
+export * from './check-stock.handler.js';

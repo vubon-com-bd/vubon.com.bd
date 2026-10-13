@@ -1,24 +1,17 @@
 /**
- * Variant HTTP validator
+ * VariantHttpValidator — wraps App validator with HTTP errors
+ * @module product-service/interfaces/validators
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { VariantSkuVO } from '../../domain/value-objects/primitives/variant-sku.vo.js';
-import { VARIANT_REPOSITORY, type VariantRepository } from '../../domain/repositories/variant.repository.interface.js';
-import { VariantSkuConflictError } from '../../application/errors/variant.errors.js';
+import { BadRequestException } from '@nestjs/common';
+import { VariantValidator as AppValidator } from '../../application/validators/variant.validator.js';
 
-export const VARIANT_VALIDATOR = Symbol('VARIANT_VALIDATOR');
-
-@Injectable()
-export class VariantValidator {
-  constructor(
-    @Inject(VARIANT_REPOSITORY) private readonly variantRepo: VariantRepository,
-  ) {}
-
-  async assertUniqueSku(sku: string, ignoreId?: string): Promise<void> {
-    const skuVO = VariantSkuVO.create(sku);
-    const existing = await this.variantRepo.findBySku(skuVO);
-    if (existing && existing.id !== ignoreId) {
-      throw new VariantSkuConflictError(sku);
+export class VariantHttpValidator {
+  static validateAdd(body: unknown): void {
+    try {
+      AppValidator.validateAdd(body);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Invalid variant add payload';
+      throw new BadRequestException(message);
     }
   }
 }

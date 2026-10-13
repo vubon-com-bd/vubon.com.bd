@@ -1,4 +1,4 @@
-// dtos/requests/review/index.ts
+// product-service/application/dtos/requests/review/index.ts
 export * from './submit-review.dto.js';
 export * from './update-review.dto.js';
 export * from './delete-review.dto.js';

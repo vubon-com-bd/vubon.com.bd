@@ -1,241 +1,360 @@
 /**
- * ProductService — Implements IProductService
+ * ProductService — orchestrates product use cases
+ * @module product-service/application/services/impl
+ *
+ * Real business logic:
+ *  - Domain service integration (slug, sku, eligibility)
+ *  - Event publishing via DomainEventBridgeService
+ *  - Rich logging
+ *  - Cross-aggregate orchestration (variants, attributes)
  */
-import { Injectable, Inject } from '@nestjs/common';
-import type { IProductService } from '../interfaces/product.service.interface.js';
-import { PRODUCT_REPOSITORY, type ProductRepository } from '../../../domain/repositories/product.repository.interface.js';
-import { VARIANT_REPOSITORY, type VariantRepository } from '../../../domain/repositories/variant.repository.interface.js';
-import { INVENTORY_REPOSITORY, type InventoryRepository } from '../../../domain/repositories/inventory.repository.interface.js';
-import { PRICING_REPOSITORY, type PricingRepository } from '../../../domain/repositories/pricing.repository.interface.js';
-import { ATTRIBUTE_REPOSITORY, type AttributeRepository } from '../../../domain/repositories/attribute.repository.interface.js';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+
+import {
+  PRODUCT_REPOSITORY,
+  type ProductRepository,
+  type ProductListFilter,
+  type ProductListOptions,
+} from '../../../domain/repositories/product.repository.interface.js';
+import {
+  VARIANT_REPOSITORY,
+  type ProductVariantRepository,
+} from '../../../domain/repositories/product-variant.repository.interface.js';
+import {
+  ATTRIBUTE_REPOSITORY,
+  type ProductAttributeRepository,
+} from '../../../domain/repositories/product-attribute.repository.interface.js';
 import { ProductEntity } from '../../../domain/entities/product.entity.js';
+import { ProductVO } from '../../../domain/value-objects/composites/product.vo.js';
 import { ProductIdVO } from '../../../domain/value-objects/primitives/product-id.vo.js';
 import { ProductNameVO } from '../../../domain/value-objects/primitives/product-name.vo.js';
 import { ProductSlugVO } from '../../../domain/value-objects/primitives/product-slug.vo.js';
 import { ProductSkuVO } from '../../../domain/value-objects/primitives/product-sku.vo.js';
-import { ProductTypeVO } from '../../../domain/value-objects/primitives/product-type.vo.js';
 import { ProductStatusVO } from '../../../domain/value-objects/primitives/product-status.vo.js';
-import { ProductDescriptionVO } from '../../../domain/value-objects/primitives/product-description.vo.js';
+import { ProductTypeVO } from '../../../domain/value-objects/primitives/product-type.vo.js';
 import { CategoryIdVO } from '../../../domain/value-objects/primitives/category-id.vo.js';
 import { BrandIdVO } from '../../../domain/value-objects/primitives/brand-id.vo.js';
-import { PriceVO } from '../../../domain/value-objects/primitives/price.vo.js';
-import { PRODUCT_STATUS, PRODUCT_TYPE } from '@vubon/shared-constants/business/product';
-import { randomUUID } from 'node:crypto';
-import type { CurrencyCode } from '@vubon/shared-types/common';
+import { VendorIdVO } from '../../../domain/value-objects/primitives/vendor-id.vo.js';
+import { ProductDescriptionVO } from '../../../domain/value-objects/primitives/product-description.vo.js';
+import { ProductBarcodeVO } from '../../../domain/value-objects/primitives/product-barcode.vo.js';
+import { ProductWeightVO } from '../../../domain/value-objects/primitives/product-weight.vo.js';
+import { ProductDimensionVO } from '../../../domain/value-objects/primitives/product-dimension.vo.js';
+import { ProductSlugService } from '../../../domain/services/product-slug.service.js';
+import { ProductSkuService } from '../../../domain/services/product-sku.service.js';
+import { ProductEligibilityService } from '../../../domain/services/product-eligibility.service.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { ProductMapper } from '../../mappers/product.mapper.js';
-import type { CreateProductRequestDTO } from '../../dtos/requests/product/create-product.dto.js';
-import type { UpdateProductRequestDTO } from '../../dtos/requests/product/update-product.dto.js';
-import type { ProductResponseDTO } from '../../dtos/responses/product-response.dto.js';
-import type { ProductDetailResponseDTO } from '../../dtos/responses/product-detail-response.dto.js';
+
+import type {
+  IProductService,
+  ProductListOptionsDTO,
+  ProductListFilterDTO,
+} from '../interfaces/product.service.interface.js';
 import {
   ProductNotFoundApplicationError,
-  ProductSlugConflictError,
-  ProductSkuConflictError,
+  ProductCreationError,
+  ProductSlugConflictApplicationError,
+  ProductValidationError,
+  ProductPublishError,
+  ProductDeleteError,
 } from '../../errors/product.errors.js';
-import { ProductDetailAssembler } from '../../mappers/product-detail.assembler.js';
-import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import type {
+  CreateProductCommandDTO,
+  UpdateProductCommandDTO,
+  DeleteProductRequestDTO,
+  PublishProductRequestDTO,
+  ArchiveProductRequestDTO,
+  DuplicateProductRequestDTO,
+} from '../../dtos/requests/product/index.js';
+import type {
+  ProductResponseDTO,
+  ProductPublicResponseDTO,
+  ProductSummaryResponseDTO,
+  ProductListResponseDTO,
+  ProductStatsResponseDTO,
+  ProductDetailResponseDTO,
+  ProductCreateResponseDTO,
+} from '../../dtos/responses/product-response.dto.js';
 
 @Injectable()
 export class ProductService implements IProductService {
+  private readonly logger = new Logger(ProductService.name);
+
   constructor(
-    @Inject(PRODUCT_REPOSITORY) private readonly productRepo: ProductRepository,
-    @Inject(VARIANT_REPOSITORY) private readonly variantRepo: VariantRepository,
-    @Inject(INVENTORY_REPOSITORY) private readonly inventoryRepo: InventoryRepository,
-    @Inject(PRICING_REPOSITORY) private readonly pricingRepo: PricingRepository,
-    @Inject(ATTRIBUTE_REPOSITORY) private readonly attributeRepo: AttributeRepository,
+    @Inject(PRODUCT_REPOSITORY)
+    private readonly repo: ProductRepository,
+    @Inject(VARIANT_REPOSITORY)
+    private readonly variantRepo: ProductVariantRepository,
+    @Inject(ATTRIBUTE_REPOSITORY)
+    private readonly attributeRepo: ProductAttributeRepository,
     private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
-  async create(dto: CreateProductRequestDTO, actorId: string): Promise<ProductResponseDTO> {
-    const slug = ProductSlugVO.create(dto.slug);
-    if (await this.productRepo.existsBySlug(slug)) {
-      throw new ProductSlugConflictError(dto.slug);
-    }
-    const sku = ProductSkuVO.create(dto.sku);
-    if (await this.productRepo.existsBySku(sku)) {
-      throw new ProductSkuConflictError(dto.sku);
+  // ═══════════════ COMMANDS ═══════════════
+  async create(
+    dto: CreateProductCommandDTO,
+    userId: string,
+    _actorId?: string,
+  ): Promise<ProductCreateResponseDTO> {
+    const now = new Date().toISOString();
+
+    // ─── Slug uniqueness ───
+    if (await this.repo.existsBySlug(dto.slug)) {
+      throw new ProductSlugConflictApplicationError(dto.slug);
     }
 
-    const now = new Date().toISOString();
-    const product = ProductEntity.create({
-      id: randomUUID(),
-      now,
-      props: {
+    // ─── SKU uniqueness ───
+    if (await this.repo.existsBySku(dto.sku)) {
+      throw new ProductValidationError(`SKU "${dto.sku}" already exists`, 'sku');
+    }
+
+    // ─── Build VOs ───
+    const id = randomUUID();
+    let entity: ProductEntity;
+    try {
+      const vo = ProductVO.create({
+        id: ProductIdVO.create(id),
         name: ProductNameVO.create(dto.name),
-        slug,
-        sku,
+        slug: ProductSlugVO.create(dto.slug),
+        sku: ProductSkuVO.create(dto.sku),
+        description: dto.description ? ProductDescriptionVO.create(dto.description) : undefined,
+        shortDescription: dto.shortDescription
+          ? ProductDescriptionVO.create(dto.shortDescription)
+          : undefined,
         type: ProductTypeVO.create(dto.type),
-        status: ProductStatusVO.create(PRODUCT_STATUS.DRAFT),
-        description: ProductDescriptionVO.create(dto.description ?? ''),
-        shortDescription: dto.shortDescription,
+        status: ProductStatusVO.draft(),
         categoryId: CategoryIdVO.create(dto.categoryId),
         brandId: dto.brandId ? BrandIdVO.create(dto.brandId) : undefined,
-        vendorId: dto.vendorId,
-        price: PriceVO.create(dto.price, dto.currency as CurrencyCode),
-        compareAtPrice: dto.compareAtPrice !== undefined
-          ? PriceVO.create(dto.compareAtPrice, dto.currency as CurrencyCode)
-          : undefined,
+        vendorId: dto.vendorId ? VendorIdVO.create(dto.vendorId) : undefined,
         tags: dto.tags ?? [],
         images: dto.images ?? [],
+        barcode: dto.barcode ? ProductBarcodeVO.create(dto.barcode) : undefined,
+        weight: dto.weight ? ProductWeightVO.create(dto.weight) : undefined,
+        dimensions: dto.dimensions
+          ? ProductDimensionVO.create(dto.dimensions)
+          : undefined,
         totalStock: 0,
-        variantIds: [],
         isFeatured: false,
         isPublished: false,
-        weight: dto.weight,
-        barcode: dto.barcode,
+      });
+
+      entity = ProductEntity.create({ id: vo.id, vo, now });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      throw new ProductCreationError(msg);
+    }
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+
+    this.logger.log(`Product ${saved.id} created — sku=${saved.vo.sku.value} by ${userId}`);
+
+    return {
+      success: true,
+      productId: saved.id,
+      status: saved.status.value as never,
+      slug: saved.vo.slug.value,
+    };
+  }
+
+  async update(
+    dto: UpdateProductCommandDTO,
+    _actorId?: string,
+  ): Promise<ProductResponseDTO> {
+    const entity = await this.load(dto.productId);
+
+    const patch = dto.patch;
+    entity.updateMetadata(
+      {
+        name: patch.name ? ProductNameVO.create(patch.name) : undefined,
+        description: patch.description
+          ? ProductDescriptionVO.create(patch.description)
+          : undefined,
+        tags: patch.tags,
+        images: patch.images,
+        isFeatured: patch.isFeatured,
       },
+    );
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} updated`);
+    return ProductMapper.toResponse(saved);
+  }
+
+  async delete(
+    dto: DeleteProductRequestDTO,
+  ): Promise<{ readonly success: true; readonly productId: string }> {
+    const entity = await this.load(dto.productId);
+
+    try {
+      entity.delete(dto.actorId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      throw new ProductDeleteError(dto.productId, msg);
+    }
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} deleted`);
+    return { success: true, productId: saved.id };
+  }
+
+  async publish(dto: PublishProductRequestDTO): Promise<ProductResponseDTO> {
+    const entity = await this.load(dto.productId);
+
+    // ─── Eligibility (via domain service) ───
+    const eligibility = ProductEligibilityService.canPublish(entity);
+    if (!eligibility.eligible) {
+      throw new ProductPublishError(dto.productId, eligibility.reasons.join('; '));
+    }
+
+    entity.publish();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} published`);
+    return ProductMapper.toResponse(saved);
+  }
+
+  async archive(dto: ArchiveProductRequestDTO): Promise<ProductResponseDTO> {
+    const entity = await this.load(dto.productId);
+    entity.archive();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} archived`);
+    return ProductMapper.toResponse(saved);
+  }
+
+  async duplicate(dto: DuplicateProductRequestDTO): Promise<ProductCreateResponseDTO> {
+    const source = await this.load(dto.productId);
+    const now = new Date().toISOString();
+
+    // ─── New slug via domain service ───
+    const existingSlugs = await this.collectSlugs();
+    const newName = dto.newName ?? `${source.vo.name.value} (Copy)`;
+    const slugResult = ProductSlugService.generate({ name: newName, existingSlugs });
+
+    // ─── New SKU ───
+    const skuResult = ProductSkuService.generate({
+      vendorCode: source.vo.vendorId?.value.slice(0, 3) ?? 'VBN',
+      categoryCode: source.vo.categoryId.value.slice(0, 3),
+      sequence: existingSlugs.length + 1,
     });
 
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    void actorId;
-    return ProductMapper.toResponse(product);
-  }
-
-  async update(productId: string, dto: UpdateProductRequestDTO, actorId: string): Promise<ProductResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-
-    const now = new Date().toISOString();
-    product.updateDetails({
-      description: dto.description !== undefined
-        ? ProductDescriptionVO.create(dto.description)
-        : undefined,
-      shortDescription: dto.shortDescription,
-      tags: dto.tags,
-      images: dto.images,
-    }, actorId, now);
-
-    if (dto.price !== undefined) {
-      product.changePrice(
-        PriceVO.create(dto.price, product.price.currency),
-        actorId,
-      );
-    }
-    if (dto.status !== undefined) {
-      product.changeStatus(ProductStatusVO.create(dto.status), actorId);
-    }
-    if (dto.isFeatured !== undefined) {
-      if (dto.isFeatured) product.feature(actorId);
-      else product.unfeature(actorId);
-    }
-
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    return ProductMapper.toResponse(product);
-  }
-
-  async publish(productId: string, actorId: string): Promise<ProductResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    product.publish(actorId, new Date().toISOString());
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    return ProductMapper.toResponse(product);
-  }
-
-  async unpublish(productId: string, actorId: string, reason?: string): Promise<ProductResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    product.unpublish(actorId, reason, new Date().toISOString());
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    return ProductMapper.toResponse(product);
-  }
-
-  async archive(productId: string, actorId: string): Promise<ProductResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    product.archive(actorId, new Date().toISOString());
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    return ProductMapper.toResponse(product);
-  }
-
-  async softDelete(productId: string, actorId: string): Promise<void> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    product.softDelete(actorId, new Date().toISOString());
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-  }
-
-  async feature(productId: string, actorId: string): Promise<ProductResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    product.feature(actorId);
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    return ProductMapper.toResponse(product);
-  }
-
-  async unfeature(productId: string, actorId: string): Promise<ProductResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    product.unfeature(actorId);
-    const _saved = await this.productRepo.save(product);
-    await this.eventBridge.publishFromEntity(_saved);
-    return ProductMapper.toResponse(product);
-  }
-
-  async duplicate(productId: string, newName: string, actorId: string): Promise<ProductResponseDTO> {
-    const original = await this.productRepo.findById(productId);
-    if (!original) throw new ProductNotFoundApplicationError(productId);
-
-    const newSlugBase = ProductSlugVO.fromName(newName);
-    let slug = newSlugBase.value;
-    let counter = 1;
-    while (await this.productRepo.existsBySlug(ProductSlugVO.create(slug))) {
-      slug = `${newSlugBase.value}-${counter++}`;
-    }
-    let skuBase = ProductSkuVO.create(original.sku.value).value + '-COPY';
-    let sku = skuBase;
-    counter = 1;
-    while (await this.productRepo.existsBySku(ProductSkuVO.create(sku))) {
-      sku = `${skuBase}${counter++}`;
-    }
-
-    const now = new Date().toISOString();
-    const copy = ProductEntity.create({
-      id: randomUUID(),
-      now,
-      props: {
-        name: ProductNameVO.create(newName),
-        slug: ProductSlugVO.create(slug),
-        sku: ProductSkuVO.create(sku),
-        type: original.type,
-        status: ProductStatusVO.create(PRODUCT_STATUS.DRAFT),
-        description: original.description,
-        shortDescription: original.shortDescription,
-        categoryId: original.categoryId,
-        brandId: original.brandId,
-        vendorId: original.vendorId,
-        price: original.price,
-        compareAtPrice: original.compareAtPrice,
-        tags: original.tags,
-        images: original.images,
-        totalStock: 0,
-        variantIds: [],
-        isFeatured: false,
-        isPublished: false,
-        weight: original.weight,
-        barcode: undefined,
-      },
+    const newId = randomUUID();
+    const vo = ProductVO.create({
+      id: ProductIdVO.create(newId),
+      name: ProductNameVO.create(newName),
+      slug: slugResult.slug,
+      sku: skuResult,
+      description: source.vo.description,
+      shortDescription: source.vo.shortDescription,
+      type: source.vo.type,
+      status: ProductStatusVO.draft(),
+      categoryId: source.vo.categoryId,
+      brandId: source.vo.brandId,
+      vendorId: source.vo.vendorId,
+      tags: [...source.vo.tags],
+      images: dto.copyImages === false ? [] : [...source.vo.images],
+      thumbnailUrl: dto.copyImages === false ? undefined : source.vo.thumbnailUrl,
+      barcode: undefined,
+      weight: source.vo.weight,
+      dimensions: source.vo.dimensions,
+      totalStock: 0,
+      isFeatured: false,
+      isPublished: false,
     });
-    const _savedCopy = await this.productRepo.save(copy);
-    await this.eventBridge.publishFromEntity(_savedCopy);
-    void actorId;
-    return ProductMapper.toResponse(copy);
+
+    const entity = ProductEntity.create({ id: vo.id, vo, now });
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${source.id} duplicated → ${saved.id}`);
+
+    return {
+      success: true,
+      productId: saved.id,
+      status: saved.status.value as never,
+      slug: saved.vo.slug.value,
+    };
   }
 
-  async getDetail(productId: string): Promise<ProductDetailResponseDTO> {
-    const product = await this.productRepo.findById(productId);
-    if (!product) throw new ProductNotFoundApplicationError(productId);
-    const productIdVO = ProductIdVO.reconstitute(product.id);
-    const variants = await this.variantRepo.findByProductId(productIdVO);
-    const inventory = await this.inventoryRepo.findByProductId(productIdVO);
-    const pricing = await this.pricingRepo.findByProductId(productIdVO);
-    const attributes = await this.attributeRepo.findByProductId(product.id);
-    return ProductDetailAssembler.assemble({ product, variants, inventory, pricing, attributes });
+  // ═══════════════ QUERIES ═══════════════
+  async getById(id: string): Promise<ProductResponseDTO> {
+    const entity = await this.load(id);
+    return ProductMapper.toResponse(entity);
+  }
+
+  async getBySlug(slug: string): Promise<ProductResponseDTO> {
+    const entity = await this.repo.findBySlug(slug);
+    if (!entity) throw new ProductNotFoundApplicationError(slug);
+    return ProductMapper.toResponse(entity);
+  }
+
+  async getPublic(id: string): Promise<ProductPublicResponseDTO> {
+    const entity = await this.load(id);
+    return ProductMapper.toPublicResponse(entity);
+  }
+
+  async getDetail(id: string): Promise<ProductDetailResponseDTO> {
+    const entity = await this.load(id);
+    const variants = await this.variantRepo.findByProduct(entity.productId);
+    const attributes = await this.attributeRepo.findByProduct(entity.productId);
+    return ProductMapper.toDetail(entity, variants, attributes);
+  }
+
+  async list(options: ProductListOptionsDTO): Promise<ProductListResponseDTO> {
+    const result = await this.repo.findPaginated({
+      page: options.page,
+      limit: options.limit,
+      sortBy: options.sortBy,
+      sortDir: options.sortDir,
+      filter: options.filter as ProductListFilter | undefined,
+      includeDeleted: options.includeDeleted,
+    } as ProductListOptions);
+    return ProductMapper.toListResponse(result.items, result.total, result.page, result.limit);
+  }
+
+  async search(term: string, limit = 20): Promise<readonly ProductSummaryResponseDTO[]> {
+    const entities = await this.repo.search(term, limit);
+    return entities.map((e) => ProductMapper.toSummary(e));
+  }
+
+  async getFeatured(limit = 20): Promise<readonly ProductSummaryResponseDTO[]> {
+    const entities = await this.repo.findFeatured(limit);
+    return entities.map((e) => ProductMapper.toSummary(e));
+  }
+
+  async getRelated(productId: string, limit = 10): Promise<readonly ProductSummaryResponseDTO[]> {
+    const source = await this.load(productId);
+    const entities = await this.repo.findByCategory(source.vo.categoryId);
+    const filtered = entities.filter((e) => e.id !== productId).slice(0, limit);
+    return filtered.map((e) => ProductMapper.toSummary(e));
+  }
+
+  async getStats(filter?: ProductListFilterDTO): Promise<ProductStatsResponseDTO> {
+    const stats = await this.repo.getStats(filter as ProductListFilter | undefined);
+    return {
+      total: stats.total,
+      publishedCount: stats.publishedCount,
+      draftCount: stats.draftCount,
+      outOfStockCount: stats.outOfStockCount,
+      totalStockUnits: stats.totalStockUnits,
+      byStatus: stats.byStatus,
+      byType: stats.byType,
+    };
+  }
+
+  // ═══════════════ HELPERS ═══════════════
+  private async load(id: string): Promise<ProductEntity> {
+    const vo = ProductIdVO.create(id);
+    const entity = await this.repo.findByIdVO(vo);
+    if (!entity) throw new ProductNotFoundApplicationError(id);
+    return entity;
+  }
+
+  private async collectSlugs(): Promise<readonly string[]> {
+    const all = await this.repo.findAll();
+    return all.map((p) => p.vo.slug.value);
   }
 }

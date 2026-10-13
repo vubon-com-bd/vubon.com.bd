@@ -1,362 +1,352 @@
-# ARCHITECTURE
+# Architecture — Product Service
 
-PRODUCT SERVICE — ARCHITECTURE DOCUMENTATION
-@module product-service/docs
-
-══════════════════════════════════════════════════════════════════
- 📐 CLEAN ARCHITECTURE — 5 LAYERS
-══════════════════════════════════════════════════════════════════
-
- Layers (top → bottom):
-
-   ┌──────────────────────────────────────┐
-   │  L5  Modules      (NestJS wiring)    │
-   ├──────────────────────────────────────┤
-   │  L4  Interfaces   (HTTP/Controllers) │
-   ├──────────────────────────────────────┤
-   │  L3  Infrastructure (DB/Cache/Queue) │
-   ├──────────────────────────────────────┤
-   │  L2  Application  (Use Cases/CQRS)   │
-   ├──────────────────────────────────────┤
-   │  L1  Domain       (Business rules)   │
-   └──────────────────────────────────────┘
-
- Rule: Higher layer may import from lower. Never reverse.
- Rule: Cross-service communication = Event only.
+Deep-dive into the clean architecture, layer boundaries, and pattern rules.
 
 ---
 
-══════════════════════════════════════════════════════════════════
- L1 — DOMAIN LAYER (Pure Business)
-══════════════════════════════════════════════════════════════════
+## 🎯 The 5 Layers
 
- Location: src/module/domain/
+### 1. Domain Layer (`src/module/domain/`)
 
- Contains:
+**Pure business logic — zero external dependencies.**
 
- Value Objects (50 total):
-   • 37 primitives — ProductId, ProductName, ProductSlug, ProductSku,
-     Price, Discount, TaxRate, CategoryId, BrandId, VariantId, ...
-   • 13 composites — ProductVO, VariantVO, CategoryVO, BrandVO,
-     InventoryVO, PricingVO, ReviewVO, MediaVO, AttributeVO,
-     CollectionVO, ProductAggregateVO, VariantOptionSetVO
+\`\`\`
+domain/
+├── errors/              → Typed errors (BusinessRule, Validation, Conflict, NotFound)
+├── value-objects/
+│   ├── primitives/      → 41 atomic VOs (ProductId, ProductName, PriceAmount, ...)
+│   └── composites/      → 12 composite VOs (ProductVO, ProductVariantVO, ...)
+├── events/              → 9 aggregate event files
+├── entities/            → 11 entities (5 AggregateRoot + 6 BaseEntity)
+├── repositories/        → 11 repository interfaces + DI tokens
+├── event-store/         → 5 event store interfaces
+├── services/            → 9 domain services (VAT, Bayesian, restock)
+└── specifications/      → 7 business rule specifications
+\`\`\`
 
- Entities (10 aggregates):
-   • ProductEntity (Aggregate Root)
-   • ProductVariantEntity
-   • ProductInventoryEntity
-   • ProductPricingEntity
-   • ProductMediaEntity
-   • ProductAttributeEntity
-   • ProductReviewEntity (Aggregate Root)
-   • BrandEntity (Aggregate Root)
-   • CategoryEntity (Aggregate Root)
-   • CollectionEntity (Aggregate Root)
+**Rules:**
+- ❌ No NestJS imports
+- ❌ No Prisma imports
+- ❌ No HTTP/client imports
+- ✅ Pure TypeScript + shared-kernel base classes
 
- Repository Interfaces (10):
-   • ProductRepository, VariantRepository, InventoryRepository,
-     PricingRepository, MediaRepository, AttributeRepository,
-     ReviewRepository, BrandRepository, CategoryRepository,
-     CollectionRepository
+**Pattern — Value Object:**
+\`\`\`typescript
+export class ProductIdVO extends BaseIdVO<string> {
+  private constructor(value: string) { super(value); }
 
- Domain Events (9 files):
-   • product.events (10 classes)
-   • variant.events (7 classes)
-   • inventory.events (7 classes)
-   • pricing.events (5 classes)
-   • review.events (7 classes)
-   • media.events (4 classes)
-   • brand.events (5 classes)
-   • category.events (6 classes)
-   • event.helpers
+  static create(raw: string): ProductIdVO {
+    // validate + return
+  }
 
- Specifications (8):
-   • CanPublishProduct, CanArchiveProduct, CanAddVariant,
-     CanAddMedia, CanDeleteCategory, CanDeleteBrand,
-     CanEditReview, CanTransitionStatus
+  static reconstitute(raw: string): ProductIdVO {
+    // skip validation (DB rebuild)
+  }
+}
+\`\`\`
 
- Domain Services (6):
-   • SkuGeneratorService
-   • SlugGeneratorService
-   • PriceCalculatorService
-   • StockAvailabilityService
-   • PublishValidatorService
-   • VariantMatrixService
+**Pattern — Aggregate Root:**
+\`\`\`typescript
+export class ProductEntity extends AggregateRoot<string> {
+  static create(params): ProductEntity {
+    // factory + emit event
+  }
 
- Errors (8 files):
-   • product.errors, variant.errors, inventory.errors,
-     pricing.errors, review.errors, media.errors,
-     brand.errors, category.errors
-
- Principles:
-   ✅ Pure TypeScript — no framework imports
-   ✅ Immutable value objects
-   ✅ Entities with identity + invariants
-   ✅ Domain events on state change
+  submit(): void {
+    this.assertTransitionTo('pending');  // state machine
+    this.emitStatusChange('draft', 'pending');
+  }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- L2 — APPLICATION LAYER (Use Cases / CQRS)
-══════════════════════════════════════════════════════════════════
+### 2. Application Layer (`src/module/application/`)
 
- Location: src/module/application/
+**Use-case orchestration — no business rules, only flow.**
 
- Contains:
+\`\`\`
+application/
+├── dtos/
+│   ├── requests/        → 46 request DTOs
+│   └── responses/       → 10 multi-shape response DTOs
+├── errors/              → 9 typed application errors
+├── services/
+│   ├── interfaces/      → 11 service contracts + DI tokens
+│   └── impl/            → 11 service implementations
+├── commands/            → 36 command + handler pairs
+├── queries/             → 24 query + handler pairs
+├── sagas/               → 3 process managers
+├── mappers/             → 9 multi-shape mappers
+└── validators/          → 5 Zod wrappers
+\`\`\`
 
- Commands (46 handlers):
-   • Product: Create, Update, Delete, Publish, Unpublish,
-              Archive, Feature, Duplicate
-   • Variant: Add, Update, Remove, RegenerateMatrix
-   • Attribute: Add, Update, Remove
-   • Inventory: Update, Adjust, Reserve, Release
-   • Pricing: UpdatePrice, ApplyDiscount, RemoveDiscount
-   • Collection: Create, Update, Delete,
-                 AddProduct, RemoveProduct
-   • Review: Submit, Update, Approve, Reject, Delete,
-             MarkHelpful, Report
-   • Brand: Create, Update, Delete, Activate, Deactivate, Feature
-   • Category: Create, Update, Delete, Move, Activate, Deactivate
+**Pattern — Service:**
+\`\`\`typescript
+@Injectable()
+export class ProductService implements IProductService {
+  constructor(
+    @Inject(PRODUCT_REPOSITORY) private readonly repo: ProductRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+  ) {}
 
- Queries (23 handlers):
-   • Product: Get, GetBySlug, GetDetail, List, Search
-   • Variant: ListByProduct
-   • Attribute: ListByProduct
-   • Inventory: ListByProduct, ListLowStock
-   • Pricing: GetByProduct, QuotePrice
-   • Collection: Get, ListFeatured, ListActive
-   • Review: ListByProduct, GetStats
-   • Brand: Get, GetBySlug, ListFeatured
-   • Category: Get, GetTree, ListByParent
-   • Media: ListByProduct
+  async create(dto, userId, actorId?): Promise<ProductCreateResponseDTO> {
+    const entity = ProductEntity.create({ id, vo, now });
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    return ProductMapper.toCreateResponse(saved);
+  }
+}
+\`\`\`
 
- Sagas (3):
-   • ProductPublishSaga
-   • StockAlertSaga
-   • ReviewModerationSaga
+**Pattern — Command + Handler:**
+\`\`\`typescript
+export class CreateProductCommand extends BaseCommand {
+  readonly type = 'product.product.create';
+  constructor(public dto, public userId, public actorId?) { super(); }
+}
 
- Services (11):
-   • ProductService, VariantService, AttributeService,
-     InventoryService, PricingService, CollectionService,
-     ReviewService, BrandService, CategoryService,
-     MediaService, ProductCatalogService
-
- DTOs (59):
-   • 46 request DTOs + 13 response DTOs
-
- Mappers (12): Entity ↔ DTO transformers
- Errors (11): Application-level error types
-
----
-
-══════════════════════════════════════════════════════════════════
- L3 — INFRASTRUCTURE LAYER (Adapters)
-══════════════════════════════════════════════════════════════════
-
- Location: src/module/infrastructure/
-
- Contains:
-
- Persistence:
-   • Prisma repositories (10) — implement domain interfaces
-   • Redis cache repositories (5) — product, list, category-tree,
-     inventory, search-result
-   • Search indexers (3) — product, category, brand
-
- External Integrations:
-   • Meilisearch — full-text search
-   • Storage (local / S3 / GCS) — media uploads
-   • Notification — admin / vendor alerts
-
- Internal Services (8):
-   • SkuGeneratorService, SlugGeneratorService,
-     PriceCalculatorService, StockAvailabilityService,
-     PublishValidatorService, VariantMatrixService,
-     MediaProcessingService, ProductReferenceService
-
- External Services (5):
-   • StorageService, ImageProcessingService,
-     SearchIndexerService, NotificationService,
-     EventPublisherService
-
- Workers (7):
-   • ProductIndexWorker
-   • InventoryAlertWorker
-   • SearchReindexWorker
-   • MediaProcessingWorker
-   • ReviewModerationWorker
-   • NotificationWorker
-
- Queues (6):
-   • product, inventory, search, media, review, notification
-
- Config (8):
-   • product, variant, inventory, pricing, review,
-     media, search, brand
+@CommandHandler(CreateProductCommand)
+export class CreateProductHandler implements ICommandHandler<...> {
+  constructor(@Inject(PRODUCT_SERVICE) private service) {}
+  execute(c) { return this.service.create(c.dto, c.userId, c.actorId); }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- L4 — INTERFACES LAYER (HTTP Transport)
-══════════════════════════════════════════════════════════════════
+### 3. Infrastructure Layer (`src/module/infrastructure/`)
 
- Location: src/module/interfaces/
+**Adapters — persistence, messaging, external services.**
 
- Contains:
+\`\`\`
+infrastructure/
+├── persistence/
+│   ├── prisma/          → Prisma client + 11 mappers + 11 repositories
+│   ├── cache/           → 5 Redis cache repositories
+│   ├── memory/          → 11 InMemory repositories (Termux fallback)
+│   ├── search/          → Meilisearch adapter + 2 indexers
+│   └── persistence.module.ts  → DB_MODE switch
+├── queues/              → 5 BullMQ queues
+├── workers/             → 5 background workers (BaseWorker pattern)
+├── external/            → storage, email, slack, chart, notification
+├── services/            → external clients + internal helpers
+└── config/              → 7 config files
+\`\`\`
 
- REST Controllers (11):
-   • ProductController
-   • ProductVariantController
-   • ProductAttributeController
-   • ProductInventoryController
-   • ProductPricingController
-   • ProductCollectionController
-   • ProductReviewController
-   • ProductMediaController
-   • BrandController
-   • CategoryController
-   • PublicProductController
+**Pattern — Prisma Repository:**
+\`\`\`typescript
+@Injectable()
+export class ProductPrismaRepository implements ProductRepository {
+  constructor(private readonly prisma: ProductPrismaService) {}
 
- Guards (3):
-   • OwnProductGuard
-   • VendorProductGuard
-   • ProductPublishedGuard
+  private get delegate(): ProductDelegate {
+    return this.prisma.getModel<ProductDelegate>('product');
+  }
 
- Interceptors (2):
-   • ProductCacheInterceptor
-   • SearchCacheInterceptor
+  async findById(id: string): Promise<ProductEntity | null> {
+    const raw = await this.delegate.findFirst({ where: { id, deletedAt: null } });
+    return raw ? ProductPrismaMapper.toDomain(raw) : null;
+  }
+}
+\`\`\`
 
- Decorators (3):
-   • OwnProduct, VendorProduct, ProductPublished
+**Pattern — InMemory Repository:**
+\`\`\`typescript
+@Injectable()
+export class InMemoryProductRepository
+  extends InMemoryRepository<ProductEntity, string>
+  implements ProductRepository
+{
+  protected idOf(entity: ProductEntity): string { return entity.id; }
 
- DTOs (23): 11 request + 12 response
- Mappers (5): App DTO ↔ HTTP DTO
- Validators (3): Product, Variant, Review
+  async findByIdVO(id: ProductIdVO): Promise<ProductEntity | null> {
+    return this.findById(id.value);
+  }
+}
+\`\`\`
 
- Rules:
-   • Thin controllers — 5-15 lines per method
-   • Command/Query dispatch only
-   • No direct DB / business logic
-
----
-
-══════════════════════════════════════════════════════════════════
- L5 — MODULES LAYER (NestJS Wiring)
-══════════════════════════════════════════════════════════════════
-
- Location: src/module/modules/
-
- Contains:
-   • app.module.ts — Root module (imports all features)
-   • common/ — Global providers (CQRS, Prisma)
-
- Feature modules (11):
-   • ProductModule
-   • ProductVariantModule
-   • ProductAttributeModule
-   • ProductInventoryModule
-   • ProductPricingModule
-   • ProductCollectionModule
-   • ProductReviewModule
-   • ProductMediaModule
-   • BrandModule
-   • CategoryModule
-   • PublicProductModule
-
- Plus: QueuesWorkersModule (BullMQ workers)
-
- Each feature module:
-   • Registers its controller
-   • Binds repositories (interface → impl)
-   • Registers command + query handlers
-   • Registers sagas (if any)
-   • Exports its public service
-
- Rules:
-   • No business logic in modules
-   • No DB / HTTP calls
-   • Only wiring
+**Pattern — Dynamic Module Selection:**
+\`\`\`typescript
+@Module({})
+export class PersistenceModule {
+  static forRoot(): DynamicModule {
+    const mode = (process.env['DB_MODE'] ?? 'prisma').toLowerCase();
+    const repoModule = mode === 'memory'
+      ? MemoryRepositoriesModule
+      : PrismaRepositoriesModule;
+    return { module: PersistenceModule, imports: [repoModule], exports: [repoModule] };
+  }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔄 CROSS-SERVICE COMMUNICATION
-══════════════════════════════════════════════════════════════════
+### 4. Interfaces Layer (`src/module/interfaces/`)
 
- Rule: Events only. No DB sharing. No direct imports.
+**HTTP boundary — REST + GraphQL.**
 
- Consumes (from other services):
+\`\`\`
+interfaces/
+├── errors/              → HTTP error translator
+├── dtos/
+│   ├── requests/        → 6 class-validator DTOs
+│   └── responses/       → 10 Swagger response DTOs
+├── mappers/             → 6 HTTP ↔ App DTO mappers
+├── validators/          → 4 HTTP validation wrappers
+├── guards/              → 3 guards (OwnProduct, VendorProduct, Published)
+├── interceptors/        → 3 interceptors (Cache, Timeout, Logging)
+├── decorators/          → 4 decorators
+├── middlewares/         → 2 middlewares (Idempotency, CorrelationId)
+├── swagger/             → 7 Swagger helper files
+└── controllers/
+    ├── rest/            → 13 REST controllers
+    └── graphql/         → 4 GraphQL resolvers
+\`\`\`
 
-   vendor-service     → VendorVerifiedEvent     (link vendor)
-   vendor-service     → VendorSuspendedEvent    (unpublish products)
-   order-service      → OrderCreatedEvent       (reserve stock)
-   order-service      → OrderCancelledEvent     (release stock)
-   user-service       → UserDeletedEvent        (anonymize reviews)
+**Pattern — REST Controller:**
+\`\`\`typescript
+@ApiProductTag()
+@ApiBearerAuth('bearer')
+@Controller('products')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(
+  ProductLoggingInterceptor,
+  ProductTimeoutInterceptor,
+  ProductCacheInterceptor,
+)
+export class ProductController extends BaseController {
+  constructor(
+    @Inject(PRODUCT_SERVICE) private readonly productService: IProductService,
+  ) { super(); }
 
- Exposes (to other services):
-
-   ProductCreatedEvent    → search-service, analytics
-   ProductPublishedEvent  → search-service, order-service
-   ProductDeletedEvent    → search-service, cart-service
-   ProductArchivedEvent   → search-service
-   VariantAddedEvent      → search-service, cart-service
-   InventoryUpdatedEvent  → order-service, cart-service
-   InventoryLowEvent      → notification-service, admin
-   OutOfStockEvent        → notification-service, cart-service
-   PriceChangedEvent      → order-service, cart-service
-   ReviewSubmittedEvent   → user-service, notification-service
-   ReviewApprovedEvent    → search-service, analytics
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreateProduct()
+  async create(
+    @Body() dto: CreateProductHttpDTO,
+    @CurrentUser() user: CurrentUserShape,
+    @IdempotencyHeader() idempotencyKey?: string,
+  ): Promise<ProductCreateHttpResponseDTO> {
+    const appDto = ProductControllerMapper.toCreateAppDto(dto);
+    const result = await this.productService.create(
+      { ...appDto, idempotencyKey },
+      user.userId, user.userId,
+    );
+    return ProductControllerMapper.toCreateHttp(result);
+  }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📊 LAYER DEPENDENCY MATRIX
-══════════════════════════════════════════════════════════════════
+### 5. Modules Layer (`src/module/modules/`)
 
- From \ To         | kernel | domain | application | infra | iface | modules
- ──────────────────┼────────┼────────┼─────────────┼───────┼───────┼────────
- shared-kernel     |   ❌   |   ❌   |     ❌      |  ❌   |  ❌   |   ❌
- domain            |   ✅   |   ❌   |     ❌      |  ❌   |  ❌   |   ❌
- application       |   ✅   |   ✅   |     ❌      |  ❌   |  ❌   |   ❌
- infrastructure    |   ✅   |   ✅   |     ✅      |  ❌   |  ❌   |   ❌
- interfaces        |   ✅   |   ✅   |     ✅      |  ❌   |  ❌   |   ❌
- modules           |   ✅   |   ✅   |     ✅      |  ✅   |  ✅   |   ❌
+**NestJS wiring — feature modules.**
 
- Read: row → column ✅ means "can import from"
+\`\`\`
+modules/
+├── app.module.ts        → Root module
+├── common/              → CommonModule (kernel + infra)
+├── health/              → HealthModule (indicator + controller)
+└── <feature>/           → 12 feature modules
+    ├── commands/index.ts
+    ├── queries/index.ts
+    ├── events/index.ts
+    ├── sagas/index.ts
+    ├── <feature>.module.ts
+    └── index.ts
+\`\`\`
 
- Forbidden:
-   🔴 Infrastructure ↔ Interfaces (never direct)
-   🔴 Domain → Application / Infra / Interfaces (reverse)
-   🔴 Cross-service direct import
-   🔴 Cross-service DB access
+**Pattern — Feature Module:**
+\`\`\`typescript
+@Module({
+  imports: [CqrsModule],
+  controllers: [ProductController, PublicProductController],
+  providers: [
+    // Service + DI token
+    ProductService,
+    { provide: PRODUCT_SERVICE, useExisting: ProductService },
+
+    // Command handlers
+    ...(PRODUCT_COMMAND_HANDLERS as readonly unknown[] as never[]),
+
+    // Query handlers
+    ...(PRODUCT_QUERY_HANDLERS as readonly unknown[] as never[]),
+
+    // Sagas
+    ...(PRODUCT_SAGAS as readonly unknown[] as never[]),
+
+    // Guards
+    OwnProductGuard,
+  ],
+  exports: [ProductService, PRODUCT_SERVICE],
+})
+export class ProductModule {}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📁 FOLDER STRUCTURE
-══════════════════════════════════════════════════════════════════
+## 🔗 Dependency Rules
 
- apps/product-service/
- ├── docs/                            ← source-of-truth docs
- │   ├── architecture.doc.ts
- │   ├── api.doc.ts
- │   ├── deployment.doc.ts
- │   ├── development.doc.ts
- │   ├── testing.doc.ts
- │   └── extract-docs.cjs
- ├── src/
- │   ├── main.ts                      ← bootstrap entrypoint
- │   └── module/
- │       ├── domain/                  ← L1
- │       ├── application/             ← L2
- │       ├── infrastructure/          ← L3
- │       ├── interfaces/              ← L4
- │       └── modules/                 ← L5
- ├── test/
- │   ├── domain/                      ← unit tests (VOs, entities, ...)
- │   ├── application/                 ← unit tests (services, handlers)
- │   ├── interfaces/                  ← unit tests (controllers, guards)
- │   ├── e2e/                         ← E2E tests
- │   ├── mocks/                       ← typed mocks
- │   └── fixtures.ts
- └── *.md                             ← AUTO-GENERATED docs
+| Layer | Can Import | Must NOT Import |
+|-------|-----------|-----------------|
+| **Domain** | shared-kernel/domain | app, infra, interfaces, NestJS |
+| **Application** | Domain, shared-kernel/app | infra, interfaces |
+| **Infrastructure** | Domain, shared-kernel/infra | interfaces |
+| **Interfaces** | Application, Domain, shared-kernel/interfaces | infrastructure |
+| **Modules** | All layers | (none — top of stack) |
+
+**Rule of thumb:** Higher layers can import lower, never the reverse.
+
+---
+
+## 📐 Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Primitive VO | `<concept>-<prop>.vo.ts` | `product-id.vo.ts` |
+| Composite VO | `<concept>.vo.ts` | `product.vo.ts` |
+| Entity | `<concept>.entity.ts` | `product.entity.ts` |
+| Event | `<concept>.events.ts` | `product.events.ts` |
+| Repository | `<concept>.repository.interface.ts` | `product.repository.interface.ts` |
+| Command | `<action>-<concept>.command.ts` | `create-product.command.ts` |
+| Handler | `<action>-<concept>.handler.ts` | `create-product.handler.ts` |
+| Query | `<action>-<concept>.query.ts` | `get-product.query.ts` |
+| Saga | `<process>.saga.ts` | `product-publish.saga.ts` |
+| Mapper | `<concept>.mapper.ts` | `product.mapper.ts` |
+| Validator | `<concept>.validator.ts` | `product.validator.ts` |
+| Guard | `<purpose>.guard.ts` | `own-product.guard.ts` |
+| Interceptor | `<purpose>.interceptor.ts` | `product-cache.interceptor.ts` |
+| Controller | `<concept>.controller.ts` | `product.controller.ts` |
+| Feature Module | `<feature>.module.ts` | `product.module.ts` |
+
+---
+
+## 🎯 Pattern — 10 Core Rules
+
+1. **Typed errors everywhere** — `ValidationError`, `BusinessRuleError`, `NotFoundError`, `ConflictError`
+2. **`reconstitute()`** — every VO + Entity has factory + DB rebuild
+3. **`assertInvariants()`** — separate method (testable)
+4. **`assertTransitionTo()`** — state machine safety
+5. **`emitStatusChange()`** — audit trail of every state change
+6. **Rich predicates** — `isActive()`, `canBeActivated()`, ...
+7. **Business methods** — not just getters
+8. **DI tokens** — `Symbol('PRODUCT_REPOSITORY')` + `@Inject(...)`
+9. **Multi-shape DTOs** — Full, Public, Summary, List, Detail, Stats
+10. **Real business logic** — VAT/AIT, Bayesian avg, restock triggers
+
+---
+
+## 📊 Total Stats
+
+| Layer | Files | Lines |
+|-------|-------|-------|
+| Domain | 123 | 8,889 |
+| Application | 259 | 8,301 |
+| Infrastructure | 122 | 7,159 |
+| Interfaces | 78 | 5,027 |
+| Modules | 61 | 1,064 |
+| Tests | 74 | 4,460 |
+| Scripts | 5 | 2,161 |
+| **TOTAL** | **725** | **37,146** |

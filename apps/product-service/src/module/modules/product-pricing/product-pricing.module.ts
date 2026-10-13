@@ -1,22 +1,27 @@
 /**
- * ProductPricingModule
+ * ProductPricingModule — pricing feature wiring
+ * @module product-service/modules/product-pricing
  */
 import { Module } from '@nestjs/common';
-import { PrismaRepositoriesModule } from '../../infrastructure/persistence/prisma/repositories.module.js';
+import { CqrsModule } from '@nestjs/cqrs';
+
 import { ProductPricingController } from '../../interfaces/controllers/rest/product-pricing.controller.js';
-import { PricingService } from '../../application/services/impl/pricing.service.js';
-import { PRICING_SERVICE } from '../../application/services/interfaces/pricing.service.interface.js';
-import { PRICING_COMMAND_HANDLERS } from '../../application/commands/pricing/index.js';
-import { PRICING_QUERY_HANDLERS } from '../../application/queries/pricing/index.js';
+
+import { PRICING_COMMAND_HANDLERS } from './commands/index.js';
+import { PRICING_QUERY_HANDLERS } from './queries/index.js';
+
+import { ProductPricingApplicationService } from '../../application/services/impl/product-pricing.service.js';
+import { PRICING_SERVICE } from '../../application/services/interfaces/product-pricing.service.interface.js';
 
 @Module({
-  imports: [PrismaRepositoriesModule],
+  imports: [CqrsModule],
   controllers: [ProductPricingController],
   providers: [
-    PricingService,
-    { provide: PRICING_SERVICE, useExisting: PricingService },
-    ...PRICING_COMMAND_HANDLERS,
-    ...PRICING_QUERY_HANDLERS],
-  exports: [PricingService, PRICING_SERVICE],
+    ProductPricingApplicationService,
+    { provide: PRICING_SERVICE, useExisting: ProductPricingApplicationService },
+    ...(PRICING_COMMAND_HANDLERS as readonly unknown[] as never[]),
+    ...(PRICING_QUERY_HANDLERS as readonly unknown[] as never[]),
+  ],
+  exports: [ProductPricingApplicationService, PRICING_SERVICE],
 })
 export class ProductPricingModule {}

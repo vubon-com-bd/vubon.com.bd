@@ -1,9 +1,10 @@
-// domain/specifications/index.ts — Specifications barrel export
-export * from './can-publish-product.specification.js';
-export * from './can-archive-product.specification.js';
+// product-service/domain/specifications/index.ts
+// Barrel — 7 business rule specifications
+
+export * from './can-publish.specification.js';
+export * from './can-update.specification.js';
+export * from './can-delete.specification.js';
 export * from './can-add-variant.specification.js';
-export * from './can-add-media.specification.js';
-export * from './can-delete-category.specification.js';
-export * from './can-delete-brand.specification.js';
-export * from './can-edit-review.specification.js';
-export * from './can-transition-status.specification.js';
+export * from './can-update-price.specification.js';
+export * from './can-update-inventory.specification.js';
+export * from './can-submit-review.specification.js';

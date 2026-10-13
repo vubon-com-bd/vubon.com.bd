@@ -1,22 +1,15 @@
-import { getEnv, getOptionalEnv, getOptionalEnvInt } from './_helpers.js';
+/**
+ * Search Infrastructure Configuration
+ * @module product-service/infrastructure/config
+ */
+import { getOptionalEnvInt } from '@vubon/shared-config/common';
 
-function parseProvider(): 'meilisearch' | 'elasticsearch' | 'typesense' {
-  const raw = getOptionalEnv('SEARCH_PROVIDER', 'meilisearch') as string;
-  return raw === 'elasticsearch' || raw === 'typesense' ? raw : 'meilisearch';
-}
+export const SEARCH_INFRA_CONFIG = Object.freeze({
+  enabled: true,
+  defaultLimit: getOptionalEnvInt('SEARCH_DEFAULT_LIMIT', 20),
+  maxLimit: getOptionalEnvInt('SEARCH_MAX_LIMIT', 100),
+  reindexBatchSize: getOptionalEnvInt('SEARCH_REINDEX_BATCH', 500),
+  reindexIntervalMs: getOptionalEnvInt('SEARCH_REINDEX_INTERVAL_MS', 3600000),
+} as const);
 
-const SEARCH_CONFIG = Object.freeze({
-  PROVIDER: parseProvider(),
-  HOST: getOptionalEnv('SEARCH_HOST', 'http://localhost:7700') as string,
-  API_KEY: getOptionalEnv('SEARCH_API_KEY', '') as string,
-  PRODUCT_INDEX: getOptionalEnv('SEARCH_PRODUCT_INDEX', 'products') as string,
-  CATEGORY_INDEX: getOptionalEnv('SEARCH_CATEGORY_INDEX', 'categories') as string,
-  BATCH_SIZE: getOptionalEnvInt('SEARCH_BATCH_SIZE', 100),
-  TIMEOUT_MS: getOptionalEnvInt('SEARCH_TIMEOUT_MS', 5000),
-  RETRY_ATTEMPTS: getOptionalEnvInt('SEARCH_RETRY_ATTEMPTS', 3),
-});
-
-export type SearchConfig = typeof SEARCH_CONFIG;
-export const searchConfig = SEARCH_CONFIG;
-export function getSearchConfig(): SearchConfig { return SEARCH_CONFIG; }
-void getEnv;
+export type SearchInfraConfig = typeof SEARCH_INFRA_CONFIG;

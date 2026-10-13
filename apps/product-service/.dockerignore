@@ -1,40 +1,50 @@
-# Dependencies
-node_modules
-.pnpm-store
+# ─── Dependencies ───
+node_modules/
+.pnpm-store/
 
-# Build artifacts
-dist
-build
-coverage
-coverage-report
-coverage-tmp
+# ─── Build output ───
+dist/
+build/
+*.tsbuildinfo
 
-# Env files
+# ─── Test / Coverage ───
+coverage/
+test/
+*.spec.ts
+*.e2e-spec.ts
+test-results.json
+e2e-results.json
+
+# ─── Environment ───
 .env
-.env.*
-!.env.example
-!.env.production.example
+.env.local
+.env.*.local
+.env.production
 
-# Test outputs
-test/**/*.snap
+# ─── Development ───
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Docs ───
+*.md
+!README.md
+
+# ─── Git ───
+.git/
+.gitignore
+
+# ─── Logs ───
+logs/
 *.log
 
-# Dev tools
-.git
-.github
-.vscode
-.idea
-.editorconfig
-.eslintcache
-.prettiercache
-
-# OS
+# ─── OS ───
 .DS_Store
 Thumbs.db
 
-# Misc
-*.md
-!README.md
-!ARCHITECTURE.md
-!TESTING.md
-!DEPLOYMENT.md
+# ─── Redis ───
+dump.rdb
+
+# ─── Scripts (not needed in prod) ───
+scripts/

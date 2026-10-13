@@ -1,67 +1,70 @@
 /**
- * Review Response DTOs
+ * Review HTTP Response DTOs
+ * @module product-service/interfaces/dtos/responses
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ReviewResponseDTO {
-  @ApiProperty()
-  readonly id!: string;
-
-  @ApiProperty()
-  readonly productId!: string;
-
-  @ApiProperty()
-  readonly userId!: string;
-
-  @ApiPropertyOptional()
-  readonly userName?: string;
-
-  @ApiPropertyOptional()
-  readonly userAvatar?: string;
-
-  @ApiProperty({ example: 5 })
-  readonly rating!: number;
-
-  @ApiPropertyOptional()
-  readonly title?: string;
-
-  @ApiPropertyOptional()
-  readonly comment?: string;
-
-  @ApiPropertyOptional({ type: [String] })
-  readonly images?: readonly string[];
-
-  @ApiProperty()
-  readonly status!: string;
-
-  @ApiProperty()
-  readonly isVerifiedPurchase!: boolean;
-
-  @ApiProperty()
-  readonly helpfulCount!: number;
-
-  @ApiProperty()
-  readonly reportCount!: number;
-
-  @ApiProperty()
-  readonly createdAt!: string;
-
-  @ApiProperty()
-  readonly updatedAt!: string;
+export class ReviewHttpResponseDTO {
+  @ApiProperty() readonly id!: string;
+  @ApiProperty() readonly productId!: string;
+  @ApiProperty() readonly userId!: string;
+  @ApiPropertyOptional() readonly orderId?: string;
+  @ApiProperty() readonly rating!: number;
+  @ApiPropertyOptional() readonly title?: string;
+  @ApiPropertyOptional() readonly comment?: string;
+  @ApiPropertyOptional({ type: [String] }) readonly images?: readonly string[];
+  @ApiProperty() readonly status!: string;
+  @ApiProperty() readonly isVerifiedPurchase!: boolean;
+  @ApiProperty() readonly helpfulCount!: number;
+  @ApiProperty() readonly reportCount!: number;
+  @ApiProperty() readonly createdAt!: string;
+  @ApiProperty() readonly updatedAt!: string;
 }
 
-export class ReviewStatsResponseDTO {
-  @ApiProperty()
-  readonly productId!: string;
+export class ReviewPublicHttpResponseDTO {
+  @ApiProperty() readonly id!: string;
+  @ApiProperty() readonly userId!: string;
+  @ApiProperty() readonly rating!: number;
+  @ApiPropertyOptional() readonly title?: string;
+  @ApiPropertyOptional() readonly comment?: string;
+  @ApiPropertyOptional({ type: [String] }) readonly images?: readonly string[];
+  @ApiProperty() readonly isVerifiedPurchase!: boolean;
+  @ApiProperty() readonly helpfulCount!: number;
+  @ApiProperty() readonly createdAt!: string;
+}
 
-  @ApiProperty()
-  readonly totalReviews!: number;
+export class ReviewSummaryHttpResponseDTO {
+  @ApiProperty() readonly id!: string;
+  @ApiProperty() readonly userId!: string;
+  @ApiProperty() readonly rating!: number;
+  @ApiPropertyOptional() readonly title?: string;
+  @ApiProperty() readonly createdAt!: string;
+}
 
-  @ApiProperty()
-  readonly averageRating!: number;
+export class ReviewListHttpResponseDTO {
+  @ApiProperty({ type: [ReviewPublicHttpResponseDTO] })
+  readonly items!: readonly ReviewPublicHttpResponseDTO[];
+  @ApiProperty() readonly total!: number;
+  @ApiProperty() readonly page!: number;
+  @ApiProperty() readonly limit!: number;
+  @ApiProperty() readonly totalPages!: number;
+}
 
-  @ApiProperty({
-    example: { 1: 2, 2: 5, 3: 10, 4: 30, 5: 50 },
-  })
-  readonly ratingDistribution!: Readonly<Record<1 | 2 | 3 | 4 | 5, number>>;
+export class RatingDistributionHttpDTO {
+  @ApiProperty() readonly 1!: number;
+  @ApiProperty() readonly 2!: number;
+  @ApiProperty() readonly 3!: number;
+  @ApiProperty() readonly 4!: number;
+  @ApiProperty() readonly 5!: number;
+}
+
+export class ReviewStatsHttpResponseDTO {
+  @ApiProperty() readonly productId!: string;
+  @ApiProperty() readonly totalReviews!: number;
+  @ApiProperty() readonly averageRating!: number;
+  @ApiProperty({ type: RatingDistributionHttpDTO })
+  readonly ratingDistribution!: RatingDistributionHttpDTO;
+  @ApiProperty() readonly verifiedCount!: number;
+  @ApiProperty() readonly approvedCount!: number;
+  @ApiProperty() readonly pendingCount!: number;
 }

@@ -1,4 +1,3 @@
-// modules/health/index.ts
+// product-service/modules/health/index.ts
+export * from './product.health.js';
 export * from './health.module.js';
-export * from './health.controller.js';
-export * from './indicators/index.js';

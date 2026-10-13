@@ -1,107 +1,198 @@
 /**
- * BrandService
+ * BrandService — orchestrates brand use cases
+ * @module product-service/application/services/impl
  */
-import { Injectable, Inject } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { IBrandService } from '../interfaces/brand.service.interface.js';
-import { BRAND_REPOSITORY, type BrandRepository } from '../../../domain/repositories/brand.repository.interface.js';
+
+import {
+  BRAND_REPOSITORY,
+  type BrandRepository,
+  type BrandListFilter,
+  type BrandListOptions,
+} from '../../../domain/repositories/brand.repository.interface.js';
 import { BrandEntity } from '../../../domain/entities/brand.entity.js';
+import { BrandVO } from '../../../domain/value-objects/composites/brand.vo.js';
+import { BrandIdVO } from '../../../domain/value-objects/primitives/brand-id.vo.js';
 import { BrandNameVO } from '../../../domain/value-objects/primitives/brand-name.vo.js';
 import { BrandSlugVO } from '../../../domain/value-objects/primitives/brand-slug.vo.js';
 import { BrandLogoVO } from '../../../domain/value-objects/primitives/brand-logo.vo.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+
 import { BrandMapper } from '../../mappers/brand.mapper.js';
-import { BRAND_STATUS } from '@vubon/shared-constants/business/product';
-import type { CreateBrandRequestDTO } from '../../dtos/requests/brand/create-brand.dto.js';
-import type { UpdateBrandRequestDTO } from '../../dtos/requests/brand/update-brand.dto.js';
-import type { BrandResponseDTO } from '../../dtos/responses/brand-response.dto.js';
-import { BrandNotFoundApplicationError, BrandSlugConflictError } from '../../errors/brand.errors.js';
+import type {
+  IBrandService,
+  BrandListOptionsDTO,
+  BrandListFilterDTO,
+} from '../interfaces/brand.service.interface.js';
+import {
+  BrandNotFoundApplicationError,
+  BrandCreateError,
+  BrandUpdateError,
+  BrandSlugConflictApplicationError,
+} from '../../errors/brand.errors.js';
+import type {
+  CreateBrandRequestDTO,
+  UpdateBrandRequestDTO,
+  DeleteBrandRequestDTO,
+} from '../../dtos/requests/brand/index.js';
+import type {
+  BrandResponseDTO,
+  BrandPublicResponseDTO,
+  BrandSummaryResponseDTO,
+  BrandListResponseDTO,
+  BrandStatsResponseDTO,
+} from '../../dtos/responses/brand-response.dto.js';
 
 @Injectable()
 export class BrandService implements IBrandService {
-  constructor(@Inject(BRAND_REPOSITORY) private readonly brandRepo: BrandRepository) {}
+  private readonly logger = new Logger(BrandService.name);
 
-  async create(dto: CreateBrandRequestDTO, actorId: string): Promise<BrandResponseDTO> {
-    const slug = BrandSlugVO.create(dto.slug);
-    if (await this.brandRepo.existsBySlug(slug)) throw new BrandSlugConflictError(dto.slug);
+  constructor(
+    @Inject(BRAND_REPOSITORY)
+    private readonly repo: BrandRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+  ) {}
+
+  // ═══════════════ COMMANDS ═══════════════
+  async create(dto: CreateBrandRequestDTO): Promise<BrandResponseDTO> {
+    if (await this.repo.existsBySlug(dto.slug)) {
+      throw new BrandSlugConflictApplicationError(dto.slug);
+    }
+
     const now = new Date().toISOString();
-    const brand = BrandEntity.create({
-      id: randomUUID(),
-      now,
-      props: {
+    const id = randomUUID();
+
+    try {
+      const vo = BrandVO.create({
+        id: BrandIdVO.create(id),
         name: BrandNameVO.create(dto.name),
-        slug,
+        slug: BrandSlugVO.create(dto.slug),
         description: dto.description,
-        logo: dto.logoUrl ? BrandLogoVO.create(dto.logoUrl) : BrandLogoVO.empty(),
+        logo: dto.logoUrl ? BrandLogoVO.create(dto.logoUrl) : undefined,
+        bannerUrl: dto.bannerUrl,
         website: dto.website,
-        status: BRAND_STATUS.ACTIVE,
-        isFeatured: false,
+        status: 'active',
+        isFeatured: dto.isFeatured ?? false,
         productCount: 0,
         country: dto.country,
-      },
+      });
+
+      const entity = BrandEntity.create({ id, vo, now });
+      const saved = await this.repo.save(entity);
+      await this.eventBridge.publishFromEntity(saved);
+
+      this.logger.log(`Brand "${saved.name.value}" (${saved.id}) created`);
+      return BrandMapper.toResponse(saved);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new BrandCreateError(msg);
+    }
+  }
+
+  async update(dto: UpdateBrandRequestDTO): Promise<BrandResponseDTO> {
+    const entity = await this.load(dto.brandId);
+    const current = entity.vo.value;
+
+    const nextVo = BrandVO.create({
+      ...current,
+      name: dto.name ? BrandNameVO.create(dto.name) : current.name,
+      description: dto.description !== undefined ? dto.description : current.description,
+      logo: dto.logoUrl !== undefined
+        ? (dto.logoUrl ? BrandLogoVO.create(dto.logoUrl) : undefined)
+        : current.logo,
+      bannerUrl: dto.bannerUrl !== undefined ? dto.bannerUrl : current.bannerUrl,
+      website: dto.website !== undefined ? dto.website : current.website,
+      status: dto.status ?? current.status,
+      isFeatured: dto.isFeatured ?? current.isFeatured,
+      country: dto.country !== undefined ? dto.country : current.country,
     });
-    await this.brandRepo.save(brand);
-    void actorId;
-    return BrandMapper.toResponse(brand);
+
+    try {
+      const updated = BrandEntity.reconstitute({
+        id: entity.id,
+        createdAt: entity.createdAt,
+        updatedAt: new Date().toISOString(),
+        vo: nextVo,
+        version: entity.version,
+      });
+
+      const saved = await this.repo.save(updated);
+      await this.eventBridge.publishFromEntity(saved);
+      this.logger.log(`Brand ${saved.id} updated`);
+      return BrandMapper.toResponse(saved);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new BrandUpdateError(dto.brandId, msg);
+    }
   }
 
-  async update(dto: UpdateBrandRequestDTO, actorId: string): Promise<BrandResponseDTO> {
-    const brand = await this.brandRepo.findById(dto.brandId);
-    if (!brand) throw new BrandNotFoundApplicationError(dto.brandId);
-    brand.update({
-      name: dto.name ? BrandNameVO.create(dto.name) : undefined,
-      description: dto.description,
-      logo: dto.logoUrl ? BrandLogoVO.create(dto.logoUrl) : undefined,
-      website: dto.website,
-      country: dto.country,
-    }, actorId);
-    await this.brandRepo.save(brand);
-    return BrandMapper.toResponse(brand);
+  async delete(
+    dto: DeleteBrandRequestDTO,
+  ): Promise<{ readonly success: true; readonly brandId: string }> {
+    const entity = await this.load(dto.brandId);
+
+    try {
+      entity.delete(dto.actorId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      throw new BrandUpdateError(dto.brandId, msg);
+    }
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Brand ${saved.id} deleted`);
+    return { success: true, brandId: saved.id };
   }
 
-  async remove(brandId: string, actorId: string): Promise<void> {
-    const brand = await this.brandRepo.findById(brandId);
-    if (!brand) throw new BrandNotFoundApplicationError(brandId);
-    brand.softDelete(actorId);
-    await this.brandRepo.save(brand);
+  // ═══════════════ QUERIES ═══════════════
+  async getById(id: string): Promise<BrandResponseDTO> {
+    const entity = await this.load(id);
+    return BrandMapper.toResponse(entity);
   }
 
-  async activate(brandId: string, actorId: string): Promise<BrandResponseDTO> {
-    const brand = await this.brandRepo.findById(brandId);
-    if (!brand) throw new BrandNotFoundApplicationError(brandId);
-    brand.activate(actorId);
-    await this.brandRepo.save(brand);
-    return BrandMapper.toResponse(brand);
+  async getBySlug(slug: string): Promise<BrandResponseDTO> {
+    const entity = await this.repo.findBySlug(slug);
+    if (!entity) throw new BrandNotFoundApplicationError(slug);
+    return BrandMapper.toResponse(entity);
   }
 
-  async deactivate(brandId: string, actorId: string): Promise<BrandResponseDTO> {
-    const brand = await this.brandRepo.findById(brandId);
-    if (!brand) throw new BrandNotFoundApplicationError(brandId);
-    brand.deactivate(actorId);
-    await this.brandRepo.save(brand);
-    return BrandMapper.toResponse(brand);
+  async getPublic(id: string): Promise<BrandPublicResponseDTO> {
+    const entity = await this.load(id);
+    return BrandMapper.toPublicResponse(entity);
   }
 
-  async feature(brandId: string, actorId: string): Promise<BrandResponseDTO> {
-    const brand = await this.brandRepo.findById(brandId);
-    if (!brand) throw new BrandNotFoundApplicationError(brandId);
-    brand.feature();
-    await this.brandRepo.save(brand);
-    void actorId;
-    return BrandMapper.toResponse(brand);
+  async list(options: BrandListOptionsDTO): Promise<BrandListResponseDTO> {
+    const result = await this.repo.findPaginated({
+      page: options.page,
+      limit: options.limit,
+      sortBy: options.sortBy,
+      sortDir: options.sortDir,
+      filter: options.filter as BrandListFilter | undefined,
+    } as BrandListOptions);
+    return BrandMapper.toListResponse(result.items, result.total, result.page, result.limit);
   }
 
-  async getById(brandId: string): Promise<BrandResponseDTO | null> {
-    const brand = await this.brandRepo.findById(brandId);
-    return brand ? BrandMapper.toResponse(brand) : null;
+  async findFeatured(limit = 20): Promise<readonly BrandSummaryResponseDTO[]> {
+    const entities = await this.repo.findFeatured(limit);
+    return entities.map((e) => BrandMapper.toSummary(e));
   }
 
-  async getBySlug(slug: string): Promise<BrandResponseDTO | null> {
-    const brand = await this.brandRepo.findBySlug(BrandSlugVO.create(slug));
-    return brand ? BrandMapper.toResponse(brand) : null;
+  async search(term: string, limit = 20): Promise<readonly BrandSummaryResponseDTO[]> {
+    const entities = await this.repo.search(term, limit);
+    return entities.map((e) => BrandMapper.toSummary(e));
   }
 
-  async listFeatured(limit?: number): Promise<readonly BrandResponseDTO[]> {
-    const brands = await this.brandRepo.findFeatured(limit);
-    return BrandMapper.toResponseList(brands);
+  async getStats(filter?: BrandListFilterDTO): Promise<BrandStatsResponseDTO> {
+    const stats = await this.repo.getStats(filter as BrandListFilter | undefined);
+    return BrandMapper.toStatsResponse(stats);
+  }
+
+  // ═══════════════ HELPERS ═══════════════
+  private async load(id: string): Promise<BrandEntity> {
+    const vo = BrandIdVO.create(id);
+    const entity = await this.repo.findByIdVO(vo);
+    if (!entity) throw new BrandNotFoundApplicationError(id);
+    return entity;
   }
 }

@@ -2,69 +2,59 @@
  * ProductDimension Value Object
  * @module product-service/domain/value-objects/primitives
  *
- * ⚠️ BaseCodeVO extend করা হয়নি কারণ BaseCodeVO-তে `length` accessor আছে,
- * যেটা dimension-এর `length` (দৈর্ঘ্য) property-এর সাথে conflict করে।
+ * Unit: cm (length, width, height > 0)
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
 export type DimensionUnit = 'cm' | 'in';
 
-export class ProductDimensionVO extends BaseVO<string> {
-  private constructor(
-    value: string,
-    public readonly lengthCm: number,
-    public readonly widthCm: number,
-    public readonly heightCm: number,
-    public readonly unit: DimensionUnit,
-  ) {
-    super(value);
-  }
+export interface ProductDimensionProps {
+  readonly length: number;
+  readonly width: number;
+  readonly height: number;
+  readonly unit: DimensionUnit;
+}
 
-  static create(
-    length: number,
-    width: number,
-    height: number,
-    unit: DimensionUnit = 'cm',
-  ): ProductDimensionVO {
-    if (!Number.isFinite(length) || length <= 0) {
-      throw new Error('Dimension length must be a positive number');
+export class ProductDimensionVO extends BaseVO<ProductDimensionProps> {
+  private constructor(value: ProductDimensionProps) { super(value); }
+
+  static create(props: ProductDimensionProps): ProductDimensionVO {
+    const { length, width, height, unit } = props;
+    for (const [name, v] of [['length', length], ['width', width], ['height', height]] as const) {
+      if (!Number.isFinite(v)) {
+        throw new ValidationError(`ProductDimension ${name} must be finite`, 'dimensions');
+      }
+      if (v <= 0) {
+        throw new ValidationError(`ProductDimension ${name} must be > 0`, 'dimensions');
+      }
     }
-    if (!Number.isFinite(width) || width <= 0) {
-      throw new Error('Dimension width must be a positive number');
+    if (unit !== 'cm' && unit !== 'in') {
+      throw new ValidationError('ProductDimension unit must be cm|in', 'dimensions');
     }
-    if (!Number.isFinite(height) || height <= 0) {
-      throw new Error('Dimension height must be a positive number');
-    }
-    if (!['cm', 'in'].includes(unit)) {
-      throw new Error(`Invalid dimension unit: ${unit}`);
-    }
-    const value = `${length}x${width}x${height}${unit}`;
-    return new ProductDimensionVO(value, length, width, height, unit);
+    return new ProductDimensionVO({ length, width, height, unit });
   }
 
-  static reconstitute(
-    length: number,
-    width: number,
-    height: number,
-    unit: DimensionUnit,
-  ): ProductDimensionVO {
-    const value = `${length}x${width}x${height}${unit}`;
-    return new ProductDimensionVO(value, length, width, height, unit);
+  static reconstitute(props: ProductDimensionProps): ProductDimensionVO {
+    return new ProductDimensionVO(props);
   }
 
-  get length(): number {
-    return this.lengthCm;
-  }
-
-  get width(): number {
-    return this.widthCm;
-  }
-
-  get height(): number {
-    return this.heightCm;
-  }
+  get length(): number { return this.value.length; }
+  get width(): number { return this.value.width; }
+  get height(): number { return this.value.height; }
+  get unit(): DimensionUnit { return this.value.unit; }
 
   volume(): number {
-    return this.lengthCm * this.widthCm * this.heightCm;
+    return Math.round(this.value.length * this.value.width * this.value.height * 1000) / 1000;
+  }
+
+  isOversized(): boolean {
+    const maxCm = 200;
+    const factor = this.unit === 'in' ? 2.54 : 1;
+    return (
+      this.value.length * factor > maxCm ||
+      this.value.width * factor > maxCm ||
+      this.value.height * factor > maxCm
+    );
   }
 }

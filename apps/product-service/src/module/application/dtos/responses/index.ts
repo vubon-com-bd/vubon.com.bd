@@ -1,8 +1,7 @@
-// dtos/responses/index.ts — Response DTOs barrel export
+// product-service/application/dtos/responses/index.ts
+// Barrel — 13 response DTO files (multi-shape per aggregate)
+
 export * from './product-response.dto.js';
-export * from './product-public-response.dto.js';
-export * from './product-list-response.dto.js';
-export * from './product-detail-response.dto.js';
 export * from './variant-response.dto.js';
 export * from './attribute-response.dto.js';
 export * from './inventory-response.dto.js';

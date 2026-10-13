@@ -1,13 +1,12 @@
-/**
- * AddVariantCommand
- */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
-import type { AddVariantRequestDTO } from '../../dtos/requests/variant/add-variant.dto.js';
+import type { AddVariantCommandDTO } from '../../dtos/requests/variant/index.js';
 
 export class AddVariantCommand extends BaseCommand {
-  readonly type = 'variant.add';
+  readonly type = 'product.variant.add';
   constructor(
-    public readonly dto: AddVariantRequestDTO,
-    public readonly actorId: string,
-  ) { super(); }
+    public readonly dto: AddVariantCommandDTO,
+    public readonly actorId?: string,
+  ) {
+    super();
+  }
 }

@@ -1,13 +1,9 @@
-/**
- * UpdateInventoryCommand
- */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
-import type { UpdateInventoryRequestDTO } from '../../dtos/requests/inventory/update-inventory.dto.js';
+import type { UpdateInventoryCommandDTO } from '../../dtos/requests/inventory/index.js';
 
 export class UpdateInventoryCommand extends BaseCommand {
-  readonly type = 'inventory.update';
-  constructor(
-    public readonly dto: UpdateInventoryRequestDTO,
-    public readonly actorId: string,
-  ) { super(); }
+  readonly type = 'product.inventory.update';
+  constructor(public readonly dto: UpdateInventoryCommandDTO) {
+    super();
+  }
 }

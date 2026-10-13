@@ -1,34 +1,48 @@
-# Dependencies
+# ─── Dependencies ───
 node_modules/
+.pnpm-store/
 
-# Build
+# ─── Build output ───
 dist/
 build/
+*.tsbuildinfo
 
-# Environment (secrets)
+# ─── Test coverage ───
+coverage/
+*.lcov
+test-results.json
+e2e-results.json
+
+# ─── Environment ───
 .env
 .env.local
 .env.*.local
+.env.production
 
-# Logs
-*.log
+# ─── Logs ───
 logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
 
-# IDE
+# ─── OS ───
+.DS_Store
+Thumbs.db
+
+# ─── IDE ───
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# OS
-.DS_Store
+# ─── Prisma ───
+prisma/migrations/
+*.db
 
-# Test coverage
-coverage/
+# ─── Redis dumps ───
+dump.rdb
 
-# Uploads
-storage/
-uploads/
-
-# Jest coverage (generated)
-coverage-report/
-coverage/
-test-results.json
+# ─── Misc ───
+.cache/
+tmp/
+temp/

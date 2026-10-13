@@ -1,72 +1,114 @@
 /**
- * Review Request DTOs
+ * Review HTTP Request DTOs
  * @module product-service/interfaces/dtos/requests
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsArray, IsInt, IsOptional, IsString, IsUUID, Max, Min, MinLength,
+} from 'class-validator';
 
-export class SubmitReviewRequestDTO {
-  @ApiProperty({ example: '7c9e6679-7425-40de-944b-e07fc1f90ae7' })
+export class SubmitReviewHttpDTO {
+  @ApiProperty()
+  @IsUUID()
   readonly productId!: string;
 
   @ApiProperty({ example: 5, minimum: 1, maximum: 5 })
+  @IsInt()
+  @Min(1)
+  @Max(5)
   readonly rating!: number;
 
-  @ApiPropertyOptional({ example: 'Excellent product' })
-  readonly title?: string;
-
-  @ApiPropertyOptional({ example: 'Very good quality and fast delivery.' })
-  readonly comment?: string;
-
-  @ApiPropertyOptional({ type: [String], example: ['https://cdn.vubon.com.bd/reviews/1.jpg'] })
-  readonly images?: readonly string[];
-}
-
-export class UpdateReviewRequestDTO {
-  @ApiProperty()
-  readonly reviewId!: string;
-
   @ApiPropertyOptional()
-  readonly rating?: number;
-
-  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   readonly title?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(10)
   readonly comment?: string;
 
   @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   readonly images?: readonly string[];
 
-  @ApiProperty()
-  readonly updatedBy!: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly orderId?: string;
 }
 
-export class ApproveReviewRequestDTO {
-  @ApiProperty()
-  readonly reviewId!: string;
+export class UpdateReviewHttpDTO {
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  readonly rating?: number;
 
-  @ApiProperty()
-  readonly moderatorId!: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly title?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(10)
+  readonly comment?: string;
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  readonly images?: readonly string[];
 }
 
-export class RejectReviewRequestDTO {
-  @ApiProperty()
-  readonly reviewId!: string;
+export class ListReviewsHttpQueryDTO {
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  readonly page?: number;
 
-  @ApiProperty()
-  readonly reason!: string;
+  @ApiPropertyOptional({ example: 20, maximum: 100 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  readonly limit?: number;
 
-  @ApiProperty()
-  readonly moderatorId!: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  readonly productId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly status?: string;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  readonly minRating?: number;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 5 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  readonly maxRating?: number;
 }
 
-export class ReportReviewRequestDTO {
+export class RejectReviewHttpDTO {
   @ApiProperty()
-  readonly reviewId!: string;
-
-  @ApiProperty()
-  readonly userId!: string;
-
-  @ApiProperty()
+  @IsString()
+  @MinLength(3)
   readonly reason!: string;
 }

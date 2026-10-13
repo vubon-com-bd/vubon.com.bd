@@ -1,14 +1,12 @@
-/**
- * UpdateProductCommand
- */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
-import type { UpdateProductRequestDTO } from '../../dtos/requests/product/update-product.dto.js';
+import type { UpdateProductCommandDTO } from '../../dtos/requests/product/index.js';
 
 export class UpdateProductCommand extends BaseCommand {
-  readonly type = 'product.update';
+  readonly type = 'product.product.update';
   constructor(
-    public readonly productId: string,
-    public readonly dto: UpdateProductRequestDTO,
-    public readonly actorId: string,
-  ) { super(); }
+    public readonly dto: UpdateProductCommandDTO,
+    public readonly actorId?: string,
+  ) {
+    super();
+  }
 }

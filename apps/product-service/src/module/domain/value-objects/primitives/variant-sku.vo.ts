@@ -3,27 +3,17 @@
  * @module product-service/domain/value-objects/primitives
  */
 import { BaseSkuVO } from '@vubon/shared-kernel/domain/primitives';
-
-const MIN_LENGTH = 2;
-const MAX_LENGTH = 64;
+import { VARIANT } from '@vubon/shared-constants/business';
 
 export class VariantSkuVO extends BaseSkuVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
+
+  protected static override minLength(): number { return 2; }
+  protected static override maxLength(): number { return VARIANT.SKU_MAX_LENGTH; }
 
   static create(raw: string): VariantSkuVO {
-    if (typeof raw !== 'string') {
-      throw new Error('VariantSku must be a string');
-    }
-    const normalized = raw.trim().toUpperCase();
-    if (normalized.length < MIN_LENGTH || normalized.length > MAX_LENGTH) {
-      throw new Error(`VariantSku must be ${MIN_LENGTH}-${MAX_LENGTH} characters`);
-    }
-    return new VariantSkuVO(normalized);
+    return new VariantSkuVO(BaseSkuVO.validateRaw(raw));
   }
 
-  static reconstitute(raw: string): VariantSkuVO {
-    return new VariantSkuVO(raw);
-  }
+  static reconstitute(raw: string): VariantSkuVO { return new VariantSkuVO(raw); }
 }

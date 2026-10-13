@@ -1,7 +1,9 @@
 /**
- * ArchiveProductRequestDTO
+ * Archive Product Request DTO
+ * @module product-service/application/dtos/requests/product
  */
 export interface ArchiveProductRequestDTO {
   readonly productId: string;
-  readonly archivedBy: string;
+  readonly reason?: string;
+  readonly actorId?: string;
 }

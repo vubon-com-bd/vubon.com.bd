@@ -1,35 +1,35 @@
 /**
- * ReviewRating Value Object (1-5)
+ * ReviewRating Value Object (1-5 integer)
+ * @module product-service/domain/value-objects/primitives
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { REVIEW_RATING } from '@vubon/shared-constants/business/product';
-import { InvalidRatingError } from '../../errors/review.errors.js';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { REVIEW_RATING } from '@vubon/shared-constants/business';
+
+const MIN = REVIEW_RATING.MIN;
+const MAX = REVIEW_RATING.MAX;
 
 export class ReviewRatingVO extends BaseVO<number> {
-  private constructor(value: number) {
-    super(value);
-  }
+  private constructor(value: number) { super(value); }
 
   static create(raw: number): ReviewRatingVO {
-    if (!Number.isInteger(raw) || raw < REVIEW_RATING.MIN || raw > REVIEW_RATING.MAX) {
-      throw new InvalidRatingError(raw, REVIEW_RATING.MIN, REVIEW_RATING.MAX);
+    if (!Number.isFinite(raw)) {
+      throw new ValidationError('ReviewRating must be a finite number', 'rating');
+    }
+    if (!Number.isInteger(raw)) {
+      throw new ValidationError('ReviewRating must be an integer', 'rating');
+    }
+    if (raw < MIN || raw > MAX) {
+      throw new ValidationError(`ReviewRating must be ${MIN}-${MAX}`, 'rating');
     }
     return new ReviewRatingVO(raw);
   }
 
-  static reconstitute(raw: number): ReviewRatingVO {
-    return new ReviewRatingVO(raw);
-  }
+  static reconstitute(raw: number): ReviewRatingVO { return new ReviewRatingVO(raw); }
 
-  isPositive(): boolean {
-    return this.value >= 4;
-  }
+  isPositive(): boolean { return this.value >= 4; }
+  isNeutral(): boolean { return this.value === 3; }
+  isNegative(): boolean { return this.value <= 2; }
 
-  isNeutral(): boolean {
-    return this.value === 3;
-  }
-
-  isNegative(): boolean {
-    return this.value <= 2;
-  }
+  toPercentage(): number { return (this.value / MAX) * 100; }
 }

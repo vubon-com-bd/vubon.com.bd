@@ -1,10 +1,9 @@
-/**
- * UpdateAttributeCommand
- */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
-import type { UpdateAttributeRequestDTO } from '../../dtos/requests/attribute/update-attribute.dto.js';
+import type { UpdateAttributeRequestDTO } from '../../dtos/requests/attribute/index.js';
 
 export class UpdateAttributeCommand extends BaseCommand {
-  readonly type = 'attribute.update';
-  constructor(public readonly dto: UpdateAttributeRequestDTO) { super(); }
+  readonly type = 'product.attribute.update';
+  constructor(public readonly dto: UpdateAttributeRequestDTO) {
+    super();
+  }
 }

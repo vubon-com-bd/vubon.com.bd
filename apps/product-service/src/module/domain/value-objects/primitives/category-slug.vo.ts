@@ -1,39 +1,30 @@
 /**
  * CategorySlug Value Object
+ * @module product-service/domain/value-objects/primitives
  */
 import { BaseSlugVO } from '@vubon/shared-kernel/domain/primitives';
-import { CATEGORY } from '@vubon/shared-constants/business/product';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { CATEGORY } from '@vubon/shared-constants/business';
 
 export class CategorySlugVO extends BaseSlugVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
+
+  protected static override maxLength(): number { return CATEGORY.SLUG_MAX_LENGTH; }
 
   static create(raw: string): CategorySlugVO {
-    if (typeof raw !== 'string' || raw.trim().length === 0) {
-      throw new Error('CategorySlug cannot be empty');
-    }
-    const normalized = raw.trim().toLowerCase();
+    const normalized = BaseSlugVO.validateRaw(raw);
     if (normalized.length > CATEGORY.SLUG_MAX_LENGTH) {
-      throw new Error(`CategorySlug cannot exceed ${CATEGORY.SLUG_MAX_LENGTH} chars`);
+      throw new ValidationError(
+        `CategorySlug exceeds max ${CATEGORY.SLUG_MAX_LENGTH}`,
+        'slug',
+      );
     }
     return new CategorySlugVO(normalized);
   }
 
   static fromName(name: string): CategorySlugVO {
-    const slug = name
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    return CategorySlugVO.create(slug);
+    return new CategorySlugVO(BaseSlugVO.slugifyFromName(name));
   }
 
-  static reconstitute(raw: string): CategorySlugVO {
-    return new CategorySlugVO(raw);
-  }
+  static reconstitute(raw: string): CategorySlugVO { return new CategorySlugVO(raw); }
 }

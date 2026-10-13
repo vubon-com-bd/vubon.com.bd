@@ -1,389 +1,441 @@
-# DEVELOPMENT
+# Development Guide — Product Service
 
-PRODUCT SERVICE — DEVELOPMENT SETUP GUIDE
-@module product-service/docs
-
-══════════════════════════════════════════════════════════════════
- 🛠️  PREREQUISITES
-══════════════════════════════════════════════════════════════════
-
- Required:
-   • Node.js         >= 22.0.0
-   • pnpm            >= 9.0.0
-   • PostgreSQL      >= 14 (via Supabase recommended)
-   • Redis           >= 6.0
-   • Meilisearch     >= 1.0 (optional — for search)
-   • TypeScript      >= 5.0
-   • Git             >= 2.30
-
- Optional:
-   • Docker          — for containerized runs
-   • Redis Insight   — GUI for Redis
-   • Postman/Insomnia — API testing
-   • Meilisearch Dashboard
-
- Termux (Android) Support:
-   ✅ Works with caveats (Prisma engine ARM64)
-   ✅ Recommended for dev + unit tests
-   ❌ Not recommended for production
+Complete guide for setting up and developing the Product Service locally.
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🚀 INITIAL SETUP (Step by Step)
-══════════════════════════════════════════════════════════════════
+## 📋 Prerequisites
 
- Step 1 — Clone the repository
- ─────────────────────────────────────────────────────────────
-   git clone <repo-url> vubon.com.bd
-   cd vubon.com.bd
+| Tool | Version | Purpose |
+|------|---------|---------|
+| **Node.js** | >= 22 | Runtime |
+| **pnpm** | >= 9 | Package manager |
+| **PostgreSQL** | >= 14 | Database (optional for dev) |
+| **Redis** | >= 6 | Cache + Queue (optional) |
+| **Git** | >= 2.30 | Version control |
 
- Step 2 — Install dependencies
- ─────────────────────────────────────────────────────────────
-   pnpm install
-
- Step 3 — Setup environment variables
- ─────────────────────────────────────────────────────────────
-   cp apps/product-service/.env.example apps/product-service/.env
-   # Edit .env with your values
-
- Step 4 — Generate Prisma client
- ─────────────────────────────────────────────────────────────
-   cd packages/shared-kernel
-   pnpm prisma generate
-
- Step 5 — Run migrations
- ─────────────────────────────────────────────────────────────
-   pnpm prisma migrate dev
-
- Step 6 — Start Redis
- ─────────────────────────────────────────────────────────────
-   redis-server
-   # OR with custom config:
-   redis-server --daemonize yes --port 6379
-
- Step 7 — Start Meilisearch (optional)
- ─────────────────────────────────────────────────────────────
-   meilisearch --master-key=masterKey
-   # OR via Docker:
-   docker run -p 7700:7700 getmeili/meilisearch:latest
-
- Step 8 — Build shared packages
- ─────────────────────────────────────────────────────────────
-   cd ~/vubon.com.bd
-   pnpm --filter @vubon/shared-constants build
-   pnpm --filter @vubon/shared-types build
-   pnpm --filter @vubon/shared-schemas build
-   pnpm --filter @vubon/shared-kernel build
-
- Step 9 — Start the service
- ─────────────────────────────────────────────────────────────
-   cd apps/product-service
-   pnpm start:dev
-
- Step 10 — Verify
- ─────────────────────────────────────────────────────────────
-   Open: http://localhost:4002/api/v1/docs
-   The Swagger UI should load with all endpoints.
+### Termux (Android) Notes
+- Prisma engine unavailable on ARM64
+- Use `DB_MODE=memory` for development
+- Redis needs `--ignore-warnings ARM64-COW-BUG` flag
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📁 PROJECT LAYOUT
-══════════════════════════════════════════════════════════════════
+## 🚀 Quick Start
 
- apps/product-service/
- ├── docs/                          ← .doc.ts sources + extractor
- ├── prisma/                        ← (empty — schema in shared-kernel)
- ├── src/
- │   ├── main.ts                    ← bootstrap
- │   └── module/
- │       ├── domain/                ← L1 — entities, VOs, repos
- │       ├── application/           ← L2 — CQRS, DTOs, mappers
- │       ├── infrastructure/        ← L3 — Prisma, Redis, search, workers
- │       ├── interfaces/            ← L4 — controllers, guards
- │       └── modules/               ← L5 — NestJS wiring
- ├── test/
- │   ├── domain/                    ← unit tests (VOs, entities)
- │   ├── application/               ← unit tests (services, handlers)
- │   ├── interfaces/                ← unit tests (controllers, guards)
- │   ├── e2e/                       ← E2E tests
- │   ├── mocks/                     ← typed mocks
- │   └── fixtures.ts                ← test fixtures
- ├── scripts/
- │   └── docker-entrypoint.sh       ← prisma migrate + start
- ├── Dockerfile
- ├── railway.toml
- ├── package.json
- ├── jest.config.cjs
- ├── tsconfig.json
- └── README.md
+### 1. Clone & Install
 
----
+\`\`\`bash
+cd ~/vubon.com.bd/apps/product-service
+pnpm install
+\`\`\`
 
-══════════════════════════════════════════════════════════════════
- 🔧 COMMON COMMANDS
-══════════════════════════════════════════════════════════════════
+### 2. Setup Environment
 
- From apps/product-service/:
+\`\`\`bash
+cp .env.example .env
+# Edit .env — set DB_MODE=memory for Termux
+\`\`\`
 
-   pnpm start:dev        — dev server with watch
-   pnpm start:debug      — dev server with debugger
-   pnpm build            — production build
-   pnpm start:prod       — run production build
+**Minimum .env:**
+\`\`\`env
+NODE_ENV=development
+PORT=3002
+DB_MODE=memory
+DATABASE_URL=postgresql://vubon:vubon@localhost:5432/vubon_product
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=test_jwt_secret_must_be_at_least_32_characters_long
+\`\`\`
 
-   pnpm type-check       — TypeScript check
-   pnpm lint             — ESLint
-   pnpm test             — unit tests (1090)
-   pnpm test:cov         — coverage report
-   pnpm test:watch       — watch mode
-   pnpm test:unit        — all unit tests
-   pnpm test:vo          — value object tests only
-   pnpm test:entity      — entity tests only
-   pnpm test:service     — service tests only
-   pnpm test:e2e         — end-to-end tests
+### 3. Start Development Server
 
- From packages/shared-kernel/:
+\`\`\`bash
+pnpm start:dev
+\`\`\`
 
-   pnpm prisma:generate  — regenerate Prisma client
-   pnpm prisma:migrate   — create + apply dev migration
-   pnpm prisma:studio    — open Prisma Studio
-   pnpm prisma:format    — format schema
+**Server:** http://localhost:3002
+**Swagger:** http://localhost:3002/api/docs
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🌍 ENVIRONMENT VARIABLES
-══════════════════════════════════════════════════════════════════
+## 🗄️ Database Setup
 
- Load order (in main.ts):
-   1. Root .env             ← ../../.env
-   2. product-service .env  ← ./.env (overrides)
+### Option A — InMemory Mode (Termux, no setup)
 
- Required variables:
+\`\`\`env
+DB_MODE=memory
+\`\`\`
 
-   # Runtime
-   NODE_ENV         = development
-   PORT             = 4002
-   APP_NAME         = product-service
+- No database required
+- Data is in-memory (resets on restart)
+- Fast startup
+- Perfect for development
 
-   # Database
-   DATABASE_URL     = postgresql://...
-   DB_SSL           = false
-   DB_LOGGING       = true
+### Option B — PostgreSQL Mode
 
-   # Redis
-   REDIS_URL        = redis://localhost:6379
-   REDIS_KEY_PREFIX = vubon:
-   REDIS_DB         = 0
-   REDIS_QUEUE_DB   = 1
+#### Install PostgreSQL
 
-   # JWT (must match auth-service)
-   JWT_SECRET       = 32+ chars (dev only)
-   JWT_ISSUER       = vubon-api
-   JWT_AUDIENCE     = vubon-client
+**Ubuntu/Debian:**
+\`\`\`bash
+sudo apt install postgresql postgresql-contrib
+\`\`\`
 
-   # CORS
-   CORS_ORIGINS     = http://localhost:3000,http://localhost:3001
+**macOS:**
+\`\`\`bash
+brew install postgresql
+\`\`\`
 
- Search (optional in dev — graceful if missing):
-   SEARCH_PROVIDER  = meilisearch
-   SEARCH_HOST      = http://localhost:7700
-   SEARCH_API_KEY   = masterKey
+**Termux:**
+\`\`\`bash
+pkg install postgresql
+\`\`\`
 
- Storage:
-   STORAGE_PROVIDER = local
-   STORAGE_LOCAL_BASE_PATH = ./storage/uploads
+#### Create Database
 
- Feature config (optional — defaults in config files):
-   PRODUCT_CACHE_TTL        = 300
-   PRODUCT_PAGE_SIZE        = 20
-   PRODUCT_MAX_PAGE_SIZE    = 100
-   VARIANT_CACHE_TTL        = 300
-   INVENTORY_CACHE_TTL      = 60
-   PRICING_CACHE_TTL        = 300
-   REVIEW_CACHE_TTL         = 120
-   BRAND_CACHE_TTL          = 600
+\`\`\`bash
+createdb -h localhost -U $(whoami) vubon_product
+\`\`\`
 
- Feature flags:
-   PRODUCT_SEARCH_INDEXING  = true
-   VARIANT_AUTO_MATRIX      = true
-   INVENTORY_LOW_STOCK_ALERTS = true
+#### Apply Tables (Manual — Termux-safe)
 
----
+\`\`\`bash
+psql -h localhost -U $(whoami) -d vubon_product \\
+  -f ~/.db-manual-migrations/product-service/20261013_create_all_product_tables.sql
+\`\`\`
 
-══════════════════════════════════════════════════════════════════
- 🗄️  DATABASE WORKFLOW
-══════════════════════════════════════════════════════════════════
+#### Verify
 
- Schema location:
-   packages/shared-kernel/prisma/schema.prisma
+\`\`\`bash
+psql -h localhost -U $(whoami) -d vubon_product -c "\\dt"
+# Should show 12 tables
+\`\`\`
 
- Migrate (dev):
-   cd packages/shared-kernel
-   pnpm prisma migrate dev --name <description>
+#### Update .env
 
- Apply pending (production / CI):
-   pnpm prisma migrate deploy
-
- Reset local DB:
-   pnpm prisma migrate reset
-
- Studio:
-   pnpm prisma studio
-
- Generate client only:
-   pnpm prisma generate
-
- Safety rules:
-   🔴 Never edit an applied migration file
-   🔴 Never run `prisma db push` in production
-   🔴 Always review generated SQL before committing
-   🔴 Back up production before destructive migrations
+\`\`\`env
+DB_MODE=prisma
+DATABASE_URL=postgresql://vubon:vubon@localhost:5432/vubon_product
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔍 SEARCH INDEX WORKFLOW
-══════════════════════════════════════════════════════════════════
+## 🔴 Redis Setup
 
- Meilisearch must be running for search features.
+### Install
 
- Create index (auto on first reindex):
-   POST /api/v1/products/:id → indexes automatically
+**Ubuntu:**
+\`\`\`bash
+sudo apt install redis-server
+\`\`\`
 
- Bulk reindex all:
-   From BullMQ: enqueue search.bulk.reindex job
-   Or via CLI:
-     pnpm ts-node scripts/reindex.ts
+**macOS:**
+\`\`\`bash
+brew install redis
+\`\`\`
 
- Clear index:
-   Enqueue job: search.clear.cache
+**Termux:**
+\`\`\`bash
+pkg install redis
+\`\`\`
 
- Inspect via Meilisearch dashboard:
-   http://localhost:7700
+### Start
 
- If Meilisearch is unavailable:
-   • Search endpoints return empty results
-   • Product CRUD works normally
-   • Indexer logs a warning (not an error)
+**Standard:**
+\`\`\`bash
+redis-server --daemonize yes
+\`\`\`
 
----
+**Termux (ARM64 fix):**
+\`\`\`bash
+redis-server --daemonize yes --ignore-warnings ARM64-COW-BUG
+\`\`\`
 
-══════════════════════════════════════════════════════════════════
- 🧪 TEST WORKFLOW
-══════════════════════════════════════════════════════════════════
+### Verify
 
- Run all unit tests:
-   cd apps/product-service
-   pnpm test
-
- Run a single test file:
-   pnpm jest test/domain/value-objects/price.vo.spec.ts
-
- Run a folder:
-   pnpm jest test/domain/value-objects
-
- Run tests matching a pattern:
-   pnpm jest test -t "should create a product"
-
- Run coverage:
-   pnpm test:cov
-
- Run e2e:
-   pnpm test:e2e
-
- Current status:
-   • 83 unit test files
-   • 2 e2e test files
-   • 1090 tests passing
-   • 88.81% statement coverage
-   • 90.97% line coverage
+\`\`\`bash
+redis-cli ping
+# → PONG
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🐛 DEBUGGING
-══════════════════════════════════════════════════════════════════
+## 🏗️ Development Workflow
 
- Start with debugger:
-   pnpm start:debug
-   Then attach VS Code debugger on port 9229.
+### Start Server (dev mode with hot reload)
 
- Enable verbose logging:
-   Set LOG_LEVEL=debug in .env
+\`\`\`bash
+pnpm start:dev
+\`\`\`
 
- Inspect logs at runtime:
-   tail -f service.log          (if started via nohup)
+### Type-check (watch)
 
- Inspect Prisma queries:
-   Set DB_LOGGING=true in .env
+\`\`\`bash
+pnpm type-check --watch
+\`\`\`
 
- Health check:
-   curl http://localhost:4002/api/v1/docs-json
+### Build (production)
 
- Redis inspect:
-   redis-cli
-   > KEYS vubon:*
-   > GET vubon:product:...
+\`\`\`bash
+pnpm build
+\`\`\`
 
- Meilisearch inspect:
-   curl http://localhost:7700/indexes/products/stats
+### Run compiled
+
+\`\`\`bash
+pnpm start:prod
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📌 CODING CONVENTIONS
-══════════════════════════════════════════════════════════════════
+## 🧪 Testing
 
- TypeScript:
-   • Strict mode enabled
-   • No `any` types in production code
-   • Prefer `unknown` over `any` when needed
-   • Use `readonly` on immutable fields
-   • Explicit return types on public methods
+### Unit Tests
 
- Layer rules:
-   • Domain: pure TypeScript, no imports from higher layers
-   • Application: may import domain, no infra/HTTP
-   • Infrastructure: implements domain contracts
-   • Interfaces: HTTP only, dispatch commands/queries
-   • Modules: wiring only, no business logic
+\`\`\`bash
+pnpm test:unit              # Run once
+pnpm test:unit:watch        # Watch mode
+pnpm test:unit:cov          # Coverage
+\`\`\`
 
- Testing:
-   • Co-locate helper mocks under test/mocks/
-   • One `.spec.ts` per source file (or grouped)
-   • Use `describe` + `it` in BDD style
-   • Prefer `jest.Mocked<T>` for typed mocks
+### E2E Tests
 
- Naming:
-   • Value objects:  <Name>VO (e.g. ProductIdVO)
-   • Entities:       <Name>Entity (e.g. ProductEntity)
-   • Commands:       <Action><Entity>Command
-   • Queries:        <Action><Entity>Query
-   • Handlers:       <Action><Entity>Handler
-   • Repositories:   <Entity>Repository (interface)
-                     <Entity>PrismaRepository (impl)
-   • Events:         <Entity><Action>Event
-   • Errors:         <Entity><Reason>Error
+\`\`\`bash
+pnpm test:e2e               # Run all
+pnpm test:e2e:watch         # Watch mode
+\`\`\`
+
+### All Tests
+
+\`\`\`bash
+pnpm test:all               # Unit + E2E
+\`\`\`
+
+See [TESTING.md](./TESTING.md) for details.
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📚 DOCUMENTATION WORKFLOW
-══════════════════════════════════════════════════════════════════
+## 🔧 Generators
 
- Source of truth:  docs/*.doc.ts   (JSDoc-style markdown)
- Generated:        *.md            (top-level, renderable)
+### Regenerate E2E Tests
 
- Regenerate:
-   cd apps/product-service/docs
-   node extract-docs.cjs
+\`\`\`bash
+pnpm generate:e2e
+\`\`\`
 
- Never edit generated .md files directly — they are overwritten
- on every extract.
+Reads: \`scripts/e2e/endpoints.mjs\`
+Writes: \`test/e2e/*.e2e-spec.ts\`
 
- To update documentation:
-   1. Edit docs/architecture.doc.ts (or api/deployment/...)
-   2. Run node extract-docs.cjs
-   3. Commit both source and generated files
+### Regenerate InMemory Repositories
+
+\`\`\`bash
+node scripts/generate-inmemory-repos.mjs
+\`\`\`
+
+Writes: \`src/module/infrastructure/persistence/memory/repositories/*.ts\`
+
+---
+
+## 📁 Project Structure
+
+\`\`\`
+product-service/
+├── src/
+│   ├── main.ts                  ← Bootstrap
+│   └── module/
+│       ├── domain/              ← Business logic (pure)
+│       ├── application/         ← Use cases (CQRS)
+│       ├── infrastructure/      ← Adapters (DB, cache)
+│       ├── interfaces/          ← HTTP boundary
+│       └── modules/             ← NestJS wiring
+├── test/
+│   ├── unit/                    ← Unit specs
+│   ├── e2e/                     ← E2E specs
+│   └── helpers/                 ← Test helpers
+├── scripts/                     ← Generators
+├── prisma/                      ← Prisma schema (stub)
+└── docs/                        ← Additional docs
+\`\`\`
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for layer details.
+
+---
+
+## 🎯 Common Tasks
+
+### Add a New Endpoint
+
+1. **Domain** — Add method to entity/VO if business rule needed
+2. **Application** — Add service method + command/query handler
+3. **Interfaces** — Add REST controller route + DTOs
+4. **Modules** — Register handler in feature module
+5. **Tests** — Add unit + e2e tests
+6. **Regenerate** — `pnpm generate:e2e`
+
+### Add a New Value Object
+
+1. Create `src/module/domain/value-objects/primitives/<name>.vo.ts`
+2. Extend `BaseVO` or specific base (`BaseIdVO`, `BaseNameVO`, ...)
+3. Add `static create()` + `static reconstitute()`
+4. Export from `index.ts`
+5. Add unit test in `test/unit/domain/value-objects/`
+
+### Add a New Repository
+
+1. **Domain** — Create interface in `domain/repositories/`
+2. **Infrastructure** — Prisma impl + InMemory impl
+3. **Module** — Register in `PrismaRepositoriesModule` + `MemoryRepositoriesModule`
+4. **DI Token** — Add Symbol to domain interface
+
+### Add a New Saga
+
+1. Create `src/module/application/sagas/<process>.saga.ts`
+2. Import in `<feature>/sagas/index.ts`
+3. Register in `<feature>.module.ts`
+
+---
+
+## 🐛 Debugging
+
+### Enable verbose logging
+
+\`\`\`env
+LOG_LEVEL=debug
+\`\`\`
+
+### Debug with Node inspector
+
+\`\`\`bash
+node --inspect dist/main.js
+\`\`\`
+
+Open `chrome://inspect` in Chrome.
+
+### View recent logs
+
+\`\`\`bash
+tail -f ~/product-server.log
+\`\`\`
+
+### Test a specific endpoint
+
+\`\`\`bash
+curl -X GET http://localhost:3002/health
+curl -X GET http://localhost:3002/api/docs-json | jq
+\`\`\`
+
+---
+
+## 🎯 Code Style
+
+### Layer Rules
+
+- **Domain** — No NestJS, no external libs
+- **Application** — Orchestration only
+- **Infrastructure** — Adapters for external systems
+- **Interfaces** — HTTP boundary
+- **Modules** — Wiring only
+
+### Naming
+
+| Type | Pattern |
+|------|---------|
+| VO | `<concept>-<prop>.vo.ts` |
+| Entity | `<concept>.entity.ts` |
+| Command | `<action>-<concept>.command.ts` |
+| Handler | `<action>-<concept>.handler.ts` |
+| Controller | `<concept>.controller.ts` |
+| Module | `<feature>.module.ts` |
+
+### Linting
+
+\`\`\`bash
+pnpm lint
+\`\`\`
+
+### Formatting
+
+\`\`\`bash
+pnpm format:write
+\`\`\`
+
+---
+
+## 🔐 Security Best Practices
+
+- ✅ Never commit `.env` (in `.gitignore`)
+- ✅ Use `JWT_SECRET` with min 32 chars
+- ✅ Enable `DB_SSL=true` in production
+- ✅ Use environment variables for secrets
+- ✅ Enable rate limiting in production
+- ✅ Use idempotency keys for mutations
+
+---
+
+## 🎯 Troubleshooting
+
+### Port already in use
+
+\`\`\`bash
+# Find process
+lsof -i :3002
+# or Termux:
+pkill -f "node dist/main.js"
+\`\`\`
+
+### Prisma engine unavailable
+
+**On Termux ARM64** — expected behavior. Use:
+\`\`\`env
+DB_MODE=memory
+\`\`\`
+
+### Redis connection refused
+
+\`\`\`bash
+# Termux:
+redis-server --daemonize yes --ignore-warnings ARM64-COW-BUG
+redis-cli ping
+\`\`\`
+
+### Build fails with TS errors
+
+\`\`\`bash
+pnpm type-check
+\`\`\`
+
+### E2E tests fail
+
+\`\`\`bash
+# Ensure server is running
+curl http://localhost:3002/health
+# Or restart:
+pkill -f "node dist/main.js"
+pnpm build && node dist/main.js &
+\`\`\`
+
+### Prisma client not generated
+
+\`\`\`bash
+cd ../../packages/shared-kernel
+npx prisma generate
+\`\`\`
+
+---
+
+## 📚 Additional Resources
+
+- [README.md](./README.md) — Project overview
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Layer patterns
+- [API.md](./API.md) — API reference
+- [TESTING.md](./TESTING.md) — Test guide
+- [DEPLOYMENT.md](./DEPLOYMENT.md) — Deployment guide
+- [CHANGELOG.md](./CHANGELOG.md) — Version history
+
+---
+
+## 🎯 Getting Help
+
+1. Check [ARCHITECTURE.md](./ARCHITECTURE.md) for pattern questions
+2. Check [TESTING.md](./TESTING.md) for test issues
+3. Check service logs: `tail -f ~/product-server.log`
+4. Verify runtime: `curl http://localhost:3002/health`

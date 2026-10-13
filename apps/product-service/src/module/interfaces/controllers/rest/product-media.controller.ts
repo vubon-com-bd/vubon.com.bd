@@ -1,60 +1,81 @@
 /**
- * ProductMediaController
+ * ProductMediaController — REST endpoints
+ * @module product-service/interfaces/controllers/rest
  */
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject,
+  Param, Post, UseGuards, UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Public, Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
-import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
-import { ListMediaByProductQuery } from '../../../application/queries/media/list-media-by-product.query.js';
-import type { MediaItemDTO } from '../../../application/services/interfaces/media.service.interface.js';
-import { AddMediaRequestDTO } from '../../dtos/requests/media.request.dto.js';
 
-@ApiTags('media')
+import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
+
+import {
+  MEDIA_SERVICE,
+  type IProductMediaService,
+} from '../../../application/services/interfaces/product-media.service.interface.js';
+
+import type { MediaHttpResponseDTO } from '../../dtos/responses/media.response.dto.js';
+import type { AddMediaHttpDTO } from '../../dtos/requests/media.request.dto.js';
+
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+
+@ApiTags('product-media')
 @ApiBearerAuth('bearer')
-@Controller('media')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('products/:productId/media')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ProductLoggingInterceptor, ProductTimeoutInterceptor)
 export class ProductMediaController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(MEDIA_SERVICE)
+    private readonly mediaService: IProductMediaService,
   ) {
     super();
   }
 
-  @Get('product/:productId')
-  @Public()
-  @ApiOperation({ summary: 'List media for a product' })
-  async listByProduct(@Param('productId') productId: string): Promise<readonly MediaItemDTO[]> {
-    return this.queryBus.execute(new ListMediaByProductQuery(productId));
-  }
-
   @Post()
-  @Roles('admin', 'vendor')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Add media to product' })
   async add(
-    @Body() dto: AddMediaRequestDTO,
+    @Param('productId') productId: string,
+    @Body() dto: AddMediaHttpDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<MediaItemDTO> {
-    // Direct service call via command pattern is preferred — placeholder response
-    void dto;
-    void user;
-    throw new Error('Use MediaService directly or create AddMediaCommand');
+  ): Promise<MediaHttpResponseDTO> {
+    const result = await this.mediaService.addMedia({
+      productId,
+      items: dto.items.map((i) => ({
+        url: i.url,
+        type: i.type,
+        alt: i.alt,
+        order: i.order,
+        isPrimary: i.isPrimary,
+      })),
+      actorId: user.userId,
+    });
+    return result as unknown as MediaHttpResponseDTO;
   }
 
-  @Delete(':mediaId')
-  @Roles('admin', 'vendor')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Remove media' })
+  @Delete(':mediaUrl')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remove media from product' })
   async remove(
-    @Param('mediaId') mediaId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<void> {
-    void mediaId;
-    void user;
-    throw new Error('Use MediaService directly or create RemoveMediaCommand');
+    @Param('productId') productId: string,
+    @Param('mediaUrl') mediaUrl: string,
+  ): Promise<MediaHttpResponseDTO> {
+    const result = await this.mediaService.removeMedia({ productId, mediaUrl });
+    return result as unknown as MediaHttpResponseDTO;
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'List product media' })
+  async getByProduct(
+    @Param('productId') productId: string,
+  ): Promise<MediaHttpResponseDTO> {
+    const result = await this.mediaService.getByProduct(productId);
+    return result as unknown as MediaHttpResponseDTO;
   }
 }

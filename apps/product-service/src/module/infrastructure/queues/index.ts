@@ -1,7 +1,9 @@
-// infrastructure/queues/index.ts
+// product-service/infrastructure/queues/index.ts
+// Barrel — queue constants + 5 queues
+
 export * from './queue.constants.js';
-export * from './queue.config.js';
-export * from './queue.factory.js';
-export * from './product-queue.service.js';
-export * from './inventory-queue.service.js';
-export * from './search-queue.service.js';
+export * from './product.queue.js';
+export * from './inventory.queue.js';
+export * from './search-index.queue.js';
+export * from './media.queue.js';
+export * from './analytics.queue.js';

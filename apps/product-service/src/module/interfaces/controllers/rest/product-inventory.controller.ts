@@ -1,88 +1,117 @@
 /**
- * ProductInventoryController
+ * ProductInventoryController — REST endpoints
+ * @module product-service/interfaces/controllers/rest
  */
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body, Controller, Get, HttpCode, HttpStatus, Inject, Param,
+  Post, Query, UseGuards, UseInterceptors,
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
-import { AdjustInventoryCommand } from '../../../application/commands/inventory/adjust-inventory.command.js';
-import { ReserveInventoryCommand } from '../../../application/commands/inventory/reserve-inventory.command.js';
-import { ReleaseInventoryCommand } from '../../../application/commands/inventory/release-inventory.command.js';
-import { ListInventoryByProductQuery } from '../../../application/queries/inventory/list-inventory-by-product.query.js';
-import { ListLowStockQuery } from '../../../application/queries/inventory/list-low-stock.query.js';
+import {
+  INVENTORY_SERVICE,
+  type IProductInventoryService,
+} from '../../../application/services/interfaces/product-inventory.service.interface.js';
 
-import { InventoryResponseDTO } from '../../dtos/responses/inventory.response.dto.js';
+import type {
+  AdjustInventoryHttpDTO,
+  UpdateInventoryHttpDTO,
+} from '../../dtos/requests/inventory.request.dto.js';
+import type {
+  InventoryHttpResponseDTO,
+  StockCheckHttpResponseDTO,
+  InventoryStatsHttpResponseDTO,
+} from '../../dtos/responses/inventory.response.dto.js';
 
-@ApiTags('inventory')
+import { InventoryControllerMapper } from '../../mappers/inventory.controller.mapper.js';
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+import {
+  ApiInventoryTag,
+  ApiGetInventory,
+  ApiAdjustInventory,
+  ApiCheckStock,
+  ApiGetInventoryStats,
+} from '../../swagger/inventory.swagger.js';
+
+@ApiInventoryTag()
 @ApiBearerAuth('bearer')
-@Controller('inventory')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('product-inventory')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ProductLoggingInterceptor, ProductTimeoutInterceptor)
 export class ProductInventoryController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(INVENTORY_SERVICE)
+    private readonly inventoryService: IProductInventoryService,
   ) {
     super();
   }
 
-  @Get('low-stock')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'List low stock inventory' })
-  async lowStock(): Promise<readonly InventoryResponseDTO[]> {
-    return this.queryBus.execute(new ListLowStockQuery());
-  }
-
-  @Get('product/:productId')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'List inventory for a product' })
-  async listByProduct(@Param('productId') productId: string): Promise<readonly InventoryResponseDTO[]> {
-    return this.queryBus.execute(new ListInventoryByProductQuery(productId));
-  }
-
-  @Patch(':inventoryId/adjust')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Adjust inventory stock' })
+  @Post(':id/adjust')
+  @HttpCode(HttpStatus.OK)
+  @ApiAdjustInventory()
   async adjust(
-    @Param('inventoryId') inventoryId: string,
-    @Body() body: { delta: number; reason: string; reference?: string },
+    @Param('id') id: string,
+    @Body() dto: AdjustInventoryHttpDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<InventoryResponseDTO> {
-    return this.commandBus.execute(
-      new AdjustInventoryCommand({
-        inventoryId,
-        delta: body.delta,
-        reason: body.reason,
-        reference: body.reference,
-        adjustedBy: user.userId,
-      }),
-    );
+  ): Promise<InventoryHttpResponseDTO> {
+    const appDto = InventoryControllerMapper.toAdjustAppDto(id, dto);
+    const result = await this.inventoryService.adjust({
+      ...appDto,
+      actorId: user.userId,
+    });
+    return InventoryControllerMapper.toHttpResponse(result);
   }
 
-  @Post(':inventoryId/reserve')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Reserve inventory stock' })
-  async reserve(
-    @Param('inventoryId') inventoryId: string,
-    @Body() body: { amount: number; reference: string },
-  ): Promise<InventoryResponseDTO> {
-    return this.commandBus.execute(
-      new ReserveInventoryCommand({ inventoryId, amount: body.amount, reference: body.reference }),
-    );
+  @Post(':id/update')
+  @HttpCode(HttpStatus.OK)
+  @ApiAdjustInventory()
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateInventoryHttpDTO,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<InventoryHttpResponseDTO> {
+    const appDto = InventoryControllerMapper.toUpdateAppDto(id, dto);
+    const result = await this.inventoryService.update({
+      ...appDto,
+      actorId: user.userId,
+    });
+    return InventoryControllerMapper.toHttpResponse(result);
   }
 
-  @Post(':inventoryId/release')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Release reserved inventory' })
-  async release(
-    @Param('inventoryId') inventoryId: string,
-    @Body() body: { amount: number; reason: string },
-  ): Promise<InventoryResponseDTO> {
-    return this.commandBus.execute(
-      new ReleaseInventoryCommand({ inventoryId, amount: body.amount, reason: body.reason }),
-    );
+  @Get('check-stock')
+  @ApiCheckStock()
+  async checkStock(
+    @Query('productId') productId: string,
+    @Query('quantity') quantity: string,
+  ): Promise<StockCheckHttpResponseDTO> {
+    const result = await this.inventoryService.checkStock(productId, Number(quantity ?? 1));
+    return InventoryControllerMapper.toStockCheckHttp(result);
+  }
+
+  @Get('stats')
+  @ApiGetInventoryStats()
+  async stats(): Promise<InventoryStatsHttpResponseDTO> {
+    const result = await this.inventoryService.getStats();
+    return InventoryControllerMapper.toStatsHttp(result);
+  }
+
+  @Get('by-product/:productId')
+  @ApiGetInventory()
+  async byProduct(@Param('productId') productId: string): Promise<InventoryHttpResponseDTO> {
+    const result = await this.inventoryService.getByProduct(productId);
+    return InventoryControllerMapper.toHttpResponse(result);
+  }
+
+  @Get(':id')
+  @ApiGetInventory()
+  async getById(@Param('id') id: string): Promise<InventoryHttpResponseDTO> {
+    const result = await this.inventoryService.getById(id);
+    return InventoryControllerMapper.toHttpResponse(result);
   }
 }

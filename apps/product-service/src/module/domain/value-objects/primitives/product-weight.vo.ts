@@ -1,34 +1,37 @@
 /**
  * ProductWeight Value Object
  * @module product-service/domain/value-objects/primitives
+ *
+ * Unit: grams (integer, > 0)
  */
-import { BaseQuantityVO } from '@vubon/shared-kernel/domain/primitives';
+import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
-const MAX_WEIGHT_KG = 10000;
+const MIN_GRAMS = 1;
+const MAX_GRAMS = 1_000_000;
 
-export class ProductWeightVO extends BaseQuantityVO {
-  private constructor(value: number) {
-    super(value);
-  }
+export class ProductWeightVO extends BaseVO<number> {
+  private constructor(value: number) { super(value); }
 
-  static create(raw: number): ProductWeightVO {
-    if (typeof raw !== 'number' || !Number.isFinite(raw)) {
-      throw new Error('ProductWeight must be a finite number');
+  static create(grams: number): ProductWeightVO {
+    if (!Number.isFinite(grams)) {
+      throw new ValidationError('ProductWeight must be a finite number', 'weight');
     }
-    if (raw <= 0) {
-      throw new Error('ProductWeight must be positive');
+    if (!Number.isInteger(grams)) {
+      throw new ValidationError('ProductWeight must be an integer (grams)', 'weight');
     }
-    if (raw > MAX_WEIGHT_KG) {
-      throw new Error(`ProductWeight cannot exceed ${MAX_WEIGHT_KG}kg`);
+    if (grams < MIN_GRAMS) {
+      throw new ValidationError(`ProductWeight must be >= ${MIN_GRAMS}g`, 'weight');
     }
-    return new ProductWeightVO(raw);
+    if (grams > MAX_GRAMS) {
+      throw new ValidationError(`ProductWeight exceeds max ${MAX_GRAMS}g`, 'weight');
+    }
+    return new ProductWeightVO(grams);
   }
 
-  static reconstitute(raw: number): ProductWeightVO {
-    return new ProductWeightVO(raw);
-  }
+  static reconstitute(grams: number): ProductWeightVO { return new ProductWeightVO(grams); }
 
-  toGrams(): number {
-    return this.value * 1000;
-  }
+  get grams(): number { return this.value; }
+  toKilograms(): number { return Math.round((this.value / 1000) * 1000) / 1000; }
+  isHeavy(): boolean { return this.value >= 5000; }
 }

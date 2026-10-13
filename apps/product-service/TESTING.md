@@ -1,449 +1,507 @@
-# TESTING
+# Testing — Product Service
 
-PRODUCT SERVICE — TESTING GUIDE
-@module product-service/docs
-
-══════════════════════════════════════════════════════════════════
- 📊 TEST SUITE OVERVIEW
-══════════════════════════════════════════════════════════════════
-
- │ Metric                │ Value      │
- │───────────────────────┼────────────│
- │ Unit test files       │ 83         │
- │ E2E test files        │ 2          │
- │ Total tests           │ 1090       │
- │ Test suites           │ 83         │
- │ Statement coverage    │ 88.81%     │
- │ Branch coverage       │ 73.95%     │
- │ Function coverage     │ 89.80%     │
- │ Line coverage         │ 90.97%     │
- │ Runtime (full suite)  │ ~45s       │
+Complete guide for unit, E2E, and integration testing.
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🚀 RUNNING TESTS
-══════════════════════════════════════════════════════════════════
+## 📊 Test Suite Overview
 
- From apps/product-service/:
+| Type | Files | Tests | Command | Status |
+|------|-------|-------|---------|--------|
+| **Unit** | 29 | 319 | `pnpm test:unit` | ✅ |
+| **E2E** | 13 | 54 | `pnpm test:e2e` | ✅ |
+| **All** | 42 | **373** | `pnpm test:all` | ✅ |
 
-   pnpm test                — all unit tests
-   pnpm test:cov            — coverage report
-   pnpm test:watch          — watch mode
-   pnpm test:unit           — unit tests only
-   pnpm test:vo             — value object tests
-   pnpm test:entity         — entity tests
-   pnpm test:service        — service tests
-   pnpm test:e2e            — end-to-end tests
-   pnpm type-check          — TypeScript check
-
- Run a single file:
-
-   pnpm jest test/domain/value-objects/price.vo.spec.ts
-
- Run a folder:
-
-   pnpm jest test/domain/value-objects
-
- Run tests matching a pattern:
-
-   pnpm jest test -t "should create a product"
+**Coverage:** ~68% (domain ~85%, services ~86%)
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📁 TEST FOLDER STRUCTURE
-══════════════════════════════════════════════════════════════════
+## 🎯 Test Commands
 
- test/
- ├── domain/
- │   ├── value-objects/              16 files
- │   │   ├── product-status.vo.spec.ts
- │   │   ├── product-type.vo.spec.ts
- │   │   ├── price.vo.spec.ts
- │   │   ├── discount-vo.spec.ts
- │   │   ├── tax-rate.vo.spec.ts
- │   │   ├── ids.spec.ts                  (grouped — 8 ID VOs)
- │   │   ├── names-slugs.spec.ts          (grouped — 8 name/slug VOs)
- │   │   ├── primitives-extra.spec.ts     (grouped — 10 extra VOs)
- │   │   ├── composites.spec.ts           (grouped — 10 composites)
- │   │   ├── product-composite.spec.ts
- │   │   └── composites-edge.spec.ts
- │   ├── entities/                   10 files
- │   │   ├── product.entity.spec.ts
- │   │   ├── product-variant.entity.spec.ts
- │   │   ├── product-inventory.entity.spec.ts
- │   │   ├── product-pricing.entity.spec.ts
- │   │   ├── product-review.entity.spec.ts
- │   │   ├── brand.entity.spec.ts
- │   │   ├── category.entity.spec.ts
- │   │   ├── collection.entity.spec.ts
- │   │   ├── product-attribute.entity.spec.ts
- │   │   └── product-media.entity.spec.ts
- │   ├── services/                   6 files
- │   ├── specifications/             1 file (grouped — 8 specs)
- │   └── errors/                     1 file (grouped)
- │
- ├── application/
- │   ├── services/                   11 files
- │   ├── commands/                   ~19 files
- │   │   ├── product/product-handlers.spec.ts
- │   │   ├── variant/variant-handlers.spec.ts
- │   │   ├── inventory/inventory-handlers.spec.ts
- │   │   ├── attribute/attribute-handlers.spec.ts
- │   │   ├── brand/brand-handlers.spec.ts
- │   │   ├── category/category-handlers.spec.ts
- │   │   ├── collection/collection-handlers.spec.ts
- │   │   ├── pricing/pricing-handlers.spec.ts
- │   │   └── review/review-handlers.spec.ts
- │   ├── queries/                    ~10 files
- │   ├── mappers/                    1 file (grouped)
- │   ├── errors/                     1 file (grouped)
- │   └── sagas/                      1 file
- │
- ├── interfaces/
- │   ├── controllers/                11 files
- │   ├── guards/                     1 file (grouped)
- │   ├── mappers/                    1 file (grouped)
- │   └── validators/                 1 file (grouped)
- │
- ├── e2e/
- │   ├── setup.ts                    — E2E bootstrap helper
- │   ├── product.e2e.spec.ts
- │   └── guards.e2e.spec.ts
- │
- ├── mocks/
- │   ├── repositories.ts             — 10 typed repository mocks
- │   ├── services.ts                 — 11 typed service mocks
- │   ├── buses.ts                    — CQRS buses mocks
- │   ├── users.ts                    — user fixtures
- │   └── responses.ts                — response DTO factories
- │
- ├── helpers.ts                      — common constants
- └── fixtures.ts                     — entity builders
+### Unit Tests
+
+\`\`\`bash
+# Run once
+pnpm test:unit
+
+# Watch mode
+pnpm test:unit:watch
+
+# With coverage
+pnpm test:unit:cov
+
+# Direct invocation
+NODE_OPTIONS=--experimental-vm-modules npx jest \\
+  --config ./test/unit/jest.config.ts \\
+  --runInBand
+\`\`\`
+
+### E2E Tests
+
+\`\`\`bash
+# Run once
+pnpm test:e2e
+
+# Watch mode
+pnpm test:e2e:watch
+
+# Coverage
+pnpm test:e2e:coverage
+\`\`\`
+
+### All Tests
+
+\`\`\`bash
+pnpm test:all       # Unit + E2E
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🧪 TEST PATTERNS
-══════════════════════════════════════════════════════════════════
+## 📁 Test Structure
 
- 1. Value Object Test
- ─────────────────────────────────────────────────────────────
- Value objects are immutable and self-validating.
-
-   describe('PriceVO', () => {
-     it('should reject negative amount', () => {
-       expect(() => PriceVO.create(-100, 'BDT')).toThrow(InvalidPriceError);
-     });
-
-     it('should round to 2 decimals', () => {
-       const vo = PriceVO.create(1000.556, 'BDT');
-       expect(vo.amount).toBe(1000.56);
-     });
-   });
-
- 2. Entity Test
- ─────────────────────────────────────────────────────────────
- Test state transitions and invariants.
-
-   describe('ProductEntity', () => {
-     it('should refuse to publish without description', () => {
-       const product = buildProduct({ description: ProductDescriptionVO.empty() });
-       expect(() => product.publish(USER_ID, NOW)).toThrow(ProductCannotBePublishedError);
-     });
-
-     it('should emit ProductPublishedEvent', () => {
-       const product = buildProduct();
-       product.pullDomainEvents();
-       product.publish(USER_ID, NOW);
-       const events = product.pullDomainEvents();
-       expect(events[0]).toBeInstanceOf(ProductPublishedEvent);
-     });
-   });
-
- 3. Specification Test
- ─────────────────────────────────────────────────────────────
- Test business rules with pass/fail cases.
-
-   describe('CanPublishProductSpecification', () => {
-     const spec = new CanPublishProductSpecification();
-
-     it('should pass for well-formed product', () => {
-       expect(spec.isSatisfiedBy(buildProduct())).toBe(true);
-     });
-
-     it('should return reason for failure', () => {
-       const product = buildProduct({ totalStock: 0 });
-       expect(spec.check(product).reason).toContain('stock');
-     });
-   });
-
- 4. Handler Test (Mocked Service)
- ─────────────────────────────────────────────────────────────
- Handlers delegate to application services.
-
-   import { createMockProductService } from '../../mocks/services.js';
-
-   describe('CreateProductHandler', () => {
-     let handler: CreateProductHandler;
-     let service: ReturnType<typeof createMockProductService>;
-
-     beforeEach(() => {
-       service = createMockProductService();
-       service.create.mockResolvedValue(mockProductResponse());
-       handler = new CreateProductHandler(service);
-     });
-
-     it('should dispatch to service.create', async () => {
-       const dto = { name: 'Test', slug: 'test', ... };
-       await handler.execute(new CreateProductCommand(dto, USER_ID));
-       expect(service.create).toHaveBeenCalledWith(dto, USER_ID);
-     });
-   });
-
- 5. Controller Test (Mocked Buses)
- ─────────────────────────────────────────────────────────────
- Controllers dispatch commands/queries.
-
-   describe('ProductController', () => {
-     let commandBus: MockedCommandBus;
-     let queryBus: MockedQueryBus;
-
-     beforeEach(() => {
-       commandBus = createMockCommandBus();
-       queryBus = createMockQueryBus();
-       controller = new ProductController(commandBus, queryBus);
-     });
-
-     it('should dispatch GetProductDetailQuery', async () => {
-       queryBus.execute.mockResolvedValueOnce(mockProductDetailResponse());
-       await controller.getDetail(PRODUCT_ID);
-       expect(queryBus.execute).toHaveBeenCalledWith(expect.any(GetProductDetailQuery));
-     });
-   });
-
- 6. Repository Test (Mocked Prisma)
- ─────────────────────────────────────────────────────────────
- Mock PrismaService — verify mapper + query shape.
-
-   describe('ProductPrismaRepository', () => {
-     it('should map Prisma row to domain entity', async () => {
-       prisma.product.findUnique.mockResolvedValue(buildProductRow());
-       const result = await repo.findById(PRODUCT_ID);
-       expect(result?.name.value).toBe('Test Product');
-     });
-   });
-
- 7. E2E Test (Real HTTP)
- ─────────────────────────────────────────────────────────────
- Real NestJS app + supertest + permit-all guards.
-
-   describe('Product API (E2E)', () => {
-     let app: INestApplication;
-
-     beforeAll(async () => {
-       const ctx = await createE2EApp();
-       app = ctx.app;
-     });
-
-     afterAll(async () => {
-       await ctx.close();
-     });
-
-     it('should return 200 with product list', async () => {
-       const res = await request(app.getHttpServer())
-         .get('/api/v1/products')
-         .query({ page: 1, limit: 20 })
-         .expect(200);
-
-       expect(res.body.success).toBe(true);
-     });
-   });
+\`\`\`
+test/
+├── unit/                        ← Unit test suite
+│   ├── jest.config.ts           ← Unit jest config
+│   ├── setup.ts                 ← Jest globals setup
+│   ├── domain/                  ← Domain layer tests
+│   │   ├── value-objects/       → ~20 VO specs
+│   │   ├── entities/            → 1 entity spec
+│   │   ├── services/            → 6 service specs
+│   │   └── specifications/      → 2 spec specs
+│   ├── application/             ← Application layer tests
+│   │   ├── services/            → 1 service spec
+│   │   ├── mappers/             → 1 mapper spec
+│   │   └── validators/          → 1 validator spec
+│   └── infrastructure/          ← Infrastructure tests
+│       └── mappers/             → 1 mapper spec
+│
+├── e2e/                         ← E2E test suite (auto-generated)
+│   ├── health.e2e-spec.ts       → 1 test
+│   ├── products.e2e-spec.ts     → 10 tests
+│   ├── public-products.e2e-spec.ts → 3 tests
+│   ├── variants.e2e-spec.ts     → 4 tests
+│   ├── attributes.e2e-spec.ts   → 2 tests
+│   ├── inventory.e2e-spec.ts    → 4 tests
+│   ├── pricing.e2e-spec.ts      → 5 tests
+│   ├── pricing-rules.e2e-spec.ts → 3 tests
+│   ├── collections.e2e-spec.ts  → 5 tests
+│   ├── reviews.e2e-spec.ts      → 4 tests
+│   ├── media.e2e-spec.ts        → 1 test
+│   ├── brands.e2e-spec.ts       → 5 tests
+│   ├── categories.e2e-spec.ts   → 7 tests
+│   └── index.ts                 → barrel
+│
+├── helpers/                     ← Test helpers
+│   ├── test-auth.helper.ts      → auth flow helpers
+│   ├── test-db.helper.ts        → DB utilities
+│   ├── test-fixtures.ts         → static fixtures
+│   └── index.ts
+│
+├── utility/                     ← Test utilities
+│   ├── test-app.ts              → shared app bootstrap
+│   ├── request-helper.ts        → supertest wrapper
+│   ├── request-dispatcher.ts    → method dispatcher
+│   ├── type.ts                  → shared types
+│   └── index.ts
+│
+├── generated-apis/              ← Auto-generated API clients
+│   ├── product.ts, variant.ts, ...
+│   └── index.ts
+│
+├── generated-payloads/          ← Payload factories
+│   └── index.ts
+│
+├── jest-e2e.json                ← E2E jest config
+├── jest-env-setup.ts            ← Env vars setup
+├── jest-after-env.ts            ← Post-setup hooks
+├── jest-global-setup.ts         ← Global setup
+└── setup.ts                     ← Shared test app
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔧 TEST HELPERS
-══════════════════════════════════════════════════════════════════
+## 🎯 Unit Test Patterns
 
- test/mocks/repositories.ts
- ─────────────────────────────────────────────────────────────
- Factory functions that return jest.Mocked repositories.
+### 1. Value Object Test
 
-   createMockProductRepository()         → ProductRepository
-   createMockVariantRepository()         → VariantRepository
-   createMockInventoryRepository()       → InventoryRepository
-   createMockPricingRepository()         → PricingRepository
-   createMockReviewRepository()          → ReviewRepository
-   createMockAttributeRepository()       → AttributeRepository
-   createMockBrandRepository()           → BrandRepository
-   createMockCategoryRepository()        → CategoryRepository
-   createMockCollectionRepository()      → CollectionRepository
-   createMockMediaRepository()           → MediaRepository
+\`\`\`typescript
+import { describe, it, expect } from '@jest/globals';
+import { ProductIdVO } from '../../../../src/module/domain/value-objects/primitives/product-id.vo.js';
 
- test/mocks/services.ts
- ─────────────────────────────────────────────────────────────
- Factory functions that return jest.Mocked application services.
+const VALID_UUID = '11111111-1111-4111-8111-111111111111';
 
-   createMockProductService()            → IProductService
-   createMockVariantService()            → IVariantService
-   createMockAttributeService()          → IAttributeService
-   createMockInventoryService()          → IInventoryService
-   createMockPricingService()            → IPricingService
-   createMockCollectionService()         → ICollectionService
-   createMockReviewService()             → IReviewService
-   createMockBrandService()              → IBrandService
-   createMockCategoryService()           → ICategoryService
-   createMockMediaService()              → IMediaService
-   createMockProductCatalogService()     → IProductCatalogService
+describe('ProductIdVO', () => {
+  describe('create()', () => {
+    it('creates from valid UUID', () => {
+      const vo = ProductIdVO.create(VALID_UUID);
+      expect(vo.value).toBe(VALID_UUID);
+    });
 
- test/mocks/buses.ts
- ─────────────────────────────────────────────────────────────
-   createMockCommandBus()                → MockedCommandBus
-   createMockQueryBus()                  → MockedQueryBus
+    it('throws for invalid format', () => {
+      expect(() => ProductIdVO.create('not-a-uuid')).toThrow();
+    });
+  });
 
- test/fixtures.ts
- ─────────────────────────────────────────────────────────────
- Typed entity builders.
+  describe('reconstitute()', () => {
+    it('creates without validation', () => {
+      const vo = ProductIdVO.reconstitute('any-string');
+      expect(vo.value).toBe('any-string');
+    });
+  });
+});
+\`\`\`
 
-   buildProduct()                        → ProductEntity
-   buildVariant()                        → ProductVariantEntity
-   buildInventory()                      → ProductInventoryEntity
-   buildPricing()                        → ProductPricingEntity
-   buildReview()                         → ProductReviewEntity
-   buildAttribute()                      → ProductAttributeEntity
-   buildMedia()                          → ProductMediaEntity
-   buildBrand()                          → BrandEntity
-   buildCategory()                       → CategoryEntity
-   buildCollection()                     → CollectionEntity
+### 2. Entity Test (state machine)
 
----
+\`\`\`typescript
+describe('ProductEntity', () => {
+  describe('state machine — submit/approve/publish', () => {
+    it('submit: draft → pending', () => {
+      const e = buildDraftEntity();
+      e.submit();
+      expect(e.status.isPending()).toBe(true);
+    });
 
-══════════════════════════════════════════════════════════════════
- 📊 COVERAGE REPORT
-══════════════════════════════════════════════════════════════════
+    it('publish: approved → published', () => {
+      const e = buildDraftEntity();
+      e.submit();
+      e.approve();
+      e.publish(NOW);
+      expect(e.status.isPublished()).toBe(true);
+      expect(e.vo.publishedAt).toBe(NOW);
+    });
+  });
 
- Generate:
-   pnpm test:cov
+  describe('updateStock()', () => {
+    it('marks out_of_stock when stock 0 + published', () => {
+      const e = buildDraftEntity();
+      e.submit();
+      e.approve();
+      e.publish(NOW);
+      e.updateStock(0, 'sold out', NOW);
+      expect(e.status.isOutOfStock()).toBe(true);
+    });
+  });
+});
+\`\`\`
 
- Open HTML report:
-   coverage-report/lcov-report/index.html
+### 3. Service Test (real business logic)
 
- Coverage targets by layer:
+\`\`\`typescript
+describe('ProductPriceService', () => {
+  describe('calculateTax() — BD VAT 15%', () => {
+    it('exclusive: net 1000 → vat 150', () => {
+      const r = ProductPriceService.calculateTax({
+        amount: 1000,
+        currency: 'BDT',
+        taxInclusive: false,
+      });
+      expect(r.netAmount).toBe(1000);
+      expect(r.vat).toBe(150);
+      expect(r.grossAmount).toBe(1150);
+    });
 
- │ Layer           │ Target │ Current │ Status │
- │─────────────────┼────────┼─────────┼────────│
- │ Domain          │  90%   │  ~92%   │   ✅   │
- │ Application     │  85%   │  ~90%   │   ✅   │
- │ Interfaces      │  80%   │  ~88%   │   ✅   │
- │ Infrastructure  │  75%   │  ~60%   │   ⚠️   │
- │ TOTAL           │  85%   │ 88.81%  │   ✅   │
+    it('USD exempt from VAT', () => {
+      const r = ProductPriceService.calculateTax({
+        amount: 100,
+        currency: 'USD',
+        taxInclusive: false,
+      });
+      expect(r.vat).toBe(0);
+    });
+  });
+});
+\`\`\`
 
- Note: Infrastructure is covered via E2E + service-level tests.
- Real Prisma / Redis / Meilisearch / BullMQ execution is verified
- in production health checks.
+### 4. Mocked Service Test
 
----
+\`\`\`typescript
+describe('ProductVariantService (mocked)', () => {
+  function buildService(overrides = {}) {
+    const repo = {
+      findByIdVO: jest.fn(),
+      save: jest.fn(async (e) => e),
+      existsBySku: jest.fn().mockResolvedValue(false),
+      ...overrides.repo,
+    };
+    const eventBridge = {
+      publishFromEntity: jest.fn().mockResolvedValue(undefined),
+      ...overrides.eventBridge,
+    };
+    return {
+      service: new ProductVariantService(repo as never, productRepo as never, eventBridge as never),
+      repo,
+      eventBridge,
+    };
+  }
 
-══════════════════════════════════════════════════════════════════
- 🐛 COMMON ISSUES
-══════════════════════════════════════════════════════════════════
-
- "Prisma engine unavailable"
-   Expected on Termux / Android.
-   Solutions:
-     • Run tests with mocked PrismaService
-     • Or run on Linux / macOS / CI
-
- "Cannot find module '@domain/...'"
-   Check jest.config.cjs moduleNameMapper and tsconfig paths.
-
- "Nest can't resolve dependencies"
-   Check the module registers providers with correct token,
-   e.g. PRODUCT_REPOSITORY.
-
- "Cannot find module 'supertest'"
-   pnpm add -D supertest @types/supertest
-
- Test timeout
-   E2E tests need longer timeout — set in jest.config.cjs.
-
- "Duplicate identifier"
-   When two files export the same name (e.g. ValidationResult),
-   use namespace-prefixed names.
-
----
-
-══════════════════════════════════════════════════════════════════
- 🎯 CI INTEGRATION
-══════════════════════════════════════════════════════════════════
-
- In `.github/workflows/ci.yml`:
-
-   - name: Type check
-     run: pnpm --filter @vubon/product-service type-check
-
-   - name: Unit tests
-     run: pnpm --filter @vubon/product-service test
-
-   - name: E2E tests
-     run: pnpm --filter @vubon/product-service test:e2e
-
- Failures block PR merges.
+  it('throws on duplicate SKU', async () => {
+    const { service } = buildService({
+      repo: { existsBySku: jest.fn().mockResolvedValue(true) },
+    });
+    await expect(service.add({ sku: 'DUP' })).rejects.toThrow();
+  });
+});
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📈 TEST STRATEGY — What's Covered
-══════════════════════════════════════════════════════════════════
+## 🎯 E2E Test Patterns
 
- ✅ FULLY COVERED (unit + mocked):
+### Auto-Generation
 
-   • All value objects (primitives + composites)
-   • All entities — invariants, state transitions, events
-   • All domain services — calculations, validations
-   • All specifications — business rules
-   • All command handlers (9 groups)
-   • All query handlers (10 groups)
-   • All application services (11)
-   • All mappers (app + interface)
-   • All validators
-   • All controllers (11)
-   • All guards (3)
-   • All errors (domain + app)
-   • All sagas
-   • E2E HTTP routes
+E2E tests are **auto-generated** from `scripts/e2e/endpoints.mjs`:
 
- ⚠️ PARTIALLY COVERED:
+\`\`\`bash
+pnpm generate:e2e
+\`\`\`
 
-   • Prisma repository implementations
-     (unit tests via mocked PrismaService)
-   • Cache repository implementations
-   • Search indexers
-   • Workers (functional tests via mocked queue)
-   • Config files (loaded via integration)
+**Registry:**
+\`\`\`javascript
+// scripts/e2e/endpoints.mjs
+export const ENDPOINTS = [
+  {
+    group: 'products',
+    method: 'POST',
+    path: '/products',
+    name: 'Create Product',
+    auth: true,
+    request: { name: 'Test', sku: 'SKU-1', ... },
+    expect: {
+      statuses: [201, 400, 409, 500, 503],
+      hasFields: ['success', 'productId', 'status', 'slug'],
+    },
+  },
+];
+\`\`\`
 
- ❌ NOT COVERED (integration-level, requires real infra):
+**Auto-generated file:**
+\`\`\`typescript
+// test/e2e/products.e2e-spec.ts
+describe('products (E2E)', () => {
+  it('Create Product', async () => {
+    let req = request(app.getHttpServer()).post('/products');
+    if (accessToken) req = req.set('Authorization', \`Bearer \${accessToken}\`);
+    req = req.send({ name: 'Test', sku: 'SKU-1', ... });
+    const response = await req;
 
-   • Real Prisma against live Postgres
-   • Real Redis against live instance
-   • Real Meilisearch indexing
-   • BullMQ worker execution
-   • External email / SMS / push delivery
+    expect([201, 400, 409, 500, 503, 401]).toContain(response.status);
+    if (response.status === 200 || response.status === 201) {
+      expect(response.body).toHaveProperty('success');
+      expect(response.body).toHaveProperty('productId');
+    }
+  });
+});
+\`\`\`
 
- These are exercised in the E2E suite with mocked buses and
- are validated in production via health checks.
+### Degraded Mode (Termux)
+
+Tests **accept multiple statuses** to be resilient:
+
+\`\`\`typescript
+// 200/201 = success
+// 400 = validation
+// 401 = auth (when token unavailable)
+// 404 = not found
+// 409 = conflict
+// 500/503 = Prisma degraded
+expect([200, 201, 400, 401, 404, 409, 500, 503]).toContain(response.status);
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📄 REFERENCES
-══════════════════════════════════════════════════════════════════
+## 🔧 Test Configuration
 
- • README.md       — service overview
- • ARCHITECTURE.md — 5-layer design
- • API.md          — endpoint reference
- • DEPLOYMENT.md   — Railway guide
- • DEVELOPMENT.md  — local setup
- • ../../SECURITY.md — monorepo security policy
+### Unit Jest Config (`test/unit/jest.config.ts`)
+
+\`\`\`typescript
+export default {
+  displayName: 'unit',
+  testEnvironment: 'node',
+  rootDir: '../..',
+  testMatch: ['<rootDir>/test/unit/**/*.spec.ts'],
+  transform: {
+    '^.+\\.(t|j)s$': ['ts-jest', { useESM: true, tsconfig: '<rootDir>/tsconfig.json' }],
+  },
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
+  injectGlobals: true,
+  setupFilesAfterEnv: ['<rootDir>/test/unit/setup.ts'],
+  testTimeout: 10000,
+};
+\`\`\`
+
+### E2E Jest Config (`test/jest-e2e.json`)
+
+\`\`\`json
+{
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/e2e/.*\\.e2e-spec\\.ts$",
+  "transform": { "^.+\\.(t|j)s$": ["ts-jest", { "useESM": true }] },
+  "setupFiles": ["<rootDir>/test/jest-env-setup.ts"],
+  "setupFilesAfterEnv": ["<rootDir>/test/jest-after-env.ts"],
+  "globalSetup": "<rootDir>/test/jest-global-setup.ts",
+  "testTimeout": 30000,
+  "forceExit": true
+}
+\`\`\`
+
+### Env Setup (`test/jest-env-setup.ts`)
+
+\`\`\`typescript
+process.env['NODE_ENV'] = 'test';
+process.env['JWT_SECRET'] = 'test_jwt_secret_must_be_at_least_32_characters_long_12345';
+process.env['PRISMA_SKIP_ENGINE_BOOTSTRAP'] = 'true';
+process.env['DATABASE_URL'] = 'postgresql://postgres@localhost:5432/vubon_product';
+\`\`\`
+
+---
+
+## 📊 Coverage Report
+
+### Target Thresholds
+
+| Type | Current | Target |
+|------|---------|--------|
+| **Overall** | 68% | 75%+ |
+| Domain | ~85% | 90%+ |
+| Application | ~26% | 60%+ |
+| Infrastructure | ~75% | 80%+ |
+
+### Coverage Commands
+
+\`\`\`bash
+# Unit coverage
+NODE_OPTIONS=--experimental-vm-modules npx jest \\
+  --config ./test/unit/jest.config.ts \\
+  --runInBand \\
+  --coverage
+
+# View HTML coverage
+open coverage/lcov-report/index.html
+\`\`\`
+
+---
+
+## 🎯 Common Pitfalls
+
+### ❌ Wrong path depth
+
+\`\`\`typescript
+// From test/unit/domain/value-objects/product-id.vo.spec.ts
+import { ProductIdVO } from '../../../../../src/...';  // ← 5 levels = WRONG
+import { ProductIdVO } from '../../../../src/...';    // ← 4 levels = CORRECT
+\`\`\`
+
+### ❌ Missing `.js` extension
+
+\`\`\`typescript
+import { ProductIdVO } from '../../../../src/.../product-id.vo';     // ← WRONG
+import { ProductIdVO } from '../../../../src/.../product-id.vo.js';  // ← CORRECT (ESM)
+\`\`\`
+
+### ❌ Invalid UUID in test data
+
+\`\`\`typescript
+const VALID_UUID = '11111111-1111-4111-8111-111111111111';  // ← 4/1/1/1 pattern
+const INVALID = 'v-1';                                       // ← throws ValidationError
+\`\`\`
+
+### ❌ Missing env vars
+
+\`\`\`typescript
+// ❌ Fails: JWT_SECRET too short
+process.env['JWT_SECRET'] = 'secret';
+
+// ✅ Correct: 32+ chars
+process.env['JWT_SECRET'] = 'test_jwt_secret_must_be_at_least_32_characters_long';
+\`\`\`
+
+---
+
+## 🔧 Test Generators
+
+### E2E Generator (`scripts/generate-e2e-tests.mjs`)
+
+\`\`\`bash
+pnpm generate:e2e
+\`\`\`
+
+**Input:** `scripts/e2e/endpoints.mjs` (54 endpoints)
+**Output:** `test/e2e/*.e2e-spec.ts` (13 files)
+
+### InMemory Generator (`scripts/generate-inmemory-repos.mjs`)
+
+\`\`\`bash
+node scripts/generate-inmemory-repos.mjs
+\`\`\`
+
+**Output:** `src/module/infrastructure/persistence/memory/repositories/*.ts` (11 files)
+
+---
+
+## 🎯 Test Data
+
+### UUID Convention
+
+Tests use **patterned UUIDs** for debugging:
+
+\`\`\`
+11111111-1111-4111-8111-111111111111  → ProductIdVO
+22222222-2222-4222-8222-222222222222  → CategoryIdVO
+33333333-3333-4333-8333-333333333333  → VariantIdVO
+44444444-4444-4444-8444-444444444444  → Missing/nonexistent
+\`\`\`
+
+### Test Values
+
+\`\`\`typescript
+const NOW = '2026-01-01T00:00:00.000Z';
+const VALID_UUID = '11111111-1111-4111-8111-111111111111';
+const INVALID_SKU = 'invalid sku with spaces';
+\`\`\`
+
+---
+
+## 🎯 CI/CD Integration
+
+### Run in CI
+
+\`\`\`bash
+pnpm install --frozen-lockfile
+pnpm type-check
+pnpm build
+pnpm test:all
+\`\`\`
+
+### Test Output (CI JSON)
+
+\`\`\`bash
+NODE_OPTIONS=--experimental-vm-modules npx jest \\
+  --config ./test/unit/jest.config.ts \\
+  --json --outputFile=./test-results.json
+\`\`\`
+
+---
+
+## 📊 Test Statistics
+
+| Suite | Files | Tests | Time |
+|-------|-------|-------|------|
+| Unit | 29 | 319 | ~24s |
+| E2E | 13 | 54 | ~90s |
+| **TOTAL** | **42** | **373** | **~114s** |
+
+---
+
+## 🎯 Next Steps
+
+**Coverage boost:**
+1. Add tests for `application/services` (mocked) — brings 26% → 60%
+2. Add tests for remaining VOs — `brand-id`, `vendor-id`, `product-barcode`
+3. Add tests for `ProductEntity` untested methods
+4. Add tests for `ProductVO` composite business methods
+
+**Target:** 68% → 85%

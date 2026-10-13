@@ -2,35 +2,35 @@
  * ProductDescription Value Object
  * @module product-service/domain/value-objects/primitives
  */
-import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives';
+import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { VALIDATION } from '@vubon/shared-constants/common';
 
-const MAX_LENGTH = 5000;
+const MAX_LENGTH = VALIDATION.DESCRIPTION_MAX_LENGTH;
 
-export class ProductDescriptionVO extends BaseCodeVO {
-  private constructor(value: string) {
-    super(value);
-  }
+export class ProductDescriptionVO extends BaseVO<string> {
+  private constructor(value: string) { super(value); }
 
   static create(raw: string): ProductDescriptionVO {
     if (typeof raw !== 'string') {
-      throw new Error('ProductDescription must be a string');
+      throw new ValidationError('ProductDescription must be a string', 'description');
     }
     const trimmed = raw.trim();
+    if (trimmed.length === 0) {
+      throw new ValidationError('ProductDescription cannot be empty', 'description');
+    }
     if (trimmed.length > MAX_LENGTH) {
-      throw new Error(`ProductDescription cannot exceed ${MAX_LENGTH} characters`);
+      throw new ValidationError(
+        `ProductDescription exceeds max ${MAX_LENGTH} chars`,
+        'description',
+      );
     }
     return new ProductDescriptionVO(trimmed);
   }
 
-  static empty(): ProductDescriptionVO {
-    return new ProductDescriptionVO('');
-  }
+  static reconstitute(raw: string): ProductDescriptionVO { return new ProductDescriptionVO(raw); }
 
-  static reconstitute(raw: string): ProductDescriptionVO {
-    return new ProductDescriptionVO(raw);
-  }
-
-  get isEmpty(): boolean {
-    return this.value.length === 0;
+  get wordCount(): number {
+    return this.value.split(/\s+/).filter(Boolean).length;
   }
 }

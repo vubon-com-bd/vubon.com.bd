@@ -1,25 +1,29 @@
 /**
- * ProductInventoryModule
+ * ProductInventoryModule — inventory feature wiring
+ * @module product-service/modules/product-inventory
  */
 import { Module } from '@nestjs/common';
-import { PrismaRepositoriesModule } from '../../infrastructure/persistence/prisma/repositories.module.js';
-import { CacheModule } from '../../infrastructure/persistence/cache/cache.module.js';
+import { CqrsModule } from '@nestjs/cqrs';
+
 import { ProductInventoryController } from '../../interfaces/controllers/rest/product-inventory.controller.js';
-import { InventoryService } from '../../application/services/impl/inventory.service.js';
-import { INVENTORY_SERVICE } from '../../application/services/interfaces/inventory.service.interface.js';
-import { INVENTORY_COMMAND_HANDLERS } from '../../application/commands/inventory/index.js';
-import { INVENTORY_QUERY_HANDLERS } from '../../application/queries/inventory/index.js';
-import { StockAlertSaga } from '../../application/sagas/stock-alert.saga.js';
+
+import { INVENTORY_COMMAND_HANDLERS } from './commands/index.js';
+import { INVENTORY_QUERY_HANDLERS } from './queries/index.js';
+import { INVENTORY_SAGAS } from './sagas/index.js';
+
+import { ProductInventoryApplicationService } from '../../application/services/impl/product-inventory.service.js';
+import { INVENTORY_SERVICE } from '../../application/services/interfaces/product-inventory.service.interface.js';
 
 @Module({
-  imports: [PrismaRepositoriesModule, CacheModule],
+  imports: [CqrsModule],
   controllers: [ProductInventoryController],
   providers: [
-    InventoryService,
-    { provide: INVENTORY_SERVICE, useExisting: InventoryService },
-    ...INVENTORY_COMMAND_HANDLERS,
-    ...INVENTORY_QUERY_HANDLERS,
-    StockAlertSaga],
-  exports: [InventoryService, INVENTORY_SERVICE],
+    ProductInventoryApplicationService,
+    { provide: INVENTORY_SERVICE, useExisting: ProductInventoryApplicationService },
+    ...(INVENTORY_COMMAND_HANDLERS as readonly unknown[] as never[]),
+    ...(INVENTORY_QUERY_HANDLERS as readonly unknown[] as never[]),
+    ...(INVENTORY_SAGAS as readonly unknown[] as never[]),
+  ],
+  exports: [ProductInventoryApplicationService, INVENTORY_SERVICE],
 })
 export class ProductInventoryModule {}

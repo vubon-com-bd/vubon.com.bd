@@ -1,11 +1,15 @@
 /**
- * UpdatePriceRequestDTO
+ * Update Price Request DTO
+ * @module product-service/application/dtos/requests/pricing
  */
 export interface UpdatePriceRequestDTO {
-  readonly pricingId: string;
-  readonly basePrice?: number;
-  readonly sellingPrice?: number;
+  readonly productId: string;
+  readonly variantId?: string;
+  readonly sellingPrice: number;
   readonly compareAtPrice?: number;
   readonly costPrice?: number;
-  readonly updatedBy: string;
+  readonly reason?: string;
+  readonly actorId?: string;
+  readonly actorRole?: 'admin' | 'vendor' | 'staff';
+  readonly bypassMinMargin?: boolean;
 }

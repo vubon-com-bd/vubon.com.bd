@@ -1,5 +1,5 @@
 /**
- * Product domain events
+ * Product Domain Events
  * @module product-service/domain/events
  */
 import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
@@ -7,86 +7,66 @@ import type { DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.
 import type { Timestamp } from '@vubon/shared-types/common';
 import { PRODUCT_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
+// ─── Event Type Constants ──────────────────
 export const PRODUCT_EVENT_TYPE = {
-  CREATED: 'product.created',
-  UPDATED: 'product.updated',
-  PUBLISHED: 'product.published',
-  UNPUBLISHED: 'product.unpublished',
-  ARCHIVED: 'product.archived',
-  DELETED: 'product.deleted',
-  STATUS_CHANGED: 'product.status.changed',
-  PRICE_CHANGED: 'product.price.changed',
-  FEATURED: 'product.featured',
-  UNFEATURED: 'product.unfeatured',
+  CREATED: 'product.product.created',
+  UPDATED: 'product.product.updated',
+  STATUS_CHANGED: 'product.product.status_changed',
+  PUBLISHED: 'product.product.published',
+  UNPUBLISHED: 'product.product.unpublished',
+  DELETED: 'product.product.deleted',
+  STOCK_CHANGED: 'product.product.stock_changed',
 } as const;
 
-// ─── Payloads ────────────────────────────────────────────
-
+// ─── Payload Interfaces ────────────────────
 export interface ProductCreatedPayload {
   readonly productId: string;
   readonly name: string;
-  readonly slug: string;
   readonly sku: string;
-  readonly type: string;
   readonly categoryId: string;
-  readonly brandId?: string;
   readonly vendorId?: string;
-  readonly price: number;
-  readonly currency: string;
+  readonly createdAt: string;
 }
 
 export interface ProductUpdatedPayload {
   readonly productId: string;
   readonly changedFields: readonly string[];
-}
-
-export interface ProductPublishedPayload {
-  readonly productId: string;
-  readonly publishedAt: string;
-  readonly publishedBy: string;
-}
-
-export interface ProductUnpublishedPayload {
-  readonly productId: string;
-  readonly unpublishedAt: string;
-  readonly reason?: string;
-}
-
-export interface ProductArchivedPayload {
-  readonly productId: string;
-  readonly archivedAt: string;
-  readonly archivedBy: string;
-}
-
-export interface ProductDeletedPayload {
-  readonly productId: string;
-  readonly deletedAt: string;
-  readonly deletedBy: string;
+  readonly updatedAt: string;
 }
 
 export interface ProductStatusChangedPayload {
   readonly productId: string;
   readonly fromStatus: string;
   readonly toStatus: string;
-  readonly changedBy: string;
+  readonly changedBy?: string;
 }
 
-export interface ProductPriceChangedPayload {
+export interface ProductPublishedPayload {
   readonly productId: string;
-  readonly oldPrice: number;
-  readonly newPrice: number;
-  readonly currency: string;
-  readonly changedBy: string;
+  readonly publishedAt: string;
+  readonly publishedBy?: string;
 }
 
-export interface ProductFeaturedPayload {
+export interface ProductUnpublishedPayload {
   readonly productId: string;
-  readonly isFeatured: boolean;
-  readonly changedBy: string;
+  readonly reason?: string;
+  readonly unpublishedAt: string;
 }
 
-// ─── Event classes ───────────────────────────────────────
+export interface ProductDeletedPayload {
+  readonly productId: string;
+  readonly deletedAt: string;
+  readonly deletedBy?: string;
+}
 
+export interface ProductStockChangedPayload {
+  readonly productId: string;
+  readonly previousStock: number;
+  readonly newStock: number;
+  readonly reason: string;
+}
+
+// ─── Event Params Builder ──────────────────
 type EventParams<TPayload> = {
   id?: string;
   aggregateId: string;
@@ -96,21 +76,29 @@ type EventParams<TPayload> = {
   metadata?: DomainEventMetadata;
 };
 
+function buildParams<TType extends string, TPayload>(
+  type: TType,
+  p: EventParams<TPayload>,
+) {
+  return {
+    id: p.id ?? newEventId(),
+    type,
+    aggregateId: p.aggregateId,
+    aggregateType: PRODUCT_AGGREGATE_TYPE.PRODUCT,
+    payload: p.payload,
+    occurredAt: p.occurredAt ?? now(),
+    version: p.version ?? 1,
+    metadata: p.metadata,
+  };
+}
+
+// ─── Concrete Events ───────────────────────
 export class ProductCreatedEvent extends BaseDomainEvent<
   typeof PRODUCT_EVENT_TYPE.CREATED,
   ProductCreatedPayload
 > {
   constructor(p: EventParams<ProductCreatedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.CREATED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(PRODUCT_EVENT_TYPE.CREATED, p));
   }
 }
 
@@ -119,88 +107,7 @@ export class ProductUpdatedEvent extends BaseDomainEvent<
   ProductUpdatedPayload
 > {
   constructor(p: EventParams<ProductUpdatedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.UPDATED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
-  }
-}
-
-export class ProductPublishedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.PUBLISHED,
-  ProductPublishedPayload
-> {
-  constructor(p: EventParams<ProductPublishedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.PUBLISHED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
-  }
-}
-
-export class ProductUnpublishedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.UNPUBLISHED,
-  ProductUnpublishedPayload
-> {
-  constructor(p: EventParams<ProductUnpublishedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.UNPUBLISHED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
-  }
-}
-
-export class ProductArchivedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.ARCHIVED,
-  ProductArchivedPayload
-> {
-  constructor(p: EventParams<ProductArchivedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.ARCHIVED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
-  }
-}
-
-export class ProductDeletedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.DELETED,
-  ProductDeletedPayload
-> {
-  constructor(p: EventParams<ProductDeletedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.DELETED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(PRODUCT_EVENT_TYPE.UPDATED, p));
   }
 }
 
@@ -209,69 +116,42 @@ export class ProductStatusChangedEvent extends BaseDomainEvent<
   ProductStatusChangedPayload
 > {
   constructor(p: EventParams<ProductStatusChangedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.STATUS_CHANGED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(PRODUCT_EVENT_TYPE.STATUS_CHANGED, p));
   }
 }
 
-export class ProductPriceChangedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.PRICE_CHANGED,
-  ProductPriceChangedPayload
+export class ProductPublishedEvent extends BaseDomainEvent<
+  typeof PRODUCT_EVENT_TYPE.PUBLISHED,
+  ProductPublishedPayload
 > {
-  constructor(p: EventParams<ProductPriceChangedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.PRICE_CHANGED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+  constructor(p: EventParams<ProductPublishedPayload>) {
+    super(buildParams(PRODUCT_EVENT_TYPE.PUBLISHED, p));
   }
 }
 
-export class ProductFeaturedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.FEATURED,
-  ProductFeaturedPayload
+export class ProductUnpublishedEvent extends BaseDomainEvent<
+  typeof PRODUCT_EVENT_TYPE.UNPUBLISHED,
+  ProductUnpublishedPayload
 > {
-  constructor(p: EventParams<ProductFeaturedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.FEATURED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+  constructor(p: EventParams<ProductUnpublishedPayload>) {
+    super(buildParams(PRODUCT_EVENT_TYPE.UNPUBLISHED, p));
   }
 }
 
-export class ProductUnfeaturedEvent extends BaseDomainEvent<
-  typeof PRODUCT_EVENT_TYPE.UNFEATURED,
-  ProductFeaturedPayload
+export class ProductDeletedEvent extends BaseDomainEvent<
+  typeof PRODUCT_EVENT_TYPE.DELETED,
+  ProductDeletedPayload
 > {
-  constructor(p: EventParams<ProductFeaturedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: PRODUCT_EVENT_TYPE.UNFEATURED,
-      aggregateId: p.aggregateId,
-      aggregateType: PRODUCT_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+  constructor(p: EventParams<ProductDeletedPayload>) {
+    super(buildParams(PRODUCT_EVENT_TYPE.DELETED, p));
+  }
+}
+
+export class ProductStockChangedEvent extends BaseDomainEvent<
+  typeof PRODUCT_EVENT_TYPE.STOCK_CHANGED,
+  ProductStockChangedPayload
+> {
+  constructor(p: EventParams<ProductStockChangedPayload>) {
+    super(buildParams(PRODUCT_EVENT_TYPE.STOCK_CHANGED, p));
   }
 }

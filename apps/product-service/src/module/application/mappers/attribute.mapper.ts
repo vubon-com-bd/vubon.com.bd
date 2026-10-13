@@ -1,29 +1,65 @@
 /**
- * AttributeMapper
+ * AttributeMapper — Entity → Response DTO
+ * @module product-service/application/mappers
  */
-import { ProductAttributeEntity } from '../../domain/entities/product-attribute.entity.js';
-import type { AttributeResponseDTO } from '../dtos/responses/attribute-response.dto.js';
+import type { ProductAttributeEntity } from '../../domain/entities/product-attribute.entity.js';
+import type { AttributeTypeValue } from '@vubon/shared-types/business/product';
+import type {
+  AttributeResponseDTO,
+  AttributePublicResponseDTO,
+  AttributeListResponseDTO,
+  AttributeValueResponseDTO,
+} from '../dtos/responses/attribute-response.dto.js';
 
 export class AttributeMapper {
-  static toResponse(a: ProductAttributeEntity): AttributeResponseDTO {
+  static toResponse(entity: ProductAttributeEntity): AttributeResponseDTO {
+    const vo = entity.vo;
     return {
-      id: a.id,
-      productId: a.productId,
-      name: a.name,
-      slug: a.slug,
-      type: a.type,
-      isRequired: a.isRequired,
-      isSearchable: a.isSearchable,
-      isFilterable: a.isFilterable,
-      unit: a.unit,
-      options: a.options ? a.options.map((o) => ({ value: o.value, label: o.label, sortOrder: o.sortOrder })) : undefined,
-      value: a.value,
-      createdAt: a.createdAt,
-      updatedAt: a.updatedAt,
+      id: entity.id,
+      productId: '',
+      name: vo.name.value,
+      type: 'text' as AttributeTypeValue,
+      values: vo.values.map((v, i) => ({
+        value: v.asString(),
+        label: v.asString(),
+        sortOrder: i,
+      })),
+      isRequired: vo.isRequired,
+      isSearchable: vo.isSearchable,
+      isFilterable: vo.isFilterable,
+      unit: vo.unit,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     };
   }
 
-  static toResponseList(attributes: readonly ProductAttributeEntity[]): readonly AttributeResponseDTO[] {
-    return attributes.map((a) => AttributeMapper.toResponse(a));
+  static toPublicResponse(entity: ProductAttributeEntity): AttributePublicResponseDTO {
+    const vo = entity.vo;
+    return {
+      id: entity.id,
+      name: vo.name.value,
+      type: 'text' as AttributeTypeValue,
+      values: vo.values.map((v, i) => ({
+        value: v.asString(),
+        label: v.asString(),
+        sortOrder: i,
+      })),
+      unit: vo.unit,
+    };
+  }
+
+  static toListResponse(
+    entities: readonly ProductAttributeEntity[],
+    total: number,
+    page: number,
+    limit: number,
+  ): AttributeListResponseDTO {
+    return {
+      items: entities.map((e) => this.toResponse(e)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

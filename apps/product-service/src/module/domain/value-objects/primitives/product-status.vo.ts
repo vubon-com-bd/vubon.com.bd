@@ -1,51 +1,90 @@
 /**
  * ProductStatus Value Object
  * @module product-service/domain/value-objects/primitives
+ *
+ * State machine:
+ *   draft → pending → approved → published
+ *   draft/pending → rejected
+ *   published → out_of_stock | discontinued | archived
+ *   * → deleted (except published without unpublish)
  */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives';
-import { PRODUCT_STATUS } from '@vubon/shared-constants/business/product';
-import { InvalidProductStatusError } from '../../errors/product.errors.js';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { PRODUCT_STATUS } from '@vubon/shared-constants/business';
 
-export class ProductStatusVO extends BaseStatusVO<string> {
-  private constructor(value: string) {
-    super(value);
-  }
+export type ProductStatusValue =
+  (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
+
+const VALID_STATUSES: readonly string[] = Object.values(PRODUCT_STATUS);
+
+const VALID_TRANSITIONS: Readonly<Record<ProductStatusValue, readonly ProductStatusValue[]>> = {
+  draft: ['pending', 'deleted'],
+  pending: ['approved', 'rejected', 'draft', 'deleted'],
+  approved: ['published', 'rejected', 'deleted'],
+  published: ['out_of_stock', 'discontinued', 'archived'],
+  rejected: ['draft', 'deleted'],
+  out_of_stock: ['published', 'discontinued', 'archived'],
+  discontinued: ['archived'],
+  archived: ['deleted'],
+  deleted: [],
+};
+
+export class ProductStatusVO extends BaseStatusVO<ProductStatusValue> {
+  private constructor(value: ProductStatusValue) { super(value); }
 
   static create(raw: string): ProductStatusVO {
     if (typeof raw !== 'string') {
-      throw new Error('ProductStatus must be a string');
+      throw new ValidationError('ProductStatus must be a string', 'status');
     }
-    const allowed = Object.values(PRODUCT_STATUS);
-    if (!(allowed as readonly string[]).includes(raw)) {
-      throw new InvalidProductStatusError(raw, allowed);
+    const normalized = raw.trim().toLowerCase();
+    if (!VALID_STATUSES.includes(normalized)) {
+      throw new ValidationError(
+        `Invalid ProductStatus: "${normalized}". Allowed: ${VALID_STATUSES.join(', ')}`,
+        'status',
+      );
     }
-    return new ProductStatusVO(raw);
+    return new ProductStatusVO(normalized as ProductStatusValue);
   }
 
   static reconstitute(raw: string): ProductStatusVO {
-    return new ProductStatusVO(raw);
+    return new ProductStatusVO(raw as ProductStatusValue);
   }
 
-  isDraft(): boolean {
-    return this.value === PRODUCT_STATUS.DRAFT;
+  static draft(): ProductStatusVO { return new ProductStatusVO('draft'); }
+  static pending(): ProductStatusVO { return new ProductStatusVO('pending'); }
+  static approved(): ProductStatusVO { return new ProductStatusVO('approved'); }
+  static published(): ProductStatusVO { return new ProductStatusVO('published'); }
+  static rejected(): ProductStatusVO { return new ProductStatusVO('rejected'); }
+  static outOfStock(): ProductStatusVO { return new ProductStatusVO('out_of_stock'); }
+  static discontinued(): ProductStatusVO { return new ProductStatusVO('discontinued'); }
+  static archived(): ProductStatusVO { return new ProductStatusVO('archived'); }
+  static deleted(): ProductStatusVO { return new ProductStatusVO('deleted'); }
+
+  // Predicates
+  isDraft(): boolean { return this.value === 'draft'; }
+  isPending(): boolean { return this.value === 'pending'; }
+  isApproved(): boolean { return this.value === 'approved'; }
+  isPublished(): boolean { return this.value === 'published'; }
+  isRejected(): boolean { return this.value === 'rejected'; }
+  isOutOfStock(): boolean { return this.value === 'out_of_stock'; }
+  isDiscontinued(): boolean { return this.value === 'discontinued'; }
+  isArchived(): boolean { return this.value === 'archived'; }
+  isDeleted(): boolean { return this.value === 'deleted'; }
+
+  isVisible(): boolean {
+    return this.isPublished() || this.isOutOfStock();
   }
 
-  isPublished(): boolean {
-    return this.value === PRODUCT_STATUS.PUBLISHED;
+  isEditable(): boolean {
+    return !this.isDeleted() && !this.isArchived();
   }
 
-  isArchived(): boolean {
-    return this.value === PRODUCT_STATUS.ARCHIVED;
+  isFinal(): boolean {
+    return this.isDeleted() || this.isArchived() || this.isDiscontinued();
   }
 
   canTransitionTo(target: string): boolean {
-    const transitions: Record<string, readonly string[]> = {
-      [PRODUCT_STATUS.DRAFT]: [PRODUCT_STATUS.PENDING, PRODUCT_STATUS.PUBLISHED, PRODUCT_STATUS.ARCHIVED],
-      [PRODUCT_STATUS.PENDING]: [PRODUCT_STATUS.APPROVED, PRODUCT_STATUS.REJECTED],
-      [PRODUCT_STATUS.APPROVED]: [PRODUCT_STATUS.PUBLISHED],
-      [PRODUCT_STATUS.PUBLISHED]: [PRODUCT_STATUS.OUT_OF_STOCK, PRODUCT_STATUS.ARCHIVED, PRODUCT_STATUS.DISCONTINUED],
-      [PRODUCT_STATUS.OUT_OF_STOCK]: [PRODUCT_STATUS.PUBLISHED, PRODUCT_STATUS.DISCONTINUED],
-    };
-    return (transitions[this.value] ?? []).includes(target);
+    const allowed = VALID_TRANSITIONS[this.value] ?? [];
+    return allowed.includes(target as ProductStatusValue);
   }
 }

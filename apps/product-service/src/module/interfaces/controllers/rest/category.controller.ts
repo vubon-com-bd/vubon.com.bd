@@ -1,108 +1,138 @@
 /**
- * CategoryController
+ * CategoryController — REST endpoints
+ * @module product-service/interfaces/controllers/rest
  */
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject,
+  Param, Patch, Post, Query, UseGuards, UseInterceptors,
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Public, Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
-import { CreateCategoryCommand } from '../../../application/commands/category/create-category.command.js';
-import { UpdateCategoryCommand } from '../../../application/commands/category/update-category.command.js';
-import { DeleteCategoryCommand } from '../../../application/commands/category/delete-category.command.js';
-import { MoveCategoryCommand } from '../../../application/commands/category/move-category.command.js';
-import { GetCategoryQuery } from '../../../application/queries/category/get-category.query.js';
-import { GetCategoryTreeQuery } from '../../../application/queries/category/get-category-tree.query.js';
-import { ListCategoriesByParentQuery } from '../../../application/queries/category/list-categories-by-parent.query.js';
+import {
+  CATEGORY_SERVICE,
+  type ICategoryService,
+} from '../../../application/services/interfaces/category.service.interface.js';
 
-import { CreateCategoryRequestDTO, UpdateCategoryRequestDTO } from '../../dtos/requests/category.request.dto.js';
-import { CategoryResponseDTO, CategoryTreeResponseDTO } from '../../dtos/responses/category.response.dto.js';
+import type {
+  CreateCategoryRequestDTO,
+  UpdateCategoryRequestDTO,
+} from '../../../application/dtos/requests/category/index.js';
+import type {
+  CategoryHttpResponseDTO,
+  CategoryListHttpResponseDTO,
+  CategoryTreeHttpResponseDTO,
+  CategoryStatsHttpResponseDTO,
+} from '../../dtos/responses/category.response.dto.js';
 
-@ApiTags('categories')
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+import {
+  ApiCategoryTag, ApiCreateCategory, ApiUpdateCategory, ApiGetCategory,
+  ApiListCategories, ApiGetCategoryTree, ApiGetCategoryStats,
+} from '../../swagger/category.swagger.js';
+
+@ApiCategoryTag()
 @ApiBearerAuth('bearer')
 @Controller('categories')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ProductLoggingInterceptor, ProductTimeoutInterceptor)
 export class CategoryController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(CATEGORY_SERVICE)
+    private readonly categoryService: ICategoryService,
   ) {
     super();
   }
 
   @Post()
-  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a category' })
+  @ApiCreateCategory()
   async create(
     @Body() dto: CreateCategoryRequestDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<CategoryResponseDTO> {
-    return this.commandBus.execute(new CreateCategoryCommand(dto as never, user.userId));
+  ): Promise<CategoryHttpResponseDTO> {
+    const result = await this.categoryService.create({ ...dto, actorId: user.userId });
+    return result as unknown as CategoryHttpResponseDTO;
+  }
+
+  @Patch(':id')
+  @ApiUpdateCategory()
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateCategoryRequestDTO,
+  ): Promise<CategoryHttpResponseDTO> {
+    const result = await this.categoryService.update({ ...dto, categoryId: id });
+    return result as unknown as CategoryHttpResponseDTO;
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async delete(
+    @Param('id') id: string,
+  ): Promise<{ readonly success: true; readonly categoryId: string }> {
+    return this.categoryService.delete({ categoryId: id });
+  }
+
+  @Post(':id/move')
+  @HttpCode(HttpStatus.OK)
+  async move(
+    @Param('id') id: string,
+    @Body() body: { readonly newParentId?: string },
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<CategoryHttpResponseDTO> {
+    const result = await this.categoryService.move(id, body.newParentId, user.userId);
+    return result as unknown as CategoryHttpResponseDTO;
   }
 
   @Get('tree')
-  @Public()
-  @ApiOperation({ summary: 'Get category tree' })
-  async tree(): Promise<readonly CategoryTreeResponseDTO[]> {
-    return this.queryBus.execute(new GetCategoryTreeQuery());
+  @ApiGetCategoryTree()
+  async tree(
+    @Query('rootId') rootId?: string,
+  ): Promise<CategoryTreeHttpResponseDTO> {
+    const result = await this.categoryService.getTree(rootId);
+    return result as unknown as CategoryTreeHttpResponseDTO;
   }
 
   @Get('roots')
-  @Public()
-  @ApiOperation({ summary: 'List root categories' })
-  async roots(): Promise<readonly CategoryResponseDTO[]> {
-    return this.queryBus.execute(new ListCategoriesByParentQuery());
+  @ApiListCategories()
+  async roots(): Promise<readonly CategoryHttpResponseDTO[]> {
+    const result = await this.categoryService.listRoots();
+    return result as unknown as readonly CategoryHttpResponseDTO[];
   }
 
-  @Get('parent/:parentId')
-  @Public()
-  @ApiOperation({ summary: 'List categories by parent' })
-  async byParent(@Param('parentId') parentId: string): Promise<readonly CategoryResponseDTO[]> {
-    return this.queryBus.execute(new ListCategoriesByParentQuery(parentId));
+  @Get('stats')
+  @ApiGetCategoryStats()
+  async stats(): Promise<CategoryStatsHttpResponseDTO> {
+    const result = await this.categoryService.getStats();
+    return result as unknown as CategoryStatsHttpResponseDTO;
   }
 
-  @Get(':categoryId')
-  @Public()
-  @ApiOperation({ summary: 'Get category by ID' })
-  async getById(@Param('categoryId') categoryId: string): Promise<CategoryResponseDTO | null> {
-    return this.queryBus.execute(new GetCategoryQuery(categoryId));
+  @Get()
+  @ApiListCategories()
+  async list(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ): Promise<CategoryListHttpResponseDTO> {
+    const result = await this.categoryService.list({ page: page ?? 1, limit: limit ?? 20 });
+    return result as unknown as CategoryListHttpResponseDTO;
   }
 
-  @Patch(':categoryId')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Update a category' })
-  async update(
-    @Param('categoryId') categoryId: string,
-    @Body() dto: UpdateCategoryRequestDTO,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<CategoryResponseDTO> {
-    return this.commandBus.execute(
-      new UpdateCategoryCommand({ ...dto, categoryId }, user.userId),
-    );
+  @Get('by-slug/:slug')
+  @ApiGetCategory()
+  async bySlug(@Param('slug') slug: string): Promise<CategoryHttpResponseDTO> {
+    const result = await this.categoryService.getBySlug(slug);
+    return result as unknown as CategoryHttpResponseDTO;
   }
 
-  @Post(':categoryId/move')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Move category to a new parent' })
-  async move(
-    @Param('categoryId') categoryId: string,
-    @Body() body: { newParentId: string | null },
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<CategoryResponseDTO> {
-    return this.commandBus.execute(new MoveCategoryCommand(categoryId, body.newParentId, user.userId));
-  }
-
-  @Delete(':categoryId')
-  @Roles('admin')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a category' })
-  async remove(
-    @Param('categoryId') categoryId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<void> {
-    await this.commandBus.execute(new DeleteCategoryCommand(categoryId, user.userId));
+  @Get(':id')
+  @ApiGetCategory()
+  async getById(@Param('id') id: string): Promise<CategoryHttpResponseDTO> {
+    const result = await this.categoryService.getById(id);
+    return result as unknown as CategoryHttpResponseDTO;
   }
 }

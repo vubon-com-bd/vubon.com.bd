@@ -1,20 +1,49 @@
 /**
- * IBrandService Interface
+ * IBrandService — contract
+ * @module product-service/application/services/interfaces
  */
-import type { CreateBrandRequestDTO } from '../../dtos/requests/brand/create-brand.dto.js';
-import type { UpdateBrandRequestDTO } from '../../dtos/requests/brand/update-brand.dto.js';
-import type { BrandResponseDTO } from '../../dtos/responses/brand-response.dto.js';
+import type {
+  CreateBrandRequestDTO,
+  UpdateBrandRequestDTO,
+  DeleteBrandRequestDTO,
+} from '../../dtos/requests/brand/index.js';
+import type {
+  BrandResponseDTO,
+  BrandPublicResponseDTO,
+  BrandSummaryResponseDTO,
+  BrandListResponseDTO,
+  BrandStatsResponseDTO,
+} from '../../dtos/responses/brand-response.dto.js';
 
 export const BRAND_SERVICE = Symbol('BRAND_SERVICE');
 
+export interface BrandListFilterDTO {
+  readonly status?: string | readonly string[];
+  readonly isFeatured?: boolean;
+  readonly country?: string;
+  readonly search?: string;
+}
+
+export interface BrandListOptionsDTO {
+  readonly page: number;
+  readonly limit: number;
+  readonly sortBy?: 'name' | 'createdAt' | 'productCount';
+  readonly sortDir?: 'asc' | 'desc';
+  readonly filter?: BrandListFilterDTO;
+}
+
 export interface IBrandService {
-  create(dto: CreateBrandRequestDTO, actorId: string): Promise<BrandResponseDTO>;
-  update(dto: UpdateBrandRequestDTO, actorId: string): Promise<BrandResponseDTO>;
-  remove(brandId: string, actorId: string): Promise<void>;
-  activate(brandId: string, actorId: string): Promise<BrandResponseDTO>;
-  deactivate(brandId: string, actorId: string): Promise<BrandResponseDTO>;
-  feature(brandId: string, actorId: string): Promise<BrandResponseDTO>;
-  getById(brandId: string): Promise<BrandResponseDTO | null>;
-  getBySlug(slug: string): Promise<BrandResponseDTO | null>;
-  listFeatured(limit?: number): Promise<readonly BrandResponseDTO[]>;
+  // Commands
+  create(dto: CreateBrandRequestDTO): Promise<BrandResponseDTO>;
+  update(dto: UpdateBrandRequestDTO): Promise<BrandResponseDTO>;
+  delete(dto: DeleteBrandRequestDTO): Promise<{ readonly success: true; readonly brandId: string }>;
+
+  // Queries
+  getById(id: string): Promise<BrandResponseDTO>;
+  getBySlug(slug: string): Promise<BrandResponseDTO>;
+  getPublic(id: string): Promise<BrandPublicResponseDTO>;
+  list(options: BrandListOptionsDTO): Promise<BrandListResponseDTO>;
+  findFeatured(limit?: number): Promise<readonly BrandSummaryResponseDTO[]>;
+  search(term: string, limit?: number): Promise<readonly BrandSummaryResponseDTO[]>;
+  getStats(filter?: BrandListFilterDTO): Promise<BrandStatsResponseDTO>;
 }

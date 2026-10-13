@@ -1,5 +1,6 @@
 /**
- * UpdateReviewRequestDTO
+ * Update Review Request DTO
+ * @module product-service/application/dtos/requests/review
  */
 export interface UpdateReviewRequestDTO {
   readonly reviewId: string;
@@ -7,5 +8,5 @@ export interface UpdateReviewRequestDTO {
   readonly title?: string;
   readonly comment?: string;
   readonly images?: readonly string[];
-  readonly updatedBy: string;
+  readonly actorId?: string;
 }

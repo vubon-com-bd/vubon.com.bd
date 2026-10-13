@@ -1,4 +1,4 @@
-// dtos/requests/collection/index.ts
+// product-service/application/dtos/requests/collection/index.ts
 export * from './create-collection.dto.js';
 export * from './update-collection.dto.js';
 export * from './delete-collection.dto.js';

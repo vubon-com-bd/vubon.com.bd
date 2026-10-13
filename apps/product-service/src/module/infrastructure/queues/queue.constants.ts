@@ -1,50 +1,35 @@
 /**
- * Queue names & job types
+ * Product-service queue names + job names + limits
  * @module product-service/infrastructure/queues
  */
-export const PRODUCT_QUEUE = 'product';
-export const INVENTORY_QUEUE = 'inventory';
-export const SEARCH_QUEUE = 'search';
-export const MEDIA_QUEUE = 'media';
-export const REVIEW_QUEUE = 'review';
-export const NOTIFICATION_QUEUE = 'notification';
-
-export const QUEUE_NAMES = [
-  PRODUCT_QUEUE,
-  INVENTORY_QUEUE,
-  SEARCH_QUEUE,
-  MEDIA_QUEUE,
-  REVIEW_QUEUE,
-  NOTIFICATION_QUEUE,
-] as const;
-
-export type QueueName = (typeof QUEUE_NAMES)[number];
-
-export const JOB_TYPES = {
-  // product
-  PRODUCT_REINDEX: 'product.reindex',
-  PRODUCT_INDEX_ONE: 'product.index.one',
-  PRODUCT_REMOVE_INDEX: 'product.remove.index',
-  // inventory
-  INVENTORY_LOW_STOCK_ALERT: 'inventory.low_stock.alert',
-  INVENTORY_OUT_OF_STOCK_ALERT: 'inventory.out_of_stock.alert',
-  INVENTORY_RESERVE_EXPIRY: 'inventory.reserve.expiry',
-  // search
-  SEARCH_BULK_REINDEX: 'search.bulk.reindex',
-  SEARCH_CLEAR_CACHE: 'search.clear.cache',
-  // media
-  MEDIA_PROCESS_IMAGE: 'media.process.image',
-  MEDIA_GENERATE_THUMBNAIL: 'media.generate.thumbnail',
-  // review
-  REVIEW_AUTO_MODERATE: 'review.auto.moderate',
-  REVIEW_UPDATE_STATS: 'review.update.stats',
-  // notification
-  NOTIFY_ADMIN: 'notify.admin',
-  NOTIFY_VENDOR: 'notify.vendor',
+export const PRODUCT_QUEUE_NAME = {
+  PRODUCT_PROCESSING: 'product-product-processing',
+  INVENTORY_SYNC: 'product-inventory-sync',
+  SEARCH_INDEX: 'product-search-index',
+  MEDIA_PROCESSING: 'product-media-processing',
+  ANALYTICS: 'product-analytics',
 } as const;
 
-export type JobType = (typeof JOB_TYPES)[keyof typeof JOB_TYPES];
+export const PRODUCT_JOB_NAME = {
+  PROCESS_PRODUCT: 'process-product',
+  SYNC_INVENTORY: 'sync-inventory',
+  LOW_STOCK_ALERT: 'low-stock-alert',
+  INDEX_PRODUCT: 'index-product',
+  REINDEX_PRODUCT: 'reindex-product',
+  REMOVE_FROM_INDEX: 'remove-from-index',
+  PROCESS_MEDIA: 'process-media',
+  GENERATE_THUMBNAIL: 'generate-thumbnail',
+  RECORD_ANALYTICS: 'record-analytics',
+  CLEANUP_STALE: 'cleanup-stale',
+} as const;
 
-export interface QueueJobPayload {
-  readonly [key: string]: unknown;
-}
+export const PRODUCT_QUEUE_LIMITS = {
+  MAX_ATTEMPTS: 3,
+  BACKOFF_MS: 5_000,
+  CONCURRENCY: 5,
+  RETRY_DELAY_MS: 30_000,
+  LOCK_TTL_SECONDS: 30,
+} as const;
+
+export type ProductJobNameType =
+  (typeof PRODUCT_JOB_NAME)[keyof typeof PRODUCT_JOB_NAME];

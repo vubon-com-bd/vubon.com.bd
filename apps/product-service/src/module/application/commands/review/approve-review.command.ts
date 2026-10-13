@@ -1,9 +1,9 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { ApproveReviewRequestDTO } from '../../dtos/requests/review/index.js';
 
 export class ApproveReviewCommand extends BaseCommand {
-  readonly type = 'review.approve';
-  constructor(
-    public readonly reviewId: string,
-    public readonly moderatorId: string,
-  ) { super(); }
+  readonly type = 'product.review.approve';
+  constructor(public readonly dto: ApproveReviewRequestDTO) {
+    super();
+  }
 }

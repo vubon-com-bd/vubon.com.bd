@@ -1,64 +1,46 @@
 /**
- * BaseWorker — common BullMQ worker lifecycle & error handling.
+ * BaseWorker — shared scaffolding for BullMQ processors
  * @module product-service/infrastructure/workers
  */
-import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Worker, type Job } from 'bullmq';
-import { getBullConnection } from '../queues/queue.config.js';
-import type { QueueName, JobType } from '../queues/queue.constants.js';
+import { Logger, OnModuleInit } from '@nestjs/common';
+import { QueueService } from '@vubon/shared-kernel/infrastructure/messaging/queue';
+import { QUEUE_CONFIG } from '@vubon/shared-config/infrastructure';
 
-export abstract class BaseWorker implements OnModuleInit, OnModuleDestroy {
+export abstract class BaseWorker<TPayload extends object = Record<string, unknown>>
+  implements OnModuleInit
+{
   protected readonly logger: Logger;
-  protected worker?: Worker;
-  private readonly queueName: QueueName;
 
-  protected constructor(queueName: QueueName, context?: string) {
-    this.queueName = queueName;
-    this.logger = new Logger(context ?? this.constructor.name);
-  }
-
-  protected abstract handle(job: Job): Promise<void>;
+  protected abstract readonly queueName: string;
+  protected abstract readonly jobNames: readonly string[];
 
   protected concurrency(): number {
-    return 5;
+    return QUEUE_CONFIG.workerConcurrency;
   }
 
-  async onModuleInit(): Promise<void> {
-    this.worker = new Worker(
-      this.queueName,
-      async (job) => {
-        const start = Date.now();
-        try {
-          await this.handle(job);
-          this.logger.debug(
-            `${job.name as JobType} done in ${Date.now() - start}ms (id=${job.id})`,
-          );
-        } catch (err) {
-          this.logger.error(
-            `${job.name as JobType} failed (id=${job.id}): ${err instanceof Error ? err.message : String(err)}`,
-          );
-          throw err;
-        }
-      },
-      {
-        connection: getBullConnection(),
-        concurrency: this.concurrency(),
-      },
-    );
-
-    this.worker.on('failed', (job, err) => {
-      this.logger.warn(
-        `Job ${job?.name ?? 'unknown'} failed permanently: ${err.message}`,
-      );
-    });
-
-    this.logger.log(`Worker started for queue: ${this.queueName}`);
+  protected constructor(
+    protected readonly queueService: QueueService,
+    name?: string,
+  ) {
+    this.logger = new Logger(name ?? this.constructor.name);
   }
 
-  async onModuleDestroy(): Promise<void> {
-    if (this.worker) {
-      await this.worker.close();
-      this.logger.log(`Worker stopped for queue: ${this.queueName}`);
+  onModuleInit(): void {
+    if (!QUEUE_CONFIG.autoStartWorkers) {
+      this.logger.warn(`autoStartWorkers=false — "${this.queueName}" not started`);
+      return;
     }
+    this.queueService.registerWorker<TPayload>(
+      this.queueName,
+      async (payload) => this.handle(payload),
+      this.concurrency(),
+    );
+    this.logger.log(`Worker "${this.queueName}" started (concurrency=${this.concurrency()})`);
+  }
+
+  protected abstract handle(payload: TPayload): Promise<unknown>;
+
+  protected jobMatches(jobName: string): boolean {
+    return this.jobNames.length === 0 || this.jobNames.includes(jobName);
   }
 }

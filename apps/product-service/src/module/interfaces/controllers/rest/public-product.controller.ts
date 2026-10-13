@@ -1,55 +1,62 @@
 /**
- * PublicProductController — no auth required
+ * PublicProductController — public REST endpoints (no auth)
  * @module product-service/interfaces/controllers/rest
  */
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
+import { Controller, Get, Inject, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
 import { Public } from '@vubon/shared-kernel/interfaces/decorators';
-import { GetProductBySlugQuery } from '../../../application/queries/product/get-product-by-slug.query.js';
-import { ListProductsQuery } from '../../../application/queries/product/list-products.query.js';
-import { SearchProductsQuery } from '../../../application/queries/product/search-products.query.js';
-import type { ProductListResponseDTO } from '../../dtos/responses/product.response.dto.js';
-import type { ProductDetailResponseDTO } from '../../dtos/responses/product-detail.response.dto.js';
+
+import {
+  PRODUCT_SERVICE,
+  type IProductService,
+} from '../../../application/services/interfaces/product.service.interface.js';
+
+import type {
+  ProductPublicHttpResponseDTO,
+  ProductSummaryHttpResponseDTO,
+} from '../../dtos/responses/product.response.dto.js';
+
+import { ProductControllerMapper } from '../../mappers/product.controller.mapper.js';
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductCacheInterceptor } from '../../interceptors/product-cache.interceptor.js';
 
 @ApiTags('public-products')
-@Public()
 @Controller('public/products')
-export class PublicProductController {
-  constructor(private readonly queryBus: QueryBus) {}
+@Public()
+@UseInterceptors(ProductLoggingInterceptor, ProductCacheInterceptor)
+export class PublicProductController extends BaseController {
+  constructor(
+    @Inject(PRODUCT_SERVICE)
+    private readonly productService: IProductService,
+  ) {
+    super();
+  }
 
-  @Get()
-  @ApiOperation({ summary: 'List published products (public)' })
-  async list(
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-    @Query('categoryId') categoryId?: string,
-    @Query('search') search?: string,
-  ): Promise<ProductListResponseDTO> {
-    return this.queryBus.execute(
-      new ListProductsQuery({
-        page: Number(page),
-        limit: Number(limit),
-        sortBy: 'createdAt',
-        sortDir: 'desc',
-        filter: { status: 'published', categoryId, search },
-      }),
-    );
+  @Get('featured')
+  @ApiOperation({ summary: 'Featured products (public)' })
+  async featured(
+    @Query('limit') limit?: number,
+  ): Promise<readonly ProductSummaryHttpResponseDTO[]> {
+    const results = await this.productService.getFeatured(limit ?? 20);
+    return results.map((r) => ProductControllerMapper.toSummaryHttp(r));
   }
 
   @Get('search')
-  @ApiOperation({ summary: 'Search published products' })
+  @ApiOperation({ summary: 'Search products (public)' })
   async search(
-    @Query('q') q: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-  ): Promise<ProductListResponseDTO> {
-    return this.queryBus.execute(new SearchProductsQuery(q, Number(page), Number(limit)));
+    @Query('q') term: string,
+    @Query('limit') limit?: number,
+  ): Promise<readonly ProductSummaryHttpResponseDTO[]> {
+    const results = await this.productService.search(term ?? '', limit ?? 20);
+    return results.map((r) => ProductControllerMapper.toSummaryHttp(r));
   }
 
-  @Get(':slug')
-  @ApiOperation({ summary: 'Get product by slug' })
-  async getBySlug(@Param('slug') slug: string): Promise<ProductDetailResponseDTO | null> {
-    return this.queryBus.execute(new GetProductBySlugQuery(slug));
+  @Get(':id')
+  @ApiOperation({ summary: 'Get public product by ID' })
+  async getById(@Param('id') id: string): Promise<ProductPublicHttpResponseDTO> {
+    const result = await this.productService.getPublic(id);
+    return ProductControllerMapper.toPublicHttpResponse(result);
   }
 }

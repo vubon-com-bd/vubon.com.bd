@@ -1,18 +1,17 @@
 # ═══════════════════════════════════════════════════════════════
-# Railway deployment configuration for product-service
+# Railway Configuration — Product Service
 # ═══════════════════════════════════════════════════════════════
 
 [build]
-builder          = "DOCKERFILE"
-dockerfilePath   = "apps/product-service/Dockerfile"
-watchPatterns    = ["apps/product-service/**", "packages/**"]
+builder = "nixpacks"
+buildCommand = "pnpm build"
 
 [deploy]
-startCommand      = "node dist/main.js"
-healthcheckPath   = "/api/v1/docs-json"
-healthcheckTimeout = 60
-restartPolicyType = "ON_FAILURE"
+startCommand = "node apps/product-service/dist/main.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 5
 
-[service]
-name = "product-service"
+[environments.production]
+variables = { NODE_ENV = "production", DB_MODE = "prisma" }

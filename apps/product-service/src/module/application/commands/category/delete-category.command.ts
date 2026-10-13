@@ -1,9 +1,9 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { DeleteCategoryRequestDTO } from '../../dtos/requests/category/index.js';
 
 export class DeleteCategoryCommand extends BaseCommand {
-  readonly type = 'category.delete';
-  constructor(
-    public readonly categoryId: string,
-    public readonly actorId: string,
-  ) { super(); }
+  readonly type = 'product.category.delete';
+  constructor(public readonly dto: DeleteCategoryRequestDTO) {
+    super();
+  }
 }

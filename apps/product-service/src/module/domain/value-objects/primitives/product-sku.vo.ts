@@ -4,26 +4,15 @@
  */
 import { BaseSkuVO } from '@vubon/shared-kernel/domain/primitives';
 
-const MIN_LENGTH = 2;
-const MAX_LENGTH = 64;
-
 export class ProductSkuVO extends BaseSkuVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
+
+  protected static override minLength(): number { return 3; }
+  protected static override maxLength(): number { return 64; }
 
   static create(raw: string): ProductSkuVO {
-    if (typeof raw !== 'string') {
-      throw new Error('ProductSku must be a string');
-    }
-    const normalized = raw.trim().toUpperCase();
-    if (normalized.length < MIN_LENGTH || normalized.length > MAX_LENGTH) {
-      throw new Error(`ProductSku must be ${MIN_LENGTH}-${MAX_LENGTH} characters`);
-    }
-    return new ProductSkuVO(normalized);
+    return new ProductSkuVO(BaseSkuVO.validateRaw(raw));
   }
 
-  static reconstitute(raw: string): ProductSkuVO {
-    return new ProductSkuVO(raw);
-  }
+  static reconstitute(raw: string): ProductSkuVO { return new ProductSkuVO(raw); }
 }

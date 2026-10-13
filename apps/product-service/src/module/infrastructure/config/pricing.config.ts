@@ -1,16 +1,15 @@
-import { getOptionalEnvInt } from './_helpers.js';
-import { PRICING } from '@vubon/shared-constants/business/product';
+/**
+ * Pricing Infrastructure Configuration
+ * @module product-service/infrastructure/config
+ */
+import { getOptionalEnvInt } from '@vubon/shared-config/common';
 
-const PRICING_CONFIG = Object.freeze({
-  DEFAULT_CURRENCY: PRICING.DEFAULT_CURRENCY,
-  MIN_PRICE: PRICING.MIN_PRICE,
-  MAX_PRICE: PRICING.MAX_PRICE,
-  MAX_DISCOUNT_PERCENT: PRICING.MAX_DISCOUNT_PERCENT,
-  DECIMAL_PLACES: PRICING.DECIMAL_PLACES,
-  TAX_INCLUSIVE_DEFAULT: PRICING.TAX_INCLUSIVE_DEFAULT,
-  CACHE_TTL_SECONDS: getOptionalEnvInt('PRICING_CACHE_TTL', 300),
+export const PRICING_INFRA_CONFIG = Object.freeze({
+  defaultCurrency: 'BDT',
+  vatRatePercent: getOptionalEnvInt('PRICING_VAT_RATE_PERCENT', 15),
+  maxDiscountPercent: getOptionalEnvInt('PRICING_MAX_DISCOUNT_PERCENT', 90),
+  cacheTtlSeconds: getOptionalEnvInt('PRICING_CACHE_TTL', 300),
+  priceSyncIntervalMs: getOptionalEnvInt('PRICING_SYNC_INTERVAL_MS', 300000),
 } as const);
 
-export type PricingConfig = typeof PRICING_CONFIG;
-export const pricingConfig = PRICING_CONFIG;
-export function getPricingConfig(): PricingConfig { return PRICING_CONFIG; }
+export type PricingInfraConfig = typeof PRICING_INFRA_CONFIG;

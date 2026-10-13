@@ -1,55 +1,55 @@
-// domain/value-objects/primitives/index.ts — Primitive VOs barrel export
+// product-service/domain/value-objects/primitives/index.ts
+// Barrel — 41 primitive VOs
 
-// Product Core
+// IDs
 export * from './product-id.vo.js';
+export * from './variant-id.vo.js';
+export * from './brand-id.vo.js';
+export * from './category-id.vo.js';
+export * from './attribute-id.vo.js';
+export * from './inventory-id.vo.js';
+export * from './price-id.vo.js';
+export * from './pricing-rule-id.vo.js';
+export * from './collection-id.vo.js';
+export * from './review-id.vo.js';
+export * from './vendor-id.vo.js';
+
+// Core
 export * from './product-name.vo.js';
+export * from './product-description.vo.js';
 export * from './product-slug.vo.js';
 export * from './product-sku.vo.js';
 export * from './product-barcode.vo.js';
-export * from './product-status.vo.js';
-export * from './product-type.vo.js';
-export * from './product-description.vo.js';
-export * from './product-weight.vo.js';
-export * from './product-dimension.vo.js';
 
-// Variant
-export * from './variant-id.vo.js';
+// Variant / Brand
 export * from './variant-name.vo.js';
 export * from './variant-sku.vo.js';
-
-// Brand
-export * from './brand-id.vo.js';
 export * from './brand-name.vo.js';
 export * from './brand-slug.vo.js';
 export * from './brand-logo.vo.js';
 
-// Category
-export * from './category-id.vo.js';
+// Category / Attribute
 export * from './category-name.vo.js';
 export * from './category-slug.vo.js';
 export * from './category-path.vo.js';
-
-// Attribute
-export * from './attribute-id.vo.js';
 export * from './attribute-name.vo.js';
 export * from './attribute-value.vo.js';
 
-// Inventory
-export * from './inventory-id.vo.js';
-export * from './inventory-quantity.vo.js';
-export * from './inventory-threshold.vo.js';
+// Status / Type
+export * from './product-status.vo.js';
+export * from './product-type.vo.js';
+export * from './inventory-status.vo.js';
+export * from './review-status.vo.js';
+export * from './collection-type.vo.js';
+export * from './pricing-rule-type.vo.js';
 
-// Pricing
-export * from './price.vo.js';
-export * from './discount-vo.js';
-export * from './tax-rate.vo.js';
-
-// Review
-export * from './review-id.vo.js';
+// Measures / Amounts
 export * from './review-rating.vo.js';
-export * from './review-comment.vo.js';
-
-// Collection
-export * from './collection-id.vo.js';
+export * from './review-content.vo.js';
+export * from './price-amount.vo.js';
+export * from './price-currency.vo.js';
+export * from './pricing-rule-value.vo.js';
 export * from './collection-name.vo.js';
-export * from './collection-slug.vo.js';
+export * from './product-weight.vo.js';
+export * from './product-dimension.vo.js';
+export * from './inventory-quantity.vo.js';

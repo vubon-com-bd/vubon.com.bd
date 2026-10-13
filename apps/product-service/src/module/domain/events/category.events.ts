@@ -1,19 +1,19 @@
 /**
- * Category domain events
+ * Category Domain Events
  * @module product-service/domain/events
  */
 import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import type { DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.event';
 import type { Timestamp } from '@vubon/shared-types/common';
-import { CATEGORY_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
+import { PRODUCT_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const CATEGORY_EVENT_TYPE = {
-  CREATED: 'category.created',
-  UPDATED: 'category.updated',
-  MOVED: 'category.moved',
-  DELETED: 'category.deleted',
-  PRODUCT_ATTACHED: 'category.product.attached',
-  PRODUCT_DETACHED: 'category.product.detached',
+  CREATED: 'product.category.created',
+  UPDATED: 'product.category.updated',
+  MOVED: 'product.category.moved',
+  ACTIVATED: 'product.category.activated',
+  DEACTIVATED: 'product.category.deactivated',
+  DELETED: 'product.category.deleted',
 } as const;
 
 export interface CategoryCreatedPayload {
@@ -22,30 +22,38 @@ export interface CategoryCreatedPayload {
   readonly slug: string;
   readonly parentId?: string;
   readonly depth: number;
+  readonly createdAt: string;
 }
 
 export interface CategoryUpdatedPayload {
   readonly categoryId: string;
   readonly changedFields: readonly string[];
+  readonly updatedAt: string;
 }
 
 export interface CategoryMovedPayload {
   readonly categoryId: string;
-  readonly oldParentId?: string;
+  readonly previousParentId?: string;
   readonly newParentId?: string;
-  readonly oldDepth: number;
   readonly newDepth: number;
+  readonly movedAt: string;
+}
+
+export interface CategoryActivatedPayload {
+  readonly categoryId: string;
+  readonly activatedAt: string;
+}
+
+export interface CategoryDeactivatedPayload {
+  readonly categoryId: string;
+  readonly reason?: string;
+  readonly deactivatedAt: string;
 }
 
 export interface CategoryDeletedPayload {
   readonly categoryId: string;
-  readonly deletedBy: string;
-}
-
-export interface CategoryProductPayload {
-  readonly categoryId: string;
-  readonly productId: string;
-  readonly changedBy: string;
+  readonly deletedAt: string;
+  readonly deletedBy?: string;
 }
 
 type EventParams<TPayload> = {
@@ -57,21 +65,28 @@ type EventParams<TPayload> = {
   metadata?: DomainEventMetadata;
 };
 
+function buildParams<TType extends string, TPayload>(
+  type: TType,
+  p: EventParams<TPayload>,
+) {
+  return {
+    id: p.id ?? newEventId(),
+    type,
+    aggregateId: p.aggregateId,
+    aggregateType: PRODUCT_AGGREGATE_TYPE.CATEGORY,
+    payload: p.payload,
+    occurredAt: p.occurredAt ?? now(),
+    version: p.version ?? 1,
+    metadata: p.metadata,
+  };
+}
+
 export class CategoryCreatedEvent extends BaseDomainEvent<
   typeof CATEGORY_EVENT_TYPE.CREATED,
   CategoryCreatedPayload
 > {
   constructor(p: EventParams<CategoryCreatedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: CATEGORY_EVENT_TYPE.CREATED,
-      aggregateId: p.aggregateId,
-      aggregateType: CATEGORY_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(CATEGORY_EVENT_TYPE.CREATED, p));
   }
 }
 
@@ -80,16 +95,7 @@ export class CategoryUpdatedEvent extends BaseDomainEvent<
   CategoryUpdatedPayload
 > {
   constructor(p: EventParams<CategoryUpdatedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: CATEGORY_EVENT_TYPE.UPDATED,
-      aggregateId: p.aggregateId,
-      aggregateType: CATEGORY_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(CATEGORY_EVENT_TYPE.UPDATED, p));
   }
 }
 
@@ -98,16 +104,25 @@ export class CategoryMovedEvent extends BaseDomainEvent<
   CategoryMovedPayload
 > {
   constructor(p: EventParams<CategoryMovedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: CATEGORY_EVENT_TYPE.MOVED,
-      aggregateId: p.aggregateId,
-      aggregateType: CATEGORY_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(CATEGORY_EVENT_TYPE.MOVED, p));
+  }
+}
+
+export class CategoryActivatedEvent extends BaseDomainEvent<
+  typeof CATEGORY_EVENT_TYPE.ACTIVATED,
+  CategoryActivatedPayload
+> {
+  constructor(p: EventParams<CategoryActivatedPayload>) {
+    super(buildParams(CATEGORY_EVENT_TYPE.ACTIVATED, p));
+  }
+}
+
+export class CategoryDeactivatedEvent extends BaseDomainEvent<
+  typeof CATEGORY_EVENT_TYPE.DEACTIVATED,
+  CategoryDeactivatedPayload
+> {
+  constructor(p: EventParams<CategoryDeactivatedPayload>) {
+    super(buildParams(CATEGORY_EVENT_TYPE.DEACTIVATED, p));
   }
 }
 
@@ -116,51 +131,6 @@ export class CategoryDeletedEvent extends BaseDomainEvent<
   CategoryDeletedPayload
 > {
   constructor(p: EventParams<CategoryDeletedPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: CATEGORY_EVENT_TYPE.DELETED,
-      aggregateId: p.aggregateId,
-      aggregateType: CATEGORY_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
-  }
-}
-
-export class CategoryProductAttachedEvent extends BaseDomainEvent<
-  typeof CATEGORY_EVENT_TYPE.PRODUCT_ATTACHED,
-  CategoryProductPayload
-> {
-  constructor(p: EventParams<CategoryProductPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: CATEGORY_EVENT_TYPE.PRODUCT_ATTACHED,
-      aggregateId: p.aggregateId,
-      aggregateType: CATEGORY_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
-  }
-}
-
-export class CategoryProductDetachedEvent extends BaseDomainEvent<
-  typeof CATEGORY_EVENT_TYPE.PRODUCT_DETACHED,
-  CategoryProductPayload
-> {
-  constructor(p: EventParams<CategoryProductPayload>) {
-    super({
-      id: p.id ?? newEventId(),
-      type: CATEGORY_EVENT_TYPE.PRODUCT_DETACHED,
-      aggregateId: p.aggregateId,
-      aggregateType: CATEGORY_AGGREGATE_TYPE,
-      payload: p.payload,
-      occurredAt: p.occurredAt ?? now(),
-      version: p.version ?? 1,
-      metadata: p.metadata,
-    });
+    super(buildParams(CATEGORY_EVENT_TYPE.DELETED, p));
   }
 }

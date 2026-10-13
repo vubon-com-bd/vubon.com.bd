@@ -1,31 +1,94 @@
 /**
- * InventoryMapper
+ * InventoryMapper — Entity → Response DTO
+ * @module product-service/application/mappers
  */
-import { ProductInventoryEntity } from '../../domain/entities/product-inventory.entity.js';
-import type { InventoryResponseDTO } from '../dtos/responses/inventory-response.dto.js';
-import type { ProductId, VariantId } from '@vubon/shared-types/common';
+import type { ProductInventoryEntity } from '../../domain/entities/product-inventory.entity.js';
+import type { InventoryStatusValue } from '@vubon/shared-types/business/product';
+import type {
+  InventoryResponseDTO,
+  InventoryPublicResponseDTO,
+  InventorySummaryResponseDTO,
+  InventoryListResponseDTO,
+  InventoryStatsResponseDTO,
+  StockCheckResponseDTO,
+} from '../dtos/responses/inventory-response.dto.js';
 
 export class InventoryMapper {
-  static toResponse(inv: ProductInventoryEntity): InventoryResponseDTO {
+  static toResponse(entity: ProductInventoryEntity): InventoryResponseDTO {
+    const vo = entity.vo;
     return {
-      id: inv.id,
-      productId: inv.productId.value as ProductId,
-      variantId: inv.variantId?.value as VariantId | undefined,
-      sku: inv.sku,
-      quantity: inv.quantity,
-      reserved: inv.reserved,
-      available: inv.available,
-      status: inv.getStatus(),
-      lowStockThreshold: inv.threshold,
-      trackQuantity: inv.trackQuantity,
-      allowBackorder: inv.allowBackorder,
-      locationId: inv.locationId,
-      lastRestockedAt: inv.lastRestockedAt,
-      updatedAt: inv.updatedAt,
+      id: entity.id,
+      productId: vo.productId.value,
+      variantId: vo.variantId?.value,
+      vendorId: vo.vendorId?.value,
+      sku: vo.sku.value,
+      quantity: vo.quantity.value,
+      reserved: vo.reserved.value,
+      available: vo.available.value,
+      status: vo.status.value as InventoryStatusValue,
+      lowStockThreshold: vo.lowStockThreshold,
+      locationId: vo.locationId,
+      lastRestockedAt: vo.lastRestockedAt,
+      updatedAt: vo.updatedAt,
     };
   }
 
-  static toResponseList(inventory: readonly ProductInventoryEntity[]): readonly InventoryResponseDTO[] {
-    return inventory.map((i) => InventoryMapper.toResponse(i));
+  static toPublicResponse(entity: ProductInventoryEntity): InventoryPublicResponseDTO {
+    const vo = entity.vo;
+    return {
+      id: entity.id,
+      productId: vo.productId.value,
+      available: vo.available.value,
+      status: vo.status.value as InventoryStatusValue,
+    };
+  }
+
+  static toSummary(entity: ProductInventoryEntity): InventorySummaryResponseDTO {
+    return {
+      id: entity.id,
+      sku: entity.sku.value,
+      available: entity.available.value,
+      status: entity.vo.status.value as InventoryStatusValue,
+    };
+  }
+
+  static toListResponse(
+    entities: readonly ProductInventoryEntity[],
+    total: number,
+    page: number,
+    limit: number,
+  ): InventoryListResponseDTO {
+    return {
+      items: entities.map((e) => this.toSummary(e)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  static toStatsResponse(stats: {
+    totalRecords: number;
+    inStockCount: number;
+    lowStockCount: number;
+    outOfStockCount: number;
+    totalQuantity: number;
+    totalReserved: number;
+    totalAvailable: number;
+  }): InventoryStatsResponseDTO {
+    return { ...stats };
+  }
+
+  static toStockCheckResponse(
+    entity: ProductInventoryEntity,
+    requestedQuantity: number,
+  ): StockCheckResponseDTO {
+    return {
+      inventoryId: entity.id,
+      sku: entity.sku.value,
+      available: entity.available.value,
+      canFulfill: entity.available.value >= requestedQuantity,
+      requestedQuantity,
+    };
   }
 }

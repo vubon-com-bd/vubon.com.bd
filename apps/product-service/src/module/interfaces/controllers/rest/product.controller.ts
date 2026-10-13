@@ -1,6 +1,8 @@
 /**
- * ProductController — REST endpoints for products.
+ * ProductController — REST endpoints
  * @module product-service/interfaces/controllers/rest
+ *
+ * Thin — delegates to IProductService.
  */
 import {
   Body,
@@ -9,201 +11,243 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Public, Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
-import { CreateProductCommand } from '../../../application/commands/product/create-product.command.js';
-import { UpdateProductCommand } from '../../../application/commands/product/update-product.command.js';
-import { DeleteProductCommand } from '../../../application/commands/product/delete-product.command.js';
-import { PublishProductCommand } from '../../../application/commands/product/publish-product.command.js';
-import { UnpublishProductCommand } from '../../../application/commands/product/unpublish-product.command.js';
-import { ArchiveProductCommand } from '../../../application/commands/product/archive-product.command.js';
-import { FeatureProductCommand } from '../../../application/commands/product/feature-product.command.js';
-import { DuplicateProductCommand } from '../../../application/commands/product/duplicate-product.command.js';
-import { GetProductDetailQuery } from '../../../application/queries/product/get-product-detail.query.js';
-import { ListProductsQuery } from '../../../application/queries/product/list-products.query.js';
-import { SearchProductsQuery } from '../../../application/queries/product/search-products.query.js';
+import {
+  PRODUCT_SERVICE,
+  type IProductService,
+} from '../../../application/services/interfaces/product.service.interface.js';
 
-import { CreateProductRequestDTO } from '../../dtos/requests/product.request.dto.js';
-import { UpdateProductRequestDTO } from '../../dtos/requests/product.request.dto.js';
-import { ProductResponseDTO, ProductListResponseDTO } from '../../dtos/responses/product.response.dto.js';
-import { ProductDetailResponseDTO } from '../../dtos/responses/product-detail.response.dto.js';
+import {
+  CreateProductHttpDTO,
+  UpdateProductHttpDTO,
+  PublishProductHttpDTO,
+  ListProductsHttpQueryDTO,
+} from '../../dtos/requests/product.request.dto.js';
 
-@ApiTags('products')
+import type {
+  ProductHttpResponseDTO,
+  ProductPublicHttpResponseDTO,
+  ProductSummaryHttpResponseDTO,
+  ProductListHttpResponseDTO,
+  ProductStatsHttpResponseDTO,
+  ProductDetailHttpResponseDTO,
+  ProductCreateHttpResponseDTO,
+} from '../../dtos/responses/product.response.dto.js';
+
+import { ProductControllerMapper } from '../../mappers/product.controller.mapper.js';
+import { OwnProductGuard } from '../../guards/own-product.guard.js';
+import { ProductCacheInterceptor } from '../../interceptors/product-cache.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { IdempotencyHeader } from '../../decorators/idempotency-key.decorator.js';
+import {
+  ApiProductTag,
+  ApiCreateProduct,
+  ApiGetProduct,
+  ApiGetProductBySlug,
+  ApiGetProductDetail,
+  ApiGetProductPublic,
+  ApiListProducts,
+  ApiSearchProducts,
+  ApiGetProductStats,
+  ApiUpdateProduct,
+  ApiPublishProduct,
+  ApiArchiveProduct,
+  ApiDeleteProduct,
+  ApiDuplicateProduct,
+} from '../../swagger/product.swagger.js';
+
+@ApiProductTag()
 @ApiBearerAuth('bearer')
 @Controller('products')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(
+  ProductLoggingInterceptor,
+  ProductTimeoutInterceptor,
+  ProductCacheInterceptor,
+)
 export class ProductController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(PRODUCT_SERVICE)
+    private readonly productService: IProductService,
   ) {
     super();
   }
 
+  // ═══════════ COMMANDS ═══════════
+
   @Post()
-  @Roles('admin', 'vendor')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new product' })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ProductResponseDTO })
+  @ApiCreateProduct()
   async create(
-    @Body() dto: CreateProductRequestDTO,
+    @Body() dto: CreateProductHttpDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(
-      new CreateProductCommand(dto as never, user.userId),
+    @IdempotencyHeader() idempotencyKey?: string,
+  ): Promise<ProductCreateHttpResponseDTO> {
+    const appDto = ProductControllerMapper.toCreateAppDto(dto);
+    const result = await this.productService.create(
+      { ...appDto, idempotencyKey },
+      user.userId,
+      user.userId,
     );
+    return ProductControllerMapper.toCreateHttp(result);
   }
 
+  @Patch(':id')
+  @ApiUpdateProduct()
+  @UseGuards(OwnProductGuard)
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductHttpDTO,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ProductHttpResponseDTO> {
+    const appDto = ProductControllerMapper.toUpdateAppDto(id, dto, user.userId);
+    const result = await this.productService.update(appDto, user.userId);
+    return ProductControllerMapper.toHttpResponse(result);
+  }
+
+  @Post(':id/publish')
+  @HttpCode(HttpStatus.OK)
+  @ApiPublishProduct()
+  @UseGuards(OwnProductGuard)
+  async publish(
+    @Param('id') id: string,
+    @Body() dto: PublishProductHttpDTO,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ProductHttpResponseDTO> {
+    const appDto = ProductControllerMapper.toPublishAppDto(id, dto, user.userId);
+    const result = await this.productService.publish(appDto);
+    return ProductControllerMapper.toHttpResponse(result);
+  }
+
+  @Post(':id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiArchiveProduct()
+  @UseGuards(OwnProductGuard)
+  async archive(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ProductHttpResponseDTO> {
+    const result = await this.productService.archive({ productId: id, actorId: user.userId });
+    return ProductControllerMapper.toHttpResponse(result);
+  }
+
+  @Post(':id/duplicate')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiDuplicateProduct()
+  @UseGuards(OwnProductGuard)
+  async duplicate(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ProductCreateHttpResponseDTO> {
+    const result = await this.productService.duplicate({ productId: id, actorId: user.userId });
+    return ProductControllerMapper.toCreateHttp(result);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiDeleteProduct()
+  @UseGuards(OwnProductGuard)
+  async delete(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<{ readonly success: true; readonly productId: string }> {
+    return this.productService.delete({ productId: id, actorId: user.userId });
+  }
+
+  // ═══════════ QUERIES ═══════════
+
   @Get()
-  @Public()
-  @ApiOperation({ summary: 'List products with pagination & filters' })
-  @ApiResponse({ status: HttpStatus.OK, type: ProductListResponseDTO })
+  @ApiListProducts()
   async list(
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-    @Query('status') status?: string,
-    @Query('type') type?: string,
-    @Query('categoryId') categoryId?: string,
-    @Query('brandId') brandId?: string,
-    @Query('isFeatured') isFeatured?: string,
-    @Query('search') search?: string,
-  ): Promise<ProductListResponseDTO> {
-    return this.queryBus.execute(
-      new ListProductsQuery({
-        page: Number(page),
-        limit: Number(limit),
-        sortBy: 'createdAt',
-        sortDir: 'desc',
-        filter: {
-          status,
-          type,
-          categoryId,
-          brandId,
-          isFeatured: isFeatured === undefined ? undefined : isFeatured === 'true',
-          search,
-        },
-      }),
-    );
+    @Query() q: ListProductsHttpQueryDTO,
+  ): Promise<ProductListHttpResponseDTO> {
+    const options = ProductControllerMapper.toListOptions(q);
+    const result = await this.productService.list(options);
+    return ProductControllerMapper.toListHttp(result);
   }
 
   @Get('search')
-  @Public()
-  @ApiOperation({ summary: 'Search products' })
+  @ApiSearchProducts()
   async search(
-    @Query('q') q: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-  ): Promise<ProductListResponseDTO> {
-    return this.queryBus.execute(
-      new SearchProductsQuery(q, Number(page), Number(limit)),
-    );
+    @Query('q') term: string,
+    @Query('limit') limit?: number,
+  ): Promise<readonly ProductSummaryHttpResponseDTO[]> {
+    const results = await this.productService.search(term ?? '', limit ?? 20);
+    return results.map((r) => ProductControllerMapper.toSummaryHttp(r));
   }
 
-  @Get(':productId')
-  @Public()
-  @ApiOperation({ summary: 'Get product detail by ID' })
-  @ApiResponse({ status: HttpStatus.OK, type: ProductDetailResponseDTO })
-  async getDetail(@Param('productId') productId: string): Promise<ProductDetailResponseDTO> {
-    return this.queryBus.execute(new GetProductDetailQuery(productId));
+  @Get('featured')
+  @ApiListProducts()
+  async featured(
+    @Query('limit') limit?: number,
+  ): Promise<readonly ProductSummaryHttpResponseDTO[]> {
+    const results = await this.productService.getFeatured(limit ?? 20);
+    return results.map((r) => ProductControllerMapper.toSummaryHttp(r));
   }
 
-  @Patch(':productId')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Update product details' })
-  @ApiResponse({ status: HttpStatus.OK, type: ProductResponseDTO })
-  async update(
-    @Param('productId') productId: string,
-    @Body() dto: UpdateProductRequestDTO,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(
-      new UpdateProductCommand(productId, dto as never, user.userId),
-    );
+  @Get('stats')
+  @ApiGetProductStats()
+  async stats(): Promise<ProductStatsHttpResponseDTO> {
+    const result = await this.productService.getStats();
+    return ProductControllerMapper.toStatsHttp(result);
   }
 
-  @Post(':productId/publish')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Publish a product' })
-  async publish(
-    @Param('productId') productId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(new PublishProductCommand(productId, user.userId));
+  @Get('by-slug/:slug')
+  @ApiGetProductBySlug()
+  async getBySlug(
+    @Param('slug') slug: string,
+  ): Promise<ProductHttpResponseDTO> {
+    const result = await this.productService.getBySlug(slug);
+    return ProductControllerMapper.toHttpResponse(result);
   }
 
-  @Post(':productId/unpublish')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Unpublish a product' })
-  async unpublish(
-    @Param('productId') productId: string,
-    @Body('reason') reason: string | undefined,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(
-      new UnpublishProductCommand(productId, user.userId, reason),
-    );
+  @Get(':id/detail')
+  @ApiGetProductDetail()
+  async detail(
+    @Param('id') id: string,
+  ): Promise<ProductDetailHttpResponseDTO> {
+    const result = await this.productService.getDetail(id);
+    return ProductControllerMapper.toDetailHttp(result);
   }
 
-  @Post(':productId/archive')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Archive a product' })
-  async archive(
-    @Param('productId') productId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(new ArchiveProductCommand(productId, user.userId));
+  @Get(':id/public')
+  @ApiGetProductPublic()
+  async publicView(
+    @Param('id') id: string,
+  ): Promise<ProductPublicHttpResponseDTO> {
+    const result = await this.productService.getPublic(id);
+    return ProductControllerMapper.toPublicHttpResponse(result);
   }
 
-  @Post(':productId/feature')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Feature / unfeature a product' })
-  async feature(
-    @Param('productId') productId: string,
-    @Body('featured') featured: boolean,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(
-      new FeatureProductCommand(productId, user.userId, featured ?? true),
-    );
+  @Get(':id/related')
+  @ApiListProducts()
+  async related(
+    @Param('id') id: string,
+    @Query('limit') limit?: number,
+  ): Promise<readonly ProductSummaryHttpResponseDTO[]> {
+    const results = await this.productService.getRelated(id, limit ?? 10);
+    return results.map((r) => ProductControllerMapper.toSummaryHttp(r));
   }
 
-  @Post(':productId/duplicate')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Duplicate a product with a new name' })
-  async duplicate(
-    @Param('productId') productId: string,
-    @Body('newName') newName: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<ProductResponseDTO> {
-    return this.commandBus.execute(
-      new DuplicateProductCommand(productId, newName, user.userId),
-    );
-  }
-
-  @Delete(':productId')
-  @Roles('admin')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Soft-delete a product' })
-  async remove(
-    @Param('productId') productId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<void> {
-    await this.commandBus.execute(new DeleteProductCommand(productId, user.userId));
+  @Get(':id')
+  @ApiGetProduct()
+  async getById(@Param('id') id: string): Promise<ProductHttpResponseDTO> {
+    const result = await this.productService.getById(id);
+    return ProductControllerMapper.toHttpResponse(result);
   }
 }

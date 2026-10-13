@@ -1,61 +1,89 @@
 /**
- * Inventory Request DTOs
+ * Inventory HTTP Request DTOs
  * @module product-service/interfaces/dtos/requests
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEnum, IsInt, IsOptional, IsString, IsUUID, Min,
+} from 'class-validator';
 
-export class UpdateInventoryRequestDTO {
-  @ApiProperty({ example: 'inv-uuid' })
-  readonly inventoryId!: string;
-
-  @ApiProperty({ example: 50, description: 'Positive to add, negative to remove' })
+export class UpdateInventoryHttpDTO {
+  @ApiProperty()
+  @IsInt()
   readonly delta!: number;
 
-  @ApiProperty({ example: 'manual restock' })
-  readonly reason!: string;
-
-  @ApiPropertyOptional({ example: 'PO-2024-001' })
-  readonly reference?: string;
-
-  @ApiProperty({ example: 'admin-user-id' })
-  readonly adjustedBy!: string;
-}
-
-export class AdjustInventoryRequestDTO {
-  @ApiProperty()
-  readonly inventoryId!: string;
-
-  @ApiProperty()
-  readonly delta!: number;
-
-  @ApiProperty()
+  @ApiProperty({ example: 'restock' })
+  @IsString()
   readonly reason!: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly reference?: string;
+}
+
+export class AdjustInventoryHttpDTO {
+  @ApiProperty()
+  @IsInt()
+  readonly delta!: number;
+
+  @ApiProperty({ example: 'adjustment' })
+  @IsString()
+  readonly reason!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   readonly reference?: string;
 
-  @ApiProperty()
-  readonly adjustedBy!: string;
+  @ApiPropertyOptional({ enum: ['admin', 'vendor', 'staff', 'system'] })
+  @IsOptional()
+  @IsEnum(['admin', 'vendor', 'staff', 'system'])
+  readonly actorRole?: string;
 }
 
-export class ReserveInventoryRequestDTO {
+export class ReserveInventoryHttpDTO {
   @ApiProperty()
-  readonly inventoryId!: string;
-
-  @ApiProperty({ example: 2 })
-  readonly amount!: number;
-
-  @ApiProperty({ example: 'ORDER-2024-0001' })
-  readonly reference!: string;
-}
-
-export class ReleaseInventoryRequestDTO {
-  @ApiProperty()
+  @IsUUID()
   readonly inventoryId!: string;
 
   @ApiProperty()
-  readonly amount!: number;
+  @IsInt()
+  @Min(1)
+  readonly quantity!: number;
 
   @ApiProperty()
-  readonly reason!: string;
+  @IsString()
+  readonly referenceId!: string;
+
+  @ApiPropertyOptional({ enum: ['order', 'cart', 'manual'] })
+  @IsOptional()
+  @IsEnum(['order', 'cart', 'manual'])
+  readonly referenceType?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  readonly expiresInMinutes?: number;
+}
+
+export class ReleaseInventoryHttpDTO {
+  @ApiProperty()
+  @IsUUID()
+  readonly inventoryId!: string;
+
+  @ApiProperty()
+  @IsInt()
+  @Min(1)
+  readonly quantity!: number;
+
+  @ApiProperty()
+  @IsString()
+  readonly referenceId!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly reason?: string;
 }

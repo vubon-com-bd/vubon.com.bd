@@ -1,114 +1,146 @@
 /**
- * ProductCollectionController
+ * ProductCollectionController — REST endpoints
+ * @module product-service/interfaces/controllers/rest
  */
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject,
+  Param, Patch, Post, Query, UseGuards, UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Public, Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
-import { CreateCollectionCommand } from '../../../application/commands/collection/create-collection.command.js';
-import { UpdateCollectionCommand } from '../../../application/commands/collection/update-collection.command.js';
-import { DeleteCollectionCommand } from '../../../application/commands/collection/delete-collection.command.js';
-import { AddProductToCollectionCommand } from '../../../application/commands/collection/add-product-to-collection.command.js';
-import { RemoveProductFromCollectionCommand } from '../../../application/commands/collection/remove-product-from-collection.command.js';
-import { GetCollectionQuery } from '../../../application/queries/collection/get-collection.query.js';
-import { ListFeaturedCollectionsQuery } from '../../../application/queries/collection/list-featured-collections.query.js';
-import { ListActiveCollectionsQuery } from '../../../application/queries/collection/list-active-collections.query.js';
+import {
+  COLLECTION_SERVICE,
+  type IProductCollectionService,
+} from '../../../application/services/interfaces/product-collection.service.interface.js';
 
-import { CreateCollectionRequestDTO, UpdateCollectionRequestDTO } from '../../dtos/requests/collection.request.dto.js';
-import { CollectionResponseDTO } from '../../dtos/responses/collection.response.dto.js';
+import type {
+  CreateCollectionRequestDTO,
+  UpdateCollectionRequestDTO,
+} from '../../../application/dtos/requests/collection/index.js';
+import type {
+  CollectionHttpResponseDTO,
+  CollectionListHttpResponseDTO,
+  CollectionStatsHttpResponseDTO,
+} from '../../dtos/responses/collection.response.dto.js';
 
-@ApiTags('collections')
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+
+@ApiTags('product-collections')
 @ApiBearerAuth('bearer')
-@Controller('collections')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('product-collections')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ProductLoggingInterceptor, ProductTimeoutInterceptor)
 export class ProductCollectionController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(COLLECTION_SERVICE)
+    private readonly collectionService: IProductCollectionService,
   ) {
     super();
   }
 
   @Post()
-  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a collection' })
   async create(
     @Body() dto: CreateCollectionRequestDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<CollectionResponseDTO> {
-    return this.commandBus.execute(new CreateCollectionCommand(dto as never, user.userId));
+  ): Promise<CollectionHttpResponseDTO> {
+    const result = await this.collectionService.create({
+      ...dto,
+      actorId: user.userId,
+    } as CreateCollectionRequestDTO);
+    return result as unknown as CollectionHttpResponseDTO;
   }
 
-  @Get('featured')
-  @Public()
-  @ApiOperation({ summary: 'List featured collections' })
-  async featured(@Query('limit') limit = 20): Promise<readonly CollectionResponseDTO[]> {
-    return this.queryBus.execute(new ListFeaturedCollectionsQuery(Number(limit)));
-  }
-
-  @Get('active')
-  @Public()
-  @ApiOperation({ summary: 'List active collections' })
-  async active(): Promise<readonly CollectionResponseDTO[]> {
-    return this.queryBus.execute(new ListActiveCollectionsQuery());
-  }
-
-  @Get(':collectionId')
-  @Public()
-  @ApiOperation({ summary: 'Get collection by ID' })
-  async getById(@Param('collectionId') collectionId: string): Promise<CollectionResponseDTO | null> {
-    return this.queryBus.execute(new GetCollectionQuery(collectionId));
-  }
-
-  @Patch(':collectionId')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Update a collection' })
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update collection' })
   async update(
-    @Param('collectionId') collectionId: string,
+    @Param('id') id: string,
     @Body() dto: UpdateCollectionRequestDTO,
-  ): Promise<CollectionResponseDTO> {
-    return this.commandBus.execute(new UpdateCollectionCommand({ ...dto, collectionId } as never));
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<CollectionHttpResponseDTO> {
+    const result = await this.collectionService.update({
+      ...dto,
+      collectionId: id,
+      actorId: user.userId,
+    } as UpdateCollectionRequestDTO);
+    return result as unknown as CollectionHttpResponseDTO;
   }
 
-  @Post(':collectionId/products/:productId')
-  @Roles('admin')
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete collection' })
+  async delete(
+    @Param('id') id: string,
+  ): Promise<{ readonly success: true; readonly collectionId: string }> {
+    return this.collectionService.delete({ collectionId: id });
+  }
+
+  @Post(':id/products/:productId')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Add product to collection' })
   async addProduct(
-    @Param('collectionId') collectionId: string,
+    @Param('id') id: string,
     @Param('productId') productId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<CollectionResponseDTO> {
-    return this.commandBus.execute(
-      new AddProductToCollectionCommand(collectionId, productId, user.userId),
-    );
+  ): Promise<CollectionHttpResponseDTO> {
+    const result = await this.collectionService.addProduct({
+      collectionId: id,
+      productId,
+    });
+    return result as unknown as CollectionHttpResponseDTO;
   }
 
-  @Delete(':collectionId/products/:productId')
-  @Roles('admin')
+  @Delete(':id/products/:productId')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remove product from collection' })
   async removeProduct(
-    @Param('collectionId') collectionId: string,
+    @Param('id') id: string,
     @Param('productId') productId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<CollectionResponseDTO> {
-    return this.commandBus.execute(
-      new RemoveProductFromCollectionCommand(collectionId, productId, user.userId),
-    );
+  ): Promise<CollectionHttpResponseDTO> {
+    const result = await this.collectionService.removeProduct({
+      collectionId: id,
+      productId,
+    });
+    return result as unknown as CollectionHttpResponseDTO;
   }
 
-  @Delete(':collectionId')
-  @Roles('admin')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a collection' })
-  async remove(
-    @Param('collectionId') collectionId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<void> {
-    await this.commandBus.execute(new DeleteCollectionCommand(collectionId, user.userId));
+  @Get('stats')
+  @ApiOperation({ summary: 'Get collection stats' })
+  async stats(): Promise<CollectionStatsHttpResponseDTO> {
+    const result = await this.collectionService.getStats();
+    return result as unknown as CollectionStatsHttpResponseDTO;
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'List collections' })
+  async list(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ): Promise<CollectionListHttpResponseDTO> {
+    const result = await this.collectionService.list({
+      page: page ?? 1,
+      limit: limit ?? 20,
+    });
+    return result as unknown as CollectionListHttpResponseDTO;
+  }
+
+  @Get('by-slug/:slug')
+  @ApiOperation({ summary: 'Get collection by slug' })
+  async bySlug(@Param('slug') slug: string): Promise<CollectionHttpResponseDTO> {
+    const result = await this.collectionService.getBySlug(slug);
+    return result as unknown as CollectionHttpResponseDTO;
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get collection by ID' })
+  async getById(@Param('id') id: string): Promise<CollectionHttpResponseDTO> {
+    const result = await this.collectionService.getById(id);
+    return result as unknown as CollectionHttpResponseDTO;
   }
 }

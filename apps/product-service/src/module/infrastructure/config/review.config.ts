@@ -1,14 +1,15 @@
-import { getOptionalEnvInt } from './_helpers.js';
-import { REVIEW } from '@vubon/shared-constants/business/product';
+/**
+ * Review Infrastructure Configuration
+ * @module product-service/infrastructure/config
+ */
+import { getOptionalEnvInt } from '@vubon/shared-config/common';
 
-const REVIEW_CONFIG = Object.freeze({
-  EDIT_WINDOW_HOURS: REVIEW.EDIT_WINDOW_HOURS,
-  MAX_IMAGES: REVIEW.MAX_IMAGES,
-  AUTO_APPROVE: REVIEW.AUTO_APPROVE,
-  SPAM_REPORT_THRESHOLD: 5,
-  CACHE_TTL_SECONDS: getOptionalEnvInt('REVIEW_CACHE_TTL', 120),
+export const REVIEW_INFRA_CONFIG = Object.freeze({
+  cacheTtlSeconds: getOptionalEnvInt('REVIEW_CACHE_TTL', 900),
+  moderationThresholdHours: getOptionalEnvInt('REVIEW_MODERATION_THRESHOLD_HOURS', 24),
+  spamReportThreshold: getOptionalEnvInt('REVIEW_SPAM_REPORT_THRESHOLD', 3),
+  editWindowHours: getOptionalEnvInt('REVIEW_EDIT_WINDOW_HOURS', 24),
+  maxImagesPerReview: getOptionalEnvInt('REVIEW_MAX_IMAGES', 5),
 } as const);
 
-export type ReviewConfig = typeof REVIEW_CONFIG;
-export const reviewConfig = REVIEW_CONFIG;
-export function getReviewConfig(): ReviewConfig { return REVIEW_CONFIG; }
+export type ReviewInfraConfig = typeof REVIEW_INFRA_CONFIG;

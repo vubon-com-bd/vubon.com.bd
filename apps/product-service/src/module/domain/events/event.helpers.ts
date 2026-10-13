@@ -1,27 +1,28 @@
 /**
- * Event helpers — ID generation and timestamp utility
+ * Product Service Event Helpers
  * @module product-service/domain/events
+ *
+ * DRY helpers — সব event একই pattern follow করে।
  */
-import { randomUUID } from 'node:crypto';
 import type { Timestamp } from '@vubon/shared-types/common';
 
+// ─── Aggregate Type Constants ──────────────
+export const PRODUCT_AGGREGATE_TYPE = {
+  PRODUCT: 'Product',
+  VARIANT: 'ProductVariant',
+  INVENTORY: 'ProductInventory',
+  PRICING: 'ProductPricing',
+  REVIEW: 'ProductReview',
+  COLLECTION: 'ProductCollection',
+  BRAND: 'Brand',
+  CATEGORY: 'Category',
+} as const;
+
+// ─── Event Id / Timestamp Helpers ──────────
 export function newEventId(): string {
-  return randomUUID();
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/**
- * Current timestamp as epoch milliseconds.
- * shared-types Timestamp is a branded number (epoch ms).
- */
 export function now(): Timestamp {
-  return Date.now() as Timestamp;
+  return new Date().toISOString() as unknown as Timestamp;
 }
-
-export const PRODUCT_AGGREGATE_TYPE = 'Product';
-export const VARIANT_AGGREGATE_TYPE = 'ProductVariant';
-export const INVENTORY_AGGREGATE_TYPE = 'ProductInventory';
-export const PRICING_AGGREGATE_TYPE = 'ProductPricing';
-export const REVIEW_AGGREGATE_TYPE = 'ProductReview';
-export const MEDIA_AGGREGATE_TYPE = 'ProductMedia';
-export const BRAND_AGGREGATE_TYPE = 'Brand';
-export const CATEGORY_AGGREGATE_TYPE = 'Category';

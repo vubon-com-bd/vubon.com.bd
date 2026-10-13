@@ -1,10 +1,10 @@
 /**
- * OwnProduct decorator — metadata flag for OwnProductGuard.
+ * @OwnProduct() — marks route requiring owner check
  * @module product-service/interfaces/decorators
  */
 import { SetMetadata } from '@nestjs/common';
 
-export const OWN_PRODUCT_KEY = 'ownProduct';
+export const OWN_PRODUCT_META_KEY = 'product_own_product';
 
 export const OwnProduct = (): MethodDecorator & ClassDecorator =>
-  SetMetadata(OWN_PRODUCT_KEY, true);
+  SetMetadata(OWN_PRODUCT_META_KEY, true);

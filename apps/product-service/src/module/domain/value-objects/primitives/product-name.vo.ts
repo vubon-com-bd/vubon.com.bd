@@ -3,34 +3,30 @@
  * @module product-service/domain/value-objects/primitives
  */
 import { BaseNameVO } from '@vubon/shared-kernel/domain/primitives';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { PRODUCT } from '@vubon/shared-constants/business';
 
-const MIN_LENGTH = 2;
+const MIN_LENGTH = 3;
 const MAX_LENGTH = 200;
 
 export class ProductNameVO extends BaseNameVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
 
   static create(raw: string): ProductNameVO {
     if (typeof raw !== 'string') {
-      throw new Error('ProductName must be a string');
+      throw new ValidationError('ProductName must be a string', 'name');
     }
-    const trimmed = raw.trim().replace(/\s+/g, ' ');
-    if (trimmed.length < MIN_LENGTH) {
-      throw new Error(`ProductName must be at least ${MIN_LENGTH} characters`);
+    const normalized = raw.trim().replace(/\s+/g, ' ');
+    if (normalized.length < MIN_LENGTH || normalized.length > MAX_LENGTH) {
+      throw new ValidationError(
+        `ProductName must be ${MIN_LENGTH}-${MAX_LENGTH} chars`,
+        'name',
+      );
     }
-    if (trimmed.length > MAX_LENGTH) {
-      throw new Error(`ProductName cannot exceed ${MAX_LENGTH} characters`);
-    }
-    return new ProductNameVO(trimmed);
+    return new ProductNameVO(normalized);
   }
 
-  static reconstitute(raw: string): ProductNameVO {
-    return new ProductNameVO(raw);
-  }
+  static reconstitute(raw: string): ProductNameVO { return new ProductNameVO(raw); }
 
-  get length(): number {
-    return this.value.length;
-  }
+  isShort(): boolean { return this.value.length <= 40; }
 }

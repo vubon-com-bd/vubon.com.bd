@@ -3,20 +3,22 @@
  * @module product-service/domain/value-objects/primitives
  */
 import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives';
+import { REGEX } from '@vubon/shared-constants/common';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
 export class CategoryIdVO extends BaseIdVO<string> {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
 
   static create(raw: string): CategoryIdVO {
     if (typeof raw !== 'string' || raw.trim().length === 0) {
-      throw new Error('CategoryId cannot be empty');
+      throw new ValidationError('CategoryId cannot be empty', 'categoryId');
     }
-    return new CategoryIdVO(raw.trim());
+    const trimmed = raw.trim();
+    if (!REGEX.UUID.test(trimmed)) {
+      throw new ValidationError('CategoryId must be a valid UUID', 'categoryId');
+    }
+    return new CategoryIdVO(trimmed);
   }
 
-  static reconstitute(raw: string): CategoryIdVO {
-    return new CategoryIdVO(raw);
-  }
+  static reconstitute(raw: string): CategoryIdVO { return new CategoryIdVO(raw); }
 }

@@ -3,42 +3,29 @@
  * @module product-service/domain/value-objects/primitives
  */
 import { BaseSlugVO } from '@vubon/shared-kernel/domain/primitives';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
-const MAX_LENGTH = 180;
+const MAX_LENGTH = 200;
 
 export class ProductSlugVO extends BaseSlugVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
+
+  protected static override maxLength(): number { return MAX_LENGTH; }
 
   static create(raw: string): ProductSlugVO {
-    if (typeof raw !== 'string') {
-      throw new Error('ProductSlug must be a string');
-    }
-    const normalized = raw.trim().toLowerCase();
-    if (normalized.length === 0) {
-      throw new Error('ProductSlug cannot be empty');
-    }
+    const normalized = BaseSlugVO.validateRaw(raw);
     if (normalized.length > MAX_LENGTH) {
-      throw new Error(`ProductSlug cannot exceed ${MAX_LENGTH} characters`);
+      throw new ValidationError(
+        `ProductSlug exceeds max ${MAX_LENGTH} chars`,
+        'slug',
+      );
     }
     return new ProductSlugVO(normalized);
   }
 
   static fromName(name: string): ProductSlugVO {
-    const slug = name
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    return ProductSlugVO.create(slug);
+    return new ProductSlugVO(BaseSlugVO.slugifyFromName(name));
   }
 
-  static reconstitute(raw: string): ProductSlugVO {
-    return new ProductSlugVO(raw);
-  }
+  static reconstitute(raw: string): ProductSlugVO { return new ProductSlugVO(raw); }
 }

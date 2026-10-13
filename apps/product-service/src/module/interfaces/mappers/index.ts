@@ -1,4 +1,4 @@
-// interfaces/mappers/index.ts
+// product-service/interfaces/mappers/index.ts
 export * from './product.controller.mapper.js';
 export * from './variant.controller.mapper.js';
 export * from './inventory.controller.mapper.js';

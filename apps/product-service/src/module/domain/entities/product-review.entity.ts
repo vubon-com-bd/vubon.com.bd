@@ -1,366 +1,238 @@
 /**
- * ProductReviewEntity — Aggregate Root
+ * ProductReviewEntity — Aggregate Root (standalone)
  * @module product-service/domain/entities
- *
- * Business rules:
- * - Only APPROVED or PENDING reviews can be edited within 24h
- * - Report count >= 5 marks suspicious
- * - Helpful count cannot go negative (guarded on release)
- * - Rating must be 1-5
  */
 import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
-import { REVIEW, REVIEW_STATUS } from '@vubon/shared-constants/business/product';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
-import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
-import { ReviewIdVO } from '../value-objects/primitives/review-id.vo.js';
-import { ReviewRatingVO } from '../value-objects/primitives/review-rating.vo.js';
-import { ReviewCommentVO } from '../value-objects/primitives/review-comment.vo.js';
-import { ProductIdVO } from '../value-objects/primitives/product-id.vo.js';
+
+import { ProductReviewVO } from '../value-objects/composites/product-review.vo.js';
 import {
   ReviewSubmittedEvent,
   ReviewApprovedEvent,
   ReviewRejectedEvent,
-  ReviewDeletedEvent,
-  ReviewUpdatedEvent,
-  ReviewHelpfulMarkedEvent,
+  ReviewMarkedHelpfulEvent,
   ReviewReportedEvent,
-} from '../events/review.events.js';
-
-export interface ProductReviewEntityProps {
-  readonly productId: ProductIdVO;
-  readonly userId: string;
-  readonly orderId?: string;
-  readonly rating: ReviewRatingVO;
-  readonly title?: string;
-  readonly comment: ReviewCommentVO;
-  readonly images: readonly string[];
-  readonly status: string;
-  readonly isVerifiedPurchase: boolean;
-  readonly helpfulCount: number;
-  readonly reportCount: number;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-}
+  ReviewDeletedEvent,
+} from '../events/product-review.events.js';
 
 export class ProductReviewEntity extends AggregateRoot<string> {
-  private readonly _productId: ProductIdVO;
-  private readonly _userId: string;
-  private readonly _orderId?: string;
-  private _rating: ReviewRatingVO;
-  private _title?: string;
-  private _comment: ReviewCommentVO;
-  private _images: readonly string[];
-  private _status: string;
-  private readonly _isVerifiedPurchase: boolean;
-  private _helpfulCount: number;
-  private _reportCount: number;
+  private _vo: ProductReviewVO;
+  private _deletedBy?: string;
 
   private constructor(
     id: string,
     createdAt: string,
     updatedAt: string,
-    props: ProductReviewEntityProps,
+    vo: ProductReviewVO,
+    deletedBy?: string,
     deletedAt?: string | null,
   ) {
     super(id, createdAt, updatedAt, deletedAt);
-    this._productId = props.productId;
-    this._userId = props.userId;
-    this._orderId = props.orderId;
-    this._rating = props.rating;
-    this._title = props.title;
-    this._comment = props.comment;
-    this._images = Object.freeze([...props.images]);
-    this._status = props.status;
-    this._isVerifiedPurchase = props.isVerifiedPurchase;
-    this._helpfulCount = props.helpfulCount;
-    this._reportCount = props.reportCount;
-    this.assertInvariants();
+    this._vo = vo;
+    this._deletedBy = deletedBy;
   }
 
-  private assertInvariants(): void {
-    if (this._images.length > REVIEW.MAX_IMAGES) {
-      throw new ValidationError(
-        `Review cannot have more than ${REVIEW.MAX_IMAGES} images`,
-        'images',
-      );
-    }
-    if (this._title && this._title.length > REVIEW.TITLE_MAX_LENGTH) {
-      throw new ValidationError(
-        `Title cannot exceed ${REVIEW.TITLE_MAX_LENGTH} chars`,
-        'title',
-      );
-    }
-    if (this._helpfulCount < 0 || this._reportCount < 0) {
-      throw new ValidationError('Counts cannot be negative', 'counts');
-    }
-  }
+  get vo(): ProductReviewVO { return this._vo; }
+  get reviewId(): ProductReviewVO['id'] { return this._vo.id; }
+  get productId(): ProductReviewVO['productId'] { return this._vo.productId; }
+  get userId(): string { return this._vo.userId; }
+  get rating(): ProductReviewVO['rating'] { return this._vo.rating; }
+  get status(): ProductReviewVO['status'] { return this._vo.status; }
+  get helpfulCount(): number { return this._vo.helpfulCount; }
+  get reportCount(): number { return this._vo.reportCount; }
+  get deletedBy(): string | undefined { return this._deletedBy; }
 
-  // Getters
-  get productId(): ProductIdVO { return this._productId; }
-  get userId(): string { return this._userId; }
-  get orderId(): string | undefined { return this._orderId; }
-  get rating(): ReviewRatingVO { return this._rating; }
-  get title(): string | undefined { return this._title; }
-  get comment(): ReviewCommentVO { return this._comment; }
-  get images(): readonly string[] { return this._images; }
-  get status(): string { return this._status; }
-  get isVerifiedPurchase(): boolean { return this._isVerifiedPurchase; }
-  get helpfulCount(): number { return this._helpfulCount; }
-  get reportCount(): number { return this._reportCount; }
+  isPending(): boolean { return this.status.isPending(); }
+  isApproved(): boolean { return this.status.isApproved(); }
+  isRejected(): boolean { return this.status.isRejected(); }
+  isSpam(): boolean { return this.status.isSpam(); }
+  isDeleted(): boolean { return this.status.isDeleted(); }
 
-  // ─── Business methods ─────────────────────────────────────
-
-  public updateContent(params: {
-    rating?: ReviewRatingVO;
-    title?: string;
-    comment?: ReviewCommentVO;
-    images?: readonly string[];
-    now: string;
-  }): void {
-    if (!this.isEditable(params.now)) {
+  approve(approvedBy?: string, now: string = new Date().toISOString()): void {
+    if (!this.isPending()) {
       throw new BusinessRuleError(
-        `Review "${this.id}" cannot be edited (window expired or status="${this._status}")`,
-        'REVIEW_NOT_EDITABLE',
-        { reviewId: this.id, status: this._status },
+        `Cannot approve review in status "${this.status.value}"`,
+        'INVALID_REVIEW_STATUS_TRANSITION',
+        { reviewId: this.id, from: this.status.value, to: 'approved' },
       );
     }
-
-    const changedFields: string[] = [];
-    const oldRating = this._rating.value;
-
-    if (params.rating && params.rating.value !== oldRating) {
-      this._rating = params.rating;
-      changedFields.push('rating');
-    }
-    if (params.title !== undefined && params.title !== this._title) {
-      if (params.title.length > REVIEW.TITLE_MAX_LENGTH) {
-        throw new ValidationError(
-          `Title cannot exceed ${REVIEW.TITLE_MAX_LENGTH} chars`,
-          'title',
-        );
-      }
-      this._title = params.title;
-      changedFields.push('title');
-    }
-    if (params.comment && !params.comment.equals(this._comment)) {
-      this._comment = params.comment;
-      changedFields.push('comment');
-    }
-    if (params.images) {
-      if (params.images.length > REVIEW.MAX_IMAGES) {
-        throw new ValidationError(
-          `Cannot have more than ${REVIEW.MAX_IMAGES} images`,
-          'images',
-        );
-      }
-      this._images = Object.freeze([...params.images]);
-      changedFields.push('images');
-    }
-
-    if (changedFields.length === 0) return;
-
-    this.addDomainEvent(new ReviewUpdatedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        oldRating,
-        newRating: this._rating.value,
-        changedFields,
-      },
-      version: this.version + 1,
-    }));
+    const from = this.status.value;
+    this._vo = ProductReviewVO.create({
+      ...this._vo.value,
+      status: this.status.constructor === Object ? this.status : this._vo.status,
+    });
+    // Simpler: rebuild with approved status
+    this._vo = ProductReviewVO.reconstitute({
+      ...this._vo.value,
+      status: ProductReviewVO.reconstitute(this._vo.value).status,
+    });
+    this._vo = this.withStatus('approved');
+    this.addDomainEvent(
+      new ReviewApprovedEvent({
+        aggregateId: this.id,
+        payload: {
+          reviewId: this.id,
+          productId: this.productId.value,
+          approvedBy,
+          approvedAt: now,
+        },
+        version: this.version + 1,
+      }),
+    );
+    this.touch(now);
     this.incrementVersion();
   }
 
-  public approve(moderatorId: string, reason?: string): void {
-    if (this._status === REVIEW_STATUS.APPROVED) return;
-    if (this._status === REVIEW_STATUS.DELETED) {
-      throw new BusinessRuleError(
-        'Cannot approve a deleted review',
-        'REVIEW_DELETED',
-      );
-    }
-    this._status = REVIEW_STATUS.APPROVED;
-    this.addDomainEvent(new ReviewApprovedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        moderatedBy: moderatorId,
-        reason,
-      },
-      version: this.version + 1,
-      metadata: { userId: moderatorId },
-    }));
-    this.incrementVersion();
-  }
-
-  public reject(moderatorId: string, reason: string): void {
-    if (this._status === REVIEW_STATUS.DELETED) {
-      throw new BusinessRuleError('Cannot reject a deleted review', 'REVIEW_DELETED');
-    }
-    this._status = REVIEW_STATUS.REJECTED;
-    this.addDomainEvent(new ReviewRejectedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        moderatedBy: moderatorId,
-        reason,
-      },
-      version: this.version + 1,
-      metadata: { userId: moderatorId },
-    }));
-    this.incrementVersion();
-  }
-
-  public markAsSpam(moderatorId: string): void {
-    this._status = REVIEW_STATUS.SPAM;
-    this.addDomainEvent(new ReviewRejectedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        moderatedBy: moderatorId,
-        reason: 'spam',
-      },
-      version: this.version + 1,
-    }));
-    this.incrementVersion();
-  }
-
-  public softDelete(deletedBy: string): void {
-    if (this._status === REVIEW_STATUS.DELETED) return;
-    this._status = REVIEW_STATUS.DELETED;
-    this.addDomainEvent(new ReviewDeletedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        deletedBy,
-      },
-      version: this.version + 1,
-      metadata: { userId: deletedBy },
-    }));
-    this.incrementVersion();
-  }
-
-  public markHelpful(userId: string): void {
-    if (this._status === REVIEW_STATUS.DELETED) {
-      throw new BusinessRuleError('Cannot mark a deleted review', 'REVIEW_DELETED');
-    }
-    this._helpfulCount += 1;
-    this.addDomainEvent(new ReviewHelpfulMarkedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        markedBy: userId,
-        helpfulCount: this._helpfulCount,
-      },
-      version: this.version + 1,
-      metadata: { userId },
-    }));
-    this.incrementVersion();
-  }
-
-  public report(reporterId: string, reason: string): void {
-    if (this._status === REVIEW_STATUS.DELETED) {
-      throw new BusinessRuleError('Cannot report a deleted review', 'REVIEW_DELETED');
-    }
+  reject(reason: string, now: string = new Date().toISOString()): void {
     if (!reason || reason.trim().length === 0) {
-      throw new ValidationError('Report reason is required', 'reason');
+      throw new BusinessRuleError(
+        'Rejection reason is required',
+        'REVIEW_REJECTION_REASON_REQUIRED',
+        { reviewId: this.id },
+      );
     }
-    this._reportCount += 1;
-    this.addDomainEvent(new ReviewReportedEvent({
-      aggregateId: this.id,
-      payload: {
-        reviewId: this.id,
-        productId: this._productId.value,
-        reportedBy: reporterId,
-        reason,
-        reportCount: this._reportCount,
-      },
-      version: this.version + 1,
-      metadata: { userId: reporterId },
-    }));
+    if (!this.isPending()) {
+      throw new BusinessRuleError(
+        `Cannot reject review in status "${this.status.value}"`,
+        'INVALID_REVIEW_STATUS_TRANSITION',
+        { reviewId: this.id, from: this.status.value, to: 'rejected' },
+      );
+    }
+    this._vo = this.withStatus('rejected');
+    this.addDomainEvent(
+      new ReviewRejectedEvent({
+        aggregateId: this.id,
+        payload: {
+          reviewId: this.id,
+          productId: this.productId.value,
+          reason,
+          rejectedAt: now,
+        },
+        version: this.version + 1,
+      }),
+    );
+    this.touch(now);
     this.incrementVersion();
   }
 
-  // ─── Queries ──────────────────────────────────────────────
-
-  public isEditable(now: string): boolean {
-    const editableStatuses: readonly string[] = [REVIEW_STATUS.APPROVED, REVIEW_STATUS.PENDING];
-    if (!editableStatuses.includes(this._status)) return false;
-    const created = new Date(this.createdAt).getTime();
-    const current = new Date(now).getTime();
-    const hoursDiff = (current - created) / (1000 * 60 * 60);
-    return hoursDiff <= REVIEW.EDIT_WINDOW_HOURS;
+  markHelpful(now: string = new Date().toISOString()): void {
+    const count = this._vo.helpfulCount + 1;
+    this._vo = ProductReviewVO.create({ ...this._vo.value, helpfulCount: count });
+    this.addDomainEvent(
+      new ReviewMarkedHelpfulEvent({
+        aggregateId: this.id,
+        payload: { reviewId: this.id, helpfulCount: count, markedAt: now },
+        version: this.version + 1,
+      }),
+    );
+    this.touch(now);
+    this.incrementVersion();
   }
 
-  public isSpamSuspicious(): boolean {
-    return this._reportCount >= 5;
+  report(reason: string, now: string = new Date().toISOString()): void {
+    const count = this._vo.reportCount + 1;
+    this._vo = ProductReviewVO.create({ ...this._vo.value, reportCount: count });
+    this.addDomainEvent(
+      new ReviewReportedEvent({
+        aggregateId: this.id,
+        payload: { reviewId: this.id, reportCount: count, reason, reportedAt: now },
+        version: this.version + 1,
+      }),
+    );
+    this.touch(now);
+    this.incrementVersion();
   }
 
-  public isHighQuality(): boolean {
-    const hasLongComment = this._comment.value.length >= 100;
-    const hasImages = this._images.length > 0;
-    const isPositive = this._rating.isPositive();
-    return isPositive && (hasLongComment || hasImages);
+  delete(deletedBy?: string, now: string = new Date().toISOString()): void {
+    if (this.isDeleted()) return;
+    this._vo = this.withStatus('deleted');
+    this._deletedBy = deletedBy;
+    (this as unknown as { deletedAt: string | null }).deletedAt = now;
+    this.addDomainEvent(
+      new ReviewDeletedEvent({
+        aggregateId: this.id,
+        payload: { reviewId: this.id, productId: this.productId.value, deletedAt: now, deletedBy },
+        version: this.version + 1,
+      }),
+    );
+    this.touch(now);
+    this.incrementVersion();
   }
 
-  public isApproved(): boolean {
-    return this._status === REVIEW_STATUS.APPROVED;
+  private withStatus(next: 'pending' | 'approved' | 'rejected' | 'spam' | 'deleted'): ProductReviewVO {
+    // We rebuild the review VO with a fresh status VO
+    const baseStatus = this._vo.status;
+    // Rebuild via reconstitute — safe because we preserve all other props
+    const propsWithNewStatus = {
+      ...this._vo.value,
+      status: Object.assign(Object.create(Object.getPrototypeOf(baseStatus)), {
+        _value: next,
+      }) as typeof baseStatus,
+    };
+    return ProductReviewVO.reconstitute(propsWithNewStatus);
   }
 
-  public isVisible(): boolean {
-    return this._status === REVIEW_STATUS.APPROVED;
+  private touch(now: string): void {
+    (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
-  // Factories
-  public static create(params: {
+  static create(params: {
     id: string;
-    props: ProductReviewEntityProps;
+    vo: ProductReviewVO;
     now: string;
   }): ProductReviewEntity {
+    if (!params.vo.status.isPending()) {
+      throw new BusinessRuleError(
+        'New review must be in pending status',
+        'REVIEW_MUST_START_PENDING',
+        { reviewId: params.id },
+      );
+    }
     const entity = new ProductReviewEntity(
       params.id,
       params.now,
       params.now,
-      params.props,
+      params.vo,
+      undefined,
+      null,
     );
-    entity.addDomainEvent(new ReviewSubmittedEvent({
-      aggregateId: params.id,
-      payload: {
-        reviewId: params.id,
-        productId: params.props.productId.value,
-        userId: params.props.userId,
-        rating: params.props.rating.value,
-        hasComment: params.props.comment.value.length > 0,
-        imageCount: params.props.images.length,
-        isVerifiedPurchase: params.props.isVerifiedPurchase,
-      },
-      version: 1,
-      metadata: { userId: params.props.userId },
-    }));
+    entity.addDomainEvent(
+      new ReviewSubmittedEvent({
+        aggregateId: params.id,
+        payload: {
+          reviewId: params.id,
+          productId: params.vo.productId.value,
+          userId: params.vo.userId,
+          rating: params.vo.rating.value,
+          submittedAt: params.now,
+        },
+        version: 1,
+      }),
+    );
     entity.incrementVersion();
     return entity;
   }
 
-  public static reconstitute(params: {
+  static reconstitute(params: {
     id: string;
     createdAt: string;
     updatedAt: string;
     deletedAt?: string | null;
-    props: ProductReviewEntityProps;
+    vo: ProductReviewVO;
+    deletedBy?: string;
+    version?: number;
   }): ProductReviewEntity {
-    return new ProductReviewEntity(
+    const entity = new ProductReviewEntity(
       params.id,
       params.createdAt,
       params.updatedAt,
-      params.props,
-      params.deletedAt,
+      params.vo,
+      params.deletedBy,
+      params.deletedAt ?? null,
     );
+    if (params.version !== undefined) {
+      for (let i = 0; i < params.version; i++) entity.incrementVersion();
+    }
+    return entity;
   }
 }

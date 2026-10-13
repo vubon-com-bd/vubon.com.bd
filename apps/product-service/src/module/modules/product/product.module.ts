@@ -1,78 +1,46 @@
 /**
- * ProductModule — Product feature wiring
+ * ProductModule — product feature wiring
  * @module product-service/modules/product
  */
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '@vubon/shared-kernel/prisma';
+import { CqrsModule } from '@nestjs/cqrs';
 
-// Infrastructure
-import { PrismaRepositoriesModule } from '../../infrastructure/persistence/prisma/repositories.module.js';
-import { CacheModule } from '../../infrastructure/persistence/cache/cache.module.js';
-import { SearchModule } from '../../infrastructure/persistence/search/search.module.js';
-import { InfrastructureServicesModule } from '../../infrastructure/services/services.module.js';
-
-// Controllers
+// ─── Controllers ────────────────────────────
 import { ProductController } from '../../interfaces/controllers/rest/product.controller.js';
+import { PublicProductController } from '../../interfaces/controllers/rest/public-product.controller.js';
 
-// Services
+// ─── Handler arrays ─────────────────────────
+import { PRODUCT_COMMAND_HANDLERS } from './commands/index.js';
+import { PRODUCT_QUERY_HANDLERS } from './queries/index.js';
+import { PRODUCT_SAGAS } from './sagas/index.js';
+
+// ─── Service (with DI token) ────────────────
 import { ProductService } from '../../application/services/impl/product.service.js';
 import { PRODUCT_SERVICE } from '../../application/services/interfaces/product.service.interface.js';
-import { ProductCatalogService } from '../../application/services/impl/product-catalog.service.js';
-import { PRODUCT_CATALOG_SERVICE } from '../../application/services/interfaces/product-catalog.service.interface.js';
 
-// Command handlers
-import { PRODUCT_COMMAND_HANDLERS } from '../../application/commands/product/index.js';
-// Query handlers
-import { PRODUCT_QUERY_HANDLERS } from '../../application/queries/product/index.js';
-
-// Guards, validators, interceptors
+// ─── Guards ─────────────────────────────────
 import { OwnProductGuard } from '../../interfaces/guards/own-product.guard.js';
-import { VendorProductGuard } from '../../interfaces/guards/vendor-product.guard.js';
-import { ProductPublishedGuard } from '../../interfaces/guards/product-published.guard.js';
-import { ProductCacheInterceptor } from '../../interfaces/interceptors/product-cache.interceptor.js';
-import { ProductValidator, PRODUCT_VALIDATOR } from '../../interfaces/validators/product.validator.js';
-
-// Sagas
-import { ProductPublishSaga } from '../../application/sagas/product-publish.saga.js';
 
 @Module({
-  imports: [
-    PrismaModule,
-    PrismaRepositoriesModule,
-    CacheModule,
-    SearchModule,
-    InfrastructureServicesModule],
-  controllers: [ProductController],
+  imports: [CqrsModule],
+  controllers: [ProductController, PublicProductController],
   providers: [
-    // Services
+    // Service + DI token
     ProductService,
-    ProductCatalogService,
     { provide: PRODUCT_SERVICE, useExisting: ProductService },
-    { provide: PRODUCT_CATALOG_SERVICE, useExisting: ProductCatalogService },
-
-    // Validators
-    ProductValidator,
-    { provide: PRODUCT_VALIDATOR, useExisting: ProductValidator },
 
     // Command handlers
-    ...PRODUCT_COMMAND_HANDLERS,
+    ...(PRODUCT_COMMAND_HANDLERS as readonly unknown[] as never[]),
+
     // Query handlers
-    ...PRODUCT_QUERY_HANDLERS,
+    ...(PRODUCT_QUERY_HANDLERS as readonly unknown[] as never[]),
 
     // Sagas
-    ProductPublishSaga,
+    ...(PRODUCT_SAGAS as readonly unknown[] as never[]),
 
     // Guards
     OwnProductGuard,
-    VendorProductGuard,
-    ProductPublishedGuard,
-
-    // Interceptors
-    ProductCacheInterceptor],
-  exports: [
-    ProductService,
-    ProductCatalogService,
-    PRODUCT_SERVICE,
-    PRODUCT_CATALOG_SERVICE],
+  ],
+  exports: [ProductService, PRODUCT_SERVICE],
 })
 export class ProductModule {}

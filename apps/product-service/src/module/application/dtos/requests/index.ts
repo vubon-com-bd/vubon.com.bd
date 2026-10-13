@@ -1,4 +1,6 @@
-// dtos/requests/index.ts — All request DTOs barrel export
+// product-service/application/dtos/requests/index.ts
+// Master barrel — 32 request DTOs across 9 concept folders
+
 export * from './product/index.js';
 export * from './variant/index.js';
 export * from './attribute/index.js';

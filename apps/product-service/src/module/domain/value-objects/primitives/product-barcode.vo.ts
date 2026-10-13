@@ -2,31 +2,24 @@
  * ProductBarcode Value Object
  * @module product-service/domain/value-objects/primitives
  */
-import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives';
+import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
-const MAX_LENGTH = 64;
+const PATTERN = /^[0-9A-Za-z\-_]{6,64}$/;
 
-export class ProductBarcodeVO extends BaseCodeVO {
-  private constructor(value: string) {
-    super(value);
-  }
+export class ProductBarcodeVO extends BaseVO<string> {
+  private constructor(value: string) { super(value); }
 
   static create(raw: string): ProductBarcodeVO {
     if (typeof raw !== 'string') {
-      throw new Error('ProductBarcode must be a string');
+      throw new ValidationError('ProductBarcode must be a string', 'barcode');
     }
-    const trimmed = raw.trim();
-    if (trimmed.length > MAX_LENGTH) {
-      throw new Error(`ProductBarcode cannot exceed ${MAX_LENGTH} characters`);
+    const normalized = raw.trim();
+    if (!PATTERN.test(normalized)) {
+      throw new ValidationError('ProductBarcode format is invalid', 'barcode');
     }
-    return new ProductBarcodeVO(trimmed);
+    return new ProductBarcodeVO(normalized);
   }
 
-  static empty(): ProductBarcodeVO {
-    return new ProductBarcodeVO('');
-  }
-
-  static reconstitute(raw: string): ProductBarcodeVO {
-    return new ProductBarcodeVO(raw);
-  }
+  static reconstitute(raw: string): ProductBarcodeVO { return new ProductBarcodeVO(raw); }
 }

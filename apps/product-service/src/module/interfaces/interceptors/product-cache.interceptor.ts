@@ -1,44 +1,64 @@
 /**
- * ProductCacheInterceptor — caches GET responses via Redis.
+ * ProductCacheInterceptor — Redis-backed GET caching
  * @module product-service/interfaces/interceptors
  */
 import {
   CallHandler,
   ExecutionContext,
-  Inject,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, of, tap } from 'rxjs';
-import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
+import { of, type Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache';
 import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
 
-export const PRODUCT_CACHE_INTERCEPTOR = Symbol('PRODUCT_CACHE_INTERCEPTOR');
+const PREFIX = 'product-http-cache:';
 
 @Injectable()
 export class ProductCacheInterceptor implements NestInterceptor {
-  constructor(
-    @Inject(RedisService) private readonly redis: RedisService,
-  ) {}
+  private readonly logger = new Logger(ProductCacheInterceptor.name);
 
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
+  constructor(private readonly redis: RedisService) {}
+
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<unknown>> {
     const req = context.switchToHttp().getRequest<{
-      method?: string;
-      originalUrl?: string;
+      method: string;
+      url: string;
+      user?: { userId?: string };
     }>();
 
-    if (req.method !== 'GET' || !req.originalUrl) {
-      return next.handle();
-    }
+    if (req.method !== 'GET') return next.handle();
 
-    const key = `http:product:${req.originalUrl}`;
-    const cached = await this.redis.get<unknown>(key);
-    if (cached !== null) return of(cached);
+    const key = this.buildKey(req);
+
+    try {
+      const cached = await this.redis.get<unknown>(key);
+      if (cached !== null && cached !== undefined) return of(cached);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logger.debug(`Cache lookup miss: ${msg.slice(0, 80)}`);
+    }
 
     return next.handle().pipe(
       tap((data) => {
-        void this.redis.set(key, data, CACHE_TTL.FIVE_MINUTES);
+        void this.redis
+          .set(key, data, CACHE_TTL.ONE_MINUTE)
+          .catch(() => undefined);
       }),
     );
+  }
+
+  private buildKey(req: {
+    method: string;
+    url: string;
+    user?: { userId?: string };
+  }): string {
+    const userId = req.user?.userId ?? 'anon';
+    return `${PREFIX}${userId}:${req.method}:${req.url}`;
   }
 }

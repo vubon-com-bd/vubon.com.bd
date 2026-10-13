@@ -1,77 +1,104 @@
 /**
- * ProductVariantController
+ * ProductVariantController — REST endpoints
  * @module product-service/interfaces/controllers/rest
  */
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body, Controller, Get, HttpCode, HttpStatus, Inject, Param,
+  Patch, Post, Query, UseGuards, UseInterceptors,
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
-import { JwtAuthGuard, RolesGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { Public, Roles, CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
+import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
-import { AddVariantCommand } from '../../../application/commands/variant/add-variant.command.js';
-import { UpdateVariantCommand } from '../../../application/commands/variant/update-variant.command.js';
-import { RemoveVariantCommand } from '../../../application/commands/variant/remove-variant.command.js';
-import { ListVariantsByProductQuery } from '../../../application/queries/variant/list-variants-by-product.query.js';
+import {
+  VARIANT_SERVICE,
+  type IProductVariantService,
+} from '../../../application/services/interfaces/product-variant.service.interface.js';
 
-import { AddVariantRequestDTO } from '../../dtos/requests/variant.request.dto.js';
-import { VariantResponseDTO } from '../../dtos/responses/variant.response.dto.js';
+import {
+  AddVariantHttpDTO,
+  UpdateVariantHttpDTO,
+  ListVariantsHttpQueryDTO,
+} from '../../dtos/requests/variant.request.dto.js';
 
-@ApiTags('product-variants')
+import type {
+  VariantHttpResponseDTO,
+  VariantListHttpResponseDTO,
+  VariantStatsHttpResponseDTO,
+} from '../../dtos/responses/variant.response.dto.js';
+
+import { VariantControllerMapper } from '../../mappers/variant.controller.mapper.js';
+import { ProductLoggingInterceptor } from '../../interceptors/product-logging.interceptor.js';
+import { ProductTimeoutInterceptor } from '../../interceptors/product-timeout.interceptor.js';
+import {
+  ApiVariantTag,
+  ApiAddVariant,
+  ApiUpdateVariant,
+  ApiGetVariant,
+  ApiListVariants,
+  ApiGetVariantStats,
+} from '../../swagger/variant.swagger.js';
+
+@ApiVariantTag()
 @ApiBearerAuth('bearer')
-@Controller('products/:productId/variants')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('product-variants')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(ProductLoggingInterceptor, ProductTimeoutInterceptor)
 export class ProductVariantController extends BaseController {
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(VARIANT_SERVICE)
+    private readonly variantService: IProductVariantService,
   ) {
     super();
   }
 
   @Post()
-  @Roles('admin', 'vendor')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Add variant to product' })
+  @ApiAddVariant()
   async add(
-    @Param('productId') productId: string,
-    @Body() dto: AddVariantRequestDTO,
+    @Body() dto: AddVariantHttpDTO,
     @CurrentUser() user: CurrentUserShape,
-  ): Promise<VariantResponseDTO> {
-    return this.commandBus.execute(
-      new AddVariantCommand({ ...dto, productId } as never, user.userId),
-    );
+  ): Promise<VariantHttpResponseDTO> {
+    const appDto = VariantControllerMapper.toAddAppDto(dto);
+    const result = await this.variantService.add(appDto, user.userId);
+    return VariantControllerMapper.toHttpResponse(result);
+  }
+
+  @Patch(':id')
+  @ApiUpdateVariant()
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateVariantHttpDTO,
+  ): Promise<VariantHttpResponseDTO> {
+    const appDto = VariantControllerMapper.toUpdateAppDto(id, dto);
+    const result = await this.variantService.update(appDto);
+    return VariantControllerMapper.toHttpResponse(result);
   }
 
   @Get()
-  @Public()
-  @ApiOperation({ summary: 'List variants for a product' })
-  async list(@Param('productId') productId: string): Promise<readonly VariantResponseDTO[]> {
-    return this.queryBus.execute(new ListVariantsByProductQuery(productId));
+  @ApiListVariants()
+  async list(@Query() q: ListVariantsHttpQueryDTO): Promise<VariantListHttpResponseDTO> {
+    const options = VariantControllerMapper.toListOptions(q);
+    const result = await this.variantService.list(options);
+    return VariantControllerMapper.toListHttp(result);
   }
 
-  @Patch(':variantId')
-  @Roles('admin', 'vendor')
-  @ApiOperation({ summary: 'Update a variant' })
-  async update(
-    @Param('variantId') variantId: string,
-    @Body() dto: Record<string, unknown>,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<VariantResponseDTO> {
-    return this.commandBus.execute(
-      new UpdateVariantCommand({ variantId, ...dto, updatedBy: user.userId } as never),
-    );
+  @Get('stats')
+  @ApiGetVariantStats()
+  async stats(
+    @Query('productId') productId?: string,
+  ): Promise<VariantStatsHttpResponseDTO> {
+    const result = await this.variantService.getStats(productId);
+    return VariantControllerMapper.toStatsHttp(result);
   }
 
-  @Delete(':variantId')
-  @Roles('admin', 'vendor')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Remove a variant' })
-  async remove(
-    @Param('variantId') variantId: string,
-    @CurrentUser() user: CurrentUserShape,
-  ): Promise<void> {
-    await this.commandBus.execute(new RemoveVariantCommand(variantId, user.userId));
+  @Get(':id')
+  @ApiGetVariant()
+  async getById(@Param('id') id: string): Promise<VariantHttpResponseDTO> {
+    const result = await this.variantService.getById(id);
+    return VariantControllerMapper.toHttpResponse(result);
   }
 }

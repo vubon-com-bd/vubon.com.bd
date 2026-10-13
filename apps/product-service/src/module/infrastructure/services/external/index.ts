@@ -1,6 +1,5 @@
-// infrastructure/services/external/index.ts
-export * from './storage.service.js';
-export * from './image-processing.service.js';
-export * from './search-indexer.service.js';
-export * from './notification.service.js';
-export * from './event-publisher.service.js';
+// product-service/infrastructure/services/external/index.ts
+export * from './product-notification.service.js';
+export * from './product-analytics.service.js';
+export * from './user.client.js';
+export * from './vendor.client.js';

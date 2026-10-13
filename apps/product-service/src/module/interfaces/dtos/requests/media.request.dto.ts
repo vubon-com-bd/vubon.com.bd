@@ -1,51 +1,43 @@
 /**
- * Media Request DTOs
+ * Media HTTP Request DTOs
  * @module product-service/interfaces/dtos/requests
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString,
+  IsUrl, IsUUID, Max, Min, ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class AddMediaRequestDTO {
-  @ApiProperty({ example: '7c9e6679-7425-40de-944b-e07fc1f90ae7' })
-  readonly productId!: string;
-
-  @ApiProperty({ enum: ['image', 'video', 'document'], example: 'image' })
-  readonly type!: 'image' | 'video' | 'document';
-
-  @ApiProperty({ example: 'https://cdn.vubon.com.bd/products/1.jpg' })
+export class MediaItemHttpDTO {
+  @ApiProperty()
+  @IsUrl()
   readonly url!: string;
 
-  @ApiPropertyOptional()
-  readonly thumbnailUrl?: string;
+  @ApiProperty({ enum: ['image', 'video', 'document'] })
+  @IsEnum(['image', 'video', 'document'])
+  readonly type!: 'image' | 'video' | 'document';
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   readonly alt?: string;
 
-  @ApiPropertyOptional()
-  readonly sortOrder?: number;
+  @ApiProperty({ example: 0 })
+  @IsInt()
+  @Min(0)
+  readonly order!: number;
 
-  @ApiPropertyOptional()
-  readonly sizeBytes?: number;
-
-  @ApiPropertyOptional()
-  readonly mimeType?: string;
-
-  @ApiPropertyOptional()
-  readonly width?: number;
-
-  @ApiPropertyOptional()
-  readonly height?: number;
-
-  @ApiPropertyOptional({ example: false })
-  readonly isPrimary?: boolean;
+  @ApiProperty({ example: false })
+  @IsBoolean()
+  readonly isPrimary!: boolean;
 }
 
-export class ReorderMediaRequestDTO {
-  @ApiProperty()
-  readonly productId!: string;
-
-  @ApiProperty({ type: [String] })
-  readonly orderedIds!: readonly string[];
-
-  @ApiProperty()
-  readonly actorId!: string;
+export class AddMediaHttpDTO {
+  @ApiProperty({ type: [MediaItemHttpDTO] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MediaItemHttpDTO)
+  @Max(30)
+  readonly items!: readonly MediaItemHttpDTO[];
 }

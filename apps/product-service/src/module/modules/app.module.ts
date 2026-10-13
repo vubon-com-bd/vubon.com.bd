@@ -1,58 +1,70 @@
 /**
- * AppModule — Root module of product-service
+ * ProductAppModule — product-service root module
  * @module product-service/modules
+ *
+ * Wires:
+ *  - ConfigModule.forRoot (global env)
+ *  - CqrsModule.forRoot (global buses)
+ *  - ProductCommonModule (kernel + infra globals)
+ *  - HealthModule
+ *  - 12 feature modules
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PrismaModule } from '@vubon/shared-kernel/prisma';
 
-// Common
-import { CommonModule } from './common/index.js';
+// ─── Common (global) ────────────────────────
+import { ProductCommonModule } from './common/index.js';
 
-// Feature modules
-import { ProductModule } from './product/product.module.js';
-import { ProductVariantModule } from './product-variant/product-variant.module.js';
-import { ProductAttributeModule } from './product-attribute/product-attribute.module.js';
-import { ProductInventoryModule } from './product-inventory/product-inventory.module.js';
-import { ProductPricingModule } from './product-pricing/product-pricing.module.js';
-import { ProductCollectionModule } from './product-collection/product-collection.module.js';
-import { ProductReviewModule } from './product-review/product-review.module.js';
-import { ProductMediaModule } from './product-media/product-media.module.js';
-import { BrandModule } from './brand/brand.module.js';
-import { CategoryModule } from './category/category.module.js';
-import { PublicProductModule } from './public-product/public-product.module.js';
-import { HealthModule } from './health/health.module.js';
+// ─── Health ─────────────────────────────────
+import { HealthModule } from './health/index.js';
 
-// Infrastructure
-import { QueuesWorkersModule } from '../infrastructure/queues-workers.module.js';
+// ─── Feature modules ────────────────────────
+import { ProductModule } from './product/index.js';
+import { ProductVariantModule } from './product-variant/index.js';
+import { ProductAttributeModule } from './product-attribute/index.js';
+import { ProductInventoryModule } from './product-inventory/index.js';
+import { ProductPricingModule } from './product-pricing/index.js';
+import { ProductPricingRuleModule } from './product-pricing-rule/index.js';
+import { ProductCollectionModule } from './product-collection/index.js';
+import { ProductReviewModule } from './product-review/index.js';
+import { ProductMediaModule } from './product-media/index.js';
+import { BrandModule } from './brand/index.js';
+import { CategoryModule } from './category/index.js';
+import { PublicProductModule } from './public-product/index.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, cache: true }),
+    // ─── Root config ────────────────────────
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      envFilePath: ['.env', '../../.env'],
+    }),
     CqrsModule.forRoot(),
-    PrismaModule,
 
-    CommonModule,
+    // ─── Common (global) ────────────────────
+    ProductCommonModule,
 
-    // Feature modules
+    // ─── Health ─────────────────────────────
+    HealthModule,
+
+    // ─── Feature modules ────────────────────
     ProductModule,
     ProductVariantModule,
     ProductAttributeModule,
     ProductInventoryModule,
     ProductPricingModule,
+    ProductPricingRuleModule,
     ProductCollectionModule,
     ProductReviewModule,
     ProductMediaModule,
     BrandModule,
     CategoryModule,
     PublicProductModule,
-
-    // Health checks
-    HealthModule,
-
-    // Background jobs
-    QueuesWorkersModule,
   ],
 })
-export class AppModule {}
+export class ProductAppModule {}
+
+// ─── Conventional alias for main.ts ─────────
+export { ProductAppModule as AppModule };

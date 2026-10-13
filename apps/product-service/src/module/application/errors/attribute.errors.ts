@@ -1,25 +1,35 @@
 /**
- * Attribute application errors
+ * Attribute Application Errors
+ * @module product-service/application/errors
  */
-import { ApplicationError } from '@vubon/shared-kernel/application/errors';
-import { ERROR_CODE } from '@vubon/shared-constants/common';
+import { ApplicationNotFoundError } from '@vubon/shared-kernel/application/errors';
+import { ApplicationValidationError } from '@vubon/shared-kernel/application/errors';
+import { CommandError } from '@vubon/shared-kernel/application/errors';
 
-export class AttributeNotFoundApplicationError extends ApplicationError {
-  readonly code = ERROR_CODE.PRODUCT_NOT_FOUND;
-  readonly httpStatus = 404;
-
+export class AttributeNotFoundApplicationError extends ApplicationNotFoundError {
   constructor(attributeId: string) {
-    super(`Attribute "${attributeId}" not found`, { attributeId });
+    super('Attribute', attributeId);
     this.name = 'AttributeNotFoundApplicationError';
   }
 }
 
-export class AttributeOperationFailedError extends ApplicationError {
-  readonly code = ERROR_CODE.SERVER_INTERNAL;
-  readonly httpStatus = 500;
+export class AttributeValidationError extends ApplicationValidationError {
+  constructor(message: string, field?: string) {
+    super(message, field);
+    this.name = 'AttributeValidationError';
+  }
+}
 
+export class AttributeAddError extends CommandError {
   constructor(reason: string) {
-    super(`Attribute operation failed: ${reason}`, { reason });
-    this.name = 'AttributeOperationFailedError';
+    super(`Attribute add failed: ${reason}`, 'AddAttribute');
+    this.name = 'AttributeAddError';
+  }
+}
+
+export class AttributeLimitExceededApplicationError extends CommandError {
+  constructor(limit: number, current: number) {
+    super(`Attribute limit exceeded: ${current}/${limit}`, 'AddAttribute');
+    this.name = 'AttributeLimitExceededApplicationError';
   }
 }

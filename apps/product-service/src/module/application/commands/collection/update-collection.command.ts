@@ -1,10 +1,9 @@
-/**
- * UpdateCollectionCommand
- */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands';
-import type { UpdateCollectionRequestDTO } from '../../dtos/requests/collection/update-collection.dto.js';
+import type { UpdateCollectionRequestDTO } from '../../dtos/requests/collection/index.js';
 
 export class UpdateCollectionCommand extends BaseCommand {
-  readonly type = 'collection.update';
-  constructor(public readonly dto: UpdateCollectionRequestDTO) { super(); }
+  readonly type = 'product.collection.update';
+  constructor(public readonly dto: UpdateCollectionRequestDTO) {
+    super();
+  }
 }

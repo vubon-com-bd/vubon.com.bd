@@ -1,29 +1,27 @@
 /**
  * CollectionName Value Object
+ * @module product-service/domain/value-objects/primitives
  */
 import { BaseNameVO } from '@vubon/shared-kernel/domain/primitives';
-import { COLLECTION } from '@vubon/shared-constants/business/product';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { COLLECTION } from '@vubon/shared-constants/business';
 
 export class CollectionNameVO extends BaseNameVO {
-  private constructor(value: string) {
-    super(value);
-  }
+  private constructor(value: string) { super(value); }
 
   static create(raw: string): CollectionNameVO {
     if (typeof raw !== 'string') {
-      throw new Error('CollectionName must be a string');
+      throw new ValidationError('CollectionName must be a string', 'name');
     }
-    const trimmed = raw.trim();
-    if (trimmed.length === 0) {
-      throw new Error('CollectionName cannot be empty');
+    const normalized = raw.trim().replace(/\s+/g, ' ');
+    if (normalized.length < 1 || normalized.length > COLLECTION.NAME_MAX_LENGTH) {
+      throw new ValidationError(
+        `CollectionName must be 1-${COLLECTION.NAME_MAX_LENGTH} chars`,
+        'name',
+      );
     }
-    if (trimmed.length > COLLECTION.NAME_MAX_LENGTH) {
-      throw new Error(`CollectionName cannot exceed ${COLLECTION.NAME_MAX_LENGTH} chars`);
-    }
-    return new CollectionNameVO(trimmed);
+    return new CollectionNameVO(normalized);
   }
 
-  static reconstitute(raw: string): CollectionNameVO {
-    return new CollectionNameVO(raw);
-  }
+  static reconstitute(raw: string): CollectionNameVO { return new CollectionNameVO(raw); }
 }
