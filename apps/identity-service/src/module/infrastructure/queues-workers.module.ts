@@ -4,7 +4,7 @@
  */
 import { Module } from '@nestjs/common';
 import { QueueModule } from '@vubon/shared-kernel/infrastructure/messaging/queue';
-import { PrismaRepositoriesModule } from './persistence/prisma/prisma-repositories.module.js';
+import { PersistenceModule } from './persistence/persistence.module.js';
 import {
   AuthQueue,
   SessionQueue,
@@ -39,7 +39,7 @@ const WORKERS = [
 ];
 
 @Module({
-  imports: [QueueModule, PrismaRepositoriesModule],
+  imports: [QueueModule, PersistenceModule.forRoot()],
   providers: [...QUEUES, ...WORKERS],
   exports: QUEUES,
 })

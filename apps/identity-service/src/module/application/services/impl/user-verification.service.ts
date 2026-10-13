@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type { UserVerificationServiceInterface } from '../interfaces/user-verification.service.interface.js';
 import type { UserVerificationRepository } from '../../../domain/repositories/user-verification.repository.interface.js';
 import { USER_VERIFICATION_REPOSITORY } from '../../../domain/repositories/user-verification.repository.interface.js';
@@ -8,7 +9,10 @@ import type { UserVerificationResponseDTO } from '../../dtos/responses/user-veri
 @Injectable()
 export class UserVerificationService extends BaseService implements UserVerificationServiceInterface {
   readonly name = 'UserVerificationService';
-  constructor(@Inject(USER_VERIFICATION_REPOSITORY) private readonly repo: UserVerificationRepository) { super(); }
+  constructor(
+    @Inject(USER_VERIFICATION_REPOSITORY) private readonly repo: UserVerificationRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+  ) { super(); }
   async findForUser(userId: string): Promise<UserVerificationResponseDTO | null> {
     const v = await this.repo.findByUserIdRaw(userId);
     if (!v) return null;
@@ -22,18 +26,34 @@ export class UserVerificationService extends BaseService implements UserVerifica
   }
   async verifyEmail(userId: string): Promise<void> {
     const v = await this.repo.findByUserIdRaw(userId);
-    if (v) { v.verifyEmail(); await this.repo.save(v); }
+    if (v) {
+      v.verifyEmail();
+      const saved = await this.repo.save(v);
+      await this.eventBridge.publishFromEntity(saved);
+    }
   }
   async verifyPhone(userId: string): Promise<void> {
     const v = await this.repo.findByUserIdRaw(userId);
-    if (v) { v.verifyPhone(); await this.repo.save(v); }
+    if (v) {
+      v.verifyPhone();
+      const saved = await this.repo.save(v);
+      await this.eventBridge.publishFromEntity(saved);
+    }
   }
   async verifyIdentity(userId: string): Promise<void> {
     const v = await this.repo.findByUserIdRaw(userId);
-    if (v) { v.verifyIdentity(); await this.repo.save(v); }
+    if (v) {
+      v.verifyIdentity();
+      const saved = await this.repo.save(v);
+      await this.eventBridge.publishFromEntity(saved);
+    }
   }
   async verifyAddress(userId: string): Promise<void> {
     const v = await this.repo.findByUserIdRaw(userId);
-    if (v) { v.verifyAddress(); await this.repo.save(v); }
+    if (v) {
+      v.verifyAddress();
+      const saved = await this.repo.save(v);
+      await this.eventBridge.publishFromEntity(saved);
+    }
   }
 }

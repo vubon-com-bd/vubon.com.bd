@@ -1,78 +1,75 @@
-# Changelog
+# Changelog — Identity Service
 
-All notable changes to `@vubon/identity-service`.
+All notable changes to this project will be documented in this file.
 
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
 ## [Unreleased]
 
 ### Added
-- Dockerfile for Railway deployment
-- railway.toml + nixpacks.toml
-- docker-entrypoint.sh (migrate + start)
-- Top-level documentation (README, ARCHITECTURE, API, DEPLOYMENT, DEVELOPMENT, TESTING)
-- `.env.production.example` template
-- `.dockerignore` for build optimization
-- `.nvmrc`, `.editorconfig`
+- Full identity & authentication service
+- 5-layer clean architecture (Domain, Application, Infrastructure, Interfaces, Modules)
+- 24 feature modules (auth + user + public-profile + health)
+- 24 REST controllers
+- JWT-based authentication (access + refresh tokens)
+- Session management (rotation, revocation, multi-device)
+- MFA / 2FA (TOTP-based)
+- Social login (Google, Facebook, GitHub, Apple)
+- SSO (OIDC + SAML)
+- Biometric authentication
+- Device management
+- Account lock (brute-force protection)
+- Login attempt audit trail
+- Recovery codes for MFA backup
+- Password policy + bcrypt hashing
+- User profile management
+- User contact management
+- User address management (multiple addresses)
+- User KYC submission
+- User preferences
+- User settings
+- User activity log
+- Role-based access control (RBAC)
+- Fine-grained permissions
+- Public profile API
+- Email verification
+- Phone verification (OTP)
+- Prisma + InMemory repositories (DB_MODE switchable)
+- Redis cache (sessions, tokens, rate limiting)
+- BullMQ queues (email, SMS, cleanup)
+- Background workers
+- E2E test auto-generation
+- Auto-generated InMemory repositories
+- 17 unit test specs
+- 21 e2e test specs
+- Termux ARM64 compatibility (graceful Prisma degrade)
 
-### Changed
-- Documentation is now extracted from `docs/*.doc.ts` via `extract-docs.cjs`
+### Security
+- JWT auth guard on protected endpoints
+- Owner guard for resource-level auth
+- Public guard for open endpoints
+- MFA required for sensitive operations
+- Account lock after N failed attempts
+- Rate limiting on auth endpoints
+- Password strength validation
+- Session rotation
+- CSRF protection
+- Helmet security headers
 
 ---
 
-## [1.0.0] — 2026-09-27
+## [1.0.0] - 2026-10-14
 
 ### Added
+- Initial release
+- Production-ready identity & authentication microservice
+- ~1,200 source files + 78 test files
+- Full documentation (README, ARCHITECTURE, API, TESTING, DEVELOPMENT, DEPLOYMENT)
 
-#### Domain Layer
-- Auth aggregate with session, MFA, device, verification invariants
-- 27 Prisma models for identity and auth
-- Domain events: `UserRegisteredEvent`, `UserLoggedInEvent`, `MfaEnabledEvent`, `SessionRevokedEvent`, `AccountLockedEvent`
+---
 
-#### Application Layer
-- CQRS: commands, queries, handlers
-- Sagas: user verification, MFA enrollment, session cleanup
-- Validators (Zod), DTOs, mappers
-
-#### Infrastructure Layer
-- Prisma repositories (18 repositories)
-- Redis cache for sessions and tokens
-- BullMQ workers (email, SMS, cleanup)
-- External: email, SMS, push, storage
-
-#### Interfaces Layer
-- 70 REST endpoints under `/api/v1`
-- Swagger documentation at `/api/docs`
-- Guards: JWT, role, permission, MFA-verified
-- Interceptors: audit, correlation-id
-- Filters: domain, validation, HTTP
-
-#### Modules Layer
-- AppModule + CommonModule
-- Feature modules: auth, session, mfa, device, oauth, sso, rbac, verification
-- Health checks
-
-### Security
-- bcrypt password hashing (12 rounds)
-- JWT access tokens (15 min) + refresh tokens (7 days)
-- Progressive account lockout
-- Login attempt tracking (IP + email)
-- Device fingerprint + trust
-- MFA (TOTP) + recovery codes
-- Rate limiting per endpoint
-- CSRF + HSTS headers
-
-### Tests
-- 2,293 tests
-- 309 test suites
-- Unit + integration + E2E coverage
-
-### Changed
-- NestJS upgraded 10 → 12
-- Prisma centralized to `@vubon/shared-kernel/prisma`
-
-### Fixed
-- CVE-2026-35515 (NestJS SSE injection) via framework upgrade
-- 11 HIGH-severity CVEs across dependency tree via `pnpm.overrides`
+[Unreleased]: https://github.com/vubon/identity-service/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/vubon/identity-service/releases/tag/v1.0.0

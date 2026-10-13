@@ -1,263 +1,457 @@
-<!-- AUTO-GENERATED from docs/development.doc.ts. Do not edit directly. -->
+# Development Guide — Identity Service
 
-AUTH SERVICE — DEVELOPMENT SETUP GUIDE
-@module identity-service/docs
-
-══════════════════════════════════════════════════════════════════
- 🛠️ PREREQUISITES
-══════════════════════════════════════════════════════════════════
-
- Required:
-   • Node.js         >= 22.0.0
-   • pnpm            >= 9.0.0
-   • PostgreSQL      >= 14 (via Supabase recommended)
-   • Redis           >= 6.0
-   • TypeScript      >= 5.0
-   • Git             >= 2.30
-
- Optional:
-   • Docker          — for containerized runs
-   • Redis Insight   — GUI for Redis
-   • Postman/Insomnia — API testing
-
- Termux (Android) Support:
-   ✅ Works with caveats (Prisma native engine ARM64 issue)
-   ✅ Recommended for dev + unit tests
-   ❌ Not recommended for production
+Complete guide for setting up and developing the Identity Service locally.
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🚀 INITIAL SETUP (Step by Step)
-══════════════════════════════════════════════════════════════════
+## 📋 Prerequisites
 
- Step 1 — Clone the repository
- ─────────────────────────────────────────────────────────────
-   git clone <repo-url> vubon.com.bd
-   cd vubon.com.bd
+| Tool | Version | Purpose |
+|------|---------|---------|
+| **Node.js** | >= 22 | Runtime |
+| **pnpm** | >= 9 | Package manager |
+| **PostgreSQL** | >= 14 | Database (optional for dev) |
+| **Redis** | >= 6 | Cache + Queue (optional) |
+| **Git** | >= 2.30 | Version control |
 
- Step 2 — Install dependencies
- ─────────────────────────────────────────────────────────────
-   pnpm install
-
- Step 3 — Setup environment variables
- ─────────────────────────────────────────────────────────────
-   cp .env.example .env
-   # Edit .env with your values
-
- Step 4 — Generate Prisma client
- ─────────────────────────────────────────────────────────────
-   cd apps/identity-service
-   pnpm prisma generate
-
- Step 5 — Run migrations
- ─────────────────────────────────────────────────────────────
-   pnpm prisma migrate dev
-
- Step 6 — Start Redis
- ─────────────────────────────────────────────────────────────
-   redis-server
-   # OR with ARM64 fix:
-   redis-server --ignore-warnings ARM64-COW-BUG
-
- Step 7 — Start the service
- ─────────────────────────────────────────────────────────────
-   pnpm start:dev
+### Termux (Android) Notes
+- Prisma engine unavailable on ARM64
+- Use `DB_MODE=memory` for development
+- Redis needs `--ignore-warnings ARM64-COW-BUG` flag
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔐 ENVIRONMENT VARIABLES
-══════════════════════════════════════════════════════════════════
+## 🚀 Quick Start
 
- Root .env (shared across services)
- ─────────────────────────────────────────────────────────────
- NODE_ENV=development
- LOG_LEVEL=debug
- TZ=Asia/Dhaka
+### 1. Clone & Install
 
- # Database
- DATABASE_URL=postgresql://...
- DIRECT_URL=postgresql://...
+\`\`\`bash
+cd ~/vubon.com.bd/apps/identity-service
+pnpm install
+\`\`\`
 
- # Redis
- REDIS_URL=redis://localhost:6379
- REDIS_KEY_PREFIX=vubon:
- REDIS_DB=0
+### 2. Setup Environment
 
- # JWT
- JWT_SECRET=<32+ chars random>
- JWT_ACCESS_EXPIRY=15m
- JWT_REFRESH_EXPIRY=7d
- JWT_ISSUER=vubon-api
- JWT_AUDIENCE=vubon-client
+\`\`\`bash
+cp .env.example .env
+# Edit .env — set DB_MODE=memory for Termux
+\`\`\`
 
- # CORS
- CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+**Minimum .env:**
+\`\`\`env
+NODE_ENV=development
+PORT=3001
+DB_MODE=memory
+DATABASE_URL=postgresql://u0_a350@localhost:5432/vubon_identity
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=test_jwt_secret_must_be_at_least_32_characters_long
+\`\`\`
 
- # Email
- EMAIL_ENABLED=true
- EMAIL_SMTP_HOST=smtp.gmail.com
- EMAIL_SMTP_PORT=587
- EMAIL_SMTP_USER=noreply@vubon.com.bd
- EMAIL_SMTP_PASSWORD=<app-password>
+### 3. Start Development Server
 
- apps/identity-service/.env.local (service-specific overrides)
- ─────────────────────────────────────────────────────────────
- PORT=3001
- APP_NAME=identity-service
- AUTH_LOGIN_MAX_ATTEMPTS=5
- BCRYPT_ROUNDS=12
- PASSWORD_MIN_LENGTH=8
- MFA_ISSUER=Vubon
- SESSION_EXPIRY_SECONDS=86400
- REDIS_QUEUE_DB=2
+\`\`\`bash
+pnpm start:dev
+\`\`\`
+
+**Server:** http://localhost:3001
+**Swagger:** http://localhost:3001/api/docs
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📜 NPM/PNPM SCRIPTS
-══════════════════════════════════════════════════════════════════
+## 🗄️ Database Setup
 
- From apps/identity-service/
- ─────────────────────────────────────────────────────────────
-   pnpm start:dev           — Start in watch mode
-   pnpm start:prod          — Start production build
-   pnpm build               — Compile to dist/
-   pnpm type-check          — TypeScript check only
-   pnpm lint                — ESLint with auto-fix
-   pnpm test                — Run all tests
-   pnpm test:watch          — Tests in watch mode
-   pnpm test:cov            — Tests with coverage
-   pnpm test <pattern>      — Run specific test
+### Option A — InMemory Mode (Termux, no setup)
 
- From root
- ─────────────────────────────────────────────────────────────
-   pnpm install             — Install all workspaces
-   pnpm -r build            — Build all packages
-   pnpm -r type-check       — Type check all
-   pnpm --filter @vubon/shared-kernel build
-   pnpm --filter @vubon/identity-service start:dev
+\`\`\`env
+DB_MODE=memory
+\`\`\`
 
----
+- No database required
+- Data is in-memory (resets on restart)
+- Fast startup
+- Perfect for development
 
-══════════════════════════════════════════════════════════════════
- 📁 PROJECT STRUCTURE
-══════════════════════════════════════════════════════════════════
+### Option B — PostgreSQL Mode
 
- vubon.com.bd/
- ├── apps/
- │   ├── identity-service/         ← You are here
- │   ├── user-service/
- │   ├── product-service/
- │   └── ... (more services)
- ├── packages/
- │   ├── shared-kernel/        ← Domain primitives
- │   ├── shared-constants/     ← ENV, enums, values
- │   ├── shared-types/         ← Type definitions
- │   ├── shared-schemas/       ← Zod schemas
- │   ├── shared-config/        ← Config loading
- │   ├── shared-utils/         ← Pure utilities
- │   └── ... (more packages)
- ├── .env                       ← Shared env
- ├── pnpm-workspace.yaml
- └── tsconfig.base.json
+#### Install PostgreSQL
 
- apps/identity-service/
- ├── src/
- │   ├── main.ts               ← Bootstrap
- │   └── module/
- │       ├── domain/           ← L1 (162 files)
- │       ├── application/      ← L2 (343 files)
- │       ├── infrastructure/   ← L3 (96 files)
- │       ├── interfaces/       ← L4 (98 files)
- │       └── modules/          ← L5 (31 files)
- ├── prisma/
- │   └── schema.prisma
- ├── docs/                     ← This folder
- ├── test/                     ← E2E tests
- ├── package.json
- ├── jest.config.js
- ├── tsconfig.json
- └── nest-cli.json
+**Ubuntu/Debian:**
+\`\`\`bash
+sudo apt install postgresql postgresql-contrib
+\`\`\`
+
+**macOS:**
+\`\`\`bash
+brew install postgresql
+\`\`\`
+
+**Termux:**
+\`\`\`bash
+pkg install postgresql
+\`\`\`
+
+#### Create Database
+
+\`\`\`bash
+createdb -h localhost -U $(whoami) vubon_identity
+\`\`\`
+
+#### Apply Tables (Manual — Termux-safe)
+
+\`\`\`bash
+psql -h localhost -U $(whoami) -d vubon_identity \\
+  -f ~/.db-manual-migrations/identity-service/20261012_create_all_tables.sql
+\`\`\`
+
+#### Verify
+
+\`\`\`bash
+psql -h localhost -U $(whoami) -d vubon_identity -c "\\dt"
+# Should show 27 tables (users, auth_*, user_*)
+\`\`\`
+
+#### Update .env
+
+\`\`\`env
+DB_MODE=prisma
+DATABASE_URL=postgresql://u0_a350@localhost:5432/vubon_identity
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔧 COMMON DEVELOPMENT TASKS
-══════════════════════════════════════════════════════════════════
+## 🔴 Redis Setup
 
- Add new Value Object
- ─────────────────────────────────────────────────────────────
-   1. Create:  src/module/domain/value-objects/primitives/foo.vo.ts
-   2. Extend:  BaseVO<T> or primitive (BaseCodeVO etc.)
-   3. Add:     validation in static of()
-   4. Export:  src/module/domain/value-objects/primitives/index.ts
-   5. Test:    foo.vo.spec.ts
+### Install
 
- Add new Command Handler
- ─────────────────────────────────────────────────────────────
-   1. Create:  src/module/application/commands/<domain>/do-thing.command.ts
-   2. Create:  src/module/application/commands/<domain>/do-thing.handler.ts
-   3. Extend:  BaseCommand, BaseCommandHandler<TCommand, TResult>
-   4. Register in module: providers: [DoThingHandler]
-   5. Test:    do-thing.handler.spec.ts
+**Ubuntu:**
+\`\`\`bash
+sudo apt install redis-server
+\`\`\`
 
- Add new Repository
- ─────────────────────────────────────────────────────────────
-   1. Interface: src/module/domain/repositories/foo.repository.interface.ts
-   2. Impl:      src/module/infrastructure/persistence/prisma/repositories/foo.prisma.repository.ts
-   3. Extend:    BasePrismaRepository<Entity, PrismaModel, Id>
-   4. Test:      foo.prisma.repository.spec.ts
+**macOS:**
+\`\`\`bash
+brew install redis
+\`\`\`
 
- Add new Endpoint
- ─────────────────────────────────────────────────────────────
-   1. Command:   src/module/application/commands/...command.ts
-   2. Handler:   do-thing.handler.ts
-   3. DTO:       src/module/interfaces/dtos/requests/foo.request.dto.ts
-   4. Controller: add @Post() method
-   5. Register:  module providers + controllers
-   6. Test:      controller.spec.ts + handler.spec.ts
+**Termux:**
+\`\`\`bash
+pkg install redis
+\`\`\`
+
+### Start
+
+**Standard:**
+\`\`\`bash
+redis-server --daemonize yes
+\`\`\`
+
+**Termux (ARM64 fix):**
+\`\`\`bash
+redis-server --daemonize yes --ignore-warnings ARM64-COW-BUG
+\`\`\`
+
+### Verify
+
+\`\`\`bash
+redis-cli ping
+# → PONG
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🐛 COMMON ISSUES + FIXES
-══════════════════════════════════════════════════════════════════
+## 🏗️ Development Workflow
 
- Issue 1: "Cannot find module '@vubon/shared-kernel'"
- ─────────────────────────────────────────────────────────────
-   Fix:
-     cd ~/vubon.com.bd
-     pnpm --filter @vubon/shared-kernel build
-     pnpm --filter @vubon/shared-constants build
-     pnpm --filter @vubon/shared-types build
-     pnpm --filter @vubon/shared-schemas build
+### Start Server (dev mode with hot reload)
 
- Issue 2: Prisma engine incompatible (Termux ARM64)
- ─────────────────────────────────────────────────────────────
-   Error:
-     libquery_engine-... is for EM_X86_64 instead of EM_AARCH64
-   Fix:
-     Deploy to Linux ARM64 (Railway, Fly.io) OR use production environment.
-     Termux can still run unit tests — just not real DB queries.
+\`\`\`bash
+pnpm start:dev
+\`\`\`
 
- Issue 3: Redis fails to start on Termux
- ─────────────────────────────────────────────────────────────
-   Fix:
-     redis-server --daemonize yes --ignore-warnings ARM64-COW-BUG
+### Type-check (watch)
 
- Issue 4: "Port 3001 already in use"
- ─────────────────────────────────────────────────────────────
-   Fix:
-     lsof -i :3001
-     kill -9 <pid>
+\`\`\`bash
+pnpm type-check --watch
+\`\`\`
 
- Issue 5: Jest worker didn't exit gracefully
- ─────────────────────────────────────────────────────────────
-   Fix: Already handled with forceExit: true in jest.config.js
+### Build (production)
 
- Issue 6: "Cannot resolve dependencies of X"
- ─────────────────────────────────────────────────────────────
-   Fix: Check DI token bindings in module. Ensure useExisting
-        points to a provider in same module.
+\`\`\`bash
+pnpm build
+\`\`\`
+
+### Run compiled
+
+\`\`\`bash
+pnpm start:prod
+\`\`\`
+
+---
+
+## 🧪 Testing
+
+### Unit Tests
+
+\`\`\`bash
+pnpm test:unit              # Run once
+pnpm test:unit:watch        # Watch mode
+pnpm test:unit:cov          # Coverage
+\`\`\`
+
+### E2E Tests
+
+\`\`\`bash
+pnpm test:e2e               # Run all
+pnpm test:e2e:watch         # Watch mode
+\`\`\`
+
+### All Tests
+
+\`\`\`bash
+pnpm test:all               # Unit + E2E
+\`\`\`
+
+See [TESTING.md](./TESTING.md) for details.
+
+---
+
+## 🔧 Generators
+
+### Regenerate E2E Tests
+
+\`\`\`bash
+pnpm generate:e2e
+\`\`\`
+
+Reads: \`scripts/e2e/endpoints.mjs\`
+Writes: \`test/e2e/*.e2e-spec.ts\`
+
+### Regenerate InMemory Repositories
+
+\`\`\`bash
+node scripts/generate-inmemory-repos.mjs
+\`\`\`
+
+Writes: \`src/module/infrastructure/persistence/memory/repositories/*.ts\`
+
+---
+
+## 📁 Project Structure
+
+\`\`\`
+identity-service/
+├── src/
+│   ├── main.ts                  ← Bootstrap
+│   └── module/
+│       ├── domain/              ← Business logic (pure)
+│       ├── application/         ← Use cases (CQRS)
+│       ├── infrastructure/      ← Adapters (DB, cache, email)
+│       ├── interfaces/          ← HTTP boundary
+│       └── modules/             ← NestJS wiring (24 feature modules)
+├── test/
+│   ├── unit/                    ← Unit specs (17)
+│   ├── e2e/                     ← E2E specs (21)
+│   └── helpers/                 ← Test helpers
+├── scripts/                     ← Generators
+├── prisma/                      ← Prisma schema (stub)
+└── docs/                        ← Additional docs
+\`\`\`
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for layer details.
+
+---
+
+## 🎯 Common Tasks
+
+### Add a New Auth Endpoint
+
+1. **Domain** — Add method to entity/VO if business rule needed
+2. **Application** — Add service method + command/query handler
+3. **Interfaces** — Add REST controller route + DTOs
+4. **Modules** — Register handler in feature module
+5. **Tests** — Add unit + e2e tests
+6. **Regenerate** — `pnpm generate:e2e`
+
+### Add a New Value Object
+
+1. Create `src/module/domain/value-objects/primitives/<name>.vo.ts`
+2. Extend `BaseVO` or specific base (`BaseIdVO`, `BaseNameVO`, ...)
+3. Add `static create()` + `static reconstitute()`
+4. Export from `index.ts`
+5. Add unit test in `test/unit/domain/value-objects/`
+
+### Add a New Repository
+
+1. **Domain** — Create interface in `domain/repositories/`
+2. **Infrastructure** — Prisma impl + InMemory impl
+3. **Module** — Register in `PrismaRepositoriesModule` + `MemoryRepositoriesModule`
+4. **DI Token** — Add Symbol to domain interface
+
+### Add a New Saga
+
+1. Create `src/module/application/sagas/<process>.saga.ts`
+2. Import in `<feature>/sagas/index.ts`
+3. Register in `<feature>.module.ts`
+
+---
+
+## 🐛 Debugging
+
+### Enable verbose logging
+
+\`\`\`env
+LOG_LEVEL=debug
+\`\`\`
+
+### Debug with Node inspector
+
+\`\`\`bash
+node --inspect dist/main.js
+\`\`\`
+
+Open `chrome://inspect` in Chrome.
+
+### View recent logs
+
+\`\`\`bash
+tail -f ~/identity-server.log
+\`\`\`
+
+### Test a specific endpoint
+
+\`\`\`bash
+curl -X GET http://localhost:3001/health
+curl -X GET http://localhost:3001/api/docs-json | jq
+\`\`\`
+
+### Test auth flow
+
+\`\`\`bash
+# Register
+curl -X POST http://localhost:3001/auth/register \\
+  -H "Content-Type: application/json" \\
+  -d '{"email":"test@example.com","password":"SecureP@ss123","confirmPassword":"SecureP@ss123","acceptTerms":true}'
+
+# Login
+curl -X POST http://localhost:3001/auth/login \\
+  -H "Content-Type: application/json" \\
+  -d '{"identifier":"test@example.com","password":"SecureP@ss123"}'
+\`\`\`
+
+---
+
+## 🎯 Code Style
+
+### Layer Rules
+
+- **Domain** — No NestJS, no external libs
+- **Application** — Orchestration only
+- **Infrastructure** — Adapters for external systems
+- **Interfaces** — HTTP boundary
+- **Modules** — Wiring only
+
+### Naming
+
+| Type | Pattern |
+|------|---------|
+| VO | `<concept>-<prop>.vo.ts` |
+| Entity | `<concept>.entity.ts` |
+| Command | `<action>-<concept>.command.ts` |
+| Handler | `<action>-<concept>.handler.ts` |
+| Controller | `<concept>.controller.ts` |
+| Module | `<feature>.module.ts` |
+
+### Linting
+
+\`\`\`bash
+pnpm lint
+\`\`\`
+
+### Formatting
+
+\`\`\`bash
+pnpm format:write
+\`\`\`
+
+---
+
+## 🔐 Security Best Practices
+
+- ✅ Never commit `.env` (in `.gitignore`)
+- ✅ Use `JWT_SECRET` with min 32 chars
+- ✅ Enable `DB_SSL=true` in production
+- ✅ Use environment variables for secrets
+- ✅ Enable rate limiting in production
+- ✅ Use strong bcrypt rounds (12 in production)
+- ✅ Enforce password policy (min 8 chars)
+- ✅ Enable MFA for admins
+
+---
+
+## 🎯 Troubleshooting
+
+### Port already in use
+
+\`\`\`bash
+# Find process
+lsof -i :3001
+# or Termux:
+pkill -f "node dist/main.js"
+\`\`\`
+
+### Prisma engine unavailable
+
+**On Termux ARM64** — expected behavior. Use:
+\`\`\`env
+DB_MODE=memory
+\`\`\`
+
+### Redis connection refused
+
+\`\`\`bash
+# Termux:
+redis-server --daemonize yes --ignore-warnings ARM64-COW-BUG
+redis-cli ping
+\`\`\`
+
+### Build fails with TS errors
+
+\`\`\`bash
+pnpm type-check
+\`\`\`
+
+### E2E tests fail
+
+\`\`\`bash
+# Ensure server is running
+curl http://localhost:3001/health
+# Or restart:
+pkill -f "node dist/main.js"
+pnpm build && node dist/main.js &
+\`\`\`
+
+### Prisma client not generated
+
+\`\`\`bash
+cd ../../packages/shared-kernel
+npx prisma generate
+\`\`\`
+
+---
+
+## 📚 Additional Resources
+
+- [README.md](./README.md) — Project overview
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Layer patterns
+- [API.md](./API.md) — API reference
+- [TESTING.md](./TESTING.md) — Test guide
+- [DEPLOYMENT.md](./DEPLOYMENT.md) — Deployment guide
+- [CHANGELOG.md](./CHANGELOG.md) — Version history
+
+---
+
+## 🎯 Getting Help
+
+1. Check [ARCHITECTURE.md](./ARCHITECTURE.md) for pattern questions
+2. Check [TESTING.md](./TESTING.md) for test issues
+3. Check service logs: `tail -f ~/identity-server.log`
+4. Verify runtime: `curl http://localhost:3001/health`

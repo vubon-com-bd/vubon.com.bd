@@ -4,6 +4,7 @@
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type { AuthServiceInterface } from '../interfaces/auth.service.interface.js';
 import type { AuthRepository } from '../../../domain/repositories/auth.repository.interface.js';
 import { AUTH_REPOSITORY } from '../../../domain/repositories/auth.repository.interface.js';
@@ -28,6 +29,7 @@ export class AuthService extends BaseService implements AuthServiceInterface {
     @Inject(AUTH_SESSION_SERVICE) private readonly sessionService: AuthSessionServiceInterface,
     @Inject(AUTH_TOKEN_SERVICE) private readonly tokenService: AuthTokenServiceInterface,
     @Inject(AUTH_MFA_SERVICE) private readonly mfaService: AuthMfaServiceInterface,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
   }
@@ -83,7 +85,8 @@ export class AuthService extends BaseService implements AuthServiceInterface {
     });
 
     auth.recordLogin(undefined);
-    await this.authRepo.save(auth);
+    const saved = await this.authRepo.save(auth);
+    await this.eventBridge.publishFromEntity(saved);
 
     return {
       success: true,

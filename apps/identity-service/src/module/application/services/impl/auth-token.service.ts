@@ -4,6 +4,7 @@
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type { AuthTokenServiceInterface, IssueTokenInput } from '../interfaces/auth-token.service.interface.js';
 import type { TokenRepository } from '../../../domain/repositories/token.repository.interface.js';
 import { TOKEN_REPOSITORY } from '../../../domain/repositories/token.repository.interface.js';
@@ -16,6 +17,7 @@ export class AuthTokenService extends BaseService implements AuthTokenServiceInt
 
   constructor(
     @Inject(TOKEN_REPOSITORY) private readonly tokenRepo: TokenRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
   }
@@ -39,7 +41,8 @@ export class AuthTokenService extends BaseService implements AuthTokenServiceInt
     const token = await this.tokenRepo.findById(tokenId);
     if (!token) return;
     token.revoke(reason);
-    await this.tokenRepo.save(token);
+    const saved = await this.tokenRepo.save(token);
+    await this.eventBridge.publishFromEntity(saved);
   }
 
   async revokeAllForUser(userId: string, reason: string): Promise<number> {

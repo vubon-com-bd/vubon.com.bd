@@ -34,7 +34,11 @@ import { PublicProfileModule } from './module/modules/public-profile/index.js';
 @Module({
   imports: [
     // Root config
-    ConfigModule.forRoot({ isGlobal: true, cache: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      envFilePath: ['.env', '../../.env'],
+    }),
     CqrsModule.forRoot(),
 
     // Common (globals)

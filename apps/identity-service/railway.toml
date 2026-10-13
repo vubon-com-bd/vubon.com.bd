@@ -1,18 +1,17 @@
 # ═══════════════════════════════════════════════════════════════
-# Railway deployment configuration for auth-service
+# Railway Configuration — Identity Service
 # ═══════════════════════════════════════════════════════════════
 
 [build]
-builder          = "DOCKERFILE"
-dockerfilePath   = "apps/auth-service/Dockerfile"
-watchPatterns    = ["apps/auth-service/**", "packages/**"]
+builder = "nixpacks"
+buildCommand = "pnpm build"
 
 [deploy]
-startCommand       = "node dist/main.js"
-healthcheckPath    = "/api/docs-json"
-healthcheckTimeout = 60
-restartPolicyType  = "ON_FAILURE"
+startCommand = "node apps/identity-service/dist/main.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 5
 
-[service]
-name = "auth-service"
+[environments.production]
+variables = { NODE_ENV = "production", DB_MODE = "prisma" }

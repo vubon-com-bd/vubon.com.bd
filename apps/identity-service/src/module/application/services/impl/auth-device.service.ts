@@ -4,6 +4,7 @@
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type { AuthDeviceServiceInterface, RegisterDeviceInput } from '../interfaces/auth-device.service.interface.js';
 import type { DeviceRepository } from '../../../domain/repositories/device.repository.interface.js';
 import { DEVICE_REPOSITORY } from '../../../domain/repositories/device.repository.interface.js';
@@ -14,7 +15,10 @@ import { DeviceTrustService } from '../../../domain/services/device-trust.servic
 export class AuthDeviceService extends BaseService implements AuthDeviceServiceInterface {
   readonly name = 'AuthDeviceService';
 
-  constructor(@Inject(DEVICE_REPOSITORY) private readonly repo: DeviceRepository) { super(); }
+  constructor(
+    @Inject(DEVICE_REPOSITORY) private readonly repo: DeviceRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+  ) { super(); }
 
   async register(input: RegisterDeviceInput): Promise<AuthDeviceResponseDTO> {
     return {
@@ -30,7 +34,11 @@ export class AuthDeviceService extends BaseService implements AuthDeviceServiceI
   }
   async untrust(deviceId: string): Promise<void> {
     const device = await this.repo.findById(deviceId);
-    if (device) { device.untrust(); await this.repo.save(device); }
+    if (device) {
+      device.untrust();
+      const saved = await this.repo.save(device);
+      await this.eventBridge.publishFromEntity(saved);
+    }
   }
   async findForUser(userId: string): Promise<readonly AuthDeviceResponseDTO[]> {
     const devices = await this.repo.findByUserId({ value: userId } as never);

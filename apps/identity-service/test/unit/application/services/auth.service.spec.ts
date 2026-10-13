@@ -8,6 +8,7 @@ import { AUTH_REPOSITORY } from '../../../../src/module/domain/repositories/auth
 import { AUTH_SESSION_SERVICE } from '../../../../src/module/application/services/interfaces/auth-session.service.interface.js';
 import { AUTH_TOKEN_SERVICE } from '../../../../src/module/application/services/interfaces/auth-token.service.interface.js';
 import { AUTH_MFA_SERVICE } from '../../../../src/module/application/services/interfaces/auth-mfa.service.interface.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -23,6 +24,15 @@ describe('AuthService', () => {
         { provide: AUTH_SESSION_SERVICE, useValue: { create: jest.fn() } },
         { provide: AUTH_TOKEN_SERVICE, useValue: { issue: jest.fn() } },
         { provide: AUTH_MFA_SERVICE, useValue: { challenge: jest.fn() } },
+        {
+          provide: DomainEventBridgeService,
+          useValue: {
+            publishFromEntity: jest.fn().mockResolvedValue(undefined),
+            publish: jest.fn().mockResolvedValue(undefined),
+            publishBatch: jest.fn().mockResolvedValue(undefined),
+            publishInProcess: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

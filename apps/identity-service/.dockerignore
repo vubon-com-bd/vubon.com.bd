@@ -1,53 +1,66 @@
-# Dependencies
-node_modules
-.pnpm-store
+# ═══════════════════════════════════════════════════════════════
+# Identity Service — Docker Ignore
+# ═══════════════════════════════════════════════════════════════
 
-# Build artifacts
-dist
-build
-coverage
-coverage-report
+# ─── Dependencies (re-installed in container) ───
+node_modules/
+.pnpm-store/
+**/node_modules/
 
-# Env files
+# ─── Build output (rebuilt in container) ───
+dist/
+build/
+**/dist/
+*.tsbuildinfo
+
+# ─── Test / Coverage ───
+coverage/
+test/
+*.spec.ts
+*.e2e-spec.ts
+test-results.json
+e2e-results.json
+
+# ─── Environment (secrets) ───
 .env
-.env.*
-!.env.example
-!.env.production.example
+.env.local
+.env.*.local
+.env.production
 
-# Test outputs
-test/**/*.snap
+# ─── Development ───
+.vscode/
+.idea/
+*.swp
+*.swo
+.cache/
+tmp/
+temp/
+
+# ─── Docs (not needed in runtime) ───
+*.md
+!README.md
+docs/
+
+# ─── Git ───
+.git/
+.gitignore
+.gitattributes
+
+# ─── Logs ───
+logs/
 *.log
+npm-debug.log*
+pnpm-debug.log*
 
-# Dev tools
-.git
-.github
-.vscode
-.idea
-.editorconfig
-.eslintcache
-.prettiercache
-
-# OS
+# ─── OS ───
 .DS_Store
 Thumbs.db
 
-# Misc
-*.md
-!README.md
-!ARCHITECTURE.md
-!API.md
-!DEPLOYMENT.md
-!DEVELOPMENT.md
-!TESTING.md
-
-# Scratch / backup
-*.bak
-*.bak.*
-*.pre-*
-*.cjs
-!docs/extract-docs.cjs
-*.direct
-add-*.sql
-
-# Runtime scratch
+# ─── Redis dumps ───
 dump.rdb
+
+# ─── Scripts (not needed in prod) ───
+scripts/
+
+# ─── Generated ───
+*.tsbuildinfo

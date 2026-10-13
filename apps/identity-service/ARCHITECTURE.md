@@ -1,208 +1,384 @@
-<!-- AUTO-GENERATED from docs/architecture.doc.ts. Do not edit directly. -->
+# Architecture — Identity Service
 
-AUTH SERVICE — ARCHITECTURE DOCUMENTATION
-@module identity-service/docs
-
-══════════════════════════════════════════════════════════════════
- 📐 CLEAN ARCHITECTURE — 5 LAYERS
-══════════════════════════════════════════════════════════════════
-
- Layers (top → bottom):
-
-   ┌─────────────────────────────────────┐
-   │  L5  Modules      (NestJS wiring)   │
-   ├─────────────────────────────────────┤
-   │  L4  Interfaces   (HTTP/Controllers) │
-   ├─────────────────────────────────────┤
-   │  L3  Infrastructure (DB/Cache/Queue) │
-   ├─────────────────────────────────────┤
-   │  L2  Application  (Use Cases/CQRS)  │
-   ├─────────────────────────────────────┤
-   │  L1  Domain       (Business rules)  │
-   └─────────────────────────────────────┘
-
- Rule: Higher layer may import from lower. Never reverse.
- Rule: Cross-service communication = Event only.
+Deep-dive into the clean architecture, layer boundaries, and pattern rules.
 
 ---
 
-══════════════════════════════════════════════════════════════════
- L1 — DOMAIN LAYER (Pure Business)
-══════════════════════════════════════════════════════════════════
+## 🎯 The 5 Layers
 
- Location: src/module/domain/
- Files:    162
- Tests:    1016
+### 1. Domain Layer (`src/module/domain/`)
 
- Folders:
-   ├── value-objects/
-   │   ├── primitives/     (46 VOs) — UserId, Email, Password, ...
-   │   └── composites/     (23 VOs) — UserVO, AuthSessionVO, ...
-   ├── entities/           (23)     — UserEntity, AuthSessionEntity, ...
-   ├── repositories/       (23)     — Interfaces only
-   ├── events/             (6)      — Domain events
-   ├── event-store/        (6)      — Event storage contracts
-   ├── services/           (8)      — Pure domain services
-   ├── specifications/     (6)      — Business rule predicates
-   └── errors/             (13)     — Domain error classes
+**Pure business logic — zero external dependencies.**
 
- Rules:
-   ✅ Pure TypeScript
-   ✅ Immutable value objects
-   ✅ Entities with identity + invariants
-   ✅ Domain events on state change
-   ❌ NO NestJS, Prisma, HTTP, or DI
-   ❌ NO imports from higher layers
+\`\`\`
+domain/
+├── errors/              → Typed errors (BusinessRule, Validation, Conflict, NotFound)
+├── value-objects/
+│   ├── primitives/      → Atomic VOs (UserId, Email, Phone, Password, SessionId, Token...)
+│   └── composites/      → Composite VOs (AuthVO, SessionVO, UserVO, MfaVO...)
+├── events/              → Domain events (UserCreated, LoginSucceeded, SessionRevoked...)
+├── entities/            → Entities (UserEntity, AuthEntity, SessionEntity, MfaEntity...)
+├── repositories/        → Repository interfaces + DI tokens
+├── event-store/         → Event store interfaces
+├── services/            → Domain services (password hasher, OTP generator, session rotator)
+└── specifications/      → Business rule specifications (CanLogin, CanVerify...)
+\`\`\`
 
----
+**Rules:**
+- ❌ No NestJS imports
+- ❌ No Prisma imports
+- ❌ No HTTP/client imports
+- ✅ Pure TypeScript + shared-kernel base classes
 
-══════════════════════════════════════════════════════════════════
- L2 — APPLICATION LAYER (Use Cases / CQRS)
-══════════════════════════════════════════════════════════════════
+**Pattern — Value Object:**
+\`\`\`typescript
+export class EmailVO extends BaseVO<string> {
+  private constructor(value: string) { super(value); }
 
- Location: src/module/application/
- Files:    343
- Tests:    527
+  static create(raw: string): EmailVO {
+    // validate format + normalize
+  }
 
- Folders:
-   ├── dtos/
-   │   ├── requests/       (50)  — Input DTOs
-   │   └── responses/      (25)  — Output DTOs
-   ├── services/
-   │   ├── interfaces/     (28)  — Service contracts
-   │   └── impl/           (28)  — Service implementations
-   ├── commands/           (50)  — Command + Handler pairs
-   ├── queries/            (25)  — Query + Handler pairs
-   ├── sagas/              (4)   — Long-running workflows
-   ├── mappers/            (5)   — Entity → DTO
-   ├── validators/         (3)   — Zod validators
-   └── errors/             (9)   — Application errors
+  static reconstitute(raw: string): EmailVO {
+    // skip validation (DB rebuild)
+  }
 
- CQRS Pattern:
-   Command → CommandBus → Handler → Domain → Repository
-   Query   → QueryBus   → Handler → Repository → DTO
+  get normalized(): string {
+    return this.value.toLowerCase().trim();
+  }
+}
+\`\`\`
 
----
+**Pattern — Aggregate Root:**
+\`\`\`typescript
+export class UserEntity extends AggregateRoot<string> {
+  static create(params): UserEntity {
+    // factory + emit UserCreatedEvent
+  }
 
-══════════════════════════════════════════════════════════════════
- L3 — INFRASTRUCTURE LAYER (Adapters)
-══════════════════════════════════════════════════════════════════
+  activate(): void {
+    this.assertTransitionTo('active');  // state machine
+    this.emitStatusChange('pending', 'active');
+  }
 
- Location: src/module/infrastructure/
- Files:    96
- Tests:    393
-
- Folders:
-   ├── persistence/
-   │   ├── prisma/repositories/   (23)  — Prisma repos
-   │   └── cache/repositories/    (5)   — Redis cache repos
-   ├── services/
-   │   ├── internal/              (13)  — bcrypt, TOTP, JWT, ...
-   │   └── external/              (3)   — Email, SMS, Push
-   ├── config/                    (16)  — All config files
-   ├── workers/                   (8)   — BullMQ workers
-   ├── queues/                    (5)   — BullMQ queues
-   └── external/
-       └── email/templates/       (7)   — Email templates
-
- Adapters:
-   • Prisma ↔ Domain (mapper per repo)
-   • Redis ↔ Cache (JSON serialize)
-   • BullMQ ↔ Workers (job processing)
-   • bcrypt, jsonwebtoken, otplib, crypto
+  lock(reason: string): void {
+    this.assertTransitionTo('locked');
+    this.emitStatusChange('active', 'locked');
+  }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- L4 — INTERFACES LAYER (HTTP Boundary)
-══════════════════════════════════════════════════════════════════
+### 2. Application Layer (`src/module/application/`)
 
- Location: src/module/interfaces/
- Files:    98
- Tests:    ~325
+**Use-case orchestration — no business rules, only flow.**
 
- Folders:
-   ├── controllers/
-   │   ├── rest/          (29)  — HTTP controllers
-   │   └── graphql/       (2)   — GraphQL resolvers
-   ├── dtos/
-   │   ├── requests/      (18)  — Swagger-annotated request classes
-   │   └── responses/     (18)  — Swagger-annotated response classes
-   ├── guards/            (4)   — MFA, Biometric, Verified, Device
-   ├── interceptors/      (2)   — Cache, TokenRefresh
-   ├── decorators/        (5)   — CurrentUser, MfaRequired, ...
-   ├── mappers/           (4)   — App DTO → Interface DTO
-   ├── validators/        (2)   — Zod validators
-   └── swagger/           (4)   — Swagger decorator factories
+\`\`\`
+application/
+├── dtos/
+│   ├── requests/        → Request DTOs
+│   └── responses/       → Multi-shape response DTOs
+├── errors/              → Typed application errors
+├── services/
+│   ├── interfaces/      → Service contracts + DI tokens
+│   └── impl/            → Service implementations
+├── commands/            → Command + handler pairs
+├── queries/             → Query + handler pairs
+├── sagas/               → Process managers (login, session-expiry, verification)
+├── mappers/             → Multi-shape mappers
+└── validators/          → Zod wrappers
+\`\`\`
 
- Principle:
-   • Controllers MUST be thin — dispatch to CommandBus/QueryBus only
-   • NO business logic in controllers
-   • NO direct repository access
+**Pattern — Service:**
+\`\`\`typescript
+@Injectable()
+export class AuthService implements IAuthService {
+  constructor(
+    @Inject(AUTH_REPOSITORY) private readonly repo: AuthRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+    private readonly passwordHasher: PasswordHasherService,
+  ) {}
 
----
+  async register(dto, userId): Promise<AuthRegisterResponseDTO> {
+    const hashed = await this.passwordHasher.hash(dto.password);
+    const entity = AuthEntity.create({ ... });
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    return AuthMapper.toRegisterResponse(saved);
+  }
+}
+\`\`\`
 
-══════════════════════════════════════════════════════════════════
- L5 — MODULES LAYER (NestJS Wiring)
-══════════════════════════════════════════════════════════════════
+**Pattern — Command + Handler:**
+\`\`\`typescript
+export class LoginCommand extends BaseCommand {
+  readonly type = 'identity.auth.login';
+  constructor(public dto, public ip, public userAgent) { super(); }
+}
 
- Location: src/module/modules/
- Files:    31
- Tests:    32
-
- Feature Modules (28):
-   auth           auth-session     auth-token
-   auth-mfa       auth-recovery-code auth-account-lock
-   auth-login-attempt auth-device   auth-social
-   auth-oauth     auth-sso         auth-2fa
-   auth-biometric auth-permission  auth-role
-   auth-settings  auth-preferences user
-   user-profile   user-settings    user-preferences
-   user-address   user-contact     user-verification
-   user-kyc       user-activity    user-role-permission
-   auth-common    app.module
-
- DI Pattern:
-   @Module({
-     imports:     [...],
-     controllers: [...],
-     providers:   [...service, ...repos, ...handlers],
-     exports:     [...shared, token bindings],
-   })
+@CommandHandler(LoginCommand)
+export class LoginHandler implements ICommandHandler<...> {
+  constructor(@Inject(AUTH_SERVICE) private service) {}
+  execute(c) { return this.service.login(c.dto, c.ip, c.userAgent); }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 🔒 IMPORT RULES MATRIX
-══════════════════════════════════════════════════════════════════
+### 3. Infrastructure Layer (`src/module/infrastructure/`)
 
- From ↓ \ To →   kernel  domain  app  infra  iface  modules
- ────────────────────────────────────────────────────────────
- kernel            ❌      ❌     ❌    ❌     ❌      ❌
- domain            ✅      ❌     ❌    ❌     ❌      ❌
- application       ✅      ✅     ❌    ❌     ❌      ❌
- infrastructure    ✅      ✅     ✅    ❌     ❌      ❌
- interfaces        ✅      ✅     ✅    ❌     ❌      ❌
- modules           ✅      ✅     ✅    ✅     ✅      ❌
+**Adapters — persistence, messaging, external services.**
 
- Reading: ✅ = allowed, ❌ = forbidden
+\`\`\`
+infrastructure/
+├── persistence/
+│   ├── prisma/          → Prisma client + 27 mappers + 27 repositories
+│   ├── cache/           → Redis cache repositories
+│   ├── memory/          → 27 InMemory repositories (Termux fallback)
+│   └── persistence.module.ts  → DB_MODE switch
+├── queues/              → BullMQ queues (email, sms, cleanup)
+├── workers/             → Background workers (BaseWorker pattern)
+├── external/            → email (SendGrid), sms (SSLWireless)
+├── services/            → external clients + internal helpers (crypto, hashing)
+└── config/              → config files
+\`\`\`
+
+**Pattern — Prisma Repository:**
+\`\`\`typescript
+@Injectable()
+export class UserPrismaRepository implements UserRepository {
+  constructor(private readonly prisma: IdentityPrismaService) {}
+
+  private get delegate(): UserDelegate {
+    return this.prisma.getModel<UserDelegate>('user');
+  }
+
+  async findById(id: string): Promise<UserEntity | null> {
+    const raw = await this.delegate.findFirst({ where: { id, deletedAt: null } });
+    return raw ? UserPrismaMapper.toDomain(raw) : null;
+  }
+
+  async findByEmail(email: EmailVO): Promise<UserEntity | null> {
+    const raw = await this.delegate.findFirst({
+      where: { email: email.normalized, deletedAt: null },
+    });
+    return raw ? UserPrismaMapper.toDomain(raw) : null;
+  }
+}
+\`\`\`
+
+**Pattern — InMemory Repository:**
+\`\`\`typescript
+@Injectable()
+export class InMemoryUserRepository
+  extends InMemoryRepository<UserEntity, string>
+  implements UserRepository
+{
+  protected idOf(entity: UserEntity): string { return entity.id; }
+
+  async findByIdVO(id: UserIdVO): Promise<UserEntity | null> {
+    return this.findById(id.value);
+  }
+
+  async findByEmail(email: EmailVO): Promise<UserEntity | null> {
+    const all = await this.findAll();
+    return all.find((u) => u.email.normalized === email.normalized) ?? null;
+  }
+}
+\`\`\`
+
+**Pattern — Dynamic Module Selection:**
+\`\`\`typescript
+@Module({})
+export class PersistenceModule {
+  static forRoot(): DynamicModule {
+    const mode = (process.env['DB_MODE'] ?? 'prisma').toLowerCase();
+    const repoModule = mode === 'memory'
+      ? MemoryRepositoriesModule
+      : PrismaRepositoriesModule;
+    return { module: PersistenceModule, imports: [repoModule], exports: [repoModule] };
+  }
+}
+\`\`\`
 
 ---
 
-══════════════════════════════════════════════════════════════════
- 📊 SUMMARY
-══════════════════════════════════════════════════════════════════
+### 4. Interfaces Layer (`src/module/interfaces/`)
 
- Total Source Files:      730
- Total Test Files:        309
- Total Tests:             2293
- Test Runtime:            68 seconds
- TypeScript Errors:       0
- Test Failures:           0
- Coverage:                100%
+**HTTP boundary — REST + GraphQL.**
 
- Company:                 Vubon.com.bd
- Runtime:                 Node.js 22, NestJS 10
- Database:                PostgreSQL (Supabase)
- Cache:                   Redis
- Queue:                   BullMQ
+\`\`\`
+interfaces/
+├── errors/              → HTTP error translator
+├── dtos/
+│   ├── requests/        → class-validator DTOs
+│   └── responses/       → Swagger response DTOs
+├── mappers/             → HTTP ↔ App DTO mappers
+├── validators/          → HTTP validation wrappers
+├── guards/              → Guards (JwtAuthGuard, PublicGuard, OwnerGuard)
+├── interceptors/        → Interceptors (Cache, Timeout, Logging)
+├── decorators/          → Decorators (CurrentUser, Public, Owner, Roles)
+├── middlewares/         → Middlewares (CorrelationId, RateLimit)
+├── swagger/             → Swagger helper files
+└── controllers/
+    └── rest/            → 24 REST controllers
+\`\`\`
+
+**Pattern — REST Controller:**
+\`\`\`typescript
+@ApiTags('auth')
+@Controller('auth')
+export class AuthController extends BaseController {
+  constructor(
+    @Inject(AUTH_SERVICE) private readonly authService: IAuthService,
+  ) { super(); }
+
+  @Post('register')
+  @Public()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiRegister()
+  async register(
+    @Body() dto: RegisterHttpDTO,
+  ): Promise<AuthRegisterHttpResponseDTO> {
+    const appDto = AuthControllerMapper.toRegisterAppDto(dto);
+    const result = await this.authService.register(appDto);
+    return AuthControllerMapper.toRegisterHttp(result);
+  }
+
+  @Post('login')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiLogin()
+  async login(
+    @Body() dto: LoginHttpDTO,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ): Promise<AuthLoginHttpResponseDTO> {
+    const appDto = AuthControllerMapper.toLoginAppDto(dto);
+    const result = await this.authService.login(appDto, ip, userAgent);
+    return AuthControllerMapper.toLoginHttp(result);
+  }
+}
+\`\`\`
+
+---
+
+### 5. Modules Layer (`src/module/modules/`)
+
+**NestJS wiring — feature modules.**
+
+\`\`\`
+modules/
+├── app.module.ts        → Root module
+├── common/              → CommonModule (kernel + infra)
+├── health/              → HealthModule
+├── auth/                → AuthModule
+├── auth-session/        → Session management
+├── auth-mfa/            → MFA
+├── auth-social/         → Social login
+├── auth-sso/            → SSO
+├── auth-role/           → Roles
+├── auth-permission/     → Permissions
+├── user/                → User management
+├── user-profile/        → Profile
+├── user-settings/       → Settings
+├── user-preferences/    → Preferences
+├── user-address/        → Addresses
+├── user-contact/        → Contacts
+├── user-kyc/            → KYC
+├── user-activity/       → Activity log
+├── public-profile/      → Public profile
+└── ...
+\`\`\`
+
+**Pattern — Feature Module:**
+\`\`\`typescript
+@Module({
+  imports: [CqrsModule],
+  controllers: [AuthController],
+  providers: [
+    // Service + DI token
+    AuthService,
+    { provide: AUTH_SERVICE, useExisting: AuthService },
+
+    // Command handlers
+    ...(AUTH_COMMAND_HANDLERS as readonly unknown[] as never[]),
+
+    // Query handlers
+    ...(AUTH_QUERY_HANDLERS as readonly unknown[] as never[]),
+
+    // Sagas
+    ...(AUTH_SAGAS as readonly unknown[] as never[]),
+
+    // Guards
+    JwtAuthGuard,
+  ],
+  exports: [AuthService, AUTH_SERVICE],
+})
+export class AuthModule {}
+\`\`\`
+
+---
+
+## 🔗 Dependency Rules
+
+| Layer | Can Import | Must NOT Import |
+|-------|-----------|-----------------|
+| **Domain** | shared-kernel/domain | app, infra, interfaces, NestJS |
+| **Application** | Domain, shared-kernel/app | infra, interfaces |
+| **Infrastructure** | Domain, shared-kernel/infra | interfaces |
+| **Interfaces** | Application, Domain, shared-kernel/interfaces | infrastructure |
+| **Modules** | All layers | (none — top of stack) |
+
+**Rule of thumb:** Higher layers can import lower, never the reverse.
+
+---
+
+## 📐 Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Primitive VO | `<concept>-<prop>.vo.ts` | `user-id.vo.ts`, `session-id.vo.ts` |
+| Composite VO | `<concept>.vo.ts` | `auth.vo.ts` |
+| Entity | `<concept>.entity.ts` | `auth.entity.ts`, `user.entity.ts` |
+| Event | `<concept>.events.ts` | `auth.events.ts` |
+| Repository | `<concept>.repository.interface.ts` | `auth.repository.interface.ts` |
+| Command | `<action>-<concept>.command.ts` | `login.command.ts` |
+| Handler | `<action>-<concept>.handler.ts` | `login.handler.ts` |
+| Query | `<action>-<concept>.query.ts` | `get-session.query.ts` |
+| Saga | `<process>.saga.ts` | `auth-lifecycle.saga.ts` |
+| Mapper | `<concept>.mapper.ts` | `auth.mapper.ts` |
+| Validator | `<concept>.validator.ts` | `auth.validator.ts` |
+| Guard | `<purpose>.guard.ts` | `jwt-auth.guard.ts` |
+| Interceptor | `<purpose>.interceptor.ts` | `session-cache.interceptor.ts` |
+| Controller | `<concept>.controller.ts` | `auth.controller.ts` |
+| Feature Module | `<feature>.module.ts` | `auth.module.ts` |
+
+---
+
+## 🎯 Pattern — 10 Core Rules
+
+1. **Typed errors everywhere** — `ValidationError`, `BusinessRuleError`, `NotFoundError`, `ConflictError`
+2. **`reconstitute()`** — every VO + Entity has factory + DB rebuild
+3. **`assertInvariants()`** — separate method (testable)
+4. **`assertTransitionTo()`** — state machine safety (auth status, session status)
+5. **`emitStatusChange()`** — audit trail of every state change
+6. **Rich predicates** — `isActive()`, `isExpired()`, `isRevoked()`, ...
+7. **Business methods** — not just getters
+8. **DI tokens** — `Symbol('AUTH_REPOSITORY')` + `@Inject(...)`
+9. **Multi-shape DTOs** — Full, Public, Summary, List, Detail, Stats
+10. **Real business logic** — password hashing, TOTP validation, session rotation
+
+---
+
+## 📊 Total Stats
+
+| Layer | Files |
+|-------|-------|
+| Domain | ~200 |
+| Application | ~400 |
+| Infrastructure | ~300 |
+| Interfaces | ~150 |
+| Modules | ~150 |
+| **TOTAL** | **~1,200** |

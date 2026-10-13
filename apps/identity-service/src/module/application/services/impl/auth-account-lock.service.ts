@@ -4,6 +4,7 @@
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type { AuthAccountLockServiceInterface } from '../interfaces/auth-account-lock.service.interface.js';
 import type { AccountLockRepository } from '../../../domain/repositories/account-lock.repository.interface.js';
 import { ACCOUNT_LOCK_REPOSITORY } from '../../../domain/repositories/account-lock.repository.interface.js';
@@ -16,6 +17,7 @@ export class AuthAccountLockService extends BaseService implements AuthAccountLo
 
   constructor(
     @Inject(ACCOUNT_LOCK_REPOSITORY) private readonly repo: AccountLockRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
   }
@@ -58,7 +60,8 @@ export class AuthAccountLockService extends BaseService implements AuthAccountLo
     const lock = await this.repo.findActiveByAuthId({ value: authId } as never);
     if (!lock) return;
     lock.unlock(unlockedBy);
-    await this.repo.save(lock);
+    const saved = await this.repo.save(lock);
+    await this.eventBridge.publishFromEntity(saved);
   }
 
   async isLocked(authId: string): Promise<boolean> {

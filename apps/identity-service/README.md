@@ -1,254 +1,218 @@
-# 🔐 identity-service
+# Identity Service — vubon.com.bd
 
-Authentication and authorization microservice for **Vubon.com.bd**.
+Enterprise identity & authentication microservice with full DDD + CQRS + multi-persistence support.
 
-Part of the `@vubon/identity-service` workspace package.
+## 📋 Overview
 
----
-
-## 📊 Service Overview
-
-| Field | Value |
-|-------|-------|
-| Name | `identity-service` |
-| Version | 1.0.0 |
+| Item | Value |
+|------|-------|
 | Package | `@vubon/identity-service` |
-| Runtime | Node.js ≥ 22 |
+| Port | `3001` |
 | Framework | NestJS 12 |
-| ORM | Prisma 5 + PostgreSQL |
-| Cache | Redis |
-| Queue | BullMQ |
-| Port | 3001 |
-| Endpoints | 70 |
-| Prisma models | 27 |
-| Source files | ~730 |
-| Tests | 2,293 across 309 suites |
-
----
-
-## 🎯 Responsibilities
-
-| Domain | Owns |
-|--------|------|
-| **Credentials** | Password hash, password policy, password reset |
-| **Sessions** | Access tokens, refresh tokens, session lifecycle |
-| **MFA** | TOTP secrets, recovery codes, 2FA enrollment |
-| **OAuth / SSO** | Google, GitHub, Facebook, generic OIDC |
-| **Device** | Device fingerprint, trust, revocation |
-| **Account Lock** | Failed login tracking, lockout policy |
-| **Verification** | Email verification, phone verification |
-| **RBAC** | Roles, permissions, role-permission mapping |
-| **Security** | CSRF, HSTS, rate limiting, login attempts |
-
-**Does NOT own:** user profile, KYC, addresses, contacts, preferences — those belong to `user-service`.
-
----
-
-## 🏛️ 5-Layer Architecture
-
-    ┌─────────────────────────────────────┐
-    │  L5  Modules      (NestJS wiring)   │
-    ├─────────────────────────────────────┤
-    │  L4  Interfaces   (HTTP/Controllers)│
-    ├─────────────────────────────────────┤
-    │  L3  Infrastructure (DB/Cache/Queue)│
-    ├─────────────────────────────────────┤
-    │  L2  Application  (Use Cases/CQRS)  │
-    ├─────────────────────────────────────┤
-    │  L1  Domain       (Business rules)  │
-    └─────────────────────────────────────┘
-
-Rule: a higher layer may import from a lower layer, never the reverse.
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
-
----
-
-## 📁 Folder Structure
-
-    apps/identity-service/
-    ├── docs/                              # source-of-truth docs (.doc.ts)
-    │   ├── architecture.doc.ts
-    │   ├── api.doc.ts
-    │   ├── deployment.doc.ts
-    │   ├── development.doc.ts
-    │   ├── testing.doc.ts
-    │   └── extract-docs.cjs               # .doc.ts → .md generator
-    │
-    ├── src/
-    │   ├── main.ts                        # bootstrap entrypoint
-    │   └── module/
-    │       ├── domain/                    # L1 — pure business logic
-    │       ├── application/               # L2 — CQRS use cases
-    │       ├── infrastructure/            # L3 — adapters
-    │       ├── interfaces/                # L4 — HTTP transport
-    │       └── modules/                   # L5 — NestJS wiring
-    │
-    ├── test/                              # unit + e2e tests
-    ├── ARCHITECTURE.md                    # AUTO-GENERATED
-    ├── API.md                             # AUTO-GENERATED
-    ├── DEPLOYMENT.md                      # AUTO-GENERATED
-    ├── DEVELOPMENT.md                     # AUTO-GENERATED
-    ├── TESTING.md                         # AUTO-GENERATED
-    ├── Dockerfile
-    ├── railway.toml
-    ├── package.json
-    └── README.md
-
----
+| Architecture | Clean Architecture (5 layers) |
+| Database | PostgreSQL (`vubon_identity`) + InMemory fallback |
+| Tests | 38 (17 unit + 21 e2e) |
+| Feature Modules | 24 |
 
 ## 🚀 Quick Start
 
-### 1. Install dependencies (from monorepo root)
+### Prerequisites
+- Node.js >= 22
+- pnpm >= 9
+- PostgreSQL (optional for Termux — InMemory mode available)
 
-    cd ~/vubon.com.bd
-    pnpm install
+### Install
+\`\`\`bash
+pnpm install
+\`\`\`
 
-### 2. Configure environment
+### Setup Environment
+\`\`\`bash
+cp .env.example .env
+# Edit .env with your DB credentials
+\`\`\`
 
-    cp apps/identity-service/.env.example apps/identity-service/.env
-    # Edit apps/identity-service/.env with your values
+### Database Setup (Manual — Termux-safe)
+\`\`\`bash
+# Create DB
+createdb -h localhost -U $(whoami) vubon_identity
 
-### 3. Generate Prisma client (from shared-kernel)
+# Apply tables
+psql -h localhost -U $(whoami) -d vubon_identity \\
+  -f ~/.db-manual-migrations/identity-service/20261012_create_all_tables.sql
+\`\`\`
 
-    cd packages/shared-kernel
-    pnpm prisma generate
+### Run
+\`\`\`bash
+# Development
+pnpm start:dev
 
-### 4. Run migrations
+# Production
+pnpm build
+pnpm start:prod
+\`\`\`
 
-    pnpm prisma migrate dev
-
-### 5. Start the service
-
-    cd apps/identity-service
-    pnpm start:dev
-
-Server: **http://localhost:3001/api/v1**
+Server: **http://localhost:3001**
 Swagger: **http://localhost:3001/api/docs**
 
----
+## 🏗️ Architecture
 
-## 🔌 API Surface
+### 5 Layers (Clean Architecture)
+\`\`\`
+┌────────────────────────────────────────────┐
+│  Interfaces   (REST + GraphQL + Guards)   │
+├────────────────────────────────────────────┤
+│  Application  (CQRS + Sagas + DTOs)       │
+├────────────────────────────────────────────┤
+│  Domain       (Entities + VOs + Services) │
+├────────────────────────────────────────────┤
+│  Infrastructure (Prisma + InMemory + Q)   │
+├────────────────────────────────────────────┤
+│  Modules      (NestJS feature modules)    │
+└────────────────────────────────────────────┘
+\`\`\`
 
-Base path: `/api/v1`. Full reference in [API.md](./API.md).
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for details.
 
-### Auth (core)
+## 🎯 Key Features
 
-    POST   /auth/login
-    POST   /auth/register
-    POST   /auth/refresh
-    POST   /auth/logout
-    POST   /auth/forgot-password
-    POST   /auth/reset-password
-    POST   /auth/verify-email
-    POST   /auth/resend-verification
+### Authentication
+- **JWT** — Access + Refresh tokens
+- **Session management** — Rotation, revocation, multi-device
+- **MFA / 2FA** — TOTP-based
+- **OAuth / Social login** — Google, Facebook, GitHub, Apple
+- **SSO** — OIDC + SAML
+- **Biometric** — Device-based authentication
+- **Account lock** — Brute-force protection
+- **Login attempts** — Audit trail
+- **Recovery codes** — MFA backup
+- **Password policy** — Validation + hashing (bcrypt)
 
-### MFA
+### User Management
+- **User profiles** — Basic info, avatar
+- **Contact** — Email, phone, verified
+- **Address** — Multiple addresses with type
+- **KYC** — Document verification
+- **Preferences** — Language, timezone, notifications
+- **Settings** — Account settings
+- **Activity** — Login history, actions
+- **Roles** — RBAC
+- **Permissions** — Fine-grained
 
-    POST   /auth/mfa/enable
-    DELETE /auth/mfa/disable
-    POST   /auth/mfa/verify
-    POST   /auth/mfa/backup-codes
+### Verification
+- **Email verification** — Token-based
+- **Phone verification** — OTP-based
+- **KYC submission** — Document upload
 
-### Session
+### Domain Layer
+- **Value Objects** — UserId, Email, Phone, Password, SessionId, Token...
+- **Entities** — UserEntity, AuthEntity, SessionEntity, MfaEntity...
+- **Domain Services** — Password hashing, OTP generation, session rotation
+- **Specifications** — CanLogin, CanVerify, CanUpdateProfile...
+- **Events** — UserCreated, LoginSucceeded, SessionRevoked...
 
-    GET    /auth/sessions
-    DELETE /auth/sessions/:id
-    DELETE /auth/sessions          # revoke all
+### Application Layer
+- **CQRS** — Commands + Queries + Handlers
+- **Sagas** — Auth lifecycle, session expiry, verification flow
+- **DTOs** — Request + Response (multi-shape)
+- **Validators** — Zod-based
 
-### Device
+### Infrastructure Layer
+- **Prisma repositories** — 27 Prisma-based
+- **InMemory repositories** — 27 InMemory-based (Termux fallback)
+- **Cache** — Redis-backed (sessions, tokens, rate limiting)
+- **Queues** — BullMQ (email, SMS, cleanup)
+- **Workers** — Background jobs
+- **External** — SendGrid, SSLWireless
 
-    GET    /auth/devices
-    POST   /auth/devices/:id/trust
-    DELETE /auth/devices/:id
+### Interfaces Layer
+- **24 REST controllers** — Auth, User, MFA, Session, etc.
+- **Guards** — JwtAuthGuard, PublicGuard, OwnerGuard
+- **Interceptors** — Logging, Timeout, Cache
+- **Decorators** — @CurrentUser, @Public, @Owner, @Roles
 
-### OAuth / SSO
+## 🎯 Database Mode
 
-    GET    /auth/oauth/:provider
-    POST   /auth/oauth/:provider/callback
-    GET    /auth/sso/:provider
+Toggle via `DB_MODE` env var:
+\`\`\`env
+# Real database (PostgreSQL)
+DB_MODE=prisma
 
-### RBAC
-
-    GET    /auth/roles
-    GET    /auth/permissions
-    POST   /auth/roles/assign
-    DELETE /auth/roles/revoke
-
-Full OpenAPI: `http://localhost:3001/api/docs-json`
-
----
+# InMemory (Termux / dev / testing)
+DB_MODE=memory
+\`\`\`
 
 ## 🧪 Testing
 
-    cd apps/identity-service
-    pnpm test          # unit tests
-    pnpm test:cov      # coverage
-    pnpm test:e2e      # E2E
-    pnpm type-check    # TypeScript check
+### Unit Tests
+\`\`\`bash
+pnpm test:unit          # Run once
+pnpm test:unit:watch    # Watch mode
+pnpm test:unit:cov      # With coverage
+\`\`\`
 
-Current coverage: **2,293 tests across 309 suites**.
+- **17 spec files**
 
-Details in [TESTING.md](./TESTING.md).
+### E2E Tests
+\`\`\`bash
+pnpm test:e2e           # Run once
+pnpm generate:e2e       # Auto-generate from endpoints
+\`\`\`
 
----
+- **21 spec files**
 
-## 📚 Documentation
+### All Tests
+\`\`\`bash
+pnpm test:all           # Unit + E2E
+\`\`\`
 
-| File | Purpose |
-|------|---------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | 5-layer architecture + design rules |
-| [API.md](./API.md) | Full endpoint reference |
-| [DEVELOPMENT.md](./DEVELOPMENT.md) | Local setup guide |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | Railway / Fly.io / Render / VPS |
-| [TESTING.md](./TESTING.md) | Test patterns + coverage |
-| [../../SECURITY.md](../../SECURITY.md) | Monorepo security policy |
+## 📊 Endpoints Overview
 
-### Regenerating docs
+| Group | Controllers |
+|-------|-------------|
+| **Auth** | auth, auth-session, auth-token, auth-mfa, auth-2fa, auth-social, auth-sso, auth-biometric, auth-device, auth-login-attempt, auth-account-lock, auth-recovery-code, auth-role, auth-permission, auth-settings |
+| **User** | user, user-profile, user-settings, user-preferences, user-address, user-contact, user-kyc, user-activity |
+| **Public** | public-profile |
+| **Health** | health |
 
-The `.md` files are auto-generated from `docs/*.doc.ts`. To regenerate:
+Full API: **http://localhost:3001/api/docs**
 
-    cd apps/identity-service/docs
-    node extract-docs.cjs
-
-Edit the `.doc.ts` sources — never edit the `.md` files directly.
-
----
-
-## 🚂 Deployment
-
-Deployed as a Docker container. See [DEPLOYMENT.md](./DEPLOYMENT.md).
-
-Key points:
-
-- **Root Directory** — leave empty (repo root)
-- **Dockerfile Path** — `apps/identity-service/Dockerfile`
-- **Start command** — `node dist/main`
-- **Health check** — `/api/docs-json`
-
-Required environment variables are documented in `.env.production.example`.
-
----
+## 📁 Project Structure
+\`\`\`
+identity-service/
+├── src/
+│   ├── main.ts
+│   └── module/
+│       ├── domain/
+│       ├── application/
+│       ├── infrastructure/
+│       ├── interfaces/
+│       └── modules/
+├── test/
+│   ├── unit/
+│       ├── e2e/
+│   └── helpers/
+├── scripts/
+│   └── generate-e2e-tests.mjs
+└── prisma/
+    └── schema.prisma
+\`\`\`
 
 ## 🔐 Security
 
-This service is part of the monorepo security policy — see
-[../../SECURITY.md](../../SECURITY.md).
+- **JWT auth** — via `JwtAuthGuard`
+- **MFA** — TOTP-based (optional)
+- **Session rotation** — Periodic token refresh
+- **Rate limiting** — Login attempts throttled
+- **Account lock** — After N failed attempts
+- **Password hashing** — bcrypt (rounds configurable)
+- **SQL injection prevention** — Prisma parameterized queries
+- **XSS/CSRF** — Helmet + CSRF middleware
 
-Current status: **0 known vulnerabilities** (`pnpm audit --prod`).
+## 📝 License
 
-Security invariants enforced by this service:
+Private — vubon.com.bd
 
-- Passwords hashed with bcrypt (12 rounds minimum)
-- Access tokens are short-lived (15 min default)
-- Refresh tokens rotate on use
-- Failed logins trigger progressive lockout
-- MFA secrets never logged
-- All session tokens revocable
-- Device fingerprints tracked and revocable
+## 🤝 Contributing
 
----
-
-## 📄 License
-
-MIT © Vubon Team
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for layer rules and patterns.

@@ -1,100 +1,67 @@
 # ═══════════════════════════════════════════════════════════════
-# identity-service — Production Dockerfile (ESM)
-# ═══════════════════════════════════════════════════════════════
-# Multi-stage build for pnpm monorepo.
-# Build context must be repository root.
-#
-#   docker build -f apps/identity-service/Dockerfile .
-#
+# Identity Service — Dockerfile
+# Multi-stage build for minimal production image
 # ═══════════════════════════════════════════════════════════════
 
-# ─── Stage 1: Builder ─────────────────────────────────────────
-FROM node:22-bookworm-slim AS builder
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        openssl \
-        ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+# ─── Stage 1: Dependencies ───
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
-# ─── 1. Copy workspace manifests ──────────────────────────────
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+# Copy workspace files
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json ./
 COPY apps/identity-service/package.json ./apps/identity-service/
 COPY packages/shared-kernel/package.json ./packages/shared-kernel/
 COPY packages/shared-constants/package.json ./packages/shared-constants/
 COPY packages/shared-types/package.json ./packages/shared-types/
 COPY packages/shared-schemas/package.json ./packages/shared-schemas/
-COPY packages/shared-utils/package.json ./packages/shared-utils/
 COPY packages/shared-config/package.json ./packages/shared-config/
-COPY packages/shared-api/package.json ./packages/shared-api/
+COPY packages/shared-utils/package.json ./packages/shared-utils/
 COPY packages/shared-auth/package.json ./packages/shared-auth/
 
-# ─── 2. Install all deps (cached) ─────────────────────────────
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
-# ─── 3. Copy source ───────────────────────────────────────────
-COPY apps/identity-service ./apps/identity-service
-COPY packages/shared-kernel ./packages/shared-kernel
-COPY packages/shared-constants ./packages/shared-constants
-COPY packages/shared-types ./packages/shared-types
-COPY packages/shared-schemas ./packages/shared-schemas
-COPY packages/shared-utils ./packages/shared-utils
-COPY packages/shared-config ./packages/shared-config
-COPY packages/shared-api ./packages/shared-api
-COPY packages/shared-auth ./packages/shared-auth
-
-# ─── 4. Build shared packages (dependency order) ──────────────
-RUN cd packages/shared-constants && pnpm build || true
-RUN cd packages/shared-types     && pnpm build || true
-RUN cd packages/shared-schemas   && pnpm build || true
-RUN cd packages/shared-utils     && pnpm build || true
-RUN cd packages/shared-config    && pnpm build || true
-RUN cd packages/shared-kernel    && pnpm build || true
-RUN cd packages/shared-api       && pnpm build || true
-RUN cd packages/shared-auth      && pnpm build || true
-
-# ─── 5. Generate Prisma client ────────────────────────────────
-RUN cd packages/shared-kernel && pnpm prisma generate
-
-# ─── 6. Build identity-service (ESM) ──────────────────────────
-RUN cd apps/identity-service && pnpm build
-
-# ─── Stage 2: Runtime ─────────────────────────────────────────
-FROM node:22-bookworm-slim AS runtime
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        openssl \
-        ca-certificates \
-        curl \
-        dumb-init \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+# ─── Stage 2: Builder ───
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=460"
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/package.json ./
+COPY --from=deps /app/node_modules ./node_modules
+
+COPY . .
+
+# Build shared-kernel first (dependency)
+RUN pnpm --filter @vubon/shared-kernel build
+
+# Build identity-service
+RUN pnpm --filter @vubon/identity-service build
+
+# ─── Stage 3: Runtime ───
+FROM node:22-alpine AS runtime
+
+WORKDIR /app
+
+RUN apk add --no-cache wget && \
+    corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+# Copy production deps + built artifacts
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/apps/identity-service ./apps/identity-service
-
-COPY apps/identity-service/scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --from=builder /app/apps/identity-service/package.json ./apps/identity-service/
+COPY --from=builder /app/apps/identity-service/dist ./apps/identity-service/dist
+COPY --from=builder /app/apps/identity-service/prisma ./apps/identity-service/prisma
 
 WORKDIR /app/apps/identity-service
 
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
+
 EXPOSE 3001
 
-ENTRYPOINT ["dumb-init", "--", "/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]

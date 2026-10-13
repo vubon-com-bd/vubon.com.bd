@@ -4,6 +4,7 @@
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type {
   AuthSessionServiceInterface,
   CreateSessionInput,
@@ -20,6 +21,7 @@ export class AuthSessionService extends BaseService implements AuthSessionServic
 
   constructor(
     @Inject(SESSION_REPOSITORY) private readonly sessionRepo: SessionRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
   }
@@ -78,7 +80,8 @@ export class AuthSessionService extends BaseService implements AuthSessionServic
     const session = await this.sessionRepo.findById(sessionId);
     if (!session) throw new SessionNotFoundError(sessionId);
     session.revoke(reason);
-    await this.sessionRepo.save(session);
+    const saved = await this.sessionRepo.save(session);
+    await this.eventBridge.publishFromEntity(saved);
   }
 
   async revokeAllForUser(userId: string, reason: string): Promise<number> {
