@@ -1,5 +1,5 @@
 /**
- * Auth Service — Bootstrap
+ * Identity Service — Bootstrap
  * @module identity-service
  */
 import 'reflect-metadata';
@@ -7,22 +7,20 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
+import { PrismaUnavailableFilter } from './module/interfaces/filters/prisma-unavailable.filter.js';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  // Global prefix
   const apiPrefix = process.env['API_PREFIX'] ?? 'api/v1';
   app.setGlobalPrefix(apiPrefix);
 
-  // CORS
   app.enableCors({
     origin: process.env['CORS_ORIGIN']?.split(',') ?? true,
     credentials: true,
   });
 
-  // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -32,7 +30,8 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  // Swagger
+  app.useGlobalFilters(new PrismaUnavailableFilter());
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Identity Service API')
     .setDescription('Vubon.com.bd — Identity, Authentication & User Management APIs')
