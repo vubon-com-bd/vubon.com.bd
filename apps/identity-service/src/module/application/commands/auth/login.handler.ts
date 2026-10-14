@@ -5,6 +5,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject, Logger } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { LoginCommand } from './login.command.js';
 import type { LoginResponseDTO } from '../../dtos/responses/login-response.dto.js';
 import type { AuthRepository } from '../../../domain/repositories/auth.repository.interface.js';
@@ -27,6 +28,7 @@ export class LoginHandler
     @Inject(AUTH_REPOSITORY) private readonly authRepo: AuthRepository,
     @Inject(AUTH_SESSION_SERVICE) private readonly sessionService: AuthSessionServiceInterface,
     @Inject(AUTH_TOKEN_SERVICE) private readonly tokenService: AuthTokenServiceInterface,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
   }
@@ -57,7 +59,8 @@ export class LoginHandler
 
     // 4. Update last login
     auth.recordLogin(undefined);
-    await this.authRepo.save(auth);
+    const saved = await this.authRepo.save(auth);
+    await this.eventBridge.publishFromEntity(saved);
 
     this.logger.log(`Login success: userId=${auth.userId.value}`);
 

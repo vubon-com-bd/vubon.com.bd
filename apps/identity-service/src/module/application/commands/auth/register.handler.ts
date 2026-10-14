@@ -5,6 +5,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import { RegisterCommand } from './register.command.js';
 import type { RegisterResponseDTO } from '../../dtos/responses/register-response.dto.js';
 import type { AuthRepository } from '../../../domain/repositories/auth.repository.interface.js';
@@ -33,6 +34,7 @@ export class RegisterHandler
   constructor(
     @Inject(AUTH_REPOSITORY) private readonly authRepo: AuthRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
   }
@@ -67,7 +69,8 @@ export class RegisterHandler
         : undefined,
       now,
     });
-    await this.userRepo.save(user);
+    const savedUser = await this.userRepo.save(user);
+    await this.eventBridge.publishFromEntity(savedUser);
 
     // 3. Create AuthEntity and SAVE
     const auth = AuthEntity.create({
@@ -81,7 +84,8 @@ export class RegisterHandler
       },
       now,
     });
-    await this.authRepo.save(auth);
+    const savedAuth = await this.authRepo.save(auth);
+    await this.eventBridge.publishFromEntity(savedAuth);
 
     // 4. Return response
     return {

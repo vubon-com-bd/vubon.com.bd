@@ -14,6 +14,7 @@ type EventHandler = (event: DomainEvent) => Promise<void>;
 
 const QUEUE_PREFIX = 'domain-events';
 const CONSUMERS = [
+  'identity', 'product', 'vendor',
   'logistics', 'notification', 'order', 'analytics', 'support',
   'marketing', 'cart', 'search', 'discovery', 'ai', 'reporting',
 ] as const;
