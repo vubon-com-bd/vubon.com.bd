@@ -1,0 +1,14 @@
+# ═══════════════════════════════════════════════════════════════
+#  Railway Deployment — Vendor Service
+# ═══════════════════════════════════════════════════════════════
+
+[build]
+builder = "nixpacks"
+buildCommand = "pnpm build"
+
+[deploy]
+startCommand = "node apps/vendor-service/dist/main.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5

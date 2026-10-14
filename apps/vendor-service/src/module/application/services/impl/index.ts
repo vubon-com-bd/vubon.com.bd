@@ -1,0 +1,26 @@
+// vendor-service/application/services/impl/index.ts
+// Barrel — service implementations
+
+export * from './vendor.service.js';
+export * from './vendor-profile.service.js';
+export * from './vendor-business.service.js';
+export * from './vendor-contact.service.js';
+export * from './vendor-address.service.js';
+export * from './vendor-bank-account.service.js';
+export * from './vendor-document.service.js';
+export * from './vendor-verification.service.js';
+export * from './vendor-approval.service.js';
+export * from './vendor-suspension.service.js';
+export * from './vendor-commission.service.js';
+export * from './vendor-payout.service.js';
+export * from './vendor-settlement.service.js';
+export * from './vendor-performance.service.js';
+export * from './vendor-rating.service.js';
+export * from './vendor-review.service.js';
+export * from './vendor-shipping.service.js';
+export * from './vendor-return-policy.service.js';
+export * from './vendor-warranty.service.js';
+export * from './vendor-team.service.js';
+export * from './vendor-feature.service.js';
+export * from './vendor-subscription.service.js';
+export * from './vendor-permission.service.js';

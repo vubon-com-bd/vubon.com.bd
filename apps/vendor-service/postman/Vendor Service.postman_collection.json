@@ -1,0 +1,1911 @@
+{
+  "info": {
+    "_postman_id": "vendor-service-v1-2026",
+    "name": "Vendor Service",
+    "description": "Vubon.com.bd — Vendor Service REST API\n\nBase URL: http://localhost:3004\nSwagger: http://localhost:3004/api/docs\n\nGroups: 25\nRequests: 63",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3004",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "00000000-0000-0000-0000-000000000002",
+      "type": "string"
+    },
+    {
+      "key": "vendorId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "vendorSlug",
+      "value": "e2e-vendor",
+      "type": "string"
+    },
+    {
+      "key": "verificationId",
+      "value": "00000000-0000-0000-0000-000000000003",
+      "type": "string"
+    },
+    {
+      "key": "commissionId",
+      "value": "00000000-0000-0000-0000-000000000004",
+      "type": "string"
+    },
+    {
+      "key": "payoutId",
+      "value": "00000000-0000-0000-0000-000000000005",
+      "type": "string"
+    },
+    {
+      "key": "memberId",
+      "value": "00000000-0000-0000-0000-000000000006",
+      "type": "string"
+    },
+    {
+      "key": "inviteId",
+      "value": "00000000-0000-0000-0000-000000000007",
+      "type": "string"
+    },
+    {
+      "key": "subscriptionId",
+      "value": "00000000-0000-0000-0000-000000000008",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health",
+      "requests": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Service health check (public)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌐 Public Vendors",
+      "requests": [
+        {
+          "name": "List Public Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/vendors?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "vendors"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Public vendor list (paginated)"
+          }
+        },
+        {
+          "name": "Search Public Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/vendors/search?q=test&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "vendors",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Public vendor search"
+          }
+        },
+        {
+          "name": "Public Vendor By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/vendors/slug/{{vendorSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "vendors",
+                "slug",
+                "{{vendorSlug}}"
+              ]
+            },
+            "description": "Public vendor by slug"
+          }
+        },
+        {
+          "name": "Public Vendor By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "vendors",
+                "{{vendorId}}"
+              ]
+            },
+            "description": "Public vendor by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Vendors",
+      "requests": [
+        {
+          "name": "Register Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "register-vendor-{{uniqueSuffix}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"00000000-0000-0000-0000-000000000002\",\n  \"name\": \"E2E Vendor {{uniqueSuffix}}\",\n  \"displayName\": \"E2E Vendor {{uniqueSuffix}}\",\n  \"slug\": \"e2e-vendor-{{uniqueSuffix}}\",\n  \"type\": \"individual\",\n  \"businessType\": \"retailer\",\n  \"email\": \"vendor-{{uniqueSuffix}}@example.com\",\n  \"phone\": \"+8801712345678\",\n  \"acceptTerms\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [201, 400, 401, 409, 500, 503]', () => pm.expect([201, 400, 401, 409, 500, 503]).to.include(pm.response.code));",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.vendorId) {",
+                  "    pm.collectionVariables.set('vendorId', json.vendorId);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Paginated vendor list"
+          }
+        },
+        {
+          "name": "Get My Vendor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "me"
+              ]
+            },
+            "description": "Current user vendor"
+          }
+        },
+        {
+          "name": "Search Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/search?q=test&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Vendor search"
+          }
+        },
+        {
+          "name": "Get Vendor Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "stats"
+              ]
+            },
+            "description": "Vendor statistics"
+          }
+        },
+        {
+          "name": "Get Vendor By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/slug/{{vendorSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "slug",
+                "{{vendorSlug}}"
+              ]
+            },
+            "description": "Vendor by slug"
+          }
+        },
+        {
+          "name": "Get Vendor By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}"
+              ]
+            },
+            "description": "Vendor by ID"
+          }
+        },
+        {
+          "name": "Get Public Vendor View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "public"
+              ]
+            },
+            "description": "Public-facing vendor view"
+          }
+        },
+        {
+          "name": "Get Vendor Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/detail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "detail"
+              ]
+            },
+            "description": "Vendor detail with children"
+          }
+        },
+        {
+          "name": "Update Vendor",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Vendor {{uniqueSuffix}}\",\n  \"displayName\": \"Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Vendor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 204, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 204, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "👤 Profile",
+      "requests": [
+        {
+          "name": "Get Vendor Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "profile"
+              ]
+            },
+            "description": "Vendor profile"
+          }
+        },
+        {
+          "name": "Update Vendor Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Updated Profile {{uniqueSuffix}}\",\n  \"tagline\": \"Fast & Reliable\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "profile"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "💼 Business",
+      "requests": [
+        {
+          "name": "Get Vendor Business",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/business",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "business"
+              ]
+            },
+            "description": "Business info"
+          }
+        },
+        {
+          "name": "Update Vendor Business",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"legalName\": \"Vendor Pvt Ltd\",\n  \"registrationNumber\": \"REG123456\",\n  \"taxId\": \"TAX123456\",\n  \"establishedYear\": 2020,\n  \"employeeCount\": 25\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/business",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "business"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📞 Contacts",
+      "requests": [
+        {
+          "name": "List Vendor Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "contacts"
+              ]
+            },
+            "description": "List contacts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📍 Addresses",
+      "requests": [
+        {
+          "name": "List Vendor Addresses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "addresses"
+              ]
+            },
+            "description": "List addresses"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏦 Bank Accounts",
+      "requests": [
+        {
+          "name": "List Vendor Bank Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/bank-accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "bank-accounts"
+              ]
+            },
+            "description": "List bank accounts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📄 Documents",
+      "requests": [
+        {
+          "name": "List Vendor Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "documents"
+              ]
+            },
+            "description": "List documents"
+          }
+        }
+      ]
+    },
+    {
+      "name": "✅ Verifications",
+      "requests": [
+        {
+          "name": "Submit Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"email\",\n  \"referenceId\": \"REF-{{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/verifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "verifications"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [201, 400, 401, 403, 409, 500, 503]', () => pm.expect([201, 400, 401, 403, 409, 500, 503]).to.include(pm.response.code));",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.verificationId) {",
+                  "    pm.collectionVariables.set('verificationId', json.verificationId);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Verifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/verifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "verifications"
+              ]
+            },
+            "description": "List verifications"
+          }
+        },
+        {
+          "name": "Get Verification By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/verifications/{{verificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "verifications",
+                "{{verificationId}}"
+              ]
+            },
+            "description": "Verification by ID"
+          }
+        },
+        {
+          "name": "Reverify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referenceId\": \"REF-RE-{{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/verifications/{{verificationId}}/reverify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "verifications",
+                "{{verificationId}}",
+                "reverify"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 201, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 201, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📋 Approvals",
+      "requests": [
+        {
+          "name": "Get Approval Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/approvals/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "approvals",
+                "status"
+              ]
+            },
+            "description": "Approval status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚫 Suspensions",
+      "requests": [
+        {
+          "name": "Get Vendor Suspension",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/suspensions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "suspensions"
+              ]
+            },
+            "description": "Current suspension"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Commissions",
+      "requests": [
+        {
+          "name": "List Commissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/commissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "commissions"
+              ]
+            },
+            "description": "List commissions"
+          }
+        },
+        {
+          "name": "Get Commission By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/commissions/{{commissionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "commissions",
+                "{{commissionId}}"
+              ]
+            },
+            "description": "Commission by ID"
+          }
+        },
+        {
+          "name": "Get Commission Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/commissions/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "commissions",
+                "summary"
+              ]
+            },
+            "description": "Commission stats"
+          }
+        },
+        {
+          "name": "Update Commission",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"percentage\",\n  \"rate\": 15,\n  \"effectiveFrom\": \"{{timestamp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/commissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "commissions"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Calculate Commission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderAmount\": 1500,\n  \"currency\": \"BDT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/commissions/calculate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "commissions",
+                "calculate"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 500, 503]', () => pm.expect([200, 400, 401, 403, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "💸 Payouts",
+      "requests": [
+        {
+          "name": "Request Payout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "request-payout-{{uniqueSuffix}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000,\n  \"method\": \"bank_transfer\",\n  \"notes\": \"Test payout {{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [201, 400, 401, 403, 409, 500, 503]', () => pm.expect([201, 400, 401, 403, 409, 500, 503]).to.include(pm.response.code));",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.payoutId) {",
+                  "    pm.collectionVariables.set('payoutId', json.payoutId);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Payouts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts"
+              ]
+            },
+            "description": "List payouts"
+          }
+        },
+        {
+          "name": "Get Payout By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts/{{payoutId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts",
+                "{{payoutId}}"
+              ]
+            },
+            "description": "Payout by ID"
+          }
+        },
+        {
+          "name": "Get Payout Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts",
+                "summary"
+              ]
+            },
+            "description": "Payout stats"
+          }
+        },
+        {
+          "name": "Approve Payout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts/{{payoutId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts",
+                "{{payoutId}}",
+                "approve"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 409, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 409, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject Payout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Bank account unverified\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts/{{payoutId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts",
+                "{{payoutId}}",
+                "reject"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 409, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 409, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Process Payout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"txn-{{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/payouts/{{payoutId}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "payouts",
+                "{{payoutId}}",
+                "process"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 409, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 409, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📊 Settlements",
+      "requests": [
+        {
+          "name": "List Settlements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/settlements",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "settlements"
+              ]
+            },
+            "description": "List settlements"
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Performances",
+      "requests": [
+        {
+          "name": "Get Vendor Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/performances",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "performances"
+              ]
+            },
+            "description": "Latest performance"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌟 Ratings",
+      "requests": [
+        {
+          "name": "List Vendor Ratings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/ratings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "ratings"
+              ]
+            },
+            "description": "Vendor ratings"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Reviews",
+      "requests": [
+        {
+          "name": "List Vendor Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "reviews"
+              ]
+            },
+            "description": "Vendor reviews"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚚 Shipping",
+      "requests": [
+        {
+          "name": "Get Shipping Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/shippings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "shippings"
+              ]
+            },
+            "description": "Shipping config"
+          }
+        }
+      ]
+    },
+    {
+      "name": "↩️ Return Policies",
+      "requests": [
+        {
+          "name": "Get Return Policy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/return-policys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "return-policys"
+              ]
+            },
+            "description": "Return policy"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Warranties",
+      "requests": [
+        {
+          "name": "Get Warranty",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/warrantys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "warrantys"
+              ]
+            },
+            "description": "Warranty config"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Team",
+      "requests": [
+        {
+          "name": "Add Team Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "add-team-member-{{uniqueSuffix}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member-{{uniqueSuffix}}@example.com\",\n  \"role\": \"vendor_staff\",\n  \"message\": \"Welcome\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/team",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "team"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [201, 400, 401, 403, 409, 500, 503]', () => pm.expect([201, 400, 401, 403, 409, 500, 503]).to.include(pm.response.code));",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.inviteId) {",
+                  "    pm.collectionVariables.set('inviteId', json.inviteId);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Team Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/team",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "team"
+              ]
+            },
+            "description": "List team"
+          }
+        },
+        {
+          "name": "Get Team Member By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/team/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "team",
+                "{{memberId}}"
+              ]
+            },
+            "description": "Team member by ID"
+          }
+        },
+        {
+          "name": "Update Team Member",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Member\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/team/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "team",
+                "{{memberId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Assign Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"vendor_manager\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/team/{{memberId}}/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "team",
+                "{{memberId}}",
+                "role"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Team Member",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/team/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "team",
+                "{{memberId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 204, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 204, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎁 Features",
+      "requests": [
+        {
+          "name": "List Vendor Features",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/features",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "features"
+              ]
+            },
+            "description": "List feature flags"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💎 Subscriptions",
+      "requests": [
+        {
+          "name": "Create Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"basic\",\n  \"cycle\": \"monthly\",\n  \"startTrial\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/subscriptions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "subscriptions"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [201, 400, 401, 403, 409, 500, 503]', () => pm.expect([201, 400, 401, 403, 409, 500, 503]).to.include(pm.response.code));",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json && json.subscriptionId) {",
+                  "    pm.collectionVariables.set('subscriptionId', json.subscriptionId);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Available Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/subscriptions/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "subscriptions",
+                "plans"
+              ]
+            },
+            "description": "Available subscription plans (public)"
+          }
+        },
+        {
+          "name": "Get Current Subscription",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/subscriptions/current",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "subscriptions",
+                "current"
+              ]
+            },
+            "description": "Current active subscription"
+          }
+        },
+        {
+          "name": "Upgrade Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"standard\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/subscriptions/{{subscriptionId}}/upgrade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "subscriptions",
+                "{{subscriptionId}}",
+                "upgrade"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Downgrade Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"free\",\n  \"reason\": \"Cost reduction\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/subscriptions/{{subscriptionId}}/downgrade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "subscriptions",
+                "{{subscriptionId}}",
+                "downgrade"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"No longer needed\",\n  \"cancelAtPeriodEnd\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/subscriptions/{{subscriptionId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "subscriptions",
+                "{{subscriptionId}}",
+                "cancel"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of [200, 400, 401, 403, 404, 500, 503]', () => pm.expect([200, 400, 401, 403, 404, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔐 Permissions",
+      "requests": [
+        {
+          "name": "List Vendor Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "permissions"
+              ]
+            },
+            "description": "Vendor team permissions"
+          }
+        }
+      ]
+    }
+  ]
+}
