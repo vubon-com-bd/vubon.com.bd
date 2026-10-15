@@ -1,0 +1,48 @@
+# ─── Dependencies ───
+node_modules/
+.pnpm-store/
+
+# ─── Build output ───
+dist/
+build/
+*.tsbuildinfo
+
+# ─── Test coverage ───
+coverage/
+*.lcov
+test-results.json
+e2e-results.json
+
+# ─── Environment ───
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ─── Logs ───
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+
+# ─── IDE ───
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Prisma ───
+prisma/migrations/
+*.db
+
+# ─── Redis dumps ───
+dump.rdb
+
+# ─── Misc ───
+.cache/
+tmp/
+temp/

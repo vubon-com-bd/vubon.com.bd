@@ -1,0 +1,14 @@
+# ═══════════════════════════════════════════════════════════════
+# Railway configuration — Cart Service
+# ═══════════════════════════════════════════════════════════════
+
+[build]
+builder = "nixpacks"
+buildCommand = "pnpm --filter @vubon/cart-service build"
+
+[deploy]
+startCommand = "node apps/cart-service/dist/main.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
