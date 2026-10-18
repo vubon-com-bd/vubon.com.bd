@@ -25,9 +25,9 @@ export class CanLoginSpecification extends Specification<CanLoginCandidate> {
     const { auth, context } = c;
     const nowMs = context?.nowMs ?? Date.now();
 
+    if (auth.isFinal()) return false;
     if (!auth.isActive()) return false;
     if (auth.isLockedNow(nowMs)) return false;
-    if (auth.isFinal()) return false;
 
     if (context?.requiresEmailVerification && !auth.isEmailVerified) return false;
     if (context?.requiresPhoneVerification && !auth.isPhoneVerified) return false;
@@ -40,14 +40,15 @@ export class CanLoginSpecification extends Specification<CanLoginCandidate> {
     const { auth, context } = c;
     const nowMs = context?.nowMs ?? Date.now();
 
+    // Check terminal FIRST — more specific than "not active"
+    if (auth.isFinal()) {
+      return `Auth status "${auth.status.value}" is terminal`;
+    }
     if (!auth.isActive()) {
       return `Auth status "${auth.status.value}" is not active`;
     }
     if (auth.isLockedNow(nowMs)) {
       return `Auth is locked until ${auth.lockedUntil}`;
-    }
-    if (auth.isFinal()) {
-      return `Auth status "${auth.status.value}" is terminal`;
     }
     if (context?.requiresEmailVerification && !auth.isEmailVerified) {
       return 'Email verification required';

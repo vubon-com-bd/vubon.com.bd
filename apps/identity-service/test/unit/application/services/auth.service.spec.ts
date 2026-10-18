@@ -1,45 +1,68 @@
-/**
- * AuthService — Unit Tests
- */
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../../src/module/application/services/impl/auth.service.js';
-import { AUTH_REPOSITORY } from '../../../../src/module/domain/repositories/auth.repository.interface.js';
-import { AUTH_SESSION_SERVICE } from '../../../../src/module/application/services/interfaces/auth-session.service.interface.js';
-import { AUTH_TOKEN_SERVICE } from '../../../../src/module/application/services/interfaces/auth-token.service.interface.js';
-import { AUTH_MFA_SERVICE } from '../../../../src/module/application/services/interfaces/auth-mfa.service.interface.js';
-import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { AuthService } from '@application/services/impl/auth.service.js';
+import {
+  makeAuthRepositoryMock, makeAuthSessionServiceMock,
+  makeAuthTokenServiceMock, makeAuthMfaServiceMock,
+  makeEventBridgeMock, activeLocalAuth, TEST_IDS, TEST_EMAIL,
+} from '@fixtures/index.js';
+import { UserNotFoundByEmailError } from '@domain/errors/user.errors.js';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let authRepo: ReturnType<typeof makeAuthRepositoryMock>;
+  let sessionService: ReturnType<typeof makeAuthSessionServiceMock>;
+  let tokenService: ReturnType<typeof makeAuthTokenServiceMock>;
+  let mfaService: ReturnType<typeof makeAuthMfaServiceMock>;
+  let eventBridge: ReturnType<typeof makeEventBridgeMock>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        {
-          provide: AUTH_REPOSITORY,
-          useValue: { findByIdentifier: jest.fn(), save: jest.fn() },
-        },
-        { provide: AUTH_SESSION_SERVICE, useValue: { create: jest.fn() } },
-        { provide: AUTH_TOKEN_SERVICE, useValue: { issue: jest.fn() } },
-        { provide: AUTH_MFA_SERVICE, useValue: { challenge: jest.fn() } },
-        {
-          provide: DomainEventBridgeService,
-          useValue: {
-            publishFromEntity: jest.fn().mockResolvedValue(undefined),
-            publish: jest.fn().mockResolvedValue(undefined),
-            publishBatch: jest.fn().mockResolvedValue(undefined),
-            publishInProcess: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+  beforeEach(() => {
+    authRepo = makeAuthRepositoryMock();
+    sessionService = makeAuthSessionServiceMock();
+    tokenService = makeAuthTokenServiceMock();
+    mfaService = makeAuthMfaServiceMock();
+    eventBridge = makeEventBridgeMock();
+    authRepo.save.mockImplementation(async (e: unknown) => e as never);
+    eventBridge.publishFromEntity.mockResolvedValue(undefined);
 
-    service = module.get(AuthService);
+    service = new AuthService(
+      authRepo as never,
+      sessionService as never,
+      tokenService as never,
+      mfaService as never,
+      eventBridge as never,
+    );
   });
 
-  it('has correct name', () => {
-    expect(service.name).toBe('AuthService');
+  it('name', () => expect(service.name).toBe('AuthService'));
+
+  describe('login()', () => {
+    it('should throw when auth not found', async () => {
+      authRepo.findByIdentifier.mockResolvedValue(null);
+      await expect(service.login({ identifier: TEST_EMAIL, password: 'x' } as never))
+        .rejects.toThrow(UserNotFoundByEmailError);
+    });
+
+    it('should return session + tokens on success', async () => {
+      const auth = activeLocalAuth();
+      authRepo.findByIdentifier.mockResolvedValue(auth as never);
+      sessionService.create.mockResolvedValue({ id: 's1', userId: TEST_IDS.USER_ID, status: 'active',
+        createdAt: '', lastAccessedAt: '', expiresAt: '', isCurrent: true } as never);
+      tokenService.issue.mockResolvedValue({ accessToken: 'a', refreshToken: 'r',
+        tokenType: 'Bearer', expiresIn: 900, expiresAt: 0 } as never);
+
+      const result = await service.login({ identifier: TEST_EMAIL, password: 'x' } as never);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('register()', () => {
+    it('should return DTO', async () => {
+      authRepo.findByIdentifier.mockResolvedValue(null);
+      const result = await service.register({
+        email: TEST_EMAIL, password: 'x', confirmPassword: 'x',
+      } as never);
+      expect(result.success).toBe(true);
+      expect(result.requiresVerification).toBe(true);
+    });
   });
 });

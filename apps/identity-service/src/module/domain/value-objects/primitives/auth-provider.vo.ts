@@ -29,6 +29,10 @@ export class AuthProviderVO extends BaseTypeVO<string> {
   static facebook(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.FACEBOOK); }
   static apple(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.APPLE); }
   static github(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.GITHUB); }
+  static microsoft(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.MICROSOFT); }
+  static twitter(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.TWITTER); }
+  static linkedin(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.LINKEDIN); }
+  static custom(): AuthProviderVO { return new AuthProviderVO(AUTH_PROVIDER.CUSTOM); }
 
   static reconstitute(raw: string): AuthProviderVO {
     return new AuthProviderVO(raw);

@@ -14,6 +14,8 @@ import type { AuthSessionServiceInterface } from '../../services/interfaces/auth
 import { AUTH_SESSION_SERVICE } from '../../services/interfaces/auth-session.service.interface.js';
 import type { AuthTokenServiceInterface } from '../../services/interfaces/auth-token.service.interface.js';
 import { AUTH_TOKEN_SERVICE } from '../../services/interfaces/auth-token.service.interface.js';
+import type { AuthMfaServiceInterface } from '../../services/interfaces/auth-mfa.service.interface.js';
+import { AUTH_MFA_SERVICE } from '../../services/interfaces/auth-mfa.service.interface.js';
 import { UserNotFoundByEmailError } from '../../../domain/errors/user.errors.js';
 
 @CommandHandler(LoginCommand)
@@ -28,6 +30,7 @@ export class LoginHandler
     @Inject(AUTH_REPOSITORY) private readonly authRepo: AuthRepository,
     @Inject(AUTH_SESSION_SERVICE) private readonly sessionService: AuthSessionServiceInterface,
     @Inject(AUTH_TOKEN_SERVICE) private readonly tokenService: AuthTokenServiceInterface,
+    @Inject(AUTH_MFA_SERVICE) private readonly mfaService: AuthMfaServiceInterface,
     private readonly eventBridge: DomainEventBridgeService,
   ) {
     super();
@@ -44,20 +47,59 @@ export class LoginHandler
       throw new UserNotFoundByEmailError(identifier);
     }
 
-    // 2. Create session
+    // 2. MFA gate: if enabled and no code provided → return challenge
+    if (auth.isMfaEnabled && !command.input.mfaCode) {
+      const challenge = await this.mfaService.challenge(auth.id);
+      this.logger.log(`MFA required for authId=${auth.id}`);
+      return {
+        success: true,
+        user: {
+          id: auth.userId.value,
+          email: auth.identifier.normalized,
+          status: 'active',
+          type: 'individual',
+          roles: ['customer'],
+          emailVerified: auth.isEmailVerified,
+          phoneVerified: auth.isPhoneVerified,
+          isMfaEnabled: auth.isMfaEnabled,
+          createdAt: auth.createdAt,
+        },
+        session: {
+          id: '',
+          userId: auth.userId.value,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          lastAccessedAt: new Date().toISOString(),
+          expiresAt: new Date().toISOString(),
+          isCurrent: false,
+        },
+        tokens: {
+          accessToken: '',
+          refreshToken: '',
+          tokenType: 'Bearer',
+          expiresIn: 0,
+          expiresAt: 0,
+        },
+        requiresMfa: true,
+        challengeId: challenge.challengeId,
+        mfaMethods: challenge.mfaMethods,
+      };
+    }
+
+    // 3. Create session
     const session = await this.sessionService.create(auth.userId.value, {
       ipAddress: command.ipAddress,
       userAgent: command.userAgent,
       rememberMe: command.input.rememberMe ?? false,
     });
 
-    // 3. Issue tokens
+    // 4. Issue tokens
     const tokens = await this.tokenService.issue({
       userId: auth.userId.value,
       sessionId: session.id,
     });
 
-    // 4. Update last login
+    // 5. Update last login
     auth.recordLogin(undefined);
     const saved = await this.authRepo.save(auth);
     await this.eventBridge.publishFromEntity(saved);

@@ -1,0 +1,179 @@
+prisma:warn Prisma detected unknown OS "android" and may not work as expected. Defaulting to "linux".
+prisma:warn Prisma detected unknown OS "android" and may not work as expected. Defaulting to "linux".
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthCommonModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRedisModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mQueueModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEmailModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSmsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPushModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthPrismaModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPersistenceModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEventBusModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRedisRepositoriesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthEmailModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthSmsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mInfrastructureModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[AuthTokenService] [39m[32m✅ JWT_SECRET loaded (length: 51)[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEventBridgeModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaRepositoriesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCqrsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mInterfacesModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mQueuesWorkersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCqrsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHealthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPublicProfileModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthDeviceModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthAccountLockModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthSocialModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthRoleModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserProfileModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserSettingsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserPreferencesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserAddressModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserContactModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserKycModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUserActivityModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthBiometricModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHealthController {/api/v1/health}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/api/v1/auth}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/register, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/refresh, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/logout, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/forgot-password, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/reset-password, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/verify-email, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/resend-verification, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthMfaController {/api/v1/auth/mfa}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/setup, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/enable, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/disable, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/verify, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/verify-backup-code, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/settings, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/mfa/recovery-codes, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthRecoveryCodeController {/api/v1/auth/recovery-codes}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/recovery-codes/generate, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/recovery-codes, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthSessionController {/api/v1/auth/sessions}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/sessions/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/sessions, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/sessions/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthTokenController {/api/v1/auth/tokens}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/tokens, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthSettingsController {/api/v1/auth/settings}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/settings, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/settings, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserController {/api/v1/users}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id/activate, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id/deactivate, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id/suspend, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/:id/unsuspend, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthDeviceController {/api/v1/auth/devices}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/devices/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/devices, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/devices/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/devices/:id/trust, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthSocialController {/api/v1/auth/social}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/social/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/social/link, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/social/unlink, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthSsoController {/api/v1/auth/sso}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/sso/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/sso/callback, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthBiometricController {/api/v1/auth/biometric}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/biometric/enable, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/biometric/disable, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/biometric/verify, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthRoleController {/api/v1/auth/roles}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/roles, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/roles/assign, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/roles/revoke, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthPermissionController {/api/v1/auth/permissions}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/permissions, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/permissions/assign, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/permissions/revoke, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthAccountLockController {/api/v1/auth/account-lock}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/account-lock/lock, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/account-lock/unlock, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/account-lock/status/:userId, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthLoginAttemptController {/api/v1/auth/login-attempts}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/login-attempts, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserProfileController {/api/v1/users/profile}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/profile, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/profile, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserSettingsController {/api/v1/users/settings}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/settings, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/settings, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserPreferencesController {/api/v1/users/preferences}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/preferences, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/preferences, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/preferences/reset, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserAddressController {/api/v1/users/addresses}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/addresses, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/addresses/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/addresses, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/addresses/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/addresses/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserContactController {/api/v1/users/contacts}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/contacts, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/contacts, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/contacts/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/contacts/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/contacts/:id/verify, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserKycController {/api/v1/users/kyc}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/kyc/submit, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/kyc/verify, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/kyc/reject, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/kyc/status, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUserActivityController {/api/v1/users/activity}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/users/activity, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPublicProfileController {/api/v1/public/profiles}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/public/profiles/:userId, GET} route[39m[38;5;3m +0ms[39m
+[33m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [33m   WARN[39m [38;5;3m[PrismaService] [39m[33m⚠️ Prisma connection skipped (engine unavailable in this environment): Unable to require(`/data/data/com.termux/files/home/vubon.com.bd/node_modules/.prisma/client/libquery_engine-debian-open[39m
+[33m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [33m   WARN[39m [38;5;3m[PrismaService] [39m[33m⚠️ Service will start WITHOUT database — endpoints will return 503 until a compatible engine is available.[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[DomainEventBridgeService] [39m[32m✅ CQRS EventBus resolved — in-process sagas active[39m
+[33m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [33m   WARN[39m [38;5;3m[PrismaService] [39m[33m⚠️ Prisma connection skipped (engine unavailable in this environment): Unable to require(`/data/data/com.termux/files/home/vubon.com.bd/node_modules/.prisma/client/libquery_engine-debian-open[39m
+[33m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [33m   WARN[39m [38;5;3m[PrismaService] [39m[33m⚠️ Service will start WITHOUT database — endpoints will return 503 until a compatible engine is available.[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[AnalyticsProcessorWorker] [39m[32mWorker "analytics" started[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[SessionCleanupWorker] [39m[32mWorker "session" started[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[TokenCleanupWorker] [39m[32mWorker "token" started[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[AccountLockWorker] [39m[32mWorker "auth" started[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[LoginAttemptWorker] [39m[32mWorker "auth" started[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[DeviceSyncWorker] [39m[32mWorker "sync" started[39m
+[32m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +0ms[39m
+[31m[Nest] 15475  - [39m10/18/2026, 8:02:51 PM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +58ms[39m
+node:net:2009
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:2009:16)
+    at listenInCluster (node:net:2066:12)
+    at Server.listen (node:net:2171:7)
+    at ExpressAdapter.listen (file:///data/data/com.termux/files/home/vubon.com.bd/node_modules/@nestjs/platform-express/adapters/express-adapter.js:153:32)
+    at file:///data/data/com.termux/files/home/vubon.com.bd/node_modules/@nestjs/core/nest-application.js:297:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (file:///data/data/com.termux/files/home/vubon.com.bd/node_modules/@nestjs/core/nest-application.js:287:16)
+    at async bootstrap (file:///data/data/com.termux/files/home/vubon.com.bd/apps/identity-service/dist/main.js:37:5) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v26.3.1

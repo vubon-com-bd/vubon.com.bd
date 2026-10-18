@@ -1,14 +1,9 @@
-/**
- * Root Jest Config — Product Service
- * @type {import('jest').Config}
- *
- * This is the root jest config used for CI/test:all.
- * For unit or e2e specific runs, use:
- *   - test/unit/jest.config.ts
- *   - test/jest-e2e.json
- */
+// ═══════════════════════════════════════════════════════════════
+// Jest Configuration — Identity Service (mjs variant)
+// ═══════════════════════════════════════════════════════════════
+
 export default {
-  displayName: 'product-service',
+  displayName: 'identity-service',
   testEnvironment: 'node',
   rootDir: '.',
   testMatch: [
@@ -28,12 +23,16 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  setupFiles: ['<rootDir>/test/jest-env-setup.ts'],
-  setupFilesAfterEnv: ['<rootDir>/test/jest-after-env.ts'],
-  globalSetup: '<rootDir>/test/jest-global-setup.ts',
   testTimeout: 30000,
-  collectCoverage: false,
   verbose: true,
   forceExit: true,
   maxWorkers: 1,
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.module.ts',
+    '!src/**/*.interface.ts',
+    '!src/main.ts',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
 };

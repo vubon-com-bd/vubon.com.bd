@@ -16,3 +16,4 @@ export * from './sso.config.js';
 export * from './biometric.config.js';
 export * from './rate-limit.config.js';
 export * from './user.config.js';
+export * from './kyc.config.js';

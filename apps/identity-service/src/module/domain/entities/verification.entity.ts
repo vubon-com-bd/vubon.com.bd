@@ -117,6 +117,14 @@ export class VerificationEntity extends AggregateRoot<string> {
   }
 
   verify(now: string = new Date().toISOString()): void {
+    // ⚠️ Expiry check FIRST — prevents verifying an expired code
+    if (this.isExpired(Date.parse(now))) {
+      throw new BusinessRuleError(
+        'Cannot verify expired verification',
+        'VERIFICATION_EXPIRED',
+        { verificationId: this.id, expiresAt: this._expiresAt },
+      );
+    }
     if (!this._status.isPending() && !this._status.isResubmitted()) {
       throw new BusinessRuleError(
         'Verification cannot be verified in current status',

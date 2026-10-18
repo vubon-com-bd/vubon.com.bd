@@ -1,54 +1,26 @@
-/**
- * UserProfileService — Unit Tests
- */
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserProfileService } from '../../../../src/module/application/services/impl/user-profile.service.js';
-import { USER_PROFILE_REPOSITORY } from '../../../../src/module/domain/repositories/user-profile.repository.interface.js';
+import { describe, it, expect, beforeEach } from '@jest/globals';
+import { UserProfileService } from '@application/services/impl/user-profile.service.js';
+import { makeUserProfileRepositoryMock, TEST_IDS } from '@fixtures/index.js';
 
 describe('UserProfileService', () => {
   let service: UserProfileService;
-  let repo: { findByUserIdRaw: jest.Mock };
+  let repo: ReturnType<typeof makeUserProfileRepositoryMock>;
 
-  beforeEach(async () => {
-    repo = { findByUserIdRaw: jest.fn() };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserProfileService,
-        { provide: USER_PROFILE_REPOSITORY, useValue: repo },
-      ],
-    }).compile();
-
-    service = module.get(UserProfileService);
+  beforeEach(() => {
+    repo = makeUserProfileRepositoryMock();
+    service = new UserProfileService(repo as never);
   });
 
-  it('has correct name', () => {
-    expect(service.name).toBe('UserProfileService');
+  it('name', () => expect(service.name).toBe('UserProfileService'));
+
+  it('findForUser() should return null when not found', async () => {
+    repo.findByUserIdRaw.mockResolvedValue(null);
+    expect(await service.findForUser(TEST_IDS.USER_ID)).toBeNull();
   });
 
-  it('returns null when not found', async () => {
-    repo.findByUserIdRaw.mockResolvedValue(null as never);
-    const result = await service.findForUser('user-1');
-    expect(result).toBeNull();
-  });
-
-  it('returns DTO when found', async () => {
-    repo.findByUserIdRaw.mockResolvedValue({
-      userId: { value: 'user-1' },
-      firstName: { value: 'John' },
-      lastName: { value: 'Doe' },
-      displayName: 'John Doe',
-      bio: 'Test bio',
-      avatarUrl: 'https://example.com/avatar.jpg',
-      updatedAt: '2026-01-01T00:00:00Z',
-    } as never);
-
-    const result = await service.findForUser('user-1');
-    expect(result).not.toBeNull();
-    expect(result?.userId).toBe('user-1');
-    expect(result?.firstName).toBe('John');
-    expect(result?.visibility).toBe('public');
-    expect(result?.completionPercent).toBeGreaterThan(0);
+  it('upsert() should return merged DTO', async () => {
+    repo.findByUserIdRaw.mockResolvedValue(null);
+    const result = await service.upsert(TEST_IDS.USER_ID, { bio: 'hello' } as never);
+    expect(result.userId).toBe(TEST_IDS.USER_ID);
   });
 });

@@ -1,121 +1,137 @@
 /**
- * SessionEntity — Unit Tests
+ * SessionEntity unit tests
  */
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll, jest } from '@jest/globals';
-import { SessionEntity } from '../../../../src/module/domain/entities/session.entity.js';
-import { SessionIdVO } from '../../../../src/module/domain/value-objects/primitives/session-id.vo.js';
-import { AuthIdVO } from '../../../../src/module/domain/value-objects/primitives/auth-id.vo.js';
-import { UserIdVO } from '../../../../src/module/domain/value-objects/primitives/user-id.vo.js';
-import { SessionExpiryVO } from '../../../../src/module/domain/value-objects/primitives/session-expiry.vo.js';
-import { SessionStatusVO } from '../../../../src/module/domain/value-objects/primitives/session-status.vo.js';
-
-const UUID_1 = '11111111-1111-4111-8111-111111111111';
-const UUID_2 = '22222222-2222-4222-8222-222222222222';
-const UUID_3 = '33333333-3333-4333-8333-333333333333';
-
-function buildSession(): SessionEntity {
-  return SessionEntity.create({
-    id: SessionIdVO.create(UUID_1),
-    props: {
-      authId: AuthIdVO.create(UUID_2),
-      userId: UserIdVO.create(UUID_3),
-      expiry: SessionExpiryVO.create({
-        absoluteExpiresAt: Math.floor(Date.now() / 1000) + 86400,
-        idleTimeoutSeconds: 1800,
-      }),
-      rememberMe: false,
-    },
-    now: '2026-01-01T00:00:00Z',
-  });
-}
+import { describe, it, expect } from '@jest/globals';
+import { SessionEntity } from '@domain/entities/session.entity.js';
+import { SessionExpiryVO } from '@domain/value-objects/primitives/session-expiry.vo.js';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
+import {
+  TEST_IDS,
+  TEST_DATES,
+  TEST_DURATIONS,
+  makeSessionEntity,
+  activeSession,
+  revokedSession,
+  expiredSession,
+  createNewSession,
+} from '@fixtures/index';
 
 describe('SessionEntity', () => {
   describe('create()', () => {
-    it('creates with active status', () => {
-      const s = buildSession();
-      expect(s.isActive()).toBe(true);
+    it('should create active session', () => {
+      const s = createNewSession();
+      expect(s.status.isActive()).toBe(true);
+      expect(s.version).toBe(1);
     });
 
-    it('emits SessionCreatedEvent', () => {
-      const s = buildSession();
+    it('should emit SessionCreatedEvent', () => {
+      const s = createNewSession();
       const events = s.pullDomainEvents();
       expect(events.some((e) => e.type === 'session.created')).toBe(true);
     });
   });
 
+  describe('predicates', () => {
+    it('isActive', () => {
+      expect(activeSession().isActive()).toBe(true);
+      expect(revokedSession().isActive()).toBe(false);
+    });
+
+    it('isExpired respects expiry', () => {
+      const s = makeSessionEntity({
+        expiresAtEpoch: Math.floor(Date.now() / 1000) - 3600,
+      });
+      expect(s.isExpired()).toBe(true);
+    });
+
+    it('canAccess combines status + expiry', () => {
+      expect(activeSession().canAccess()).toBe(true);
+      expect(revokedSession().canAccess()).toBe(false);
+    });
+  });
+
   describe('touchAccess()', () => {
-    it('updates lastAccessedAt', () => {
-      const s = buildSession();
-      s.touchAccess('2026-01-02T00:00:00Z');
-      expect(s.lastAccessedAt).toBe('2026-01-02T00:00:00Z');
+    it('should update lastAccessedAt', () => {
+      const s = activeSession();
+      const before = s.lastAccessedAt;
+      s.touchAccess(TEST_DATES.IN_FIVE_MINUTES);
+      expect(s.lastAccessedAt).toBe(TEST_DATES.IN_FIVE_MINUTES);
+      expect(s.lastAccessedAt).not.toBe(before);
     });
 
-    it('throws on final session', () => {
-      const s = buildSession();
-      s.revoke('test');
-      expect(() => s.touchAccess()).toThrow();
+    it('should throw on revoked', () => {
+      const s = revokedSession();
+      expect(() => s.touchAccess()).toThrow(BusinessRuleError);
     });
   });
 
-  describe('revoke()', () => {
-    it('marks revoked with reason', () => {
-      const s = buildSession();
-      s.revoke('user_logout');
-      expect(s.isFinal()).toBe(true);
-      expect(s.revokedReason).toBe('user_logout');
-    });
-
-    it('throws on already revoked', () => {
-      const s = buildSession();
-      s.revoke('test');
-      expect(() => s.revoke('again')).toThrow();
-    });
-
-    it('emits SessionRevokedEvent', () => {
-      const s = buildSession();
+  describe('refresh()', () => {
+    it('should update expiry + refreshedAt', () => {
+      const s = activeSession();
+      const newExpiry = SessionExpiryVO.create({
+        absoluteExpiresAt: TEST_DATES.FAR_FUTURE_EXPIRY_EPOCH,
+        idleTimeoutSeconds: TEST_DURATIONS.THIRTY_MINUTES,
+      });
       s.pullDomainEvents();
-      s.revoke('test');
+      s.refresh(newExpiry);
+      expect(s.refreshedAt).toBeDefined();
       const events = s.pullDomainEvents();
-      expect(events.some((e) => e.type === 'session.revoked')).toBe(true);
+      expect(events.some((e) => e.type === 'session.refreshed')).toBe(true);
     });
-  });
 
-  describe('logout()', () => {
-    it('marks session revoked with logout', () => {
-      const s = buildSession();
-      s.logout();
-      expect(s.isFinal()).toBe(true);
-      expect(s.revokedReason).toBe('logout');
+    it('should throw on revoked', () => {
+      const s = revokedSession();
+      const exp = SessionExpiryVO.create({
+        absoluteExpiresAt: TEST_DATES.FAR_FUTURE_EXPIRY_EPOCH,
+        idleTimeoutSeconds: TEST_DURATIONS.THIRTY_MINUTES,
+      });
+      expect(() => s.refresh(exp)).toThrow(BusinessRuleError);
     });
   });
 
   describe('expire()', () => {
-    it('transitions to expired', () => {
-      const s = buildSession();
+    it('should transition active → expired', () => {
+      const s = activeSession();
+      s.pullDomainEvents();
       s.expire();
       expect(s.status.isExpired()).toBe(true);
+      const events = s.pullDomainEvents();
+      expect(events.some((e) => e.type === 'session.expired')).toBe(true);
+    });
+
+    it('should be idempotent on final', () => {
+      const s = revokedSession();
+      s.pullDomainEvents();
+      s.expire();
+      expect(s.pullDomainEvents().length).toBe(0);
     });
   });
 
-  describe('reconstitute()', () => {
-    it('does not emit events', () => {
-      const s = SessionEntity.reconstitute({
-        id: UUID_1,
-        createdAt: '2026-01-01T00:00:00Z',
-        updatedAt: '2026-01-01T00:00:00Z',
-        props: {
-          authId: AuthIdVO.create(UUID_2),
-          userId: UserIdVO.create(UUID_3),
-          status: SessionStatusVO.active(),
-          expiry: SessionExpiryVO.create({
-            absoluteExpiresAt: 9999999999,
-            idleTimeoutSeconds: 1800,
-          }),
-          rememberMe: false,
-          lastAccessedAt: '2026-01-01T00:00:00Z',
-        },
-      });
-      expect(s.pullDomainEvents()).toHaveLength(0);
+  describe('revoke()', () => {
+    it('should revoke active', () => {
+      const s = activeSession();
+      s.pullDomainEvents();
+      s.revoke('security_breach');
+      expect(s.status.isRevoked()).toBe(true);
+      expect(s.revokedReason).toBe('security_breach');
+      const events = s.pullDomainEvents();
+      expect(events.some((e) => e.type === 'session.revoked')).toBe(true);
+    });
+
+    it('should throw when already revoked', () => {
+      const s = revokedSession();
+      expect(() => s.revoke('again')).toThrow(BusinessRuleError);
+    });
+  });
+
+  describe('logout()', () => {
+    it('should revoke + emit logout event', () => {
+      const s = activeSession();
+      s.pullDomainEvents();
+      s.logout();
+      expect(s.status.isRevoked()).toBe(true);
+      const events = s.pullDomainEvents();
+      expect(events.some((e) => e.type === 'session.logout')).toBe(true);
     });
   });
 });

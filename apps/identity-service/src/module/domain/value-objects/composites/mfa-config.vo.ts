@@ -51,7 +51,9 @@ export class MfaConfigVO extends BaseVO<MfaConfigVOProps> {
         'secret',
       );
     }
-    if (v.backupMethods.includes(v.primaryMethod)) {
+    // ✅ Use structural equality instead of Array.includes (reference equality)
+    const isPrimaryInBackup = v.backupMethods.some((m) => m.equals(v.primaryMethod));
+    if (isPrimaryInBackup) {
       throw new ValidationError(
         'primaryMethod cannot be in backupMethods',
         'backupMethods',

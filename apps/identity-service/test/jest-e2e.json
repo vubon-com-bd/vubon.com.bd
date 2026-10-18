@@ -2,30 +2,40 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
   "testEnvironment": "node",
-  "testRegex": "test/e2e/.*\\.e2e-spec\\.ts$",
+  "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": [
       "ts-jest",
       {
         "useESM": true,
-        "tsconfig": "<rootDir>/tsconfig.json"
+        "tsconfig": "<rootDir>/tsconfig.spec.json"
       }
     ]
   },
-  "setupFiles": [
-    "<rootDir>/test/jest-env-setup.ts"
-  ],
-  "setupFilesAfterEnv": [
-    "<rootDir>/test/jest-after-env.ts"
-  ],
-  "globalSetup": "<rootDir>/test/jest-global-setup.ts",
-  "extensionsToTreatAsEsm": [".ts"],
   "moduleNameMapper": {
-    "^(\\.{1,2}/.*)\\.js$": "$1"
+    "^@domain/(.*)\\.js$": "<rootDir>/src/module/domain/$1",
+    "^@domain/(.*)$": "<rootDir>/src/module/domain/$1",
+    "^@application/(.*)\\.js$": "<rootDir>/src/module/application/$1",
+    "^@application/(.*)$": "<rootDir>/src/module/application/$1",
+    "^@infrastructure/(.*)\\.js$": "<rootDir>/src/module/infrastructure/$1",
+    "^@infrastructure/(.*)$": "<rootDir>/src/module/infrastructure/$1",
+    "^@interfaces/(.*)\\.js$": "<rootDir>/src/module/interfaces/$1",
+    "^@interfaces/(.*)$": "<rootDir>/src/module/interfaces/$1",
+    "^@modules/(.*)\\.js$": "<rootDir>/src/module/modules/$1",
+    "^@modules/(.*)$": "<rootDir>/src/module/modules/$1",
+    "^@/(.*)\\.js$": "<rootDir>/src/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/$1",
+    "^@fixtures/(.*)$": "<rootDir>/test/fixtures/$1",
+    "^@test-infra/(.*)\\.js$": "<rootDir>/test/fixtures/infrastructure/$1",
+    "^@test-infra/(.*)$": "<rootDir>/test/fixtures/infrastructure/$1"
   },
-  "testTimeout": 30000,
-  "collectCoverage": false,
-  "verbose": true,
-  "forceExit": true,
-  "detectOpenHandles": false
+  "extensionsToTreatAsEsm": [".ts"],
+  "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],
+  "testTimeout": 60000,
+  "verbose": false,
+  "maxWorkers": 1,
+  "detectOpenHandles": false,
+  "forceExit": true
 }

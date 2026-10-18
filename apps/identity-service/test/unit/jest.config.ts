@@ -1,29 +1,125 @@
-/**
- * Unit Test Jest Config
- * @module identity-service/test/unit
- */
-export default {
+import type { Config } from 'jest';
+
+const config: Config = {
   displayName: 'unit',
-  testEnvironment: 'node',
+  moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '../..',
   testMatch: ['<rootDir>/test/unit/**/*.spec.ts'],
   transform: {
     '^.+\\.(t|j)s$': [
       'ts-jest',
-      {
-        useESM: true,
-        tsconfig: '<rootDir>/tsconfig.json',
-      },
+      { useESM: true, tsconfig: '<rootDir>/tsconfig.spec.json' },
     ],
   },
-  extensionsToTreatAsEsm: ['.ts'],
+  collectCoverageFrom: [
+    // ─── Domain (95%+) ──────────────────────
+    'src/module/domain/value-objects/primitives/*.vo.ts',
+    'src/module/domain/value-objects/composites/*.vo.ts',
+    'src/module/domain/entities/*.entity.ts',
+    'src/module/domain/services/*.service.ts',
+    'src/module/domain/specifications/*.specification.ts',
+
+    // ─── Application (92%+) ─────────────────
+    'src/module/application/services/impl/**/*.ts',
+    'src/module/application/commands/**/*.handler.ts',
+    'src/module/application/queries/**/*.handler.ts',
+    'src/module/application/mappers/**/*.ts',
+    'src/module/application/validators/**/*.ts',
+    'src/module/application/errors/**/*.ts',
+    'src/module/application/sagas/**/*.saga.ts',
+
+    // ─── Interfaces (85%+) ──────────────────
+    'src/module/interfaces/mappers/*.controller.mapper.ts',
+    'src/module/interfaces/validators/*.validator.ts',
+    'src/module/interfaces/guards/*.guard.ts',
+    'src/module/interfaces/interceptors/*.interceptor.ts',
+    'src/module/interfaces/controllers/rest/*.controller.ts',
+
+    // ─── Modules (95%+) ─────────────────────
+    'src/module/modules/**/*.module.ts',
+    'src/module/modules/**/*.health.ts',
+
+    // ─── Infrastructure (tested files only) ─
+    'src/module/infrastructure/services/internal/password-hasher.service.ts',
+    'src/module/infrastructure/services/internal/password-validator.service.ts',
+    'src/module/infrastructure/services/internal/token-generator.service.ts',
+    'src/module/infrastructure/services/internal/mfa-validator.service.ts',
+    'src/module/infrastructure/services/internal/otp-generator.service.ts',
+    'src/module/infrastructure/services/internal/recovery-code-generator.service.ts',
+    'src/module/infrastructure/services/internal/device-fingerprint.service.ts',
+    'src/module/infrastructure/services/internal/idempotency.service.ts',
+    'src/module/infrastructure/services/internal/rate-limiter.service.ts',
+    'src/module/infrastructure/external/email/email.service.ts',
+    'src/module/infrastructure/external/sms/sms.service.ts',
+    'src/module/infrastructure/external/email/templates/*.template.ts',
+    'src/module/infrastructure/config/*.config.ts',
+    'src/module/infrastructure/persistence/prisma/mappers/*.mapper.ts',
+
+    // ─── Exclude from ALL ───────────────────
+    '!**/index.ts',
+    '!**/*.interface.ts',
+    '!**/*.errors.ts',
+    '!**/*.types.ts',
+    '!**/*.events.ts',
+    '!**/event.helpers.ts',
+    '!**/event-store/**',
+    '!**/repositories/**',
+    '!**/*.command.ts',
+    '!**/*.query.ts',
+    '!**/*.saga-command.ts',
+    '!src/main.ts',
+    '!src/app.module.ts',
+    '!src/module/interfaces/errors/**',
+    '!src/module/interfaces/swagger/**',
+    '!src/module/interfaces/decorators/**',
+    '!src/module/interfaces/middlewares/**',
+    '!src/module/interfaces/controllers/graphql/**',
+    '!src/module/interfaces/dtos/**/*.dto.ts',
+    '!src/module/infrastructure/persistence/prisma/prisma-repositories.module.ts',
+    '!src/module/infrastructure/infrastructure.module.ts',
+    '!src/module/infrastructure/queues-workers.module.ts',
+    '!src/module/infrastructure/persistence/prisma/prisma.client.ts',
+    '!src/module/infrastructure/persistence/prisma/base.prisma.repository.ts',
+    '!src/module/infrastructure/persistence/prisma/prisma.service.ts',
+    '!src/module/infrastructure/persistence/prisma/repositories/**',
+    '!src/module/infrastructure/persistence/cache/repositories/**',
+    '!src/module/infrastructure/queues/**',
+    '!src/module/infrastructure/workers/**',
+    '!src/module/interfaces/interfaces.module.ts',
+  ],
+  coverageDirectory: '<rootDir>/coverage/unit',
+  coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 75,
+      functions: 85,
+      lines: 85,
+      statements: 85,
+    },
+  },
+  testEnvironment: 'node',
   moduleNameMapper: {
+    '^@domain/(.*)\\.js$': '<rootDir>/src/module/domain/$1',
+    '^@application/(.*)\\.js$': '<rootDir>/src/module/application/$1',
+    '^@infrastructure/(.*)\\.js$': '<rootDir>/src/module/infrastructure/$1',
+    '^@interfaces/(.*)\\.js$': '<rootDir>/src/module/interfaces/$1',
+    '^@modules/(.*)\\.js$': '<rootDir>/src/module/modules/$1',
+    '^@fixtures/(.*)\\.js$': '<rootDir>/test/fixtures/$1',
+    '^@test-infra/(.*)\\.js$': '<rootDir>/test/fixtures/infrastructure/$1',
+    '^@/(.*)\\.js$': '<rootDir>/src/$1',
+    '^@domain/(.*)$': '<rootDir>/src/module/domain/$1',
+    '^@application/(.*)$': '<rootDir>/src/module/application/$1',
+    '^@infrastructure/(.*)$': '<rootDir>/src/module/infrastructure/$1',
+    '^@interfaces/(.*)$': '<rootDir>/src/module/interfaces/$1',
+    '^@modules/(.*)$': '<rootDir>/src/module/modules/$1',
+    '^@fixtures/(.*)$': '<rootDir>/test/fixtures/$1',
+    '^@test-infra/(.*)$': '<rootDir>/test/fixtures/infrastructure/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  // ✅ AUTO INJECT jest globals
-  injectGlobals: true,
-  setupFilesAfterEnv: ['<rootDir>/test/unit/setup.ts'],
+  extensionsToTreatAsEsm: ['.ts'],
   testTimeout: 10000,
-  verbose: true,
-  collectCoverage: false,
+  verbose: false,
 };
+
+export default config;

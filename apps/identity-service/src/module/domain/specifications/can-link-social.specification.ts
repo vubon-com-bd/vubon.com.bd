@@ -25,8 +25,8 @@ export class CanLinkSocialSpecification extends Specification<CanLinkSocialCandi
   isSatisfiedBy(c: CanLinkSocialCandidate): boolean {
     const { auth, context } = c;
 
-    if (!auth.isActive()) return false;
     if (auth.isFinal()) return false;
+    if (!auth.isActive()) return false;
     if (!CanLinkSocialSpecification.SUPPORTED.includes(context.provider as never)) return false;
     if (context.alreadyLinked) return false;
     if (!context.providerUserId || context.providerUserId.trim().length === 0) return false;
@@ -37,11 +37,12 @@ export class CanLinkSocialSpecification extends Specification<CanLinkSocialCandi
   explain(c: CanLinkSocialCandidate): string | null {
     const { auth, context } = c;
 
-    if (!auth.isActive()) {
-      return `Auth status "${auth.status.value}" is not active`;
-    }
+    // Terminal FIRST
     if (auth.isFinal()) {
       return `Auth status "${auth.status.value}" is terminal`;
+    }
+    if (!auth.isActive()) {
+      return `Auth status "${auth.status.value}" is not active`;
     }
     if (!CanLinkSocialSpecification.SUPPORTED.includes(context.provider as never)) {
       return `Unsupported social provider: ${context.provider}`;

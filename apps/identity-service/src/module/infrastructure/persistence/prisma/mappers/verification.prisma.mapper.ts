@@ -3,7 +3,6 @@
  * @module identity-service/infrastructure/persistence/prisma/mappers
  */
 import { VerificationEntity } from '../../../../domain/entities/verification.entity.js';
-import { VerificationIdVO } from '../../../../domain/value-objects/primitives/verification-id.vo.js';
 import { AuthIdVO } from '../../../../domain/value-objects/primitives/auth-id.vo.js';
 import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo.js';
 import { VerificationChannelVO } from '../../../../domain/value-objects/primitives/verification-channel.vo.js';
@@ -39,7 +38,7 @@ export class VerificationPrismaMapper {
       props: {
         authId: AuthIdVO.reconstitute(raw.userId),
         userId: UserIdVO.reconstitute(raw.userId),
-        target: IdentifierVO.username(`user-${raw.userId.slice(0, 8)}`),
+        target: this.buildTarget(raw),
         channel: this.parseChannel(channel),
         purpose: this.parsePurpose(purpose),
         status: this.parseStatus(raw.status),
@@ -70,16 +69,38 @@ export class VerificationPrismaMapper {
     };
   }
 
+  private static buildTarget(raw: PrismaVerificationRow): IdentifierVO {
+    // For phone verifications, use a valid phone identifier
+    if (raw.type === 'phone') {
+      return IdentifierVO.phone('+8801700000000');
+    }
+    // For email verifications, use a deterministic placeholder email
+    // (real target would come from user record in production)
+    const safeLocalPart = `user${raw.userId.replace(/-/g, '').slice(0, 8)}`;
+    return IdentifierVO.email(`${safeLocalPart}@vubon.local`);
+  }
+
   private static parseChannel(v: string): VerificationChannelVO {
-    try { return VerificationChannelVO.reconstitute(v); }
-    catch { return VerificationChannelVO.email(); }
+    try {
+      return VerificationChannelVO.reconstitute(v);
+    } catch {
+      return VerificationChannelVO.email();
+    }
   }
+
   private static parsePurpose(v: string): VerificationPurposeVO {
-    try { return VerificationPurposeVO.reconstitute(v); }
-    catch { return VerificationPurposeVO.emailVerify(); }
+    try {
+      return VerificationPurposeVO.reconstitute(v);
+    } catch {
+      return VerificationPurposeVO.emailVerify();
+    }
   }
+
   private static parseStatus(v: string): VerificationStatusVO {
-    try { return VerificationStatusVO.reconstitute(v); }
-    catch { return VerificationStatusVO.pending(); }
+    try {
+      return VerificationStatusVO.reconstitute(v);
+    } catch {
+      return VerificationStatusVO.pending();
+    }
   }
 }

@@ -7,6 +7,7 @@
  * once `otplib` is added to package.json.
  */
 import { Injectable, Logger } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
 import { AUTH_MFA } from '@vubon/shared-constants/auth';
 
 @Injectable()
@@ -39,14 +40,8 @@ export class MfaValidatorService {
 
 function randomBase32(length: number): string {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-  const bytes = randomBytesFromNode(length);
+  const bytes = randomBytes(length);
   let out = '';
   for (const b of bytes) out += alphabet[b % alphabet.length];
   return out;
-}
-
-function randomBytesFromNode(length: number): Uint8Array {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const crypto = require('node:crypto') as { randomBytes: (n: number) => Buffer };
-  return crypto.randomBytes(length);
 }
