@@ -11,6 +11,7 @@ import { CartEventSubscriberService } from '../../application/services/impl/cart
 
 // ─── External Event Handlers ───
 import { UserDeletedHandler } from '../../application/events/external/user-deleted.handler.js';
+import { UserCreatedHandler } from '../../application/events/external/user-registered.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
 
 import { CART_COMMAND_HANDLERS } from './commands/index.js';
@@ -48,6 +49,7 @@ import { CartLockInterceptor } from '../../interfaces/interceptors/cart-lock.int
     // ─── External Event Handlers ───
     CartEventSubscriberService,
     UserDeletedHandler,
+    UserCreatedHandler,
     VendorSuspendedHandler,
 
     CartFeatureHealthIndicator,

@@ -82,6 +82,19 @@ export type InventoryOutOfStockEvent = ExternalEvent<InventoryOutOfStockPayload>
 
 // ═══ Identity Service Events ═══
 
+export interface UserStatusChangedPayload {
+  readonly userId: string;
+  readonly fromStatus: string;
+  readonly toStatus: string;
+  readonly changedBy?: string;
+  readonly reason?: string;
+}
+
+export type UserStatusChangedEvent = ExternalEvent<UserStatusChangedPayload> & {
+  readonly type: 'user.status_changed';
+};
+
+// ─── Deprecated: kept for compatibility, not emitted by identity ───
 export interface UserDeletedPayload {
   readonly userId: string;
   readonly deletedAt: string;

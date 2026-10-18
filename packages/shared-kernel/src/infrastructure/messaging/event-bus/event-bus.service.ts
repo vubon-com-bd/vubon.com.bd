@@ -25,7 +25,7 @@ export class EventBusService {
   private readonly logger = new Logger(EventBusService.name);
   private readonly registry = new Map<string, EventHandler[]>();
   private workerRegistered = false;
-  private serviceName = 'unknown';
+  private serviceName = process.env['SERVICE_NAME'] ?? 'unknown';
 
   constructor(private readonly queues: QueueService) {}
 

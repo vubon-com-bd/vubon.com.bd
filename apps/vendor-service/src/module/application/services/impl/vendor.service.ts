@@ -126,7 +126,12 @@ export class VendorService implements IVendorService {
         joinedAt: now,
       });
 
-      entity = VendorEntity.create({ id: vo.id, props: { vo } as never, now });
+      entity = VendorEntity.reconstitute({
+        id: vo.id.value,
+        createdAt: now,
+        updatedAt: now,
+        props: { vo },
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Unknown error';
       throw new VendorRegistrationError(msg);

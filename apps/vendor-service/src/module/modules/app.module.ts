@@ -63,7 +63,7 @@ import { PublicVendorModule } from './public-vendor/index.js';
     }),
 
     // ─── Common (global) ────────────────────
-    VendorCommonModule,
+    VendorCommonModule.forRoot(),
 
     // ─── Health ─────────────────────────────
     HealthModule,

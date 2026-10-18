@@ -37,7 +37,13 @@ export class InMemoryVendorRepository
 
   async existsByUserId(userId: string): Promise<boolean> {
     const all = await this.findAll();
-    return all.some((e) => String((e as any).userId ?? (e as any).vo?.userId?.value) === userId);
+    return all.some((e) => e.vo.userId.value === userId);
+  }
+
+  async findByUserId(userId: UserIdVO | string): Promise<VendorEntity | null> {
+    const idStr = typeof userId === 'string' ? userId : userId.value;
+    const all = await this.findAll();
+    return all.find((e) => e.vo.userId.value === idStr) ?? null;
   }
 
   async findPaginated(options: unknown): Promise<unknown> {

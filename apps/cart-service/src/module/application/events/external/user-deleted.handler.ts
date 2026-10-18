@@ -1,17 +1,20 @@
 /**
- * UserDeletedHandler — reacts to identity.user.deleted
+ * UserDeletedHandler — reacts to user.status_changed where toStatus='deleted'
+ * @module cart-service/application/events/external
+ *
+ * Identity service emits 'user.status_changed' for all status transitions.
+ * This handler filters only for the 'deleted' transition and clears user's carts.
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 
-import type { UserDeletedEvent } from './external-event.types.js';
-
+import type { UserStatusChangedEvent } from './external-event.types.js';
 import {
   CART_REPOSITORY,
   type CartRepository,
 } from '../../../domain/repositories/cart.repository.interface.js';
 
-export const USER_DELETED_EVENT = 'identity.user.deleted';
+export const USER_STATUS_CHANGED_EVENT = 'user.status_changed';
 
 @Injectable()
 export class UserDeletedHandler implements OnModuleInit {
@@ -24,15 +27,27 @@ export class UserDeletedHandler implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.eventBus.registerHandler(USER_DELETED_EVENT, async (event) => {
-      await this.handle(event as unknown as UserDeletedEvent);
+    this.eventBus.registerHandler(USER_STATUS_CHANGED_EVENT, async (event) => {
+      await this.handle(event as unknown as UserStatusChangedEvent);
     });
-    this.logger.log(`✅ Registered handler for "${USER_DELETED_EVENT}"`);
+    this.logger.log(`✅ Registered handler for "${USER_STATUS_CHANGED_EVENT}"`);
   }
 
-  private async handle(event: UserDeletedEvent): Promise<void> {
-    const { userId } = event.payload;
-    this.logger.log(`Received ${USER_DELETED_EVENT} — userId=${userId}`);
+  private async handle(event: UserStatusChangedEvent): Promise<void> {
+    const { userId, fromStatus, toStatus } = event.payload;
+
+    // Filter: only process 'deleted' transitions
+    if (toStatus !== 'deleted') {
+      this.logger.debug(
+        `Skipped ${USER_STATUS_CHANGED_EVENT} — userId=${userId} ${fromStatus}→${toStatus}`,
+      );
+      return;
+    }
+
+    this.logger.log(
+      `Received user deletion (${fromStatus}→${toStatus}) — userId=${userId}`,
+    );
+
     try {
       const carts = await this.cartRepo.findByUserId(userId);
       let cleared = 0;
