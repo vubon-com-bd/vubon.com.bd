@@ -1,0 +1,34 @@
+/**
+ * Cancel Application Errors
+ * @module order-service/application/errors
+ */
+import { ApplicationNotFoundError } from '@vubon/shared-kernel/application/errors/not-found.error';
+import { CommandError } from '@vubon/shared-kernel/application/errors/command.error';
+
+export class CancelNotFoundApplicationError extends ApplicationNotFoundError {
+  constructor(cancelId: string) {
+    super('OrderCancel', cancelId);
+    this.name = 'CancelNotFoundApplicationError';
+  }
+}
+
+export class CancelRequestError extends CommandError {
+  constructor(orderId: string, reason: string) {
+    super(`Cannot request cancel for order ${orderId}: ${reason}`, 'CancelRequest');
+    this.name = 'CancelRequestError';
+  }
+}
+
+export class CancelApproveError extends CommandError {
+  constructor(cancelId: string, reason: string) {
+    super(`Cannot approve cancel ${cancelId}: ${reason}`, 'CancelApprove');
+    this.name = 'CancelApproveError';
+  }
+}
+
+export class CancelRejectError extends CommandError {
+  constructor(cancelId: string, reason: string) {
+    super(`Cannot reject cancel ${cancelId}: ${reason}`, 'CancelReject');
+    this.name = 'CancelRejectError';
+  }
+}
