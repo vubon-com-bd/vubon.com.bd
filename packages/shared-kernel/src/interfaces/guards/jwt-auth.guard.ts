@@ -3,8 +3,7 @@
  * @module shared-kernel/interfaces/guards
  *
  * Respects @Public() decorator (via Reflector).
- * Actual user resolution is done by upstream middleware/strategy that sets
- * `request.user`. If `request.user` is missing on a non-public route → 401.
+ * Also respects DISABLE_AUTH=true env (for local testing).
  */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
@@ -24,6 +23,22 @@ export class JwtAuthGuard implements CanActivate {
   constructor(private readonly reflector?: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
+    // 0. DISABLE_AUTH bypass (dev/test only — BLOCKED in production)
+    if (
+      process.env['NODE_ENV'] !== 'production' &&
+      process.env['DISABLE_AUTH'] === 'true'
+    ) {
+      const request = context.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
+      if (!request.user) {
+        request.user = {
+          userId: 'dev-user-1',
+          roles: ['admin', 'super_admin'],
+          permissions: ['*'],
+        };
+      }
+      return true;
+    }
+
     // 1. @Public() opt-out
     if (this.reflector) {
       const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
