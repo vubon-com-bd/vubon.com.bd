@@ -23,9 +23,6 @@ import { VENDOR_SERVICE } from '../../application/services/interfaces/vendor.ser
 import { OwnVendorGuard } from '../../interfaces/guards/own-vendor.guard.js';
 import { VendorCacheInterceptor } from '../../interfaces/interceptors/vendor-cache.interceptor.js';
 
-// External Event Handlers
-import { UserCreatedHandler } from '../../application/events/external/user-created.handler.js';
-
 // Feature health
 import { VendorFeatureHealthIndicator } from './health/index.js';
 
@@ -52,9 +49,6 @@ import { VendorFeatureHealthIndicator } from './health/index.js';
     // Guards / Interceptors
     OwnVendorGuard,
     VendorCacheInterceptor,
-
-    // External Event Handlers
-    UserCreatedHandler,
 
     // Feature health
     VendorFeatureHealthIndicator,
