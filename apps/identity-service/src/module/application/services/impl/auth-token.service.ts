@@ -5,7 +5,7 @@
  * Real JWT signing using `jsonwebtoken` + `JWT_SECRET` from env.
  */
 import { Injectable, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';

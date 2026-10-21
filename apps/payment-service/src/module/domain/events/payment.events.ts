@@ -14,6 +14,7 @@ export const PAYMENT_EVENT_TYPE = {
   AUTHORIZED: 'payment.payment.authorized',
   CAPTURED: 'payment.payment.captured',
   PAID: 'payment.payment.paid',
+  COMPLETED: 'payment.payment.completed',
   FAILED: 'payment.payment.failed',
   CANCELLED: 'payment.payment.cancelled',
   REFUNDED: 'payment.payment.refunded',
@@ -159,3 +160,28 @@ export class PaymentRefundedEvent extends BaseDomainEvent<
     super(buildParams(PAYMENT_EVENT_TYPE.REFUNDED, p));
   }
 }
+
+// ═══════════════════════════════════════════════
+// PaymentCompletedEvent — rich event for order fulfillment
+// ═══════════════════════════════════════════════
+
+export interface PaymentCompletedPayload {
+  readonly paymentId: string;
+  readonly orderId: string;
+  readonly userId: string;
+  readonly amount: number;
+  readonly currency: string;
+  readonly method: string;
+  readonly transactionId?: string;
+  readonly completedAt: string;
+}
+
+export class PaymentCompletedEvent extends BaseDomainEvent<
+  typeof PAYMENT_EVENT_TYPE.COMPLETED,
+  PaymentCompletedPayload
+> {
+  constructor(p: EventParams<PaymentCompletedPayload>) {
+    super(buildParams(PAYMENT_EVENT_TYPE.COMPLETED, p));
+  }
+}
+

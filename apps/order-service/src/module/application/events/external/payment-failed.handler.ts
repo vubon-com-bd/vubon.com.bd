@@ -11,7 +11,7 @@ import {
 } from '../../../domain/repositories/order.repository.interface.js';
 import { OrderIdVO } from '../../../domain/value-objects/primitives/order-id.vo.js';
 
-export const PAYMENT_FAILED_EVENT = 'payment-service.payment.failed';
+export const PAYMENT_FAILED_EVENT = 'payment.payment.failed';
 
 interface PaymentFailedPayload {
   readonly paymentId: string;
@@ -26,7 +26,7 @@ interface PaymentFailedPayload {
 
 interface PaymentFailedEvent {
   readonly id: string;
-  readonly type: 'payment-service.payment.failed';
+  readonly type: 'payment.payment.failed';
   readonly aggregateId: string;
   readonly aggregateType: string;
   readonly payload: PaymentFailedPayload;

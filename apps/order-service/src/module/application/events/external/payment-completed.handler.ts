@@ -11,7 +11,7 @@ import {
 } from '../../../domain/repositories/order.repository.interface.js';
 import { OrderIdVO } from '../../../domain/value-objects/primitives/order-id.vo.js';
 
-export const PAYMENT_COMPLETED_EVENT = 'payment-service.payment.completed';
+export const PAYMENT_COMPLETED_EVENT = 'payment.payment.completed';
 
 interface PaymentCompletedPayload {
   readonly paymentId: string;
@@ -26,7 +26,7 @@ interface PaymentCompletedPayload {
 
 interface PaymentCompletedEvent {
   readonly id: string;
-  readonly type: 'payment-service.payment.completed';
+  readonly type: 'payment.payment.completed';
   readonly aggregateId: string;
   readonly aggregateType: string;
   readonly payload: PaymentCompletedPayload;

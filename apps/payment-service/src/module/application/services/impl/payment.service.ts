@@ -131,11 +131,22 @@ export class PaymentService implements IPaymentService {
   ): Promise<PaymentResponseDTO> {
     try {
       const entity = await this.loadEntity(dto.paymentId);
+
+      // Auto-advance state machine: pending → processing → authorized
+      if (entity.status.value === 'pending') {
+        entity.startProcessing();
+      }
+      if (entity.status.value === 'processing') {
+        entity.authorize();
+      }
+
+      // Now capture or mark paid based on payment mode
       if (dto.gatewayReference) {
         entity.capture(dto.confirmedAmount ?? entity.amount.amount, dto.gatewayReference);
       } else {
         entity.markPaid();
       }
+
       const saved = await this.repo.save(entity);
       await this.eventBridge.publishFromEntity(saved);
       this.logger.log(`Payment ${saved.id} confirmed by ${actorId ?? 'system'}`);

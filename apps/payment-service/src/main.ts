@@ -33,7 +33,8 @@ async function bootstrap(): Promise<void> {
 
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  app.setGlobalPrefix('api');
+  // Note: NO global prefix — align with product/cart/vendor/order services
+  // (identity uses /api/v1, payment is now root-level)
   app.enableCors({
     origin: true,
     credentials: true,

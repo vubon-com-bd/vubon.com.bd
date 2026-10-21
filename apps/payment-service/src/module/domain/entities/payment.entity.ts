@@ -32,6 +32,7 @@ import {
   PaymentCreatedEvent,
   PaymentStatusChangedEvent,
   PaymentCapturedEvent,
+  PaymentCompletedEvent,
   PaymentFailedEvent,
   PaymentRefundedEvent,
 } from '@domain/events/payment.events';
@@ -252,6 +253,24 @@ export class PaymentEntity extends AggregateRoot<string> {
     this._status = PaymentStatusVO.paid();
     this._paidAt = now;
     this.emitStatusChange(from, 'paid');
+
+    // Rich event for downstream services (order, notification, analytics)
+    this.addDomainEvent(
+      new PaymentCompletedEvent({
+        aggregateId: this.id,
+        payload: {
+          paymentId: this.id,
+          orderId: this._orderId.value,
+          userId: this._userId.value,
+          amount: this._amount.amount,
+          currency: this._currency.value,
+          method: this._method.value as unknown as string,
+          completedAt: now,
+        },
+        version: this.version + 1,
+      }),
+    );
+
     this.touch(now);
     this.incrementVersion();
   }
