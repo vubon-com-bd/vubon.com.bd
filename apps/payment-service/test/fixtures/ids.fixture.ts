@@ -1,0 +1,69 @@
+/**
+ * Test IDs — deterministic UUIDs for reproducible tests
+ */
+export const TEST_IDS = {
+  // Payment
+  PAYMENT_ID: '11111111-1111-4111-8111-111111111111',
+  PAYMENT_ID_2: '11111111-1111-4111-8111-111111111112',
+  PAYMENT_ID_3: '11111111-1111-4111-8111-111111111113',
+
+  // Method / Gateway
+  METHOD_ID: '22222222-2222-4222-8222-222222222221',
+  METHOD_ID_2: '22222222-2222-4222-8222-222222222222',
+  GATEWAY_ID: '22222222-3333-4333-8333-333333333331',
+
+  // Transaction
+  TRANSACTION_ID: '33333333-3333-4333-8333-333333333331',
+  TRANSACTION_ID_2: '33333333-3333-4333-8333-333333333332',
+
+  // Refund
+  REFUND_ID: '44444444-4444-4444-8444-444444444441',
+  REFUND_ID_2: '44444444-4444-4444-8444-444444444442',
+
+  // Split
+  SPLIT_ID: '55555555-5555-4555-8555-555555555551',
+
+  // Recurring
+  RECURRING_ID: '66666666-6666-4666-8666-666666666661',
+
+  // Subscription
+  SUBSCRIPTION_ID: '77777777-7777-4777-8777-777777777771',
+  SUBSCRIPTION_ID_2: '77777777-7777-4777-8777-777777777772',
+
+  // Invoice
+  INVOICE_ID: '88888888-8888-4888-8888-888888888881',
+  INVOICE_ID_2: '88888888-8888-4888-8888-888888888882',
+
+  // Verification
+  VERIFICATION_ID: '99999999-9999-4999-8999-999999999991',
+
+  // Cross-service
+  ORDER_ID: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+  ORDER_ID_2: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+  USER_ID: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
+  USER_ID_2: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2',
+
+  // Misc
+  INVOICE_NUMBER: 'INV-2025-000001',
+  INVOICE_NUMBER_2: 'INV-2025-000002',
+  GATEWAY_REF: 'ch_stripe_test_123abc',
+  GATEWAY_REF_2: 'trx_bkash_987xyz',
+  IDEMPOTENCY_KEY: 'idem-key-12345678',
+  IDEMPOTENCY_KEY_2: 'idem-key-87654321',
+  CARD_TOKEN: 'tok_visa_4242424242424242',
+  WALLET_ADDRESS: '01712345678',
+  PHONE_NUMBER: '+8801712345678',
+} as const;
+
+/**
+ * Invalid / boundary IDs for negative tests
+ */
+export const INVALID_IDS = {
+  EMPTY: '',
+  NOT_UUID: 'not-a-uuid',
+  SHORT: 'abc',
+  WHITESPACE: '   ',
+  UUID_V1: 'c232ab00-9414-11ec-b3c8-9f6bdeced846', // v1 — should fail if v4 only
+  NULL: null as unknown as string,
+  UNDEFINED: undefined as unknown as string,
+} as const;

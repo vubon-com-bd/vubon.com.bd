@@ -31,7 +31,7 @@ export class JwtAuthGuard implements CanActivate {
       const request = context.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
       if (!request.user) {
         request.user = {
-          userId: 'dev-user-1',
+          userId: '00000000-0000-4000-8000-000000000001',
           roles: ['admin', 'super_admin'],
           permissions: ['*'],
         };

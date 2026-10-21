@@ -35,12 +35,17 @@ export class PrismaService
     } catch (err) {
       this.engineAvailable = false;
       const msg = err instanceof Error ? err.message : String(err);
-      this.logger.warn(
-        `⚠️ Prisma connection skipped (engine unavailable in this environment): ${msg.slice(0, 120)}`,
-      );
-      this.logger.warn(
-        '⚠️ Service will start WITHOUT database — endpoints will return 503 until a compatible engine is available.',
-      );
+      // Silent when explicitly disabled via env
+      if (process.env['PRISMA_SKIP_ENGINE_BOOTSTRAP'] === 'true') {
+        this.logger.debug('Prisma skipped (PRISMA_SKIP_ENGINE_BOOTSTRAP=true)');
+      } else {
+        this.logger.warn(
+          `⚠️ Prisma connection skipped (engine unavailable): ${msg.slice(0, 120)}`,
+        );
+        this.logger.warn(
+          '⚠️ Service will start WITHOUT database — endpoints will return 503 until compatible engine is available.',
+        );
+      }
     }
   }
 

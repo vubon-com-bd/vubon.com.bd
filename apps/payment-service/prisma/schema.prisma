@@ -1,0 +1,29 @@
+// ═══════════════════════════════════════════════════════════════
+// Payment Service — Prisma Schema (link to shared-kernel)
+// ═══════════════════════════════════════════════════════════════
+// NOTE: Single source of truth = packages/shared-kernel/prisma/schema.prisma
+//       This file exists for Prisma tooling path resolution only.
+//       Do NOT define models here.
+//
+// Payment models live in shared-kernel:
+//   - Payment (core)
+//   - PaymentMethod
+//   - Transaction
+//   - Refund
+//   - SplitPayment
+//   - RecurringPayment
+//   - Subscription
+//   - Invoice
+//   - WebhookEvent
+//   - Verification
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "linux-arm64-openssl-1.1.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
