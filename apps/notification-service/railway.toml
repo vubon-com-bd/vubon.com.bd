@@ -1,0 +1,14 @@
+# ═══════════════════════════════════════════════════════════════
+# Notification Service — Railway deployment config
+# ═══════════════════════════════════════════════════════════════
+
+[build]
+builder = "nixpacks"
+buildCommand = "pnpm build"
+
+[deploy]
+startCommand = "node apps/notification-service/dist/main.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5

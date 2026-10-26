@@ -1,0 +1,59 @@
+# ═══════════════════════════════════════════════════════════════
+# notification-service — .dockerignore
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Dependencies ─────────────────────────
+node_modules
+.pnpm-store
+
+# ─── Build output ─────────────────────────
+dist
+build
+*.tsbuildinfo
+
+# ─── Tests & coverage ─────────────────────
+coverage
+test
+test-results.json
+e2e-results.json
+reports
+
+# ─── Environment ──────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── Logs ─────────────────────────────────
+*.log
+logs
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── OS ───────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── IDE ──────────────────────────────────
+.vscode
+.idea
+*.swp
+*.swo
+
+# ─── Version control ──────────────────────
+.git
+.gitignore
+
+# ─── Redis ────────────────────────────────
+dump.rdb
+
+# ─── Misc (exclude from build context) ────
+docs
+postman
+scripts
+.github
+.cache
+tmp
+temp
+README.md
+*.md

@@ -1,0 +1,2524 @@
+{
+  "info": {
+    "_postman_id": "notification-service-v1-2026",
+    "name": "Notification Service",
+    "description": "Vubon.com.bd — Notification Service REST API\n\nBase URL: http://localhost:3003\nSwagger: http://localhost:3003/api/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3003",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "uniqueSuffix",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "timestamp",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "templateId",
+      "value": "00000000-0000-0000-0000-000000000002",
+      "type": "string"
+    },
+    {
+      "key": "scheduleId",
+      "value": "00000000-0000-0000-0000-000000000003",
+      "type": "string"
+    },
+    {
+      "key": "broadcastId",
+      "value": "00000000-0000-0000-0000-000000000004",
+      "type": "string"
+    },
+    {
+      "key": "digestId",
+      "value": "00000000-0000-0000-0000-000000000005",
+      "type": "string"
+    },
+    {
+      "key": "deviceId",
+      "value": "00000000-0000-0000-0000-000000000006",
+      "type": "string"
+    },
+    {
+      "key": "webhookId",
+      "value": "00000000-0000-0000-0000-000000000007",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "00000000-0000-0000-0000-000000000008",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Service health check. Public endpoint."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Send Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{uniqueSuffix}}-Send Notification"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"type\": \"transactional\",\n  \"category\": \"order\",\n  \"channels\": [\n    \"email\",\n    \"push\"\n  ],\n  \"priority\": \"normal\",\n  \"subject\": \"Test notification {{uniqueSuffix}}\",\n  \"body\": \"This is a test notification from Postman at {{timestamp}}\",\n  \"data\": {\n    \"source\": \"postman\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            },
+            "description": "Send single notification"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.notificationId) pm.collectionVariables.set('notificationId', json.notificationId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Bulk Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userIds\": [\n    \"{{userId}}\"\n  ],\n  \"type\": \"promotional\",\n  \"category\": \"marketing\",\n  \"channels\": [\n    \"email\"\n  ],\n  \"subject\": \"Bulk {{uniqueSuffix}}\",\n  \"body\": \"Bulk test at {{timestamp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "bulk"
+              ]
+            },
+            "description": "Send to multiple users"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Bulk Notifications — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Paginated list."
+          }
+        },
+        {
+          "name": "Get Notification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}"
+              ]
+            },
+            "description": "Get by ID (owner-only)"
+          }
+        },
+        {
+          "name": "Get Notification Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/detail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "detail"
+              ]
+            },
+            "description": "With recipients + attempts"
+          }
+        },
+        {
+          "name": "Get Public Notification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "public"
+              ]
+            },
+            "description": "Customer-safe view"
+          }
+        },
+        {
+          "name": "Cancel Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Test cancellation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancel pending notification"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cancel Notification — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"forceResend\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/resend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "resend"
+              ]
+            },
+            "description": "Resend failed notification"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Resend Notification — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Notification Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/stats?fromDate=2026-01-01T00:00:00Z&toDate=2026-12-31T23:59:59Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "stats"
+              ],
+              "query": [
+                {
+                  "key": "fromDate",
+                  "value": "2026-01-01T00:00:00Z"
+                },
+                {
+                  "key": "toDate",
+                  "value": "2026-12-31T23:59:59Z"
+                }
+              ]
+            },
+            "description": "Aggregated stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔴 Feed & Unread",
+      "item": [
+        {
+          "name": "User Feed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/feed?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "feed"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Current user feed"
+          }
+        },
+        {
+          "name": "Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/unread-count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "Current unread count"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📧 Email",
+      "item": [
+        {
+          "name": "Send Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{uniqueSuffix}}-Send Email"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": [\n    \"test@example.com\"\n  ],\n  \"subject\": \"Test Email {{uniqueSuffix}}\",\n  \"text\": \"This is a plain text test email sent at {{timestamp}}\",\n  \"html\": \"<p>Test email at {{timestamp}}</p>\",\n  \"priority\": \"normal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/emails",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "emails"
+              ]
+            },
+            "description": "Send a single email"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Email — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Template Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": [\n    \"test@example.com\"\n  ],\n  \"templateId\": \"{{templateId}}\",\n  \"templateData\": {\n    \"name\": \"Test User\",\n    \"orderId\": \"ORD-001\"\n  },\n  \"locale\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/emails/template",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "emails",
+                "template"
+              ]
+            },
+            "description": "Send email from template"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Template Email — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Bulk Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    {\n      \"email\": \"user1@example.com\",\n      \"templateData\": {\n        \"name\": \"User 1\"\n      }\n    },\n    {\n      \"email\": \"user2@example.com\",\n      \"templateData\": {\n        \"name\": \"User 2\"\n      }\n    }\n  ],\n  \"templateId\": \"{{templateId}}\",\n  \"commonData\": {\n    \"campaign\": \"test-{{uniqueSuffix}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/emails/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "emails",
+                "bulk"
+              ]
+            },
+            "description": "Send bulk emails"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Bulk Email — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📱 SMS",
+      "item": [
+        {
+          "name": "Send SMS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{uniqueSuffix}}-Send SMS"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"+8801712345678\",\n  \"message\": \"Test SMS at {{timestamp}}\",\n  \"type\": \"transactional\",\n  \"senderId\": \"VUBON\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sms"
+              ]
+            },
+            "description": "Send single SMS"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send SMS — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Bulk SMS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    {\n      \"phone\": \"+8801712345678\",\n      \"message\": \"Bulk test 1 at {{timestamp}}\"\n    },\n    {\n      \"phone\": \"+8801812345678\",\n      \"message\": \"Bulk test 2 at {{timestamp}}\"\n    }\n  ],\n  \"type\": \"transactional\",\n  \"senderId\": \"VUBON\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sms/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sms",
+                "bulk"
+              ]
+            },
+            "description": "Send bulk SMS"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Bulk SMS — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔔 Push",
+      "item": [
+        {
+          "name": "Send Push",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{uniqueSuffix}}-Send Push"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tokens\": [\n    \"sample-fcm-token-1\",\n    \"sample-fcm-token-2\"\n  ],\n  \"title\": \"Test Push {{uniqueSuffix}}\",\n  \"body\": \"Push test at {{timestamp}}\",\n  \"data\": {\n    \"notificationId\": \"{{notificationId}}\"\n  },\n  \"priority\": \"normal\",\n  \"silent\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/push",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "push"
+              ]
+            },
+            "description": "Send push notification"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Push — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Bulk Push",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tokens\": [\n    \"token-1\",\n    \"token-2\",\n    \"token-3\"\n  ],\n  \"title\": \"Bulk Push {{uniqueSuffix}}\",\n  \"body\": \"Bulk push test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/push/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "push",
+                "bulk"
+              ]
+            },
+            "description": "Send bulk push"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Bulk Push — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📬 In-App",
+      "item": [
+        {
+          "name": "Create In-App",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"title\": \"In-App {{uniqueSuffix}}\",\n  \"body\": \"In-app test at {{timestamp}}\",\n  \"type\": \"toast\",\n  \"position\": \"top_right\",\n  \"autoDismiss\": true,\n  \"displayDurationSeconds\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/in-app",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "in-app"
+              ]
+            },
+            "description": "Create in-app notification"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.notificationId) pm.collectionVariables.set('notificationId', json.notificationId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dismiss In-App",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/in-app/{{notificationId}}/dismiss",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "in-app",
+                "{{notificationId}}",
+                "dismiss"
+              ]
+            },
+            "description": "Dismiss in-app"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dismiss In-App — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📝 Templates",
+      "item": [
+        {
+          "name": "Create Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Template {{uniqueSuffix}}\",\n  \"slug\": \"test-template-{{uniqueSuffix}}\",\n  \"type\": \"email\",\n  \"category\": \"order\",\n  \"locale\": \"en\",\n  \"subject\": \"Order {{orderId}} update\",\n  \"body\": \"Hello {{userName}}, your order {{orderId}} is {{status}}.\",\n  \"variables\": [\n    {\n      \"name\": \"userName\",\n      \"type\": \"string\",\n      \"required\": true\n    },\n    {\n      \"name\": \"orderId\",\n      \"type\": \"string\",\n      \"required\": true\n    },\n    {\n      \"name\": \"status\",\n      \"type\": \"string\",\n      \"required\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "templates"
+              ]
+            },
+            "description": "Create template"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.templateId) pm.collectionVariables.set('templateId', json.templateId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Template",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Updated: Order {{orderId}}\",\n  \"body\": \"Hi {{userName}}, order {{orderId}} status: {{status}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "templates",
+                "{{templateId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Update Template — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Test Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"variables\": {\n    \"userName\": \"Test\",\n    \"orderId\": \"ORD-001\",\n    \"status\": \"shipped\"\n  },\n  \"locale\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "templates",
+                "{{templateId}}",
+                "test"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Test Template — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "templates"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List all templates"
+          }
+        },
+        {
+          "name": "Get Template",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/templates/{{templateId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "templates",
+                "{{templateId}}"
+              ]
+            },
+            "description": "Get template by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "⏰ Schedules",
+      "item": [
+        {
+          "name": "Create Schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Daily Reminder {{uniqueSuffix}}\",\n  \"type\": \"recurring\",\n  \"recurrence\": \"daily\",\n  \"scheduledAt\": \"2026-10-26T10:34:16.417Z\",\n  \"timezone\": \"Asia/Dhaka\",\n  \"templateId\": \"{{templateId}}\",\n  \"recipientIds\": [\n    \"{{userId}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schedules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schedules"
+              ]
+            },
+            "description": "Create schedule"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.scheduleId) pm.collectionVariables.set('scheduleId', json.scheduleId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Schedule\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{scheduleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schedules",
+                "{{scheduleId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Update Schedule — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{scheduleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schedules",
+                "{{scheduleId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cancel Schedule — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Schedules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedules?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schedules"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List schedules"
+          }
+        },
+        {
+          "name": "Get Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/schedules/{{scheduleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schedules",
+                "{{scheduleId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "📣 Broadcasts",
+      "item": [
+        {
+          "name": "Create Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Broadcast {{uniqueSuffix}}\",\n  \"type\": \"all_users\",\n  \"target\": \"all\",\n  \"channels\": [\n    \"email\",\n    \"push\"\n  ],\n  \"templateId\": \"{{templateId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts"
+              ]
+            },
+            "description": "Create broadcast (admin)"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.broadcastId) pm.collectionVariables.set('broadcastId', json.broadcastId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testMode\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/{{broadcastId}}/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "{{broadcastId}}",
+                "start"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Start Broadcast — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/{{broadcastId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "{{broadcastId}}",
+                "cancel"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cancel Broadcast — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Broadcasts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List broadcasts"
+          }
+        },
+        {
+          "name": "Get Broadcast",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/{{broadcastId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "{{broadcastId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Broadcast Result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/{{broadcastId}}/result",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "{{broadcastId}}",
+                "result"
+              ]
+            },
+            "description": "Analytics result"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📰 Digests",
+      "item": [
+        {
+          "name": "Create Digest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"frequency\": \"daily\",\n  \"type\": \"summary\",\n  \"categories\": [\n    \"order\",\n    \"shipping\"\n  ],\n  \"sendHour\": 9,\n  \"timezone\": \"Asia/Dhaka\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/digests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "digests"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.digestId) pm.collectionVariables.set('digestId', json.digestId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send Digest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/digests/{{digestId}}/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "digests",
+                "{{digestId}}",
+                "send"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Send Digest — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Digests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/digests?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "digests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Digest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/digests/{{digestId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "digests",
+                "{{digestId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Preferences",
+      "item": [
+        {
+          "name": "Get My Preference",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/preferences/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "preferences",
+                "me"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Preference Matrix",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/preferences/me/matrix",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "preferences",
+                "me",
+                "matrix"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Default Preferences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/preferences/defaults",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "preferences",
+                "defaults"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Update My Preference",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": true,\n  \"sms\": false,\n  \"push\": true,\n  \"inApp\": true,\n  \"quietHoursEnabled\": true,\n  \"quietHoursStart\": 22,\n  \"quietHoursEnd\": 8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/preferences/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "preferences",
+                "me"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Update My Preference — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Update Preferences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userIds\": [\n    \"{{userId}}\"\n  ],\n  \"updates\": {\n    \"email\": true,\n    \"push\": true\n  },\n  \"reason\": \"Test bulk update\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/preferences/bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "preferences",
+                "bulk"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Bulk Update Preferences — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unsubscribe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"marketing\",\n  \"category\": \"promotional\",\n  \"reason\": \"Test unsubscribe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/preferences/unsubscribe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "preferences",
+                "unsubscribe"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Unsubscribe — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📲 Devices",
+      "item": [
+        {
+          "name": "Register Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"type\": \"android\",\n  \"token\": \"fcm-token-{{uniqueSuffix}}\",\n  \"platform\": \"android\",\n  \"deviceName\": \"Postman Test Device\",\n  \"appVersion\": \"1.0.0\",\n  \"osVersion\": \"14\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.deviceId) pm.collectionVariables.set('deviceId', json.deviceId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Device Token",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newToken\": \"fcm-token-updated-{{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices/{{deviceId}}/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "{{deviceId}}",
+                "token"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Update Device Token — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unregister Device",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices/{{deviceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "{{deviceId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Unregister Device — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Devices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Device",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices/{{deviceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "{{deviceId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "🪝 Webhooks",
+      "item": [
+        {
+          "name": "Create Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Webhook {{uniqueSuffix}}\",\n  \"url\": \"https://webhook.site/test-{{uniqueSuffix}}\",\n  \"events\": [\n    \"order.created\",\n    \"order.updated\"\n  ],\n  \"secret\": \"super-secret-key-12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', () => pm.expect([200, 201]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try { const json = pm.response.json(); if (json.webhookId) pm.collectionVariables.set('webhookId', json.webhookId); } catch(e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Webhook",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Webhook\",\n  \"events\": [\n    \"order.created\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "{{webhookId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Update Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Test Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"order.created\",\n  \"payload\": {\n    \"orderId\": \"ORD-001\",\n    \"userId\": \"{{userId}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/{{webhookId}}/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "{{webhookId}}",
+                "test"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Test Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Webhooks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhooks?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Webhook",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "{{webhookId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Analytics",
+      "item": [
+        {
+          "name": "Delivery Rate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/delivery-rate?fromDate=2026-01-01T00:00:00Z&toDate=2026-12-31T23:59:59Z&channel=email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "delivery-rate"
+              ],
+              "query": [
+                {
+                  "key": "fromDate",
+                  "value": "2026-01-01T00:00:00Z"
+                },
+                {
+                  "key": "toDate",
+                  "value": "2026-12-31T23:59:59Z"
+                },
+                {
+                  "key": "channel",
+                  "value": "email"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Channel Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/channels?fromDate=2026-01-01T00:00:00Z&toDate=2026-12-31T23:59:59Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "channels"
+              ],
+              "query": [
+                {
+                  "key": "fromDate",
+                  "value": "2026-01-01T00:00:00Z"
+                },
+                {
+                  "key": "toDate",
+                  "value": "2026-12-31T23:59:59Z"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Engagement Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/engagement",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "engagement"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Template Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/template-performance?templateId={{templateId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "template-performance"
+              ],
+              "query": [
+                {
+                  "key": "templateId",
+                  "value": "{{templateId}}"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔗 Provider Webhooks (inbound)",
+      "item": [
+        {
+          "name": "SendGrid Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"email\": \"test@example.com\",\n    \"timestamp\": 1700000000,\n    \"event\": \"delivered\",\n    \"sg_event_id\": \"test-{{uniqueSuffix}}\",\n    \"sg_message_id\": \"msg-001\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/sendgrid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "sendgrid"
+              ]
+            },
+            "description": "SendGrid delivery events"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('SendGrid Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mailgun Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event-data\": {\n    \"event\": \"delivered\",\n    \"id\": \"msg-{{uniqueSuffix}}\",\n    \"recipient\": \"test@example.com\"\n  },\n  \"signature\": {\n    \"timestamp\": \"1700000000\",\n    \"token\": \"test-token\",\n    \"signature\": \"test-sig\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/mailgun",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "mailgun"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Mailgun Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SES Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Type\": \"Notification\",\n  \"Message\": \"{}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/ses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "ses"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('SES Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Twilio Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"MessageSid\": \"SM{{uniqueSuffix}}\",\n  \"AccountSid\": \"AC-test\",\n  \"From\": \"+15551234567\",\n  \"To\": \"+8801712345678\",\n  \"Status\": \"delivered\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/twilio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "twilio"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Twilio Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Vonage Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messageId\": \"msg-{{uniqueSuffix}}\",\n  \"status\": \"delivered\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/vonage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "vonage"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Vonage Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FCM Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messageId\": \"fcm-{{uniqueSuffix}}\",\n  \"state\": \"MessageDelivered\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/fcm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "fcm"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('FCM Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "APNs Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"apnsId\": \"apns-{{uniqueSuffix}}\",\n  \"deviceToken\": \"device-token-001\",\n  \"state\": \"delivered\",\n  \"timestamp\": 1700000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/providers/apns",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "providers",
+                "apns"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('APNs Webhook — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📦 Delivery Tracking",
+      "item": [
+        {
+          "name": "Get Delivery Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/delivery",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "delivery"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Delivery Attempts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/attempts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "attempts"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Retry Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/retry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "retry"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Retry Delivery — 2xx or expected error', () => {",
+                  "  pm.expect([200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 500, 503]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📊 Broadcast Results",
+      "item": [
+        {
+          "name": "Get Broadcast Result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/{{broadcastId}}/result",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "{{broadcastId}}",
+                "result"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "List Broadcast Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/broadcasts/results?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "broadcasts",
+                "results"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}

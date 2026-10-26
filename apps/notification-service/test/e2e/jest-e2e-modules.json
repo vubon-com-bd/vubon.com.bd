@@ -1,0 +1,86 @@
+{
+  "displayName": "e2e:modules",
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testRegex": "test/e2e/modules/.*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": "<rootDir>/tsconfig.spec.json"
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^@prisma/client$": "<rootDir>/test/e2e/modules/stubs/prisma-client-stub.ts",
+    "^@domain/primitives/(.*)\\.js$": "<rootDir>/src/module/domain/value-objects/primitives/$1",
+    "^@domain/primitives/(.*)$": "<rootDir>/src/module/domain/value-objects/primitives/$1",
+    "^@domain/composites/(.*)\\.js$": "<rootDir>/src/module/domain/value-objects/composites/$1",
+    "^@domain/composites/(.*)$": "<rootDir>/src/module/domain/value-objects/composites/$1",
+    "^@domain/errors/(.*)\\.js$": "<rootDir>/src/module/domain/errors/$1",
+    "^@domain/errors/(.*)$": "<rootDir>/src/module/domain/errors/$1",
+    "^@domain/events/(.*)\\.js$": "<rootDir>/src/module/domain/events/$1",
+    "^@domain/events/(.*)$": "<rootDir>/src/module/domain/events/$1",
+    "^@domain/entities/(.*)\\.js$": "<rootDir>/src/module/domain/entities/$1",
+    "^@domain/entities/(.*)$": "<rootDir>/src/module/domain/entities/$1",
+    "^@domain/repositories/(.*)\\.js$": "<rootDir>/src/module/domain/repositories/$1",
+    "^@domain/repositories/(.*)$": "<rootDir>/src/module/domain/repositories/$1",
+    "^@domain/services/(.*)\\.js$": "<rootDir>/src/module/domain/services/$1",
+    "^@domain/services/(.*)$": "<rootDir>/src/module/domain/services/$1",
+    "^@domain/(.*)\\.js$": "<rootDir>/src/module/domain/$1",
+    "^@domain/(.*)$": "<rootDir>/src/module/domain/$1",
+    "^@application/(.*)\\.js$": "<rootDir>/src/module/application/$1",
+    "^@application/(.*)$": "<rootDir>/src/module/application/$1",
+    "^@infrastructure/persistence/(.*)\\.js$": "<rootDir>/src/module/infrastructure/persistence/$1",
+    "^@infrastructure/persistence/(.*)$": "<rootDir>/src/module/infrastructure/persistence/$1",
+    "^@infrastructure/queues/(.*)\\.js$": "<rootDir>/src/module/infrastructure/queues/$1",
+    "^@infrastructure/queues/(.*)$": "<rootDir>/src/module/infrastructure/queues/$1",
+    "^@infrastructure/workers/(.*)\\.js$": "<rootDir>/src/module/infrastructure/workers/$1",
+    "^@infrastructure/workers/(.*)$": "<rootDir>/src/module/infrastructure/workers/$1",
+    "^@infrastructure/providers/(.*)\\.js$": "<rootDir>/src/module/infrastructure/providers/$1",
+    "^@infrastructure/providers/(.*)$": "<rootDir>/src/module/infrastructure/providers/$1",
+    "^@infrastructure/template-engine/(.*)\\.js$": "<rootDir>/src/module/infrastructure/template-engine/$1",
+    "^@infrastructure/template-engine/(.*)$": "<rootDir>/src/module/infrastructure/template-engine/$1",
+    "^@infrastructure/services/(.*)\\.js$": "<rootDir>/src/module/infrastructure/services/$1",
+    "^@infrastructure/services/(.*)$": "<rootDir>/src/module/infrastructure/services/$1",
+    "^@infrastructure/config/(.*)\\.js$": "<rootDir>/src/module/infrastructure/config/$1",
+    "^@infrastructure/config/(.*)$": "<rootDir>/src/module/infrastructure/config/$1",
+    "^@infrastructure/(.*)\\.js$": "<rootDir>/src/module/infrastructure/$1",
+    "^@infrastructure/(.*)$": "<rootDir>/src/module/infrastructure/$1",
+    "^@interfaces/controllers/(.*)\\.js$": "<rootDir>/src/module/interfaces/controllers/$1",
+    "^@interfaces/controllers/(.*)$": "<rootDir>/src/module/interfaces/controllers/$1",
+    "^@interfaces/guards/(.*)\\.js$": "<rootDir>/src/module/interfaces/guards/$1",
+    "^@interfaces/guards/(.*)$": "<rootDir>/src/module/interfaces/guards/$1",
+    "^@interfaces/interceptors/(.*)\\.js$": "<rootDir>/src/module/interfaces/interceptors/$1",
+    "^@interfaces/interceptors/(.*)$": "<rootDir>/src/module/interfaces/interceptors/$1",
+    "^@interfaces/dtos/(.*)\\.js$": "<rootDir>/src/module/interfaces/dtos/$1",
+    "^@interfaces/dtos/(.*)$": "<rootDir>/src/module/interfaces/dtos/$1",
+    "^@interfaces/(.*)\\.js$": "<rootDir>/src/module/interfaces/$1",
+    "^@interfaces/(.*)$": "<rootDir>/src/module/interfaces/$1",
+    "^@modules/(.*)\\.js$": "<rootDir>/src/module/modules/$1",
+    "^@modules/(.*)$": "<rootDir>/src/module/modules/$1",
+    "^@/(.*)\\.js$": "<rootDir>/src/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@test-fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/$1",
+    "^@test-fixtures/(.*)$": "<rootDir>/test/fixtures/$1",
+    "^@fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/$1",
+    "^@fixtures/(.*)$": "<rootDir>/test/fixtures/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "extensionsToTreatAsEsm": [
+    ".ts"
+  ],
+  "testTimeout": 30000,
+  "forceExit": true,
+  "detectOpenHandles": false,
+  "maxWorkers": 1,
+  "setupFiles": [
+    "<rootDir>/test/e2e/modules/setup/modules-e2e-setup.ts"
+  ]
+}

@@ -46,6 +46,11 @@
       "require": "./dist/analytics/index.js",
       "types": "./dist/analytics/index.d.ts"
     },
+    "./platform": {
+      "import": "./dist/platform/index.js",
+      "require": "./dist/platform/index.js",
+      "types": "./dist/platform/index.d.ts"
+    },
     "./reporting": {
       "import": "./dist/reporting/index.js",
       "require": "./dist/reporting/index.js",
@@ -145,6 +150,31 @@
       "types": "./dist/business/checkout/index.d.ts",
       "import": "./dist/business/checkout/index.js",
       "require": "./dist/business/checkout/index.js"
+    },
+    "./platform/seo": {
+      "import": "./dist/platform/seo/index.js",
+      "require": "./dist/platform/seo/index.js",
+      "types": "./dist/platform/seo/index.d.ts"
+    },
+    "./platform/analytics": {
+      "import": "./dist/platform/analytics/index.js",
+      "require": "./dist/platform/analytics/index.js",
+      "types": "./dist/platform/analytics/index.d.ts"
+    },
+    "./platform/reporting": {
+      "import": "./dist/platform/reporting/index.js",
+      "require": "./dist/platform/reporting/index.js",
+      "types": "./dist/platform/reporting/index.d.ts"
+    },
+    "./platform/search": {
+      "import": "./dist/platform/search/index.js",
+      "require": "./dist/platform/search/index.js",
+      "types": "./dist/platform/search/index.d.ts"
+    },
+    "./platform/discovery": {
+      "import": "./dist/platform/discovery/index.js",
+      "require": "./dist/platform/discovery/index.js",
+      "types": "./dist/platform/discovery/index.d.ts"
     }
   },
   "scripts": {
