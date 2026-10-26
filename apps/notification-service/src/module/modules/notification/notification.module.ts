@@ -5,6 +5,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { EventBusModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 
 // ─── Controller ─────────────────────────────
 import { NotificationController } from '@interfaces/controllers/rest/notification.controller.js';
@@ -14,6 +15,10 @@ import { NOTIFICATION_COMMAND_HANDLERS } from './commands/index.js';
 import { NOTIFICATION_QUERY_HANDLERS } from './queries/index.js';
 import { NOTIFICATION_SAGAS } from './sagas/index.js';
 import { NOTIFICATION_EVENT_HANDLERS } from './events/index.js';
+
+// ─── External Event Handlers ───────────────
+import { NotificationEventSubscriberService } from '@application/events/notification-event-subscriber.service.js';
+import { UserCreatedHandler } from '@application/events/external/user-created.handler.js';
 
 // ─── Service ────────────────────────────────
 import { NotificationService } from '@application/services/impl/notification.service.js';
@@ -36,7 +41,7 @@ import { NotificationCacheInterceptor } from '@interfaces/interceptors/notificat
 import { DeliveryTrackingInterceptor } from '@interfaces/interceptors/delivery-tracking.interceptor.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule],
+  imports: [CqrsModule, EventBridgeModule, EventBusModule],
   controllers: [NotificationController],
   providers: [
     // ─── Services + DI tokens ───────────────
@@ -54,6 +59,10 @@ import { DeliveryTrackingInterceptor } from '@interfaces/interceptors/delivery-t
 
     NotificationDeliveryService,
     { provide: NOTIFICATION_DELIVERY_SERVICE, useExisting: NotificationDeliveryService },
+
+    // ─── External Event Handlers ───────────
+    NotificationEventSubscriberService,
+    UserCreatedHandler,
 
     // ─── Handlers ──────────────────────────
     ...(NOTIFICATION_COMMAND_HANDLERS as readonly unknown[] as never[]),
