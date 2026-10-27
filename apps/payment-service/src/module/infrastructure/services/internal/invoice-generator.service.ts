@@ -5,8 +5,8 @@
  * Invoice number generation delegates to domain InvoiceNumberService.
  * PDF rendering is out of scope (would use puppeteer/pdfkit).
  */
-import { Injectable, Logger } from '@nestjs/common';
-import { InvoiceNumberService } from '@domain/services/invoice-number.service';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { InvoiceNumberService, INVOICE_NUMBER_SERVICE } from '@domain/services/invoice-number.service';
 
 export const INVOICE_GENERATOR_SERVICE = Symbol('INVOICE_GENERATOR_SERVICE');
 
@@ -25,10 +25,14 @@ export interface InvoiceTemplateData {
 
 @Injectable()
 export class InvoiceGeneratorService {
+  constructor(
+    @Inject(INVOICE_NUMBER_SERVICE)
+    private readonly invoiceNumberService: InvoiceNumberService,
+  ) {}
   private readonly logger = new Logger(InvoiceGeneratorService.name);
 
-  generateNumber(referenceDate: Date = new Date()): string {
-    return InvoiceNumberService.generate(referenceDate);
+  async generateNumber(referenceDate: Date = new Date()): Promise<string> {
+    return this.invoiceNumberService.generate(referenceDate);
   }
 
   /**

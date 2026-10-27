@@ -21,6 +21,7 @@ export class InvoiceMapper {
       taxAmount: e.amount.taxAmount,
       total: e.amount.total,
       currency: e.amount.currency,
+      tax: e.amount.tax,
       issuedAt: e.issuedAt,
       dueAt: e.dueAt,
       paidAt: e.paidAt,

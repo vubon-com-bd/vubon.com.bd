@@ -19,7 +19,7 @@ import { InvoiceNumberVO } from '@domain/primitives/invoice-number.vo';
 import { InvoiceAmountVO } from '@domain/primitives/invoice-amount.vo';
 import { UserIdVO } from '@domain/primitives/user-id.vo';
 import { OrderIdVO } from '@domain/primitives/order-id.vo';
-import { InvoiceNumberService } from '@domain/services/invoice-number.service.js';
+import { InvoiceNumberService, INVOICE_NUMBER_SERVICE } from '@domain/services/invoice-number.service.js';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 
 import type {
@@ -46,6 +46,8 @@ export class InvoiceService implements IInvoiceService {
   constructor(
     @Inject(INVOICE_REPOSITORY)
     private readonly repo: InvoiceRepository,
+    @Inject(INVOICE_NUMBER_SERVICE)
+    private readonly invoiceNumberService: InvoiceNumberService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,13 +58,28 @@ export class InvoiceService implements IInvoiceService {
     try {
       const now = new Date().toISOString();
       const id = randomUUID();
-      const invoiceNumber = InvoiceNumberService.generate();
+      const invoiceNumber = await this.invoiceNumberService.generate();
       const entity = InvoiceEntity.create({
         id: InvoiceIdVO.create(id),
         now,
         props: {
           invoiceNumber: InvoiceNumberVO.create(invoiceNumber),
-          amount: InvoiceAmountVO.create(dto.subtotal, dto.taxAmount, dto.currency),
+          amount: dto.useBdTax
+            ? InvoiceAmountVO.createWithBdTax({
+                subtotal: dto.subtotal,
+                currency: dto.currency,
+                vatRate: dto.vatRate ?? 0.15,
+                sdRate: dto.sdRate ?? 0,
+                aitRate: dto.aitRate ?? 0.05,
+                vdsRate: dto.vdsRate ?? 0,
+                includeAit: dto.includeAit ?? false,
+                includeVds: dto.includeVds ?? false,
+              })
+            : InvoiceAmountVO.create(
+                dto.subtotal,
+                dto.taxAmount ?? 0,
+                dto.currency,
+              ),
           userId: UserIdVO.create(dto.userId),
           orderId: dto.orderId ? OrderIdVO.create(dto.orderId) : undefined,
           dueAt: dto.dueAt,
@@ -84,7 +101,7 @@ export class InvoiceService implements IInvoiceService {
             invoiceNumber: saved.invoiceNumber.value,
             userId: dto.userId,
             orderId: dto.orderId,
-            total: dto.subtotal + dto.taxAmount,
+            total: saved.amount.total,
             currency: dto.currency,
             createdAt: now,
           },
@@ -195,6 +212,7 @@ export class InvoiceService implements IInvoiceService {
       taxAmount: e.amount.taxAmount,
       total: e.amount.total,
       currency: e.amount.currency,
+      tax: e.amount.tax,
       issuedAt: e.issuedAt,
       dueAt: e.dueAt,
       paidAt: e.paidAt,

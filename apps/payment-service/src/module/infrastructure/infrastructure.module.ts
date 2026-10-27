@@ -20,6 +20,7 @@ import { RetryService } from './services/internal/retry.service.js';
 import { CircuitBreakerService } from './services/internal/circuit-breaker.service.js';
 import { InvoiceGeneratorService } from './services/internal/invoice-generator.service.js';
 import { ReceiptGeneratorService } from './services/internal/receipt-generator.service.js';
+import { InvoiceNumberService, INVOICE_NUMBER_SERVICE } from '@domain/services/invoice-number.service';
 
 const INTERNAL_SERVICES = [
   PaymentCryptoService,
@@ -29,6 +30,8 @@ const INTERNAL_SERVICES = [
   FeeCalculatorService,
   RetryService,
   CircuitBreakerService,
+  InvoiceNumberService,
+  { provide: INVOICE_NUMBER_SERVICE, useExisting: InvoiceNumberService },
   InvoiceGeneratorService,
   ReceiptGeneratorService,
 ] as const;

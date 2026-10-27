@@ -4,6 +4,17 @@
  */
 import type { InvoiceStatusValue } from '@domain/primitives/invoice-status.vo';
 
+export interface InvoiceTaxBreakdownDTO {
+  readonly vatRate: number;
+  readonly vatAmount: number;
+  readonly sdRate: number;
+  readonly sdAmount: number;
+  readonly aitRate: number;
+  readonly aitAmount: number;
+  readonly vdsRate: number;
+  readonly vdsAmount: number;
+}
+
 export interface InvoiceResponseDTO {
   readonly id: string;
   readonly invoiceNumber: string;
@@ -14,6 +25,7 @@ export interface InvoiceResponseDTO {
   readonly taxAmount: number;
   readonly total: number;
   readonly currency: string;
+  readonly tax?: InvoiceTaxBreakdownDTO;
   readonly issuedAt?: string;
   readonly dueAt?: string;
   readonly paidAt?: string;

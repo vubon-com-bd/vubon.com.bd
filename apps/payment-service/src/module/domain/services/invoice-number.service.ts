@@ -1,23 +1,52 @@
 /**
- * InvoiceNumberService
+ * InvoiceNumberService — sequential, year-based invoice numbering
  * @module payment-service/domain/services
  *
- * Format: INV-YYYY-NNNNNN (strictly 6 numeric digits)
- * Uses crypto-safe numeric suffix.
+ * Format: INV-YYYY-NNNNNN (6-digit sequential, zero-padded)
+ * Sequence resets per year.
+ *
+ * Uses Redis INCR for atomic sequencing.
  */
-import { randomInt } from 'node:crypto';
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache';
 
+export const INVOICE_NUMBER_SERVICE = Symbol('INVOICE_NUMBER_SERVICE');
+const COUNTER_PREFIX = 'invoice-seq:';
+
+@Injectable()
 export class InvoiceNumberService {
+  private readonly logger = new Logger(InvoiceNumberService.name);
+
+  constructor(private readonly redis: RedisService) {}
+
   /**
-   * Generates a new invoice number for the given date.
-   * Always returns: INV-YYYY-NNNNNN (6 numeric digits).
+   * Generate sequential invoice number for the current year.
+   * Example: INV-2026-000123
    */
-  static generate(referenceDate: Date = new Date()): string {
+  async generate(referenceDate: Date = new Date()): Promise<string> {
     const year = referenceDate.getFullYear();
-    // 6-digit numeric suffix, crypto-safe, zero-padded
-    const seq = randomInt(1, 999999);
-    const padded = seq.toString().padStart(6, '0');
-    return `INV-${year}-${padded}`;
+    const counterKey = `${COUNTER_PREFIX}${year}`;
+
+    try {
+      const seq = await this.redis.raw.incr(counterKey);
+      const padded = seq.toString().padStart(6, '0');
+      return `INV-${year}-${padded}`;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'unknown';
+      this.logger.error(`Sequential invoice number failed, using fallback: ${msg}`);
+      // Fallback: timestamp-based
+      const seq = Date.now() % 1000000;
+      return `INV-${year}-${seq.toString().padStart(6, '0')}`;
+    }
+  }
+
+  /**
+   * Peek current counter (no increment)
+   */
+  async currentSequence(referenceDate: Date = new Date()): Promise<number> {
+    const year = referenceDate.getFullYear();
+    const value = await this.redis.raw.get(`${COUNTER_PREFIX}${year}`);
+    return value ? parseInt(value, 10) : 0;
   }
 
   static isInvoiceNumber(value: string): boolean {

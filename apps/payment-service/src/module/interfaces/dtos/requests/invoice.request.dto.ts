@@ -31,10 +31,52 @@ export class GenerateInvoiceHttpDTO {
   @Min(0)
   readonly subtotal!: number;
 
-  @ApiProperty({ example: 150.0 })
+  @ApiPropertyOptional({ example: 150.0, description: 'Explicit tax (legacy mode)' })
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  readonly taxAmount!: number;
+  readonly taxAmount?: number;
+
+  // ─── Bangladesh Tax Options ───
+  @ApiPropertyOptional({ example: true, description: 'Use BD tax calculation' })
+  @IsOptional()
+  readonly useBdTax?: boolean;
+
+  @ApiPropertyOptional({ example: 0.15, description: 'VAT rate (0.15 = 15%)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  readonly vatRate?: number;
+
+  @ApiPropertyOptional({ example: 0.05, description: 'Supplementary Duty rate' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  readonly sdRate?: number;
+
+  @ApiPropertyOptional({ example: 0.05, description: 'Advance Income Tax rate' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  readonly aitRate?: number;
+
+  @ApiPropertyOptional({ example: 0, description: 'VAT Deduction at Source rate' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  readonly vdsRate?: number;
+
+  @ApiPropertyOptional({ example: false, description: 'Include AIT deduction' })
+  @IsOptional()
+  readonly includeAit?: boolean;
+
+  @ApiPropertyOptional({ example: false, description: 'Include VDS deduction' })
+  @IsOptional()
+  readonly includeVds?: boolean;
 
   @ApiProperty({ example: 'BDT' })
   @IsString()

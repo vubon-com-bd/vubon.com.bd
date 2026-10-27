@@ -35,6 +35,14 @@ export class InvoiceControllerMapper {
       currency: dto.currency,
       dueAt: dto.dueAt,
       notes: dto.notes,
+      // BD Tax options
+      useBdTax: dto.useBdTax,
+      vatRate: dto.vatRate,
+      sdRate: dto.sdRate,
+      aitRate: dto.aitRate,
+      vdsRate: dto.vdsRate,
+      includeAit: dto.includeAit,
+      includeVds: dto.includeVds,
     };
   }
 
