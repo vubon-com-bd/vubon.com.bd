@@ -230,3 +230,6 @@ export const NOTIFICATION = {
 } as const;
 
 export type NotificationType = typeof NOTIFICATION;
+
+export * from './i18n/index.js';
+export * from './i18n/notification-templates-bn.js';

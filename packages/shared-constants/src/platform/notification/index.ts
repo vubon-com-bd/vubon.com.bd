@@ -23,3 +23,7 @@ export * from './notification-preference.constants.js';
 export * from './notification-device.constants.js';
 export * from './notification-analytics.constants.js';
 export * from './notification-report.constants.js';
+
+// ─── i18n (Multi-language) ───
+export * from './i18n/index.js';
+export * from './i18n/notification-templates-bn.js';

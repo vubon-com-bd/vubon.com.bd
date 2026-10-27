@@ -4,6 +4,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -41,6 +43,7 @@ export class CartAbandonedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,14 +59,28 @@ export class CartAbandonedHandler implements OnModuleInit {
     this.logger.log(`Received cart.cart.abandoned — ${JSON.stringify(payload)}`);
 
     try {
-      const result = await this.notificationService.send({
+      const locale = getLocale(payload as unknown as Record<string, unknown>);
+        const resolved = resolveTemplate(
+          this.i18n,
+          'CART_ABANDONED',
+          locale,
+          {
+            itemCount: (payload as any).itemCount
+          },
+          {
+            subject: 'Items Waiting in Your Cart',
+            body: 'You have {{itemCount}} item(s) in your cart.',
+          },
+        );
+
+        const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.REMINDER,
         category: NOTIFICATION_CATEGORY.REMINDER,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Items Waiting in Your Cart',
-        body: `You left {itemCount} item(s) in your cart. Complete your purchase now!`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'cart.cart.abandoned',
           eventId: event.id,

@@ -58,11 +58,18 @@ import { OwnNotificationGuard } from '@interfaces/guards/own-notification.guard.
 import { NotificationRateLimitGuard } from '@interfaces/guards/notification-rate-limit.guard.js';
 import { NotificationCacheInterceptor } from '@interfaces/interceptors/notification-cache.interceptor.js';
 import { DeliveryTrackingInterceptor } from '@interfaces/interceptors/delivery-tracking.interceptor.js';
+import { I18nService } from '../../domain/services/i18n.service.js';
+import { CleanupExpiredHandler } from '@application/sagas/commands/cleanup-expired.handler.js';
+import { UpdateAnalyticsHandler } from '@application/sagas/commands/update-analytics.handler.js';
+import { PreferenceModule } from '../preference/preference.module.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule, EventBusModule],
+  imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule],
   controllers: [NotificationController],
   providers: [
+    UpdateAnalyticsHandler,
+    CleanupExpiredHandler,
+    I18nService,
     // ─── Services + DI tokens ───────────────
     NotificationService,
     { provide: NOTIFICATION_SERVICE, useExisting: NotificationService },

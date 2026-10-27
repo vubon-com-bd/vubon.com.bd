@@ -15,6 +15,8 @@ import {
   NOTIFICATION_SERVICE,
   type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 
 export const ORDER_CREATED_EVENT = 'order.order.created';
 
@@ -42,6 +44,7 @@ export class OrderCreatedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -57,14 +60,34 @@ export class OrderCreatedHandler implements OnModuleInit {
     this.logger.log(`Received order-service.order.created — ${JSON.stringify(payload)}`);
 
     try {
+      const locale = getLocale(payload as unknown as Record<string, unknown>);
+      const resolved = resolveTemplate(
+        this.i18n,
+        'ORDER_CREATED',
+        locale,
+        {
+          name: (payload as unknown as { name?: string }).name ?? 'Customer',
+          orderId: payload.orderId,
+          total: this.i18n.formatCurrency(payload.total, locale),
+          currency: payload.currency,
+        },
+        {
+          subject: 'Order Confirmed',
+          body: 'Your order #{{orderId}} has been created. Total: {{total}} {{currency}}',
+        },
+      );
+
+      this.logger.log(`🌐 Locale: ${locale} | Subject: ${resolved.subject}`);
+      this.logger.log(`📝 Body: ${resolved.body.substring(0, 100)}...`);
+
       const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
         category: NOTIFICATION_CATEGORY.ORDER,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.HIGH,
-        subject: 'Order Confirmed',
-        body: `Your order #{orderId} has been created. Total: {total} {currency}`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'order.order.created',
           eventId: event.id,

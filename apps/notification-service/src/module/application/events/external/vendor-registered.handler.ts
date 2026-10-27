@@ -4,6 +4,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -41,6 +43,7 @@ export class VendorRegisteredHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,14 +59,28 @@ export class VendorRegisteredHandler implements OnModuleInit {
     this.logger.log(`Received vendor.vendor.registered — ${JSON.stringify(payload)}`);
 
     try {
-      const result = await this.notificationService.send({
+      const locale = getLocale(payload as unknown as Record<string, unknown>);
+        const resolved = resolveTemplate(
+          this.i18n,
+          'WELCOME',
+          locale,
+          {
+            name: (payload as any).name
+          },
+          {
+            subject: 'Welcome Vendor',
+            body: 'Welcome {{name}}, your vendor account has been registered.',
+          },
+        );
+
+        const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
         category: NOTIFICATION_CATEGORY.USER,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Welcome to Vubon',
-        body: `Your vendor account has been registered successfully.`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'vendor.vendor.registered',
           eventId: event.id,

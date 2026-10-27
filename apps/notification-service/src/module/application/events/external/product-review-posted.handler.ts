@@ -4,6 +4,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -41,6 +43,7 @@ export class ProductReviewPostedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,14 +59,28 @@ export class ProductReviewPostedHandler implements OnModuleInit {
     this.logger.log(`Received product.review.submitted — ${JSON.stringify(payload)}`);
 
     try {
-      const result = await this.notificationService.send({
+      const locale = getLocale(payload as unknown as Record<string, unknown>);
+        const resolved = resolveTemplate(
+          this.i18n,
+          'REVIEW_POSTED',
+          locale,
+          {
+            rating: (payload as any).rating
+          },
+          {
+            subject: 'New Review',
+            body: 'Your product got a new review: {{rating}}/5 stars',
+          },
+        );
+
+        const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ALERT,
         category: NOTIFICATION_CATEGORY.PRODUCT,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'New Review',
-        body: `A new review has been posted on your product.`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'product.review.submitted',
           eventId: event.id,

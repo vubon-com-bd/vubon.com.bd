@@ -9,3 +9,4 @@ export * from './update-analytics.command.js';
 export * from './retry-delivery.command.js';
 export * from './mark-bounced.command.js';
 export * from './cleanup-expired.command.js';
+export * from './cleanup-expired.handler.js';

@@ -15,6 +15,7 @@ import { KernelCommonModule } from '@vubon/shared-kernel/modules/common';
 // ─── Notification infra ────────────────────
 import { RedisRepositoriesModule } from '@infrastructure/persistence/cache/redis-repositories.module.js';
 import { InfrastructureModule } from '@infrastructure/modules/infrastructure.module.js';
+import { I18nService } from '../../domain/services/i18n.service.js';
 
 @Global()
 @Module({

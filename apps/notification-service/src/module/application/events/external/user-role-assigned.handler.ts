@@ -4,6 +4,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -41,6 +43,7 @@ export class UserRoleAssignedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,14 +59,28 @@ export class UserRoleAssignedHandler implements OnModuleInit {
     this.logger.log(`Received user.role_assigned — ${JSON.stringify(payload)}`);
 
     try {
-      const result = await this.notificationService.send({
+      const locale = getLocale(payload as unknown as Record<string, unknown>);
+        const resolved = resolveTemplate(
+          this.i18n,
+          'EMAIL_VERIFIED',
+          locale,
+          {
+            role: (payload as any).role
+          },
+          {
+            subject: 'New Role Assigned',
+            body: 'A new role has been assigned: {{role}}',
+          },
+        );
+
+        const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
         category: NOTIFICATION_CATEGORY.USER,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'New Role Assigned',
-        body: `A new role has been assigned to your account: {role}`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'identity.user.role_assigned',
           eventId: event.id,

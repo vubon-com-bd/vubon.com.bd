@@ -7,6 +7,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -46,6 +48,7 @@ export class UserCreatedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -64,14 +67,28 @@ export class UserCreatedHandler implements OnModuleInit {
     );
 
     try {
-      const result = await this.notificationService.send({
+      const locale = getLocale(event.payload as unknown as Record<string, unknown>);
+        const resolved = resolveTemplate(
+          this.i18n,
+          'WELCOME',
+          locale,
+          {
+            name: email.split('@')[0]
+          },
+          {
+            subject: 'Welcome to Vubon!',
+            body: 'Hello {{name}}, welcome to Vubon.com.bd!',
+          },
+        );
+
+        const result = await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.WELCOME,
         category: NOTIFICATION_CATEGORY.USER,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Welcome to Vubon!',
-        body: `Hi! Welcome to Vubon.com.bd. Your account has been created successfully with roles: ${roles.join(', ')}.`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'identity.user.created',
           eventId: event.id,

@@ -4,6 +4,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { I18nService } from '../../../domain/services/i18n.service.js';
+import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -41,6 +43,7 @@ export class InventoryLowStockHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -56,14 +59,28 @@ export class InventoryLowStockHandler implements OnModuleInit {
     this.logger.log(`Received product.inventory.low_stock_alert — ${JSON.stringify(payload)}`);
 
     try {
-      const result = await this.notificationService.send({
+      const locale = getLocale(payload as unknown as Record<string, unknown>);
+        const resolved = resolveTemplate(
+          this.i18n,
+          'REVIEW_POSTED',
+          locale,
+          {
+            productId: (payload as any).productId
+          },
+          {
+            subject: 'Low Stock Alert',
+            body: 'Product {{productId}} is running low.',
+          },
+        );
+
+        const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ALERT,
         category: NOTIFICATION_CATEGORY.PRODUCT,
         channels: [NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.HIGH,
-        subject: 'Low Stock Alert',
-        body: `Product {productId} is running low. Available: {available}`,
+        subject: resolved.subject,
+        body: resolved.body,
         data: {
           eventType: 'product.inventory.low_stock_alert',
           eventId: event.id,

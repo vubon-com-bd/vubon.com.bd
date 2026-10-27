@@ -27,6 +27,9 @@ import { PriorityCalculatorService } from '@domain/services/priority-calculator.
 import { NotificationPriorityVO } from '@domain/primitives/notification-priority.vo.js';
 import { NotificationChannelVO } from '@domain/primitives/notification-channel.vo.js';
 import { NotificationCategoryVO } from '@domain/primitives/notification-category.vo.js';
+import { NotificationTypeVO } from '@domain/primitives/notification-type.vo.js';
+import { PreferenceCheckerService } from '@domain/services/preference-checker.service.js';
+import { PREFERENCE_SERVICE, type IPreferenceService } from '@application/services/interfaces/preference.service.interface.js';
 
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
@@ -67,6 +70,8 @@ export class NotificationService implements INotificationService {
     @Inject(NOTIFICATION_REPOSITORY)
     private readonly repo: NotificationRepository,
     private readonly eventBridge: DomainEventBridgeService,
+    @Inject(PREFERENCE_SERVICE)
+    private readonly preferenceService: IPreferenceService,
   ) {}
 
   // ═══════════════ COMMANDS ═══════════════
@@ -77,6 +82,38 @@ export class NotificationService implements INotificationService {
     const now = new Date().toISOString();
     const notificationIds: string[] = [];
     let failedCount = 0;
+
+    // ─── PREFERENCE ENFORCEMENT ───
+    try {
+      const pref = await this.preferenceService.getByUser(dto.userId);
+      const category = NotificationCategoryVO.create(dto.category);
+      const typeVO = NotificationTypeVO.create(dto.type);
+      
+      for (const channel of dto.channels) {
+        const check = PreferenceCheckerService.check({
+          preference: pref as never,
+          category,
+          channel,
+          type: typeVO,
+        });
+        
+        if (!check.allowed) {
+          this.logger.log(
+            `⏭️  Notification skipped for user ${dto.userId} — ${check.reason}`,
+          );
+          return {
+            success: true,
+            status: 'skipped',
+            queuedCount: 0,
+            notificationIds: [],
+            failedCount: 0,
+          } as unknown as NotificationSendResponseDTO;
+        }
+      }
+    } catch (err) {
+      // User has no preferences or lookup failed — use defaults
+      this.logger.debug(`Preference check failed for ${dto.userId}: ${err}`);
+    }
 
     for (const channel of dto.channels) {
       try {
