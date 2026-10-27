@@ -54,6 +54,8 @@ function makeReturnRepo(): jest.Mocked<OrderReturnRepository> {
   } as unknown as jest.Mocked<OrderReturnRepository>;
 }
 
+const mockEventBridge = { publishFromEntity: jest.fn().mockResolvedValue(undefined) };
+
 describe('E2E — Cancel & Return Cross-Flow', () => {
   let orderService: OrderService;
   let returnService: OrderReturnService;
@@ -63,7 +65,7 @@ describe('E2E — Cancel & Return Cross-Flow', () => {
   beforeEach(() => {
     orderRepo = makeOrderRepo();
     returnRepo = makeReturnRepo();
-    orderService = new OrderService(orderRepo);
+    orderService = new OrderService(orderRepo, mockEventBridge as never);
     returnService = new OrderReturnService(returnRepo);
   });
 

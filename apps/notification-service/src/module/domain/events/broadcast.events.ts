@@ -9,13 +9,13 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const BROADCAST_EVENT_TYPE = {
-  CREATED: 'broadcast.created',
-  SCHEDULED: 'broadcast.scheduled',
-  APPROVED: 'broadcast.approved',
-  STARTED: 'broadcast.started',
-  COMPLETED: 'broadcast.completed',
-  FAILED: 'broadcast.failed',
-  CANCELLED: 'broadcast.cancelled',
+  CREATED: 'notification.broadcast.created',
+  SCHEDULED: 'notification.broadcast.scheduled',
+  APPROVED: 'notification.broadcast.approved',
+  STARTED: 'notification.broadcast.started',
+  COMPLETED: 'notification.broadcast.completed',
+  FAILED: 'notification.broadcast.failed',
+  CANCELLED: 'notification.broadcast.cancelled',
 } as const;
 
 export interface BroadcastCreatedPayload {

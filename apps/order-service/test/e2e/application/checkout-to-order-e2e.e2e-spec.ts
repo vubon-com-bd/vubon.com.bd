@@ -58,6 +58,8 @@ function makeCheckoutRepo(): jest.Mocked<CheckoutRepository> {
   } as unknown as jest.Mocked<CheckoutRepository>;
 }
 
+const mockEventBridge = { publishFromEntity: jest.fn().mockResolvedValue(undefined) };
+
 describe('E2E — Checkout → Order Cross-Service', () => {
   let orderService: OrderService;
   let checkoutService: CheckoutService;
@@ -67,7 +69,7 @@ describe('E2E — Checkout → Order Cross-Service', () => {
   beforeEach(() => {
     orderRepo = makeOrderRepo();
     checkoutRepo = makeCheckoutRepo();
-    orderService = new OrderService(orderRepo);
+    orderService = new OrderService(orderRepo, mockEventBridge as never);
     checkoutService = new CheckoutService(checkoutRepo);
   });
 

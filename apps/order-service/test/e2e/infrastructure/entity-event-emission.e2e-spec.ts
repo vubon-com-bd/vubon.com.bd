@@ -26,7 +26,7 @@ describe('E2E — Entity Event Emission', () => {
     const order = createPendingOrder();
     const events = order.domainEvents;
     expect(events.length).toBeGreaterThanOrEqual(1);
-    const created = events.find((e) => e.type === 'order-service.order.created');
+    const created = events.find((e) => e.type === 'order.order.created');
     expect(created).toBeDefined();
     expect(created?.aggregateType).toBe('Order');
   });
@@ -35,7 +35,7 @@ describe('E2E — Entity Event Emission', () => {
     const order = createPendingOrder();
     order.confirm('admin', E2E_NOW);
     const statusEvents = order.domainEvents.filter(
-      (e) => e.type === 'order-service.order.status_changed',
+      (e) => e.type === 'order.order.status_changed',
     );
     expect(statusEvents.length).toBe(1);
     const payload = statusEvents[0].payload as {

@@ -23,7 +23,7 @@ interface UserCreatedPayload {
   readonly createdAt: string;
 }
 
-interface UserCreatedEvent extends DomainEvent<'user.created', UserCreatedPayload> {}
+interface UserCreatedEvent extends DomainEvent<'identity.user.created', UserCreatedPayload> {}
 
 @Injectable()
 export class UserCreatedHandler {

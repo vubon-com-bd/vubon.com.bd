@@ -42,7 +42,7 @@ describe('AuthEntity', () => {
       const auth = createNewAuth();
       const events = auth.pullDomainEvents();
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('auth.created');
+      expect(events[0].type).toBe('identity.auth.created');
       expect(events[0].aggregateId).toBe(TEST_IDS.AUTH_ID);
     });
 
@@ -200,7 +200,7 @@ describe('AuthEntity', () => {
       auth.pullDomainEvents();
       auth.activate();
       const events = auth.pullDomainEvents();
-      expect(events.some((e) => e.type === 'auth.status_changed')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.auth.status_changed')).toBe(true);
     });
 
     it('should throw on revoked → active', () => {
@@ -278,7 +278,7 @@ describe('AuthEntity', () => {
       auth.pullDomainEvents();
       auth.markEmailVerified();
       const events = auth.pullDomainEvents();
-      expect(events.some((e) => e.type === 'auth.email_verified')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.auth.email_verified')).toBe(true);
     });
 
     it('should be idempotent', () => {
@@ -296,7 +296,7 @@ describe('AuthEntity', () => {
       auth.markPhoneVerified();
       expect(auth.isPhoneVerified).toBe(true);
       const events = auth.pullDomainEvents();
-      expect(events.some((e) => e.type === 'auth.phone_verified')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.auth.phone_verified')).toBe(true);
     });
   });
 
@@ -308,7 +308,7 @@ describe('AuthEntity', () => {
       auth.enableMfa('totp');
       expect(auth.isMfaEnabled).toBe(true);
       const events = auth.pullDomainEvents();
-      expect(events.some((e) => e.type === 'auth.mfa_enabled')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.auth.mfa_enabled')).toBe(true);
     });
 
     it('should throw when no verification', () => {
@@ -327,7 +327,7 @@ describe('AuthEntity', () => {
       auth.disableMfa('totp');
       expect(auth.isMfaEnabled).toBe(false);
       const events = auth.pullDomainEvents();
-      expect(events.some((e) => e.type === 'auth.mfa_disabled')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.auth.mfa_disabled')).toBe(true);
     });
 
     it('should throw disable when not enabled', () => {
@@ -369,7 +369,7 @@ describe('AuthEntity', () => {
       auth.pullDomainEvents();
       auth.changePassword(TEST_IDS.USER_ID);
       const events = auth.pullDomainEvents();
-      expect(events.some((e) => e.type === 'auth.password_changed')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.auth.password_changed')).toBe(true);
     });
   });
 

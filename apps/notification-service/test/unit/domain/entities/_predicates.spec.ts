@@ -74,6 +74,7 @@ import { WebhookIdVO } from '@domain/primitives/webhook-id.vo.js';
 import { WebhookTypeVO } from '@domain/primitives/webhook-type.vo.js';
 import { WebhookStatusVO } from '@domain/primitives/webhook-status.vo.js';
 import { WebhookUrlVO } from '@domain/primitives/webhook-url.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
 
 import { IDS } from '@domain-fixtures/ids.fixture.js';
 
@@ -571,7 +572,8 @@ describe('TemplateEntity — call every getter', () => {
       id: TemplateIdVO.create(IDS.templateId),
       name: TemplateNameVO.create('Test'),
       slug: 't',
-      type: NotificationTypeVO.create('promotional'),
+      type: TemplateTypeVO.create('email'),
+      subject: NotificationSubjectVO.create('Test Subject'),
       status: 'draft' as const,
       format: TemplateFormatVO.html(),
       body: TemplateContentVO.create('{{varname}}'),

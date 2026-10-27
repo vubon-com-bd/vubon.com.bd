@@ -6,10 +6,10 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_ADDRESS_EVENT_TYPE = {
-  ADDED: 'user.address_added',
-  UPDATED: 'user.address_updated',
-  DELETED: 'user.address_deleted',
-  SET_DEFAULT: 'user.address_set_default',
+  ADDED: 'identity.user.address_added',
+  UPDATED: 'identity.user.address_updated',
+  DELETED: 'identity.user.address_deleted',
+  SET_DEFAULT: 'identity.user.address_set_default',
 } as const;
 
 export interface UserAddressAddedPayload {

@@ -2,7 +2,7 @@
  * AuthModule — auth core feature
  * @module identity-service/modules/auth
  */
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
 // Controllers
@@ -32,10 +32,14 @@ import { AUTH_SESSION_SERVICE } from '../../application/services/interfaces/auth
 import { AUTH_TOKEN_SERVICE } from '../../application/services/interfaces/auth-token.service.interface.js';
 import { AUTH_SETTINGS_SERVICE } from '../../application/services/interfaces/auth-settings.service.interface.js';
 
+
+
 // Sagas
 import { AuthLoginSaga } from '../../application/sagas/auth-login.saga.js';
 import { AuthRegisterSaga } from '../../application/sagas/auth-register.saga.js';
 import { AuthMfaSaga } from '../../application/sagas/auth-mfa.saga.js';
+import { UserModule } from '../user/user.module.js';
+import { SocialIntegrationModule } from '../social-integration/social-integration.module.js';
 
 const SERVICES = [
   AuthService,
@@ -50,12 +54,13 @@ const SERVICES = [
   { provide: AUTH_TOKEN_SERVICE, useExisting: AuthTokenService },
   AuthSettingsService,
   { provide: AUTH_SETTINGS_SERVICE, useExisting: AuthSettingsService },
+
 ];
 
 const SAGAS = [AuthLoginSaga, AuthRegisterSaga, AuthMfaSaga];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, SocialIntegrationModule],
   controllers: [
     AuthController,
     AuthMfaController,

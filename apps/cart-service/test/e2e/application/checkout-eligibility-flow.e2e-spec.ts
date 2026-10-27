@@ -22,6 +22,8 @@ describe('E2E — Application / Checkout Eligibility Flow', () => {
   let itemService: CartItemService;
 
   let mockEventBridge: { publishFromEntity: ReturnType<typeof jest.fn> };
+  let mockEventBus: { publish: ReturnType<typeof jest.fn> };
+  let mockProductClient: { getByIds: ReturnType<typeof jest.fn> };
   let checkoutHandler: ProceedToCheckoutHandler;
 
   beforeEach(() => {
@@ -34,10 +36,12 @@ describe('E2E — Application / Checkout Eligibility Flow', () => {
 
 
     };
+    mockEventBus = { publish: jest.fn().mockResolvedValue(undefined) };
+    mockProductClient = { getByIds: jest.fn().mockResolvedValue([]) };
     repos = createE2ERepos();
-    cartService = new CartService(repos.carts, mockEventBridge as never);
+    cartService = new CartService(repos.carts, repos.items, mockEventBridge as never);
     itemService = new CartItemService(repos.items, repos.carts, mockEventBridge as never);
-    checkoutHandler = new ProceedToCheckoutHandler(cartService);
+    checkoutHandler = new ProceedToCheckoutHandler(cartService, mockEventBus as never, mockProductClient as never);
   });
 
   it('checkout on cart with items returns cart', async () => {

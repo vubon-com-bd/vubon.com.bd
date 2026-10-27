@@ -8,9 +8,9 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const ORDER_TRACKING_EVENT_TYPE = {
-  UPDATED: 'order-service.order-tracking.updated',
-  STATUS_CHANGED: 'order-service.order-tracking.status_changed',
-  LOCATION_UPDATED: 'order-service.order-tracking.location_updated',
+  UPDATED: 'order.order-tracking.updated',
+  STATUS_CHANGED: 'order.order-tracking.status_changed',
+  LOCATION_UPDATED: 'order.order-tracking.location_updated',
 } as const;
 
 export interface OrderTrackingUpdatedPayload {

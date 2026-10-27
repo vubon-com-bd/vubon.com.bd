@@ -2,7 +2,7 @@
  * VendorModule — main vendor feature wiring
  * @module vendor-service/modules/vendor
  */
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
@@ -26,10 +26,17 @@ import { VendorCacheInterceptor } from '../../interfaces/interceptors/vendor-cac
 // Feature health
 import { VendorFeatureHealthIndicator } from './health/index.js';
 
+import { UserStatusChangedHandler } from '../../application/handlers/user-status-changed.handler.js';
+import { VendorSuspensionModule } from '../vendor-suspension/vendor-suspension.module.js';
+import { VendorInvoiceCreatedHandler } from '../../application/handlers/vendor-invoice-created.handler.js';
+import { VendorInvoiceController } from '../../interfaces/controllers/rest/vendor-invoice.controller.js';
+
 @Module({
-  imports: [CqrsModule, EventBridgeModule],
-  controllers: [VendorController],
+  imports: [CqrsModule, EventBridgeModule, forwardRef(() => VendorSuspensionModule)],
+  controllers: [VendorController, VendorInvoiceController],
   providers: [
+    VendorInvoiceCreatedHandler,
+    UserStatusChangedHandler,
     // Service (with DI token)
     VendorService,
     { provide: VENDOR_SERVICE, useExisting: VendorService },

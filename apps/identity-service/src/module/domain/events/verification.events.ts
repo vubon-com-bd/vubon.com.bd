@@ -6,12 +6,12 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const VERIFICATION_EVENT_TYPE = {
-  REQUESTED: 'verification.requested',
-  OTP_SENT: 'verification.otp_sent',
-  OTP_RESENT: 'verification.otp_resent',
-  VERIFIED: 'verification.verified',
-  FAILED: 'verification.failed',
-  EXPIRED: 'verification.expired',
+  REQUESTED: 'identity.verification.requested',
+  OTP_SENT: 'identity.verification.otp_sent',
+  OTP_RESENT: 'identity.verification.otp_resent',
+  VERIFIED: 'identity.verification.verified',
+  FAILED: 'identity.verification.failed',
+  EXPIRED: 'identity.verification.expired',
 } as const;
 
 export interface VerificationRequestedPayload {

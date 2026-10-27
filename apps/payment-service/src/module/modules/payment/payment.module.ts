@@ -40,10 +40,15 @@ import { DOMAIN_EVENT_BRIDGE } from '@application/services/impl/payment.service'
 import { OwnPaymentGuard } from '@interfaces/guards/own-payment.guard';
 import { PaymentCacheInterceptor } from '@interfaces/interceptors/payment-cache.interceptor';
 
+import { OrderReturnRequestedHandler } from '../../application/events/external/order-return-requested.handler.js';
+import { InvoiceModule } from '../invoice/invoice.module.js';
+import { RefundModule } from '../refund/refund.module.js';
+
 @Module({
-  imports: [CqrsModule, EventBridgeModule, EventBusModule],
+  imports: [CqrsModule, EventBridgeModule, EventBusModule, InvoiceModule, RefundModule],
   controllers: [PaymentController, AnalyticsController],
   providers: [
+    OrderReturnRequestedHandler,
     UpdateAnalyticsHandler,
     NotifyPaymentSuccessHandler,
     UpdateOrderStatusHandler,

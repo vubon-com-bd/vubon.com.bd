@@ -5,6 +5,8 @@
  * Full application flow: build → save → query → cancel → resend।
  * Uses real NotificationService with in-memory mocked repository।
  */
+import { jest } from '@jest/globals';
+
 import { NotificationService } from '@application/services/impl/notification.service.js';
 import {
   createMockNotificationRepo,

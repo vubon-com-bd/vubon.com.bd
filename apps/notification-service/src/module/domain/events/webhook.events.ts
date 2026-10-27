@@ -9,13 +9,13 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const WEBHOOK_EVENT_TYPE = {
-  REGISTERED: 'webhook.registered',
-  UPDATED: 'webhook.updated',
-  ACTIVATED: 'webhook.activated',
-  PAUSED: 'webhook.paused',
-  DISABLED: 'webhook.disabled',
-  DELIVERED: 'webhook.delivered',
-  DELIVERY_FAILED: 'webhook.delivery_failed',
+  REGISTERED: 'notification.webhook.registered',
+  UPDATED: 'notification.webhook.updated',
+  ACTIVATED: 'notification.webhook.activated',
+  PAUSED: 'notification.webhook.paused',
+  DISABLED: 'notification.webhook.disabled',
+  DELIVERED: 'notification.webhook.delivered',
+  DELIVERY_FAILED: 'notification.webhook.delivery_failed',
 } as const;
 
 export interface WebhookRegisteredPayload {

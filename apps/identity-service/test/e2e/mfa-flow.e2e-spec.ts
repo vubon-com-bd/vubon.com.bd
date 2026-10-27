@@ -82,10 +82,10 @@ describe('E2E — MFA Flow', () => {
     backupCodeEntities.forEach((bc) => expect(bc.used).toBe(false));
 
     // Step 8: Events
-    expect(events.countByType('mfa.setup_started')).toBe(1);
-    expect(events.countByType('mfa.verified')).toBe(1);
-    expect(events.countByType('mfa.enabled')).toBe(1);
-    expect(events.countByType('auth.mfa_enabled')).toBe(1);
+    expect(events.countByType('identity.mfa.setup_started')).toBe(1);
+    expect(events.countByType('identity.mfa.verified')).toBe(1);
+    expect(events.countByType('identity.mfa.enabled')).toBe(1);
+    expect(events.countByType('identity.auth.mfa_enabled')).toBe(1);
   });
 
   it('disable MFA requires identity proof', () => {

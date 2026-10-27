@@ -28,13 +28,15 @@ function makeOrderRepo(): jest.Mocked<OrderRepository> {
   } as unknown as jest.Mocked<OrderRepository>;
 }
 
+const mockEventBridge = { publishFromEntity: jest.fn().mockResolvedValue(undefined) };
+
 describe('E2E — Full Order Journey', () => {
   let service: OrderService;
   let repo: jest.Mocked<OrderRepository>;
 
   beforeEach(() => {
     repo = makeOrderRepo();
-    service = new OrderService(repo);
+    service = new OrderService(repo, mockEventBridge as never);
   });
 
   it('journey: create → confirm → process → pack → ship → deliver → complete', () => {

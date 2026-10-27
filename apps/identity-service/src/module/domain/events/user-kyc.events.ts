@@ -6,9 +6,9 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const KYC_EVENT_TYPE = {
-  SUBMITTED: 'kyc.submitted',
-  VERIFIED: 'kyc.verified',
-  REJECTED: 'kyc.rejected',
+  SUBMITTED: 'identity.kyc.submitted',
+  VERIFIED: 'identity.kyc.verified',
+  REJECTED: 'identity.kyc.rejected',
 } as const;
 
 export interface KycSubmittedPayload {

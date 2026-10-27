@@ -6,11 +6,11 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const DEVICE_EVENT_TYPE = {
-  REGISTERED: 'device.registered',
-  TRUSTED: 'device.trusted',
-  UNTRUSTED: 'device.untrusted',
-  UNREGISTERED: 'device.unregistered',
-  SEEN: 'device.seen',
+  REGISTERED: 'identity.device.registered',
+  TRUSTED: 'identity.device.trusted',
+  UNTRUSTED: 'identity.device.untrusted',
+  UNREGISTERED: 'identity.device.unregistered',
+  SEEN: 'identity.device.seen',
 } as const;
 
 export interface DeviceRegisteredPayload {

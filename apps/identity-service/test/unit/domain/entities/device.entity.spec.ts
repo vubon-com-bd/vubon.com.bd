@@ -20,7 +20,7 @@ describe('DeviceEntity', () => {
       expect(d.trusted).toBe(false);
       expect(d.version).toBe(1);
       const events = d.pullDomainEvents();
-      expect(events.some((e) => e.type === 'device.registered')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.device.registered')).toBe(true);
     });
   });
 
@@ -46,7 +46,7 @@ describe('DeviceEntity', () => {
       expect(d.trusted).toBe(true);
       expect(d.trustedUntil).toBe(TEST_DATES.IN_THIRTY_DAYS);
       const events = d.pullDomainEvents();
-      expect(events.some((e) => e.type === 'device.trusted')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.device.trusted')).toBe(true);
     });
 
     it('should throw when already trusted', () => {

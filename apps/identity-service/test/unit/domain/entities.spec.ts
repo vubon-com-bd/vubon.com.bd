@@ -177,7 +177,7 @@ describe('Domain Entities', () => {
       const e = buildCreate();
       const events = e.domainEvents;
       expect(events.length).toBeGreaterThan(0);
-      expect(events[0].type).toBe('auth.created');
+      expect(events[0].type).toBe('identity.auth.created');
     });
     it('activate → active status', () => {
       const e = buildCreate();
@@ -243,7 +243,7 @@ describe('Domain Entities', () => {
     });
     it('create emits SessionCreatedEvent', () => {
       const e = build();
-      expect(e.domainEvents[0].type).toBe('session.created');
+      expect(e.domainEvents[0].type).toBe('identity.session.created');
     });
     it('revoke → revoked', () => {
       const e = build();
@@ -280,7 +280,7 @@ describe('Domain Entities', () => {
     });
     it('create emits MfaSetupStartedEvent', () => {
       const e = build();
-      expect(e.domainEvents[0].type).toBe('mfa.setup_started');
+      expect(e.domainEvents[0].type).toBe('identity.mfa.setup_started');
     });
     it('markVerified', () => {
       const e = build();
@@ -323,7 +323,7 @@ describe('Domain Entities', () => {
     });
     it('create emits DeviceRegisteredEvent', () => {
       const e = build();
-      expect(e.domainEvents[0].type).toBe('device.registered');
+      expect(e.domainEvents[0].type).toBe('identity.device.registered');
     });
     it('trust', () => {
       const e = build();

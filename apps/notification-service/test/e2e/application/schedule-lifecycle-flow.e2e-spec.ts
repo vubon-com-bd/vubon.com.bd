@@ -1,6 +1,8 @@
 /**
  * Schedule lifecycle E2E — create → update → cancel।
  */
+import { jest } from '@jest/globals';
+
 import { ScheduleService } from '@application/services/impl/schedule.service.js';
 import {
   createMockScheduleRepo,

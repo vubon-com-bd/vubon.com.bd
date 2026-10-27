@@ -6,13 +6,13 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_EVENT_TYPE = {
-  CREATED: 'user.created',
-  STATUS_CHANGED: 'user.status_changed',
-  EMAIL_VERIFIED: 'user.email_verified',
-  PHONE_VERIFIED: 'user.phone_verified',
-  SUSPENDED: 'user.suspended',
-  ROLE_ASSIGNED: 'user.role_assigned',
-  ROLE_REVOKED: 'user.role_revoked',
+  CREATED: 'identity.user.created',
+  STATUS_CHANGED: 'identity.user.status_changed',
+  EMAIL_VERIFIED: 'identity.user.email_verified',
+  PHONE_VERIFIED: 'identity.user.phone_verified',
+  SUSPENDED: 'identity.user.suspended',
+  ROLE_ASSIGNED: 'identity.user.role_assigned',
+  ROLE_REVOKED: 'identity.user.role_revoked',
 } as const;
 
 export interface UserCreatedPayload {

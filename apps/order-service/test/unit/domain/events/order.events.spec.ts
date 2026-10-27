@@ -16,12 +16,12 @@ import {
 describe('Order Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
-      expect(ORDER_EVENT_TYPE.CREATED).toBe('order-service.order.created');
-      expect(ORDER_EVENT_TYPE.CONFIRMED).toBe('order-service.order.confirmed');
-      expect(ORDER_EVENT_TYPE.STATUS_CHANGED).toBe('order-service.order.status_changed');
-      expect(ORDER_EVENT_TYPE.CANCELLED).toBe('order-service.order.cancelled');
-      expect(ORDER_EVENT_TYPE.RETURNED).toBe('order-service.order.returned');
-      expect(ORDER_EVENT_TYPE.REFUNDED).toBe('order-service.order.refunded');
+      expect(ORDER_EVENT_TYPE.CREATED).toBe('order.order.created');
+      expect(ORDER_EVENT_TYPE.CONFIRMED).toBe('order.order.confirmed');
+      expect(ORDER_EVENT_TYPE.STATUS_CHANGED).toBe('order.order.status_changed');
+      expect(ORDER_EVENT_TYPE.CANCELLED).toBe('order.order.cancelled');
+      expect(ORDER_EVENT_TYPE.RETURNED).toBe('order.order.returned');
+      expect(ORDER_EVENT_TYPE.REFUNDED).toBe('order.order.refunded');
     });
   });
 

@@ -5,6 +5,8 @@ import { TemplateContentVO } from '@domain/primitives/template-content.vo.js';
 import { TemplateFormatVO } from '@domain/primitives/template-format.vo.js';
 import { TemplateVariableVO } from '@domain/primitives/template-variable.vo.js';
 import { NotificationTypeVO } from '@domain/primitives/notification-type.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
+import { NotificationSubjectVO } from '@domain/primitives/notification-subject.vo.js';
 import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 import { IDS } from '@domain-fixtures/ids.fixture.js';
 
@@ -15,7 +17,8 @@ const makeProps = (overrides: any = {}) => ({
   id: TemplateIdVO.create(IDS.templateId),
   name: TemplateNameVO.create('Order Confirmation'),
   slug: 'order-confirmation',
-  type: NotificationTypeVO.create('transactional'),
+  type: TemplateTypeVO.create('email'),
+  subject: NotificationSubjectVO.create('Test Subject'),
   status: 'active' as const,
   format: TemplateFormatVO.html(),
   body: TemplateContentVO.create('<p>Hi {{userName}}</p>'),
@@ -133,26 +136,26 @@ describe('TemplateVO', () => {
 
   describe('requiresSubject / hasSubject', () => {
     it('requiresSubject for transactional', () => {
-      const vo = TemplateVO.reconstitute(makeProps({ type: NotificationTypeVO.transactional() }));
+      const vo = TemplateVO.reconstitute(makeProps({ type: TemplateTypeVO.email() }));
       expect(vo.requiresSubject()).toBe(true);
     });
 
     it('requiresSubject for security', () => {
       const vo = TemplateVO.reconstitute(
-        makeProps({ type: NotificationTypeVO.security() }),
+        makeProps({ type: TemplateTypeVO.email() }),
       );
       expect(vo.requiresSubject()).toBe(true);
     });
 
     it('requiresSubject false for promotional', () => {
       const vo = TemplateVO.reconstitute(
-        makeProps({ type: NotificationTypeVO.promotional() }),
+        makeProps({ type: TemplateTypeVO.sms() }),
       );
       expect(vo.requiresSubject()).toBe(false);
     });
 
     it('hasSubject false when missing', () => {
-      expect(TemplateVO.reconstitute(makeProps()).hasSubject()).toBe(false);
+      expect(TemplateVO.reconstitute(makeProps({ subject: undefined })).hasSubject()).toBe(false);
     });
   });
 
@@ -192,7 +195,7 @@ describe('TemplateVO', () => {
       expect(vo.type).toBeDefined();
       expect(vo.status).toBe('active');
       expect(vo.format).toBeDefined();
-      expect(vo.subject).toBeUndefined();
+      expect(vo.subject).toBeDefined();
       expect(vo.body).toBeDefined();
       expect(vo.variables.length).toBe(1);
       expect(vo.locale).toBe('en');

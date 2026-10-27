@@ -8,16 +8,16 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const ORDER_RETURN_EVENT_TYPE = {
-  REQUESTED: 'order-service.order-return.requested',
-  APPROVED: 'order-service.order-return.approved',
-  REJECTED: 'order-service.order-return.rejected',
-  PICKUP_SCHEDULED: 'order-service.order-return.pickup_scheduled',
-  PICKED_UP: 'order-service.order-return.picked_up',
-  RECEIVED: 'order-service.order-return.received',
-  INSPECTED: 'order-service.order-return.inspected',
-  REFUNDED: 'order-service.order-return.refunded',
-  REPLACED: 'order-service.order-return.replaced',
-  CLOSED: 'order-service.order-return.closed',
+  REQUESTED: 'order.order-return.requested',
+  APPROVED: 'order.order-return.approved',
+  REJECTED: 'order.order-return.rejected',
+  PICKUP_SCHEDULED: 'order.order-return.pickup_scheduled',
+  PICKED_UP: 'order.order-return.picked_up',
+  RECEIVED: 'order.order-return.received',
+  INSPECTED: 'order.order-return.inspected',
+  REFUNDED: 'order.order-return.refunded',
+  REPLACED: 'order.order-return.replaced',
+  CLOSED: 'order.order-return.closed',
 } as const;
 
 export interface OrderReturnRequestedPayload {

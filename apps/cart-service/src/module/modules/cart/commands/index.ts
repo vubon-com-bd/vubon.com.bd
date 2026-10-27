@@ -7,6 +7,7 @@ import { UpdateCartHandler } from '../../../application/commands/cart/update-car
 import { ClearCartHandler } from '../../../application/commands/cart/clear-cart.handler.js';
 import { DeleteCartHandler } from '../../../application/commands/cart/delete-cart.handler.js';
 import { RecoverCartHandler } from '../../../application/commands/cart/recover-cart.handler.js';
+import { ProceedToCheckoutHandler } from '../../../application/commands/checkout/proceed-to-checkout.handler.js';
 
 export const CART_COMMAND_HANDLERS = [
   CreateCartHandler,
@@ -14,6 +15,7 @@ export const CART_COMMAND_HANDLERS = [
   ClearCartHandler,
   DeleteCartHandler,
   RecoverCartHandler,
+  ProceedToCheckoutHandler,
 ] as const;
 
 export {
@@ -22,4 +24,5 @@ export {
   ClearCartHandler,
   DeleteCartHandler,
   RecoverCartHandler,
+  ProceedToCheckoutHandler,
 };

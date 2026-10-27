@@ -2,7 +2,7 @@
  * UserDeletedHandler — reacts to user.status_changed where toStatus='deleted'
  * @module cart-service/application/events/external
  *
- * Identity service emits 'user.status_changed' for all status transitions.
+ * Identity service emits 'identity.user.status_changed' for all status transitions.
  * This handler filters only for the 'deleted' transition and clears user's carts.
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -14,7 +14,7 @@ import {
   type CartRepository,
 } from '../../../domain/repositories/cart.repository.interface.js';
 
-export const USER_STATUS_CHANGED_EVENT = 'user.status_changed';
+export const USER_STATUS_CHANGED_EVENT = 'identity.user.status_changed';
 
 @Injectable()
 export class UserDeletedHandler implements OnModuleInit {

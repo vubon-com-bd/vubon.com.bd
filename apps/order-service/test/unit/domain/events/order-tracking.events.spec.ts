@@ -13,13 +13,13 @@ describe('Order Tracking Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
       expect(ORDER_TRACKING_EVENT_TYPE.UPDATED).toBe(
-        'order-service.order-tracking.updated',
+        'order.order-tracking.updated',
       );
       expect(ORDER_TRACKING_EVENT_TYPE.STATUS_CHANGED).toBe(
-        'order-service.order-tracking.status_changed',
+        'order.order-tracking.status_changed',
       );
       expect(ORDER_TRACKING_EVENT_TYPE.LOCATION_UPDATED).toBe(
-        'order-service.order-tracking.location_updated',
+        'order.order-tracking.location_updated',
       );
     });
   });

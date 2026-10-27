@@ -2,7 +2,7 @@
  * AuthSocialController — REST endpoints for social login
  * @module identity-service/interfaces/controllers/rest
  */
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import {
@@ -23,16 +23,40 @@ import { UnlinkSocialHttpDTO } from '../../dtos/requests/auth/unlink-social.requ
 import type { SocialLoginHttpResponseDTO } from '../../dtos/responses/social/social-login.response.dto.js';
 
 import { AuthSocialControllerMapper } from '../../mappers/auth-social.controller.mapper.js';
+import { Inject } from '@nestjs/common';
+import {
+  AUTH_SOCIAL_SERVICE,
+  type AuthSocialServiceInterface,
+} from '../../../application/services/interfaces/auth-social.service.interface.js';
+
 
 @ApiTags('auth-social')
 @Controller('auth/social')
 export class AuthSocialController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    @Inject(AUTH_SOCIAL_SERVICE)
+    private readonly socialService: AuthSocialServiceInterface,
+  ) {}
+
+  @Public()
+  @Post(':provider/authorize')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Initiate OAuth authorization (returns redirect URL)' })
+  async authorize(
+    @Param('provider') provider: string,
+    @Body() body: { redirectUri?: string },
+  ): Promise<{ authorizationUrl: string; state: string; provider: string }> {
+    return this.socialService.initiateAuthorization({
+      provider,
+      redirectUri: body?.redirectUri,
+    });
+  }
 
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Social login' })
+  @ApiOperation({ summary: 'Social login (callback code exchange)' })
   async login(@Body() dto: SocialLoginHttpDTO): Promise<SocialLoginHttpResponseDTO> {
     const appDto = AuthSocialControllerMapper.toLoginAppDto(dto);
     const result = await this.commandBus.execute(new SocialLoginCommand(appDto as never));

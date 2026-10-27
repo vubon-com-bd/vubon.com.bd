@@ -9,12 +9,12 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const PREFERENCE_EVENT_TYPE = {
-  CREATED: 'preference.created',
-  UPDATED: 'preference.updated',
-  QUIET_HOURS_CHANGED: 'preference.quiet_hours_changed',
-  CHANNEL_OPTED_OUT: 'preference.channel_opted_out',
-  CHANNEL_OPTED_IN: 'preference.channel_opted_in',
-  LOCKED: 'preference.locked',
+  CREATED: 'notification.preference.created',
+  UPDATED: 'notification.preference.updated',
+  QUIET_HOURS_CHANGED: 'notification.preference.quiet_hours_changed',
+  CHANNEL_OPTED_OUT: 'notification.preference.channel_opted_out',
+  CHANNEL_OPTED_IN: 'notification.preference.channel_opted_in',
+  LOCKED: 'notification.preference.locked',
 } as const;
 
 export interface PreferenceCreatedPayload {

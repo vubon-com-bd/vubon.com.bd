@@ -8,11 +8,11 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const ORDER_FULFILLMENT_EVENT_TYPE = {
-  STARTED: 'order-service.order-fulfillment.started',
-  PARTIALLY_FULFILLED: 'order-service.order-fulfillment.partially_fulfilled',
-  FULFILLED: 'order-service.order-fulfillment.fulfilled',
-  RESTOCKED: 'order-service.order-fulfillment.restocked',
-  CANCELLED: 'order-service.order-fulfillment.cancelled',
+  STARTED: 'order.order-fulfillment.started',
+  PARTIALLY_FULFILLED: 'order.order-fulfillment.partially_fulfilled',
+  FULFILLED: 'order.order-fulfillment.fulfilled',
+  RESTOCKED: 'order.order-fulfillment.restocked',
+  CANCELLED: 'order.order-fulfillment.cancelled',
 } as const;
 
 export interface FulfillmentStartedPayload {

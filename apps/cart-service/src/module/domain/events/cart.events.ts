@@ -17,6 +17,7 @@ export const CART_EVENT_TYPE = {
   CLEARED: 'cart.cart.cleared',
   STATUS_CHANGED: 'cart.cart.status_changed',
   TOTALS_RECALCULATED: 'cart.cart.totals_recalculated',
+  CHECKED_OUT: 'cart.cart.checked_out',
 } as const;
 
 export interface CartCreatedPayload {
@@ -148,5 +149,39 @@ export class CartTotalsRecalculatedEvent extends BaseDomainEvent<
 > {
   constructor(p: EventParams<CartTotalsRecalculatedPayload>) {
     super(buildParams(CART_EVENT_TYPE.TOTALS_RECALCULATED, p));
+  }
+}
+
+// ─── CartCheckedOutEvent (rich payload for order-service) ──────────────
+export interface CartCheckedOutItemPayload {
+  readonly productId: string;
+  readonly variantId?: string;
+  readonly name: string;
+  readonly sku: string;
+  readonly quantity: number;
+  readonly unitPrice: number;
+  readonly totalPrice: number;
+}
+
+export interface CartCheckedOutPayload {
+  readonly cartId: string;
+  readonly userId: string;
+  readonly items: readonly CartCheckedOutItemPayload[];
+  readonly subtotal: number;
+  readonly discountAmount?: number;
+  readonly taxAmount?: number;
+  readonly shippingAmount?: number;
+  readonly total: number;
+  readonly currency: string;
+  readonly shippingAddressId?: string;
+  readonly checkedOutAt: string;
+}
+
+export class CartCheckedOutEvent extends BaseDomainEvent<
+  typeof CART_EVENT_TYPE.CHECKED_OUT,
+  CartCheckedOutPayload
+> {
+  constructor(p: EventParams<CartCheckedOutPayload>) {
+    super(buildParams(CART_EVENT_TYPE.CHECKED_OUT, p));
   }
 }

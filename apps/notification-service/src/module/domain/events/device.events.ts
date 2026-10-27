@@ -9,12 +9,12 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const DEVICE_EVENT_TYPE = {
-  REGISTERED: 'device.registered',
-  UNREGISTERED: 'device.unregistered',
-  TOKEN_REFRESHED: 'device.token_refreshed',
-  BLOCKED: 'device.blocked',
-  ACTIVATED: 'device.activated',
-  DEACTIVATED: 'device.deactivated',
+  REGISTERED: 'notification.device.registered',
+  UNREGISTERED: 'notification.device.unregistered',
+  TOKEN_REFRESHED: 'notification.device.token_refreshed',
+  BLOCKED: 'notification.device.blocked',
+  ACTIVATED: 'notification.device.activated',
+  DEACTIVATED: 'notification.device.deactivated',
 } as const;
 
 export interface DeviceRegisteredPayload {

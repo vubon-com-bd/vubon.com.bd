@@ -31,10 +31,11 @@ const VALID_STATUSES: readonly string[] = [
 ];
 
 const VALID_TRANSITIONS: Readonly<Record<DeliveryStatusValue, readonly DeliveryStatusValue[]>> = {
-  pending: ['scheduled', 'cancelled', 'failed'],
-  scheduled: ['picked_up', 'cancelled', 'failed'],
-  picked_up: ['in_transit', 'failed'],
-  in_transit: ['out_for_delivery', 'failed'],
+  // Fast-track delivery: allows direct delivery for simple workflows
+  pending: ['scheduled', 'delivered', 'cancelled', 'failed'],
+  scheduled: ['picked_up', 'delivered', 'cancelled', 'failed'],
+  picked_up: ['in_transit', 'delivered', 'failed'],
+  in_transit: ['out_for_delivery', 'delivered', 'failed'],
   out_for_delivery: ['delivered', 'failed'],
   delivered: [],
   failed: ['scheduled'],

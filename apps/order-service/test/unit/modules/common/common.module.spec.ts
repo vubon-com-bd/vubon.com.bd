@@ -12,16 +12,20 @@ describe('OrderCommonModule', () => {
     expect(OrderCommonModule).toBeDefined();
   });
 
-  it('should have imports metadata', () => {
-    const imports = Reflect.getMetadata('imports', OrderCommonModule);
-    expect(imports).toBeDefined();
-    expect(Array.isArray(imports)).toBe(true);
-    expect((imports as unknown[]).length).toBeGreaterThan(0);
+  it('should have forRoot static method', () => {
+    expect(typeof OrderCommonModule.forRoot).toBe('function');
   });
 
-  it('should have exports metadata', () => {
-    const exports = Reflect.getMetadata('exports', OrderCommonModule);
-    expect(exports).toBeDefined();
-    expect(Array.isArray(exports)).toBe(true);
+  it('forRoot() should return DynamicModule with imports', () => {
+    const dynamicModule = OrderCommonModule.forRoot();
+    expect(dynamicModule).toBeDefined();
+    expect(dynamicModule.module).toBe(OrderCommonModule);
+    expect(Array.isArray(dynamicModule.imports)).toBe(true);
+    expect((dynamicModule.imports as unknown[]).length).toBeGreaterThan(0);
+  });
+
+  it('forRoot() should return DynamicModule with exports', () => {
+    const dynamicModule = OrderCommonModule.forRoot();
+    expect(Array.isArray(dynamicModule.exports)).toBe(true);
   });
 });

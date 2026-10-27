@@ -1,6 +1,8 @@
 /**
  * Template → Notification E2E — create template → render → send।
  */
+import { jest } from '@jest/globals';
+
 import { TemplateService } from '@application/services/impl/template.service.js';
 import {
   createMockTemplateRepo,

@@ -6,15 +6,15 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const MFA_EVENT_TYPE = {
-  SETUP_STARTED: 'mfa.setup_started',
-  ENABLED: 'mfa.enabled',
-  DISABLED: 'mfa.disabled',
-  VERIFIED: 'mfa.verified',
-  CHALLENGE_CREATED: 'mfa.challenge_created',
-  CHALLENGE_FAILED: 'mfa.challenge_failed',
-  BACKUP_CODES_GENERATED: 'mfa.backup_codes_generated',
-  BACKUP_CODE_USED: 'mfa.backup_code_used',
-  BACKUP_CODES_EXHAUSTED: 'mfa.backup_codes_exhausted',
+  SETUP_STARTED: 'identity.mfa.setup_started',
+  ENABLED: 'identity.mfa.enabled',
+  DISABLED: 'identity.mfa.disabled',
+  VERIFIED: 'identity.mfa.verified',
+  CHALLENGE_CREATED: 'identity.mfa.challenge_created',
+  CHALLENGE_FAILED: 'identity.mfa.challenge_failed',
+  BACKUP_CODES_GENERATED: 'identity.mfa.backup_codes_generated',
+  BACKUP_CODE_USED: 'identity.mfa.backup_code_used',
+  BACKUP_CODES_EXHAUSTED: 'identity.mfa.backup_codes_exhausted',
 } as const;
 
 export interface MfaSetupStartedPayload {

@@ -82,8 +82,8 @@ describe('E2E — Password Reset Flow', () => {
     // Step 6: Auth emits password changed event
     auth.changePassword(E2E_IDS.USER, E2E_DATES.NOW);
     auth.pullDomainEvents().forEach((e) => events.record(e.type, e.aggregateId, e.payload));
-    expect(events.countByType('auth.password_changed')).toBe(1);
-    expect(events.countByType('verification.verified')).toBe(1);
+    expect(events.countByType('identity.auth.password_changed')).toBe(1);
+    expect(events.countByType('identity.verification.verified')).toBe(1);
   });
 
   it('rejects weak new password', () => {

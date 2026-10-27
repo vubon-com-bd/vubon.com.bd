@@ -11,10 +11,13 @@ import { HealthController } from '@interfaces/controllers/rest/health.controller
 describe('Health API (e2e)', () => {
   let controller: HealthController;
   let mockPrisma: { isHealthy: jest.Mock };
+  let mockRedis: { isHealthy: jest.Mock };
 
   beforeEach(() => {
+    process.env['PERSISTENCE_DRIVER'] = 'prisma';
     mockPrisma = { isHealthy: jest.fn() };
-    controller = new HealthController(mockPrisma as never);
+    mockRedis = { isHealthy: jest.fn().mockResolvedValue(true) };
+    controller = new HealthController(mockPrisma as never, mockRedis as never);
   });
 
   it('GET /health returns healthy payload', async () => {
@@ -22,7 +25,7 @@ describe('Health API (e2e)', () => {
     const payload = await controller.check();
     expect(payload.healthy).toBe(true);
     expect(payload.service).toBe('notification-service');
-    expect(payload.dependencies).toHaveLength(1);
+    expect(payload.dependencies).toHaveLength(2);
     expect(payload.dependencies[0]?.name).toBe('database');
   });
 

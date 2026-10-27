@@ -7,6 +7,10 @@ import type { SocialAccountEntity } from '../../../domain/entities/social-accoun
 import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto.js';
 import type { SocialLoginRequestDTO } from '../../dtos/requests/auth/social-login.dto.js';
 
+
+export type { SocialLoginRequestDTO } from '../../dtos/requests/auth/social-login.dto.js';
+export type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto.js';
+
 export const AUTH_SOCIAL_SERVICE = Symbol('AUTH_SOCIAL_SERVICE');
 
 export interface LinkSocialInput {
@@ -19,7 +23,14 @@ export interface LinkSocialInput {
   readonly avatarUrl?: string;
 }
 
+export interface SocialAuthorizationUrlResponseDTO {
+  readonly authorizationUrl: string;
+  readonly state: string;
+  readonly provider: string;
+}
+
 export interface AuthSocialServiceInterface extends BaseServiceInterface<SocialAccountEntity, string> {
+  initiateAuthorization(params: { provider: string; redirectUri?: string }): Promise<SocialAuthorizationUrlResponseDTO>;
   login(input: SocialLoginRequestDTO): Promise<SocialLoginResponseDTO>;
   link(input: LinkSocialInput): Promise<SocialAccountEntity>;
   unlink(authId: string, provider: string): Promise<void>;

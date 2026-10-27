@@ -19,3 +19,42 @@ process.env['PRISMA_HIDE_UPDATE_MESSAGE'] = 'true';
 if (typeof jest !== 'undefined') {
   jest.setTimeout(10_000);
 }
+
+// ─── Mock @nestjs/common for infrastructure tests ───
+// @nestjs/common uses `import.meta` in ESM which Jest CJS transform can't handle
+// Mock the minimal surface used by infrastructure code
+import { jest as jestGlobals } from '@jest/globals';
+
+jestGlobals.mock('@nestjs/common', () => {
+  const Injectable = () => (target: unknown) => target;
+  const Inject = () => () => undefined;
+  const Optional = () => () => undefined;
+  const Global = () => (target: unknown) => target;
+  const Module = () => (target: unknown) => target;
+  const forwardRef = (fn: unknown) => fn;
+
+  class Logger {
+    constructor(public readonly context?: string) {}
+    log(): void {}
+    error(): void {}
+    warn(): void {}
+    debug(): void {}
+    verbose(): void {}
+    static overrideLogger(): void {}
+    static log(): void {}
+    static error(): void {}
+    static warn(): void {}
+    static debug(): void {}
+    static verbose(): void {}
+  }
+
+  return {
+    Injectable,
+    Inject,
+    Optional,
+    Global,
+    Module,
+    forwardRef,
+    Logger,
+  };
+});

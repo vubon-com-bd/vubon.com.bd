@@ -28,7 +28,7 @@ export class VendorEventSubscriberService implements OnModuleInit {
     this.eventBus.setServiceName('vendor');
 
     // ─── Register handlers for incoming events ───
-    this.eventBus.registerHandler('user.created', (event) =>
+    this.eventBus.registerHandler('identity.user.created', (event) =>
       this.userCreatedHandler.handle(event),
     );
 

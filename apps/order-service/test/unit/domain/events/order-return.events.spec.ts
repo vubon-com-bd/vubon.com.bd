@@ -12,8 +12,8 @@ import {
 describe('Order Return Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
-      expect(ORDER_RETURN_EVENT_TYPE.REQUESTED).toBe('order-service.order-return.requested');
-      expect(ORDER_RETURN_EVENT_TYPE.REFUNDED).toBe('order-service.order-return.refunded');
+      expect(ORDER_RETURN_EVENT_TYPE.REQUESTED).toBe('order.order-return.requested');
+      expect(ORDER_RETURN_EVENT_TYPE.REFUNDED).toBe('order.order-return.refunded');
     });
   });
 

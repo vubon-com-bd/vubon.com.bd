@@ -14,9 +14,9 @@ import {
 describe('Order Item Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
-      expect(ORDER_ITEM_EVENT_TYPE.ADDED).toBe('order-service.order-item.added');
-      expect(ORDER_ITEM_EVENT_TYPE.UPDATED).toBe('order-service.order-item.updated');
-      expect(ORDER_ITEM_EVENT_TYPE.REMOVED).toBe('order-service.order-item.removed');
+      expect(ORDER_ITEM_EVENT_TYPE.ADDED).toBe('order.order-item.added');
+      expect(ORDER_ITEM_EVENT_TYPE.UPDATED).toBe('order.order-item.updated');
+      expect(ORDER_ITEM_EVENT_TYPE.REMOVED).toBe('order.order-item.removed');
     });
   });
 

@@ -34,7 +34,7 @@ describe('E2E — Application / Guest Merge Flow', () => {
 
     };
     repos = createE2ERepos();
-    cartService = new CartService(repos.carts, mockEventBridge as never);
+    cartService = new CartService(repos.carts, repos.items, mockEventBridge as never);
     itemService = new CartItemService(repos.items, repos.carts, mockEventBridge as never);
     guestService = new GuestCartService(repos.guests, repos.carts, repos.mergers, mockEventBridge as never);
     mergerService = new CartMergerService(repos.carts, repos.items, repos.mergers, mockEventBridge as never);

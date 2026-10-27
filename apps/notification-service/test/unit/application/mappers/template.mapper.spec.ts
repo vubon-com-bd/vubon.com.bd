@@ -1,6 +1,7 @@
 import { TemplateMapper } from '@application/mappers/template.mapper.js';
 import { TemplateEntity } from '@domain/entities/template.entity.js';
 import { TemplateVO } from '@domain/composites/template.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
 import { TemplateIdVO } from '@domain/primitives/template-id.vo.js';
 import { TemplateNameVO } from '@domain/primitives/template-name.vo.js';
 import { TemplateContentVO } from '@domain/primitives/template-content.vo.js';
@@ -14,8 +15,8 @@ function buildTemplate(opts: { withSubject?: boolean; type?: 'transactional' | '
   const type = opts.type ?? 'system';
   const typeVO =
     type === 'transactional'
-      ? NotificationTypeVO.transactional()
-      : NotificationTypeVO.system();
+      ? TemplateTypeVO.email()
+      : TemplateTypeVO.sms();
 
   const vo = TemplateVO.create({
     id: TemplateIdVO.create(IDS.templateId),

@@ -12,23 +12,27 @@ describe('InfrastructureModule', () => {
     expect(InfrastructureModule).toBeDefined();
   });
 
-  it('should have module metadata with imports', () => {
-    const imports = Reflect.getMetadata('imports', InfrastructureModule);
-    expect(imports).toBeDefined();
-    expect(Array.isArray(imports)).toBe(true);
-    expect((imports as unknown[]).length).toBeGreaterThan(0);
+  it('should have forRoot static method', () => {
+    expect(typeof InfrastructureModule.forRoot).toBe('function');
   });
 
-  it('should have module metadata with providers', () => {
-    const providers = Reflect.getMetadata('providers', InfrastructureModule);
-    expect(providers).toBeDefined();
-    expect(Array.isArray(providers)).toBe(true);
+  it('forRoot() should return DynamicModule with imports', () => {
+    const dynamicModule = InfrastructureModule.forRoot();
+    expect(dynamicModule).toBeDefined();
+    expect(dynamicModule.module).toBe(InfrastructureModule);
+    expect(Array.isArray(dynamicModule.imports)).toBe(true);
+    expect((dynamicModule.imports as unknown[]).length).toBeGreaterThan(0);
   });
 
-  it('should have module metadata with exports', () => {
-    const exports = Reflect.getMetadata('exports', InfrastructureModule);
-    expect(exports).toBeDefined();
-    expect(Array.isArray(exports)).toBe(true);
-    expect((exports as unknown[]).length).toBeGreaterThan(0);
+  it('forRoot() should return DynamicModule with providers', () => {
+    const dynamicModule = InfrastructureModule.forRoot();
+    expect(dynamicModule.providers).toBeDefined();
+    expect(Array.isArray(dynamicModule.providers)).toBe(true);
+  });
+
+  it('forRoot() should return DynamicModule with exports', () => {
+    const dynamicModule = InfrastructureModule.forRoot();
+    expect(Array.isArray(dynamicModule.exports)).toBe(true);
+    expect((dynamicModule.exports as unknown[]).length).toBeGreaterThan(0);
   });
 });

@@ -30,6 +30,7 @@ import { UserContactModule } from './module/modules/user-contact/index.js';
 import { UserKycModule } from './module/modules/user-kyc/index.js';
 import { UserActivityModule } from './module/modules/user-activity/index.js';
 import { PublicProfileModule } from './module/modules/public-profile/index.js';
+import { SocialIntegrationModule } from './module/modules/social-integration/social-integration.module.js';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { PublicProfileModule } from './module/modules/public-profile/index.js';
     // Auth features
     AuthModule,
     UserModule,
+    SocialIntegrationModule,
     AuthDeviceModule,
     AuthSocialModule,
     AuthBiometricModule,

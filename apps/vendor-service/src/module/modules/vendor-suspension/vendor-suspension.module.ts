@@ -2,7 +2,7 @@
  * VendorSuspensionModule
  * @module vendor-service/modules/vendor-suspension
  */
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { VendorModule } from '../vendor/index.js';
 import { EventBridgeModule } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
@@ -18,7 +18,7 @@ import { VendorSuspensionService } from '../../application/services/impl/vendor-
 import { VENDOR_SUSPENSION_SERVICE } from '../../application/services/interfaces/vendor-suspension.service.interface.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule, VendorModule],
+  imports: [CqrsModule, EventBridgeModule, forwardRef(() => VendorModule)],
   controllers: [VendorSuspensionController],
   providers: [
     VendorSuspensionService,

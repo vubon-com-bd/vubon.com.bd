@@ -7,19 +7,19 @@ import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './e
 
 // ─── Event Type Constants ───────────────────
 export const AUTH_EVENT_TYPE = {
-  CREATED: 'auth.created',
-  ACTIVATED: 'auth.activated',
-  DEACTIVATED: 'auth.deactivated',
-  LOCKED: 'auth.locked',
-  UNLOCKED: 'auth.unlocked',
-  REVOKED: 'auth.revoked',
-  EXPIRED: 'auth.expired',
-  STATUS_CHANGED: 'auth.status_changed',
-  EMAIL_VERIFIED: 'auth.email_verified',
-  PHONE_VERIFIED: 'auth.phone_verified',
-  MFA_ENABLED: 'auth.mfa_enabled',
-  MFA_DISABLED: 'auth.mfa_disabled',
-  PASSWORD_CHANGED: 'auth.password_changed',
+  CREATED: 'identity.auth.created',
+  ACTIVATED: 'identity.auth.activated',
+  DEACTIVATED: 'identity.auth.deactivated',
+  LOCKED: 'identity.auth.locked',
+  UNLOCKED: 'identity.auth.unlocked',
+  REVOKED: 'identity.auth.revoked',
+  EXPIRED: 'identity.auth.expired',
+  STATUS_CHANGED: 'identity.auth.status_changed',
+  EMAIL_VERIFIED: 'identity.auth.email_verified',
+  PHONE_VERIFIED: 'identity.auth.phone_verified',
+  MFA_ENABLED: 'identity.auth.mfa_enabled',
+  MFA_DISABLED: 'identity.auth.mfa_disabled',
+  PASSWORD_CHANGED: 'identity.auth.password_changed',
 } as const;
 
 // ─── Payload Interfaces ─────────────────────

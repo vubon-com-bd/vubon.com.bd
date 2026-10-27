@@ -66,6 +66,7 @@ describe('CartService', () => {
   let service: CartService;
 
   let mockEventBridge: { publishFromEntity: ReturnType<typeof jest.fn> };
+  let mockItemRepo: Record<string, jest.Mock>;
   let repo: jest.Mocked<CartRepository>;
 
   beforeEach(() => {
@@ -75,8 +76,27 @@ describe('CartService', () => {
       publishFromEntity: jest.fn().mockResolvedValue(undefined),
 
     };
+    mockItemRepo = {
+      findByCartId: jest.fn().mockResolvedValue([]),
+      findAll: jest.fn().mockResolvedValue({ items: [], total: 0, page: 1, limit: 20, totalPages: 0 }),
+      findById: jest.fn(),
+      findByIdVO: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+      exists: jest.fn(),
+      findByProductId: jest.fn(),
+      findByVariantId: jest.fn(),
+      findByStatus: jest.fn(),
+      findPaginated: jest.fn(),
+      countByCartId: jest.fn(),
+      deleteByCartId: jest.fn(),
+      deleteByProductId: jest.fn(),
+      updateQuantity: jest.fn(),
+      updateStatus: jest.fn(),
+      getStats: jest.fn(),
+    };
 
-    service = new CartService(repo, mockEventBridge as never);
+    service = new CartService(repo, mockItemRepo as never, mockEventBridge as never);
   });
 
   describe('create', () => {

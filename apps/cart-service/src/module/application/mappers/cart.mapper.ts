@@ -3,6 +3,8 @@
  * @module cart-service/application/mappers
  */
 import type { CartEntity } from '../../domain/entities/cart.entity.js';
+import type { CartItemEntity } from '../../domain/entities/cart-item.entity.js';
+import { CartItemMapper } from './cart-item.mapper.js';
 import type {
   CartResponseDTO,
   CartPublicResponseDTO,
@@ -76,11 +78,11 @@ export class CartMapper {
 
   static toDetail(
     entity: CartEntity,
-    _items: readonly unknown[],
+    items: readonly CartItemEntity[],
   ): CartDetailResponseDTO {
     return {
       cart: this.toResponse(entity),
-      items: [],
+      items: items.map((item) => CartItemMapper.toResponse(item)),
     };
   }
 }

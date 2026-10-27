@@ -4,6 +4,8 @@
  *
  * Covers: full send flow (builder → entity → mapper → repository → worker)
  */
+import { jest } from '@jest/globals';
+
 import { NotificationPrismaMapper } from '@infrastructure/persistence/prisma/mappers/notification.prisma.mapper.js';
 import { NotificationPrismaRepository } from '@infrastructure/persistence/prisma/repositories/notification.prisma.repository.js';
 import { NotificationSenderWorker } from '@infrastructure/workers/notification-sender.worker.js';

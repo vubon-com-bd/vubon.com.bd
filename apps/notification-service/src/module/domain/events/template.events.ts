@@ -9,11 +9,11 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const TEMPLATE_EVENT_TYPE = {
-  CREATED: 'template.created',
-  UPDATED: 'template.updated',
-  ACTIVATED: 'template.activated',
-  ARCHIVED: 'template.archived',
-  RENDERED: 'template.rendered',
+  CREATED: 'notification.template.created',
+  UPDATED: 'notification.template.updated',
+  ACTIVATED: 'notification.template.activated',
+  ARCHIVED: 'notification.template.archived',
+  RENDERED: 'notification.template.rendered',
 } as const;
 
 export interface TemplateCreatedPayload {

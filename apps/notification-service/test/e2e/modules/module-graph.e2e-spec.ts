@@ -83,8 +83,8 @@ describe('Module Graph (E2E)', () => {
     expect(hasKernel).toBe(true);
   });
 
-  it('should have exactly 18 imports in AppModule', () => {
-    // 2 dynamic (Config + Cqrs) + Common + Health + 14 features
-    expect(readImports(NotificationAppModule).length).toBe(18);
+  it('should have exactly 19 imports in AppModule', () => {
+    // 2 dynamic (Config + Cqrs) + Common + Health + 15 features (added module)
+    expect(readImports(NotificationAppModule).length).toBe(19);
   });
 });

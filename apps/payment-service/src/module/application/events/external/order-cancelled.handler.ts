@@ -14,7 +14,7 @@ import {
   type IPaymentService,
 } from '@application/services/interfaces/payment.service.interface';
 
-export const ORDER_CANCELLED_EVENT = 'order-service.order.cancelled';
+export const ORDER_CANCELLED_EVENT = 'order.order.cancelled';
 
 interface OrderCancelledPayload {
   readonly orderId: string;
@@ -25,7 +25,7 @@ interface OrderCancelledPayload {
 
 interface OrderCancelledEvent {
   readonly id: string;
-  readonly type: 'order-service.order.cancelled';
+  readonly type: 'order.order.cancelled';
   readonly aggregateId: string;
   readonly aggregateType: string;
   readonly payload: OrderCancelledPayload;

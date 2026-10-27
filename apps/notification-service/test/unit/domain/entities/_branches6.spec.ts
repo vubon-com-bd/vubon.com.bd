@@ -16,6 +16,7 @@ import { BroadcastEntity } from '@domain/entities/broadcast.entity.js';
 import { BroadcastVO } from '@domain/composites/broadcast.vo.js';
 import { NotificationContentVO } from '@domain/composites/notification-content.vo.js';
 import { BroadcastIdVO } from '@domain/primitives/broadcast-id.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
 import { BroadcastTypeVO } from '@domain/primitives/broadcast-type.vo.js';
 import { BroadcastStatusVO } from '@domain/primitives/broadcast-status.vo.js';
 import { BroadcastAudienceVO } from '@domain/primitives/broadcast-audience.vo.js';
@@ -559,10 +560,10 @@ describe('TemplateEntity — booster 6', () => {
       id: TemplateIdVO.create(IDS.templateId),
       name: TemplateNameVO.create('Test'),
       slug: 'test',
-      type: NotificationTypeVO.create('transactional'),
+      type: TemplateTypeVO.create('email'),
       status: 'draft' as const,
       format: TemplateFormatVO.html(),
-      subject: TemplateContentVO.create('Hi {{userName}}'),
+      subject: NotificationSubjectVO.create('Test Subject'),
       body: TemplateContentVO.create('Hello {{userName}}'),
       variables: [v('userName')],
       locale: 'en',

@@ -162,17 +162,17 @@ describe('E2E — Domain Integration (full lifecycle)', () => {
     expect(accessToken.isRevoked()).toBe(true);
 
     // ═══════════════ 9. VERIFY EVENT STREAM ═══════════════
-    expect(events.countByType('auth.created')).toBe(1);
-    expect(events.countByType('auth.email_verified')).toBe(1);
-    expect(events.countByType('auth.status_changed')).toBeGreaterThanOrEqual(1);
-    expect(events.countByType('session.created')).toBe(1);
-    expect(events.countByType('session.logout')).toBe(1);
-    expect(events.countByType('token.issued')).toBe(1);
-    expect(events.countByType('token.revoked')).toBe(1);
-    expect(events.countByType('mfa.setup_started')).toBe(1);
-    expect(events.countByType('mfa.verified')).toBe(1);
-    expect(events.countByType('mfa.enabled')).toBe(1);
-    expect(events.countByType('auth.mfa_enabled')).toBe(1);
+    expect(events.countByType('identity.auth.created')).toBe(1);
+    expect(events.countByType('identity.auth.email_verified')).toBe(1);
+    expect(events.countByType('identity.auth.status_changed')).toBeGreaterThanOrEqual(1);
+    expect(events.countByType('identity.session.created')).toBe(1);
+    expect(events.countByType('identity.session.logout')).toBe(1);
+    expect(events.countByType('identity.token.issued')).toBe(1);
+    expect(events.countByType('identity.token.revoked')).toBe(1);
+    expect(events.countByType('identity.mfa.setup_started')).toBe(1);
+    expect(events.countByType('identity.mfa.verified')).toBe(1);
+    expect(events.countByType('identity.mfa.enabled')).toBe(1);
+    expect(events.countByType('identity.auth.mfa_enabled')).toBe(1);
   });
 
   it('revoked auth cannot login again', () => {

@@ -14,8 +14,8 @@ import {
 describe('Order Cancel Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
-      expect(ORDER_CANCEL_EVENT_TYPE.REQUESTED).toBe('order-service.order-cancel.requested');
-      expect(ORDER_CANCEL_EVENT_TYPE.REFUNDED).toBe('order-service.order-cancel.refunded');
+      expect(ORDER_CANCEL_EVENT_TYPE.REQUESTED).toBe('order.order-cancel.requested');
+      expect(ORDER_CANCEL_EVENT_TYPE.REFUNDED).toBe('order.order-cancel.refunded');
     });
   });
 

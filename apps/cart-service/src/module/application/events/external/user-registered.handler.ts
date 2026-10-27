@@ -2,7 +2,7 @@
  * UserCreatedHandler — creates welcome cart when user registers
  * @module cart-service/application/events/external
  *
- * Identity service emits 'user.created' on successful registration.
+ * Identity service emits 'identity.user.created' on successful registration.
  * This handler creates an empty welcome cart for the new user.
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -17,7 +17,7 @@ import { CartIdVO } from '../../../domain/value-objects/primitives/cart-id.vo.js
 import { CartTypeVO } from '../../../domain/value-objects/primitives/cart-type.vo.js';
 import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo.js';
 
-export const USER_CREATED_EVENT = 'user.created';
+export const USER_CREATED_EVENT = 'identity.user.created';
 
 interface UserCreatedPayload {
   readonly userId: string;
@@ -29,7 +29,7 @@ interface UserCreatedPayload {
 
 interface UserCreatedEvent {
   readonly id: string;
-  readonly type: 'user.created';
+  readonly type: 'identity.user.created';
   readonly aggregateId: string;
   readonly aggregateType: string;
   readonly payload: UserCreatedPayload;

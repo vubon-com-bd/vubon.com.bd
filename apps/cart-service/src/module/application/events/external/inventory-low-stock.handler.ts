@@ -1,5 +1,5 @@
 /**
- * InventoryLowStockHandler — reacts to product.inventory.low_stock
+ * InventoryLowStockHandler — reacts to product.inventory.low_stock_alert
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
@@ -11,7 +11,7 @@ import {
   type CartItemRepository,
 } from '../../../domain/repositories/cart-item.repository.interface.js';
 
-export const INVENTORY_LOW_STOCK_EVENT = 'product.inventory.low_stock';
+export const INVENTORY_LOW_STOCK_EVENT = 'product.inventory.low_stock_alert';
 
 @Injectable()
 export class InventoryLowStockHandler implements OnModuleInit {

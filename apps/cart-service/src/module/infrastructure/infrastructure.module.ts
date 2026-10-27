@@ -31,12 +31,14 @@ import { CartNotificationService } from './services/external/cart-notification.s
 import { CartAnalyticsService } from './services/external/cart-analytics.service.js';
 import { IdempotencyService } from './services/internal/idempotency.service.js';
 import { GuestTokenService } from './services/internal/guest-token.service.js';
+import { ProductClient } from './services/external/product.client.js';
 
 const INFRA_SERVICES = [
   CartNotificationService,
   CartAnalyticsService,
   IdempotencyService,
   GuestTokenService,
+  ProductClient,
 ];
 
 @Global()

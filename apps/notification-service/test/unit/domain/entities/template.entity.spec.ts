@@ -6,7 +6,8 @@ import { TemplateNameVO } from '@domain/primitives/template-name.vo.js';
 import { TemplateContentVO } from '@domain/primitives/template-content.vo.js';
 import { TemplateFormatVO } from '@domain/primitives/template-format.vo.js';
 import { TemplateVariableVO } from '@domain/primitives/template-variable.vo.js';
-import { NotificationTypeVO } from '@domain/primitives/notification-type.vo.js';
+import { NotificationSubjectVO } from '@domain/primitives/notification-subject.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
 import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 import { IDS } from '@domain-fixtures/ids.fixture.js';
@@ -21,7 +22,8 @@ const makeVO = (overrides: any = {}) =>
     id: TemplateIdVO.create(IDS.templateId),
     name: TemplateNameVO.create('Order Confirmation'),
     slug: 'order-confirmation',
-    type: NotificationTypeVO.create('promotional'),
+    type: TemplateTypeVO.create('email'),
+    subject: NotificationSubjectVO.create('Test Subject'),
     status: 'draft' as const,
     format: TemplateFormatVO.html(),
     body: TemplateContentVO.create('<p>Hi {{userName}}</p>'),
@@ -59,7 +61,8 @@ describe('TemplateEntity (Aggregate Root)', () => {
       expect(() =>
         TemplateEntity.create({
           id: TemplateIdVO.create(IDS.templateId),
-          vo: makeVO({ type: NotificationTypeVO.create('transactional') }),
+          vo: makeVO({ type: TemplateTypeVO.create('email'), subject: undefined }),
+          subject: NotificationSubjectVO.create('Test Subject'),
           now: NOW,
         }),
       ).toThrow(ValidationError);
@@ -98,7 +101,8 @@ describe('TemplateEntity (Aggregate Root)', () => {
       expect(() =>
         TemplateEntity.create({
           id: TemplateIdVO.create(IDS.templateId),
-          vo: makeVO({ type: NotificationTypeVO.create('transactional') }),
+          vo: makeVO({ type: TemplateTypeVO.create('email'), subject: undefined }),
+          subject: NotificationSubjectVO.create('Test Subject'),
           now: NOW,
         }),
       ).toThrow(ValidationError);

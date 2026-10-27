@@ -1,6 +1,8 @@
 /**
  * Broadcast lifecycle E2E — create → approve → start → complete।
  */
+import { jest } from '@jest/globals';
+
 import { BroadcastService } from '@application/services/impl/broadcast.service.js';
 import { BroadcastResultService } from '@application/services/impl/broadcast-result.service.js';
 import {

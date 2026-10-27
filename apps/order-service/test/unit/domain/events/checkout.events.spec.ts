@@ -14,9 +14,9 @@ import {
 describe('Checkout Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
-      expect(CHECKOUT_EVENT_TYPE.STARTED).toBe('order-service.checkout.started');
-      expect(CHECKOUT_EVENT_TYPE.STEP_CHANGED).toBe('order-service.checkout.step_changed');
-      expect(CHECKOUT_EVENT_TYPE.COMPLETED).toBe('order-service.checkout.completed');
+      expect(CHECKOUT_EVENT_TYPE.STARTED).toBe('order.checkout.started');
+      expect(CHECKOUT_EVENT_TYPE.STEP_CHANGED).toBe('order.checkout.step_changed');
+      expect(CHECKOUT_EVENT_TYPE.COMPLETED).toBe('order.checkout.completed');
     });
   });
 

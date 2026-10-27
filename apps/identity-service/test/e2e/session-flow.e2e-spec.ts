@@ -59,9 +59,9 @@ describe('E2E — Session Flow', () => {
     expect(session.canAccess()).toBe(false);
 
     // Events
-    expect(events.countByType('session.created')).toBe(1);
-    expect(events.countByType('session.refreshed')).toBe(1);
-    expect(events.countByType('session.logout')).toBe(1);
+    expect(events.countByType('identity.session.created')).toBe(1);
+    expect(events.countByType('identity.session.refreshed')).toBe(1);
+    expect(events.countByType('identity.session.logout')).toBe(1);
   });
 
   it('expired session cannot access', () => {

@@ -28,6 +28,7 @@ import {
 } from '../../../domain/repositories/cart.repository.interface.js';
 import { CartEntity } from '../../../domain/entities/cart.entity.js';
 import { CartIdVO } from '../../../domain/value-objects/primitives/cart-id.vo.js';
+import { CART_ITEM_REPOSITORY, type CartItemRepository } from '../../../domain/repositories/cart-item.repository.interface.js';
 import { CartStatusVO } from '../../../domain/value-objects/primitives/cart-status.vo.js';
 import { CartTypeVO } from '../../../domain/value-objects/primitives/cart-type.vo.js';
 import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo.js';
@@ -74,6 +75,8 @@ export class CartService implements ICartService {
   constructor(
     @Inject(CART_REPOSITORY)
     private readonly repo: CartRepository,
+    @Inject(CART_ITEM_REPOSITORY)
+    private readonly itemRepo: CartItemRepository,
     private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
@@ -260,7 +263,8 @@ export class CartService implements ICartService {
 
   async getDetail(id: string): Promise<CartDetailResponseDTO> {
     const cart = await this.loadCart(id);
-    return CartMapper.toDetail(cart, []);
+    const items = await this.itemRepo.findByCartId(id);
+    return CartMapper.toDetail(cart, items);
   }
 
   async getSummary(id: string): Promise<CartSummaryResponseDTO> {

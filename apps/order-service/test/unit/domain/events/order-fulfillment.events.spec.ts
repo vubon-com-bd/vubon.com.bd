@@ -14,10 +14,10 @@ describe('Order Fulfillment Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
       expect(ORDER_FULFILLMENT_EVENT_TYPE.STARTED).toBe(
-        'order-service.order-fulfillment.started',
+        'order.order-fulfillment.started',
       );
       expect(ORDER_FULFILLMENT_EVENT_TYPE.FULFILLED).toBe(
-        'order-service.order-fulfillment.fulfilled',
+        'order.order-fulfillment.fulfilled',
       );
     });
   });

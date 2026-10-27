@@ -18,8 +18,8 @@ import { GUEST_CART_COMMAND_HANDLERS } from '../../../src/module/modules/guest-c
 
 describe('Handler Arrays', () => {
   describe('Cart handlers', () => {
-    it('should have 5 command handlers', () => {
-      expect(CART_COMMAND_HANDLERS.length).toBe(5);
+    it('should have 6 command handlers', () => {
+      expect(CART_COMMAND_HANDLERS.length).toBe(6);
     });
 
     it('should have 4 query handlers', () => {

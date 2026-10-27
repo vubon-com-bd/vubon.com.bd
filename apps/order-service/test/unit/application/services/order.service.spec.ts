@@ -32,9 +32,14 @@ describe('OrderService', () => {
   let service: OrderService;
   let repo: jest.Mocked<OrderRepository>;
 
+  let mockEventBridge: { publishFromEntity: jest.Mock };
+
   beforeEach(() => {
     repo = makeRepo();
-    service = new OrderService(repo);
+    mockEventBridge = {
+      publishFromEntity: jest.fn().mockResolvedValue(undefined),
+    };
+    service = new OrderService(repo, mockEventBridge as never);
   });
 
   // ═══════════════ COMMANDS ═══════════════

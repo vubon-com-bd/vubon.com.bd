@@ -44,11 +44,18 @@ describe('TemplateService', () => {
       .rejects.toBeInstanceOf(Error);
   });
 
-  it('create reaches NotImplementedError path on valid', async () => {
-    const { svc, repo } = makeService();
+  it('create succeeds on valid template', async () => {
+    const { svc, repo, bridge } = makeService();
     repo.findBySlug.mockResolvedValue(null);
-    // Valid template but domain assembly not implemented → CommandError wrapping
-    await expect(svc.create(TEMPLATE_DTO.create, 'a')).rejects.toBeInstanceOf(TemplateCreationError);
+    repo.save.mockImplementation(async (entity: unknown) => entity);
+
+    const result = await svc.create(TEMPLATE_DTO.create, 'a');
+
+    expect(result).toBeDefined();
+    expect(result.slug).toBe(TEMPLATE_DTO.create.slug);
+    expect(result.status).toBe('draft');
+    expect(repo.save).toHaveBeenCalled();
+    expect(bridge.publishFromEntity).toHaveBeenCalled();
   });
 
   it('getById throws NotFound', async () => {

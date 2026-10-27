@@ -9,9 +9,9 @@
  *   - Barrel exports
  *   - Config-based health indicators (tested via e2e)
  */
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
-const config: Config = {
+const config: Config.InitialOptions = {
   displayName: 'unit:modules',
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '../..',

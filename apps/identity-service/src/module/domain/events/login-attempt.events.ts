@@ -6,9 +6,9 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const LOGIN_ATTEMPT_EVENT_TYPE = {
-  SUCCEEDED: 'login_attempt.succeeded',
-  FAILED: 'login_attempt.failed',
-  BLOCKED: 'login_attempt.blocked',
+  SUCCEEDED: 'identity.login_attempt.succeeded',
+  FAILED: 'identity.login_attempt.failed',
+  BLOCKED: 'identity.login_attempt.blocked',
 } as const;
 
 export interface LoginAttemptSucceededPayload {

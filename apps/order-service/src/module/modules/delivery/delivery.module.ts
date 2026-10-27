@@ -13,11 +13,13 @@ import { DELIVERY_SAGAS } from './sagas/index.js';
 import { DeliveryService } from '../../application/services/impl/delivery.service.js';
 import { DELIVERY_SERVICE } from '../../application/services/interfaces/delivery.service.interface.js';
 import { DeliveryHealthIndicator } from './health/index.js';
+import { PaymentQrClient } from '../../infrastructure/services/external/payment-qr.client.js';
 
 @Module({
   imports: [CqrsModule, DeliveryMethodModule],
   controllers: [DeliveryController],
   providers: [
+    PaymentQrClient,
     DeliveryService,
     { provide: DELIVERY_SERVICE, useExisting: DeliveryService },
     ...(DELIVERY_COMMAND_HANDLERS as readonly unknown[] as never[]),

@@ -6,12 +6,12 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const SOCIAL_EVENT_TYPE = {
-  LINKED: 'social_account.linked',
-  UNLINKED: 'social_account.unlinked',
-  LOGIN_SUCCEEDED: 'social_account.login_succeeded',
-  OAUTH_CLIENT_REGISTERED: 'oauth_client.registered',
-  SSO_CONFIG_CREATED: 'sso_config.created',
-  SSO_LOGIN_SUCCEEDED: 'sso.login_succeeded',
+  LINKED: 'identity.social_account.linked',
+  UNLINKED: 'identity.social_account.unlinked',
+  LOGIN_SUCCEEDED: 'identity.social_account.login_succeeded',
+  OAUTH_CLIENT_REGISTERED: 'identity.oauth_client.registered',
+  SSO_CONFIG_CREATED: 'identity.sso_config.created',
+  SSO_LOGIN_SUCCEEDED: 'identity.sso.login_succeeded',
 } as const;
 
 export interface SocialAccountLinkedPayload {

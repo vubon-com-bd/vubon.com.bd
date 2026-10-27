@@ -66,8 +66,8 @@ describe('E2E — Token Flow', () => {
     accessToken.pullDomainEvents().forEach((e) => events.record(e.type, e.aggregateId, e.payload));
 
     // Events
-    expect(events.countByType('token.issued')).toBe(1);
-    expect(events.countByType('token.reused')).toBe(1);
+    expect(events.countByType('identity.token.issued')).toBe(1);
+    expect(events.countByType('identity.token.reused')).toBe(1);
   });
 
   it('refresh token rotation: old used + new issued', () => {
@@ -139,6 +139,6 @@ describe('E2E — Token Flow', () => {
     expect(t1.isRevoked()).toBe(true);
 
     const events = t1.pullDomainEvents();
-    expect(events.some((e) => e.type === 'token.revoked')).toBe(true);
+    expect(events.some((e) => e.type === 'identity.token.revoked')).toBe(true);
   });
 });

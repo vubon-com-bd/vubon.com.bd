@@ -2,7 +2,7 @@
  * UserCreatedHandler — sends welcome notification when user registers
  * @module notification-service/application/events/external
  *
- * Identity service emits 'user.created' on successful registration.
+ * Identity service emits 'identity.user.created' on successful registration.
  * This handler sends a welcome email + in-app notification.
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -19,7 +19,7 @@ import {
   type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
 
-export const USER_CREATED_EVENT = 'user.created';
+export const USER_CREATED_EVENT = 'identity.user.created';
 
 interface UserCreatedPayload {
   readonly userId: string;
@@ -31,7 +31,7 @@ interface UserCreatedPayload {
 
 interface UserCreatedEvent {
   readonly id: string;
-  readonly type: 'user.created';
+  readonly type: 'identity.user.created';
   readonly aggregateId: string;
   readonly aggregateType: string;
   readonly payload: UserCreatedPayload;
@@ -73,7 +73,7 @@ export class UserCreatedHandler implements OnModuleInit {
         subject: 'Welcome to Vubon!',
         body: `Hi! Welcome to Vubon.com.bd. Your account has been created successfully with roles: ${roles.join(', ')}.`,
         data: {
-          eventType: 'user.created',
+          eventType: 'identity.user.created',
           eventId: event.id,
           roles,
         },

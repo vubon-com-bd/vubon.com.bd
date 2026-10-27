@@ -9,20 +9,20 @@ import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 // ─── Event Type Constants ──────────────────
 export const ORDER_EVENT_TYPE = {
-  CREATED: 'order-service.order.created',
-  CONFIRMED: 'order-service.order.confirmed',
-  PROCESSING_STARTED: 'order-service.order.processing_started',
-  PACKED: 'order-service.order.packed',
-  SHIPPED: 'order-service.order.shipped',
-  OUT_FOR_DELIVERY: 'order-service.order.out_for_delivery',
-  DELIVERED: 'order-service.order.delivered',
-  COMPLETED: 'order-service.order.completed',
-  CANCELLED: 'order-service.order.cancelled',
-  RETURNED: 'order-service.order.returned',
-  REFUNDED: 'order-service.order.refunded',
-  STATUS_CHANGED: 'order-service.order.status_changed',
-  PRIORITY_CHANGED: 'order-service.order.priority_changed',
-  NOTE_ADDED: 'order-service.order.note_added',
+  CREATED: 'order.order.created',
+  CONFIRMED: 'order.order.confirmed',
+  PROCESSING_STARTED: 'order.order.processing_started',
+  PACKED: 'order.order.packed',
+  SHIPPED: 'order.order.shipped',
+  OUT_FOR_DELIVERY: 'order.order.out_for_delivery',
+  DELIVERED: 'order.order.delivered',
+  COMPLETED: 'order.order.completed',
+  CANCELLED: 'order.order.cancelled',
+  RETURNED: 'order.order.returned',
+  REFUNDED: 'order.order.refunded',
+  STATUS_CHANGED: 'order.order.status_changed',
+  PRIORITY_CHANGED: 'order.order.priority_changed',
+  NOTE_ADDED: 'order.order.note_added',
 } as const;
 
 // ─── Payload Interfaces ────────────────────

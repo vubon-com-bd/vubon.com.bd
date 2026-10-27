@@ -8,14 +8,14 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const DELIVERY_EVENT_TYPE = {
-  SCHEDULED: 'order-service.delivery.scheduled',
-  RESCHEDULED: 'order-service.delivery.rescheduled',
-  PICKED_UP: 'order-service.delivery.picked_up',
-  IN_TRANSIT: 'order-service.delivery.in_transit',
-  OUT_FOR_DELIVERY: 'order-service.delivery.out_for_delivery',
-  DELIVERED: 'order-service.delivery.delivered',
-  FAILED: 'order-service.delivery.failed',
-  CANCELLED: 'order-service.delivery.cancelled',
+  SCHEDULED: 'order.delivery.scheduled',
+  RESCHEDULED: 'order.delivery.rescheduled',
+  PICKED_UP: 'order.delivery.picked_up',
+  IN_TRANSIT: 'order.delivery.in_transit',
+  OUT_FOR_DELIVERY: 'order.delivery.out_for_delivery',
+  DELIVERED: 'order.delivery.delivered',
+  FAILED: 'order.delivery.failed',
+  CANCELLED: 'order.delivery.cancelled',
 } as const;
 
 export interface DeliveryScheduledPayload {

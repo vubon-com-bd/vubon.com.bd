@@ -2,12 +2,12 @@
  * Jest Config — Domain Unit Tests
  * @module notification-service/test
  */
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
 // Resolve workspace packages to their SOURCE (not dist) so ts-jest can transform
 const WORKSPACE_SRC = '<rootDir>/../../packages';
 
-const config: Config = {
+const config: Config.InitialOptions = {
   displayName: 'domain-unit',
   rootDir: '../..',
   testEnvironment: 'node',
@@ -86,6 +86,7 @@ const config: Config = {
     // ═══ Relative paths ═══
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  setupFiles: ['<rootDir>/test/setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/unit/setup.ts'],
   collectCoverage: true,
   collectCoverageFrom: [
@@ -107,6 +108,9 @@ const config: Config = {
     },
   },
   testTimeout: 15000,
+  transformIgnorePatterns: [
+    'node_modules/(?!(@nestjs|@vubon|@prisma|uuid|nanoid|chalk|ora|cli-cursor|cli-spinners|log-symbols|strip-ansi|ansi-regex|is-interactive|is-unicode-supported|wcwidth|defaults|clone|mute-stream|stdin-discarder|bl|string-width|emoji-regex|strip-ansi|wrap-ansi|restore-cursor|signal-exit|onetime|mimic-fn|is-stream|execa|get-stream|human-signals|npm-run-path|path-key|shebang-command|shebang-regex|which|merge-stream|is-stream|strip-final-newline|onetime|signal-exit|figures|is-unicode-supported)/)',
+  ],
   maxWorkers: '50%',
   clearMocks: true,
   restoreMocks: true,

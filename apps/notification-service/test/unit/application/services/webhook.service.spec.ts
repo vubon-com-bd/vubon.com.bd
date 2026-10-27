@@ -53,10 +53,14 @@ describe('WebhookService', () => {
     await expect(svc.create(WEBHOOK_DTO.create, 'a')).rejects.toBeInstanceOf(WebhookValidationError);
   });
 
-  it('create reaches stub', async () => {
+  it('create succeeds on valid webhook', async () => {
     const { svc, repo } = makeService();
     repo.findByUrl.mockResolvedValue(null);
-    await expect(svc.create(WEBHOOK_DTO.create, 'a')).rejects.toBeInstanceOf(WebhookCreationError);
+    repo.save.mockImplementation(async (entity: unknown) => entity);
+
+    const result = await svc.create(WEBHOOK_DTO.create, 'a');
+    expect(result).toBeDefined();
+    expect(repo.save).toHaveBeenCalled();
   });
 
   // ─── GET ──────────────────────────────────

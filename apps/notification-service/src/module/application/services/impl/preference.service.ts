@@ -62,7 +62,12 @@ export class PreferenceService implements IPreferenceService {
     dto: UpdatePreferenceRequestDTO,
     actorId?: string,
   ): Promise<PreferenceResponseDTO> {
-    const entity = await this.loadOrCreate(dto.userId);
+    // Strict lookup — update requires existing preference (no auto-create)
+    const existing = await this.repo.findByUser(dto.userId);
+    if (!existing) {
+      throw new PreferenceNotFoundApplicationError(dto.userId);
+    }
+    const entity = existing;
     const now = new Date().toISOString();
 
     try {

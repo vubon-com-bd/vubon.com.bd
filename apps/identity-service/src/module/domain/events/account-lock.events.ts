@@ -6,9 +6,9 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const ACCOUNT_LOCK_EVENT_TYPE = {
-  LOCKED: 'account_lock.locked',
-  UNLOCKED: 'account_lock.unlocked',
-  EXTENDED: 'account_lock.extended',
+  LOCKED: 'identity.account_lock.locked',
+  UNLOCKED: 'identity.account_lock.unlocked',
+  EXTENDED: 'identity.account_lock.extended',
 } as const;
 
 export interface AccountLockedPayload {

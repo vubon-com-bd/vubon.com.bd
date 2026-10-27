@@ -14,9 +14,9 @@ import {
 describe('Delivery Events', () => {
   describe('event type constants', () => {
     it('has all required types', () => {
-      expect(DELIVERY_EVENT_TYPE.SCHEDULED).toBe('order-service.delivery.scheduled');
-      expect(DELIVERY_EVENT_TYPE.DELIVERED).toBe('order-service.delivery.delivered');
-      expect(DELIVERY_EVENT_TYPE.FAILED).toBe('order-service.delivery.failed');
+      expect(DELIVERY_EVENT_TYPE.SCHEDULED).toBe('order.delivery.scheduled');
+      expect(DELIVERY_EVENT_TYPE.DELIVERED).toBe('order.delivery.delivered');
+      expect(DELIVERY_EVENT_TYPE.FAILED).toBe('order.delivery.failed');
     });
   });
 

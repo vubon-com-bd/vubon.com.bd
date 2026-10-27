@@ -1,5 +1,5 @@
 /**
- * OrderCreatedHandler — initiates payment when order is created
+ * OrderCreatedHandler — initiates payment + generates invoice when order is created
  * @module payment-service/application/events/external
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -10,8 +10,12 @@ import {
   PAYMENT_SERVICE,
   type IPaymentService,
 } from '@application/services/interfaces/payment.service.interface';
+import {
+  INVOICE_SERVICE,
+  type IInvoiceService,
+} from '@application/services/interfaces/invoice.service.interface';
 
-export const ORDER_CREATED_EVENT = 'order-service.order.created';
+export const ORDER_CREATED_EVENT = 'order.order.created';
 
 interface OrderCreatedPayload {
   readonly orderId: string;
@@ -25,7 +29,7 @@ interface OrderCreatedPayload {
 
 interface OrderCreatedEvent {
   readonly id: string;
-  readonly type: 'order-service.order.created';
+  readonly type: 'order.order.created';
   readonly aggregateId: string;
   readonly aggregateType: string;
   readonly payload: OrderCreatedPayload;
@@ -40,6 +44,8 @@ export class OrderCreatedHandler implements OnModuleInit {
   constructor(
     @Inject(PAYMENT_SERVICE)
     private readonly paymentService: IPaymentService,
+    @Inject(INVOICE_SERVICE)
+    private readonly invoiceService: IInvoiceService,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -57,6 +63,32 @@ export class OrderCreatedHandler implements OnModuleInit {
       `Received order.created — orderId=${orderId} (${orderNumber}), amount=${totalAmount} ${currency}`,
     );
 
+    // ─── STEP 1: Auto-generate invoice ───
+    try {
+      const invoice = await this.invoiceService.generate(
+        {
+          userId: customerId,
+          orderId,
+          subtotal: totalAmount,
+          taxAmount: 0,
+          currency,
+          notes: `Auto-generated for order ${orderNumber}`,
+        } as never,
+        'system',
+      );
+
+      this.logger.log(
+        `✅ Invoice auto-generated: ${invoice.id} (${invoice.invoiceNumber}) for order ${orderId}`,
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'unknown';
+      this.logger.error(
+        `Invoice auto-generation failed for order ${orderId}: ${msg}`,
+      );
+      // Continue to payment even if invoice fails
+    }
+
+    // ─── STEP 2: Initiate payment ───
     try {
       const result = await this.paymentService.initiate(
         {

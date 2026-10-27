@@ -2,9 +2,9 @@
  * Jest configuration — Interfaces layer only
  * @module notification-service/test/unit
  */
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
-const config: Config = {
+const config: Config.InitialOptions = {
   displayName: 'unit:interfaces',
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '../..',
@@ -37,6 +37,7 @@ const config: Config = {
     },
   },
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/test/setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/setup-interfaces.ts'],
   moduleNameMapper: {
     // ─── Domain ─────────────────────

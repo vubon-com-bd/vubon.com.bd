@@ -7,11 +7,11 @@
  * ⚠️ Uses isolated modules + commonjs module override — required because
  *    @nestjs/* packages are ESM-only and Jest runs in CJS mode.
  */
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
 const WORKSPACE_SRC = '<rootDir>/../../packages';
 
-const config: Config = {
+const config: Config.InitialOptions = {
   displayName: 'application-unit',
   rootDir: '../..',
   testEnvironment: 'node',
@@ -124,6 +124,7 @@ const config: Config = {
 
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  setupFiles: ['<rootDir>/test/setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/unit/setup-application.ts'],
   collectCoverage: true,
   collectCoverageFrom: [

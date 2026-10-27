@@ -11,8 +11,9 @@
     "^.+\\.(t|j)s$": [
       "ts-jest",
       {
-        "tsconfig": "<rootDir>/tsconfig.json",
-        "isolatedModules": true
+        "useESM": true,
+        "isolatedModules": true,
+        "tsconfig": "<rootDir>/tsconfig.json"
       }
     ]
   },
@@ -51,7 +52,13 @@
     "^@fixtures/(.*)$": "<rootDir>/test/fixtures/$1",
     "^@domain-fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/domain/$1",
     "^@domain-fixtures/(.*)$": "<rootDir>/test/fixtures/domain/$1",
-    "^(\\.{1,2}/.*)\\.js$": "$1"
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@test-infra/(.*)\\.js$": "<rootDir>/test/fixtures/infrastructure/$1",
+    "^@test-infra/(.*)$": "<rootDir>/test/fixtures/infrastructure/$1",
+    "^@application-fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/application/$1",
+    "^@application-fixtures/(.*)$": "<rootDir>/test/fixtures/application/$1",
+    "^@app-fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/application/$1",
+    "^@app-fixtures/(.*)$": "<rootDir>/test/fixtures/application/$1"
   },
   "setupFilesAfterEnv": [
     "<rootDir>/test/setup.ts"
@@ -62,6 +69,12 @@
   "detectOpenHandles": false,
   "forceExit": true,
   "transformIgnorePatterns": [
-    "node_modules/(?!(@vubon/shared-kernel|@vubon/shared-constants|@vubon/shared-types|@vubon/shared-utils|@vubon/shared-config)/)"
+    "node_modules/(?!(@nestjs|@vubon|@prisma|uuid|nanoid|chalk|ora|cli-cursor|cli-spinners|log-symbols|strip-ansi|ansi-regex|is-interactive|is-unicode-supported|wcwidth|defaults|clone|mute-stream|stdin-discarder|bl|string-width|emoji-regex|strip-ansi|wrap-ansi|restore-cursor|signal-exit|onetime|mimic-fn|is-stream|execa|get-stream|human-signals|npm-run-path|path-key|shebang-command|shebang-regex|which|merge-stream|is-stream|strip-final-newline|onetime|signal-exit|figures|is-unicode-supported)/)"
+  ],
+  "setupFiles": [
+    "<rootDir>/test/jest-e2e-env.ts"
+  ],
+  "extensionsToTreatAsEsm": [
+    ".ts"
   ]
 }

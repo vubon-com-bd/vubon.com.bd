@@ -1,5 +1,9 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
   "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
@@ -31,11 +35,18 @@
     "^@test-infra/(.*)\\.js$": "<rootDir>/test/fixtures/infrastructure/$1",
     "^@test-infra/(.*)$": "<rootDir>/test/fixtures/infrastructure/$1"
   },
-  "extensionsToTreatAsEsm": [".ts"],
-  "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],
+  "extensionsToTreatAsEsm": [
+    ".ts"
+  ],
+  "setupFilesAfterEnv": [
+    "<rootDir>/test/setup.ts"
+  ],
   "testTimeout": 60000,
   "verbose": false,
   "maxWorkers": 1,
   "detectOpenHandles": false,
-  "forceExit": true
+  "forceExit": true,
+  "transformIgnorePatterns": [
+    "node_modules/(?!(@nestjs|@vubon|@prisma|uuid|nanoid|chalk|ora|cli-cursor|cli-spinners|log-symbols|strip-ansi|ansi-regex|is-interactive|is-unicode-supported|wcwidth|defaults|clone|mute-stream|stdin-discarder|bl|string-width|emoji-regex|strip-ansi|wrap-ansi|restore-cursor|signal-exit|onetime|mimic-fn|is-stream|execa|get-stream|human-signals|npm-run-path|path-key|shebang-command|shebang-regex|which|merge-stream|is-stream|strip-final-newline|onetime|signal-exit|figures|is-unicode-supported)/)"
+  ]
 }

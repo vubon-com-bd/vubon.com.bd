@@ -21,10 +21,15 @@ import { PRODUCT_SERVICE } from '../../application/services/interfaces/product.s
 // ─── Guards ─────────────────────────────────
 import { OwnProductGuard } from '../../interfaces/guards/own-product.guard.js';
 
+import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
+import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
+
 @Module({
   imports: [CqrsModule],
   controllers: [ProductController, PublicProductController],
   providers: [
+    VendorApprovedHandler,
+    VendorSuspendedHandler,
     // Service + DI token
     ProductService,
     { provide: PRODUCT_SERVICE, useExisting: ProductService },

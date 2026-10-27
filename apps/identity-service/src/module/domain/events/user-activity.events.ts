@@ -6,8 +6,8 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_ACTIVITY_EVENT_TYPE = {
-  RECORDED: 'user.activity_recorded',
-  SECURITY_EVENT: 'user.security_event',
+  RECORDED: 'identity.user.activity_recorded',
+  SECURITY_EVENT: 'identity.user.security_event',
 } as const;
 
 export interface UserActivityRecordedPayload {

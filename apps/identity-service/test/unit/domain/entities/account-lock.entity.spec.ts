@@ -20,7 +20,7 @@ describe('AccountLockEntity', () => {
       const l = createNewAccountLock();
       expect(l.version).toBe(1);
       const events = l.pullDomainEvents();
-      expect(events.some((e) => e.type === 'account_lock.locked')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.account_lock.locked')).toBe(true);
     });
   });
 
@@ -48,7 +48,7 @@ describe('AccountLockEntity', () => {
       expect(l.unlockedAt).toBeDefined();
       expect(l.unlockedBy).toBe(TEST_IDS.USER_ID);
       const events = l.pullDomainEvents();
-      expect(events.some((e) => e.type === 'account_lock.unlocked')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.account_lock.unlocked')).toBe(true);
     });
 
     it('should throw when already unlocked', () => {

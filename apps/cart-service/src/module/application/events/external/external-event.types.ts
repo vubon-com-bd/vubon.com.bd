@@ -73,7 +73,7 @@ export type ProductPriceChangedEvent = ExternalEvent<ProductPriceChangedPayload>
 };
 
 export type InventoryLowStockEvent = ExternalEvent<InventoryLowStockPayload> & {
-  readonly type: 'product.inventory.low_stock';
+  readonly type: 'product.inventory.low_stock_alert';
 };
 
 export type InventoryOutOfStockEvent = ExternalEvent<InventoryOutOfStockPayload> & {
@@ -91,7 +91,7 @@ export interface UserStatusChangedPayload {
 }
 
 export type UserStatusChangedEvent = ExternalEvent<UserStatusChangedPayload> & {
-  readonly type: 'user.status_changed';
+  readonly type: 'identity.user.status_changed';
 };
 
 // ─── Deprecated: kept for compatibility, not emitted by identity ───

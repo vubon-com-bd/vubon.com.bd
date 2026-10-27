@@ -6,10 +6,10 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_PREFERENCES_EVENT_TYPE = {
-  CREATED: 'user.preferences_created',
-  UPDATED: 'user.preferences_updated',
-  UNSUBSCRIBED: 'user.preferences_unsubscribed',
-  RESUBSCRIBED: 'user.preferences_resubscribed',
+  CREATED: 'identity.user.preferences_created',
+  UPDATED: 'identity.user.preferences_updated',
+  UNSUBSCRIBED: 'identity.user.preferences_unsubscribed',
+  RESUBSCRIBED: 'identity.user.preferences_resubscribed',
 } as const;
 
 export interface UserPreferencesCreatedPayload {

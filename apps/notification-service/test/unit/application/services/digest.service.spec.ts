@@ -33,9 +33,13 @@ describe('DigestService', () => {
       .rejects.toBeInstanceOf(DigestValidationError);
   });
 
-  it('create reaches stub', async () => {
-    const { svc } = makeService();
-    await expect(svc.create(DIGEST_DTO.create, 'a')).rejects.toBeInstanceOf(DigestCreationError);
+  it('create succeeds on valid digest', async () => {
+    const { svc, repo } = makeService();
+    repo.save.mockImplementation(async (entity: unknown) => entity);
+
+    const result = await svc.create(DIGEST_DTO.create, 'a');
+    expect(result).toBeDefined();
+    expect(repo.save).toHaveBeenCalled();
   });
 
   it('getById NotFound', async () => {

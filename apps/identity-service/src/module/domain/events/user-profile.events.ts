@@ -6,11 +6,11 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_PROFILE_EVENT_TYPE = {
-  CREATED: 'user.profile_created',
-  UPDATED: 'user.profile_updated',
-  AVATAR_UPDATED: 'user.profile_avatar_updated',
-  BIO_UPDATED: 'user.profile_bio_updated',
-  VISIBILITY_CHANGED: 'user.profile_visibility_changed',
+  CREATED: 'identity.user.profile_created',
+  UPDATED: 'identity.user.profile_updated',
+  AVATAR_UPDATED: 'identity.user.profile_avatar_updated',
+  BIO_UPDATED: 'identity.user.profile_bio_updated',
+  VISIBILITY_CHANGED: 'identity.user.profile_visibility_changed',
 } as const;
 
 export interface UserProfileCreatedPayload {

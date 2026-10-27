@@ -27,7 +27,7 @@ describe('SessionEntity', () => {
     it('should emit SessionCreatedEvent', () => {
       const s = createNewSession();
       const events = s.pullDomainEvents();
-      expect(events.some((e) => e.type === 'session.created')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.session.created')).toBe(true);
     });
   });
 
@@ -76,7 +76,7 @@ describe('SessionEntity', () => {
       s.refresh(newExpiry);
       expect(s.refreshedAt).toBeDefined();
       const events = s.pullDomainEvents();
-      expect(events.some((e) => e.type === 'session.refreshed')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.session.refreshed')).toBe(true);
     });
 
     it('should throw on revoked', () => {
@@ -96,7 +96,7 @@ describe('SessionEntity', () => {
       s.expire();
       expect(s.status.isExpired()).toBe(true);
       const events = s.pullDomainEvents();
-      expect(events.some((e) => e.type === 'session.expired')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.session.expired')).toBe(true);
     });
 
     it('should be idempotent on final', () => {
@@ -115,7 +115,7 @@ describe('SessionEntity', () => {
       expect(s.status.isRevoked()).toBe(true);
       expect(s.revokedReason).toBe('security_breach');
       const events = s.pullDomainEvents();
-      expect(events.some((e) => e.type === 'session.revoked')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.session.revoked')).toBe(true);
     });
 
     it('should throw when already revoked', () => {
@@ -131,7 +131,7 @@ describe('SessionEntity', () => {
       s.logout();
       expect(s.status.isRevoked()).toBe(true);
       const events = s.pullDomainEvents();
-      expect(events.some((e) => e.type === 'session.logout')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.session.logout')).toBe(true);
     });
   });
 });

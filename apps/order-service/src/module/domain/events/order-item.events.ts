@@ -8,11 +8,11 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const ORDER_ITEM_EVENT_TYPE = {
-  ADDED: 'order-service.order-item.added',
-  UPDATED: 'order-service.order-item.updated',
-  REMOVED: 'order-service.order-item.removed',
-  STATUS_CHANGED: 'order-service.order-item.status_changed',
-  QUANTITY_CHANGED: 'order-service.order-item.quantity_changed',
+  ADDED: 'order.order-item.added',
+  UPDATED: 'order.order-item.updated',
+  REMOVED: 'order.order-item.removed',
+  STATUS_CHANGED: 'order.order-item.status_changed',
+  QUANTITY_CHANGED: 'order.order-item.quantity_changed',
 } as const;
 
 export interface OrderItemAddedPayload {

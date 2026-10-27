@@ -6,10 +6,10 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const ROLE_PERMISSION_EVENT_TYPE = {
-  ROLE_ASSIGNED: 'role.assigned',
-  ROLE_REVOKED: 'role.revoked',
-  PERMISSION_GRANTED: 'permission.granted',
-  PERMISSION_REVOKED: 'permission.revoked',
+  ROLE_ASSIGNED: 'identity.role.assigned',
+  ROLE_REVOKED: 'identity.role.revoked',
+  PERMISSION_GRANTED: 'identity.permission.granted',
+  PERMISSION_REVOKED: 'identity.permission.revoked',
 } as const;
 
 export interface RoleAssignedPayload {

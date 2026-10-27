@@ -10,7 +10,7 @@ import { TemplateNameVO } from '@domain/primitives/template-name.vo.js';
 import { TemplateContentVO } from '@domain/primitives/template-content.vo.js';
 import { TemplateFormatVO } from '@domain/primitives/template-format.vo.js';
 import { TemplateVariableVO } from '@domain/primitives/template-variable.vo.js';
-import { NotificationTypeVO } from '@domain/primitives/notification-type.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
 
 import { TemplateRendererService } from '@domain/services/template-renderer.service.js';
 import { TemplateValidatorService } from '@domain/services/template-validator.service.js';
@@ -29,7 +29,7 @@ describe('Template Rendering — E2E', () => {
         id: TemplateIdVO.create(IDS.templateId),
         name: TemplateNameVO.create('Order Confirmation'),
         slug: 'order-confirmation',
-        type: NotificationTypeVO.transactional(),
+        type: TemplateTypeVO.email(),
         status: 'draft' as const,
         format: TemplateFormatVO.html(),
         subject: TemplateContentVO.create('Order {{orderId}} confirmed'),

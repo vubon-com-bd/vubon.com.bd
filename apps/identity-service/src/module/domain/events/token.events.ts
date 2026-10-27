@@ -6,15 +6,15 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const TOKEN_EVENT_TYPE = {
-  ISSUED: 'token.issued',
-  REFRESHED: 'token.refreshed',
-  REVOKED: 'token.revoked',
-  EXPIRED: 'token.expired',
-  REUSED: 'token.reused',
-  RESET_REQUESTED: 'token.reset_requested',
-  RESET_COMPLETED: 'token.reset_completed',
-  VERIFY_REQUESTED: 'token.verify_requested',
-  VERIFY_COMPLETED: 'token.verify_completed',
+  ISSUED: 'identity.token.issued',
+  REFRESHED: 'identity.token.refreshed',
+  REVOKED: 'identity.token.revoked',
+  EXPIRED: 'identity.token.expired',
+  REUSED: 'identity.token.reused',
+  RESET_REQUESTED: 'identity.token.reset_requested',
+  RESET_COMPLETED: 'identity.token.reset_completed',
+  VERIFY_REQUESTED: 'identity.token.verify_requested',
+  VERIFY_COMPLETED: 'identity.token.verify_completed',
 } as const;
 
 export interface TokenIssuedPayload {

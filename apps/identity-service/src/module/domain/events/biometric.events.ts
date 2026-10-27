@@ -6,10 +6,10 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const BIOMETRIC_EVENT_TYPE = {
-  ENABLED: 'biometric.enabled',
-  DISABLED: 'biometric.disabled',
-  VERIFIED: 'biometric.verified',
-  FAILED: 'biometric.failed',
+  ENABLED: 'identity.biometric.enabled',
+  DISABLED: 'identity.biometric.disabled',
+  VERIFIED: 'identity.biometric.verified',
+  FAILED: 'identity.biometric.failed',
 } as const;
 
 export interface BiometricEnabledPayload {

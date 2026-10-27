@@ -4,7 +4,7 @@
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   IsUrl,
@@ -12,7 +12,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-const SOCIAL_PROVIDERS = [
+export const SOCIAL_PROVIDERS = [
   'google',
   'facebook',
   'apple',
@@ -22,10 +22,12 @@ const SOCIAL_PROVIDERS = [
   'microsoft',
 ] as const;
 
+export type SocialProviderType = (typeof SOCIAL_PROVIDERS)[number];
+
 export class SocialLoginHttpDTO {
   @ApiProperty({ enum: SOCIAL_PROVIDERS, example: 'google' })
-  @IsEnum(SOCIAL_PROVIDERS)
-  provider!: (typeof SOCIAL_PROVIDERS)[number];
+  @IsIn(SOCIAL_PROVIDERS as unknown as string[])
+  provider!: SocialProviderType;
 
   @ApiProperty({ example: 'auth-code-from-provider' })
   @IsString()

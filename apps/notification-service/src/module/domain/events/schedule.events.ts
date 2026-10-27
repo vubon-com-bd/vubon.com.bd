@@ -9,14 +9,14 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const SCHEDULE_EVENT_TYPE = {
-  CREATED: 'schedule.created',
-  ACTIVATED: 'schedule.activated',
-  PAUSED: 'schedule.paused',
-  RESUMED: 'schedule.resumed',
-  EXECUTED: 'schedule.executed',
-  COMPLETED: 'schedule.completed',
-  CANCELLED: 'schedule.cancelled',
-  FAILED: 'schedule.failed',
+  CREATED: 'notification.schedule.created',
+  ACTIVATED: 'notification.schedule.activated',
+  PAUSED: 'notification.schedule.paused',
+  RESUMED: 'notification.schedule.resumed',
+  EXECUTED: 'notification.schedule.executed',
+  COMPLETED: 'notification.schedule.completed',
+  CANCELLED: 'notification.schedule.cancelled',
+  FAILED: 'notification.schedule.failed',
 } as const;
 
 export interface ScheduleCreatedPayload {

@@ -9,11 +9,11 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { NOTIFICATION_AGGREGATE_TYPE, newEventId, nowTimestamp } from './event.helpers.js';
 
 export const DIGEST_EVENT_TYPE = {
-  CREATED: 'digest.created',
-  GENERATED: 'digest.generated',
-  SENT: 'digest.sent',
-  FAILED: 'digest.failed',
-  CANCELLED: 'digest.cancelled',
+  CREATED: 'notification.digest.created',
+  GENERATED: 'notification.digest.generated',
+  SENT: 'notification.digest.sent',
+  FAILED: 'notification.digest.failed',
+  CANCELLED: 'notification.digest.cancelled',
 } as const;
 
 export interface DigestCreatedPayload {

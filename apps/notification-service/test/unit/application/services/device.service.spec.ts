@@ -41,11 +41,15 @@ describe('DeviceService', () => {
     await expect(svc.register(DEVICE_DTO.register, 'a')).rejects.toBeInstanceOf(DeviceTokenConflictError);
   });
 
-  it('register reaches stub', async () => {
+  it('register succeeds on valid device', async () => {
     const { svc, repo } = makeService();
     repo.countForUser.mockResolvedValue(0);
     repo.findByToken.mockResolvedValue(null);
-    await expect(svc.register(DEVICE_DTO.register, 'a')).rejects.toBeInstanceOf(DeviceRegistrationError);
+    repo.save.mockImplementation(async (entity: unknown) => entity);
+
+    const result = await svc.register(DEVICE_DTO.register, 'a');
+    expect(result).toBeDefined();
+    expect(repo.save).toHaveBeenCalled();
   });
 
   it('updateToken succeeds', async () => {

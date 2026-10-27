@@ -28,7 +28,7 @@ describe('TokenEntity', () => {
       const t = createNewToken();
       expect(t.version).toBe(1);
       const events = t.pullDomainEvents();
-      expect(events.some((e) => e.type === 'token.issued')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.token.issued')).toBe(true);
     });
   });
 
@@ -68,7 +68,7 @@ describe('TokenEntity', () => {
       t.pullDomainEvents();
       expect(() => t.markUsed()).toThrow(BusinessRuleError);
       const events = t.pullDomainEvents();
-      expect(events.some((e) => e.type === 'token.reused')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.token.reused')).toBe(true);
     });
   });
 
@@ -80,7 +80,7 @@ describe('TokenEntity', () => {
       expect(t.isRevoked()).toBe(true);
       expect(t.revokedReason).toBe('logout');
       const events = t.pullDomainEvents();
-      expect(events.some((e) => e.type === 'token.revoked')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.token.revoked')).toBe(true);
     });
 
     it('should be idempotent', () => {

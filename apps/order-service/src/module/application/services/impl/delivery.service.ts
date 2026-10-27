@@ -11,8 +11,14 @@ import {
   DELIVERY_REPOSITORY,
   type DeliveryRepository,
 } from '../../../domain/repositories/delivery.repository.interface.js';
-import type { DeliveryEntity } from '../../../domain/entities/delivery.entity.js';
+import { DeliveryEntity } from '../../../domain/entities/delivery.entity.js';
 import { DeliveryIdVO } from '../../../domain/value-objects/primitives/delivery-id.vo.js';
+import { DeliveryStatusVO } from '../../../domain/value-objects/primitives/delivery-status.vo.js';
+import { DeliveryTypeVO } from '../../../domain/value-objects/primitives/delivery-type.vo.js';
+import { DeliveryMethodIdVO } from '../../../domain/value-objects/primitives/delivery-method-id.vo.js';
+import { OrderIdVO } from '../../../domain/value-objects/primitives/order-id.vo.js';
+import { DeliveryVO } from '../../../domain/value-objects/composites/delivery.vo.js';
+import { randomUUID } from 'node:crypto';
 import { DeliveryMapper } from '../../mappers/delivery.mapper.js';
 import { DeliveryNotFoundApplicationError } from '../../errors/delivery.errors.js';
 import type {
@@ -36,10 +42,34 @@ export class DeliveryService implements IDeliveryService {
 
   async schedule(
     dto: ScheduleDeliveryCommandDTO,
-    _actorId?: string,
+    actorId?: string,
   ): Promise<DeliveryResponseDTO> {
     this.logger.log(`Scheduling delivery for order ${dto.orderId}`);
-    throw new DeliveryNotFoundApplicationError('new-delivery');
+
+    try {
+      const now = new Date().toISOString();
+      const id = randomUUID();
+
+      const vo = DeliveryVO.create({
+        id: DeliveryIdVO.create(id),
+        orderId: OrderIdVO.create(dto.orderId),
+        methodId: DeliveryMethodIdVO.create(dto.deliveryMethodId ?? randomUUID()),
+        status: DeliveryStatusVO.pending(),
+        type: DeliveryTypeVO.create(dto.type ?? 'standard'),
+        estimatedAt: dto.estimatedAt,
+        attempts: 0,
+      });
+
+      const entity = DeliveryEntity.create({ id, vo, now });
+      const saved = await this.repo.save(entity);
+
+      this.logger.log(`✅ Delivery ${saved.id} scheduled for order ${dto.orderId} by ${actorId ?? 'system'}`);
+      return DeliveryMapper.toResponse(saved);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown';
+      this.logger.error(`Failed to schedule delivery for order ${dto.orderId}: ${msg}`);
+      throw err;
+    }
   }
 
   async reschedule(
@@ -57,8 +87,17 @@ export class DeliveryService implements IDeliveryService {
     _actorId?: string,
   ): Promise<DeliveryResponseDTO> {
     const entity = await this.loadById(dto.deliveryId);
-    entity.markDelivered(dto.receivedBy, dto.signature);
+    const now = new Date().toISOString();
+    const status = entity.status.value;
+
+    this.logger.log(`Confirming delivery ${dto.deliveryId} (status: ${status})`);
+
+    // Fast-track: mark as delivered directly (state machine now allows pending/scheduled → delivered)
+    this.logger.log(`  → marking as delivered`);
+    entity.markDelivered(dto.receivedBy, dto.signature, now);
+
     const saved = await this.repo.save(entity);
+    this.logger.log(`✅ Delivery ${saved.id} confirmed for order ${saved.orderId.value}`);
     return DeliveryMapper.toResponse(saved);
   }
 

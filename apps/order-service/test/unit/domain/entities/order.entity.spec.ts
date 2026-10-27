@@ -67,7 +67,7 @@ describe('OrderEntity', () => {
       const entity = OrderEntity.create(makeCreateParams());
       const events = entity.domainEvents;
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('order-service.order.created');
+      expect(events[0].type).toBe('order.order.created');
     });
 
     it('throws for non-pending VO status', () => {

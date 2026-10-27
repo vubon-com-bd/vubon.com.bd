@@ -24,18 +24,45 @@ function makeService(): jest.Mocked<ICartService> {
   } as unknown as jest.Mocked<ICartService>;
 }
 
+const makeCart = (itemCount = 3): Record<string, unknown> => ({
+  id: CART_ID,
+  userId: 'user-1',
+  type: 'standard',
+  status: 'active',
+  itemCount,
+  subtotal: 1000,
+  discountAmount: 0,
+  taxAmount: 100,
+  shippingAmount: 50,
+  total: 1150,
+  currency: 'BDT',
+  expiresAt: new Date(Date.now() + 86400000).toISOString(),
+  lastActivityAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+});
+
 describe('Checkout Command Handlers', () => {
   let service: jest.Mocked<ICartService>;
+  let mockEventBus: { publish: jest.Mock };
+  let mockProductClient: { getByIds: jest.Mock };
 
   beforeEach(() => {
     service = makeService();
+    mockEventBus = { publish: jest.fn().mockResolvedValue(undefined) };
+    mockProductClient = { getByIds: jest.fn().mockResolvedValue([]) };
   });
 
   describe('ProceedToCheckoutHandler', () => {
     it('should return cart when itemCount > 0', async () => {
-      service.getById.mockResolvedValue({ id: CART_ID, itemCount: 3 } as never);
+      service.getById.mockResolvedValue(makeCart(3) as never);
+      service.getDetail.mockResolvedValue({ cart: {} as never, items: [] });
 
-      const handler = new ProceedToCheckoutHandler(service);
+      const handler = new ProceedToCheckoutHandler(
+        service,
+        mockEventBus as never,
+        mockProductClient as never,
+      );
       const cmd = new ProceedToCheckoutCommand({ cartId: CART_ID });
       const result = await handler.execute(cmd);
 
@@ -43,9 +70,13 @@ describe('Checkout Command Handlers', () => {
     });
 
     it('should throw when cart is empty', async () => {
-      service.getById.mockResolvedValue({ id: CART_ID, itemCount: 0 } as never);
+      service.getById.mockResolvedValue(makeCart(0) as never);
 
-      const handler = new ProceedToCheckoutHandler(service);
+      const handler = new ProceedToCheckoutHandler(
+        service,
+        mockEventBus as never,
+        mockProductClient as never,
+      );
       const cmd = new ProceedToCheckoutCommand({ cartId: CART_ID });
 
       await expect(handler.execute(cmd)).rejects.toThrow(ProceedToCheckoutError);

@@ -5,9 +5,9 @@
  * Coverage target: 90% statements, 80% branches, 90% functions, 90% lines.
  * Per payment-service target spec.
  */
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
-const config: Config = {
+const config: Config.InitialOptions = {
   displayName: 'unit:infrastructure',
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '../..',
@@ -110,9 +110,13 @@ const config: Config = {
     '^@test-infra/(.*)$': '<rootDir>/test/fixtures/infrastructure/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  setupFiles: ['<rootDir>/test/setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/setup-infra.ts'],
   extensionsToTreatAsEsm: ['.ts'],
   testTimeout: 10000,
+  transformIgnorePatterns: [
+    'node_modules/(?!(@nestjs|@vubon|@prisma|uuid|nanoid|chalk|ora|cli-cursor|cli-spinners|log-symbols|strip-ansi|ansi-regex|is-interactive|is-unicode-supported|wcwidth|defaults|clone|mute-stream|stdin-discarder|bl|string-width|emoji-regex|strip-ansi|wrap-ansi|restore-cursor|signal-exit|onetime|mimic-fn|is-stream|execa|get-stream|human-signals|npm-run-path|path-key|shebang-command|shebang-regex|which|merge-stream|is-stream|strip-final-newline|onetime|signal-exit|figures|is-unicode-supported)/)',
+  ],
   verbose: false,
 };
 

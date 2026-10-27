@@ -1,6 +1,8 @@
 /**
  * Preference + Device E2E — register → update preference → quiet hours।
  */
+import { jest } from '@jest/globals';
+
 import { PreferenceService } from '@application/services/impl/preference.service.js';
 import { DeviceService } from '@application/services/impl/device.service.js';
 import { QuietHoursService } from '@domain/services/quiet-hours.service.js';

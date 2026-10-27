@@ -8,11 +8,11 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const CHECKOUT_EVENT_TYPE = {
-  STARTED: 'order-service.checkout.started',
-  STEP_CHANGED: 'order-service.checkout.step_changed',
-  COMPLETED: 'order-service.checkout.completed',
-  ABANDONED: 'order-service.checkout.abandoned',
-  EXPIRED: 'order-service.checkout.expired',
+  STARTED: 'order.checkout.started',
+  STEP_CHANGED: 'order.checkout.step_changed',
+  COMPLETED: 'order.checkout.completed',
+  ABANDONED: 'order.checkout.abandoned',
+  EXPIRED: 'order.checkout.expired',
 } as const;
 
 export interface CheckoutStartedPayload {

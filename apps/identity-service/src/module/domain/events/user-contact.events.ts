@@ -6,11 +6,11 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_CONTACT_EVENT_TYPE = {
-  ADDED: 'user.contact_added',
-  UPDATED: 'user.contact_updated',
-  DELETED: 'user.contact_deleted',
-  VERIFIED: 'user.contact_verified',
-  SET_PRIMARY: 'user.contact_set_primary',
+  ADDED: 'identity.user.contact_added',
+  UPDATED: 'identity.user.contact_updated',
+  DELETED: 'identity.user.contact_deleted',
+  VERIFIED: 'identity.user.contact_verified',
+  SET_PRIMARY: 'identity.user.contact_set_primary',
 } as const;
 
 export interface UserContactAddedPayload {

@@ -37,9 +37,13 @@ describe('ScheduleService', () => {
       .rejects.toBeInstanceOf(ScheduleValidationError);
   });
 
-  it('create via scheduledAt reaches stub', async () => {
-    const { svc } = makeService();
-    await expect(svc.create(SCHEDULE_DTO.create, 'a')).rejects.toBeInstanceOf(ScheduleCreationError);
+  it('create via scheduledAt succeeds', async () => {
+    const { svc, repo } = makeService();
+    repo.save.mockImplementation(async (entity: unknown) => entity);
+
+    const result = await svc.create(SCHEDULE_DTO.create, 'a');
+    expect(result).toBeDefined();
+    expect(repo.save).toHaveBeenCalled();
   });
 
   it('create via cronExpression reaches stub', async () => {

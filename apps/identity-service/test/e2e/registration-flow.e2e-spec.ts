@@ -90,10 +90,10 @@ describe('E2E — Registration Flow', () => {
     expect(canLogin.isSatisfiedBy({ auth })).toBe(true);
 
     // Step 8: Verify events recorded
-    expect(events.countByType('auth.created')).toBe(1);
-    expect(events.countByType('verification.verified')).toBe(1);
-    expect(events.countByType('auth.email_verified')).toBe(1);
-    expect(events.countByType('auth.status_changed')).toBeGreaterThanOrEqual(1);
+    expect(events.countByType('identity.auth.created')).toBe(1);
+    expect(events.countByType('identity.verification.verified')).toBe(1);
+    expect(events.countByType('identity.auth.email_verified')).toBe(1);
+    expect(events.countByType('identity.auth.status_changed')).toBeGreaterThanOrEqual(1);
   });
 
   it('rejects duplicate registration', () => {

@@ -6,12 +6,12 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const SESSION_EVENT_TYPE = {
-  CREATED: 'session.created',
-  REFRESHED: 'session.refreshed',
-  IDLE_TIMEOUT: 'session.idle_timeout',
-  EXPIRED: 'session.expired',
-  REVOKED: 'session.revoked',
-  LOGOUT: 'session.logout',
+  CREATED: 'identity.session.created',
+  REFRESHED: 'identity.session.refreshed',
+  IDLE_TIMEOUT: 'identity.session.idle_timeout',
+  EXPIRED: 'identity.session.expired',
+  REVOKED: 'identity.session.revoked',
+  LOGOUT: 'identity.session.logout',
 } as const;
 
 export interface SessionCreatedPayload {

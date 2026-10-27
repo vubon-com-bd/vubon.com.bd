@@ -8,11 +8,11 @@ import type { Timestamp } from '@vubon/shared-types/common';
 import { ORDER_AGGREGATE_TYPE, newEventId, now } from './event.helpers.js';
 
 export const ORDER_CANCEL_EVENT_TYPE = {
-  REQUESTED: 'order-service.order-cancel.requested',
-  APPROVED: 'order-service.order-cancel.approved',
-  REJECTED: 'order-service.order-cancel.rejected',
-  PROCESSED: 'order-service.order-cancel.processed',
-  REFUNDED: 'order-service.order-cancel.refunded',
+  REQUESTED: 'order.order-cancel.requested',
+  APPROVED: 'order.order-cancel.approved',
+  REJECTED: 'order.order-cancel.rejected',
+  PROCESSED: 'order.order-cancel.processed',
+  REFUNDED: 'order.order-cancel.refunded',
 } as const;
 
 export interface OrderCancelRequestedPayload {

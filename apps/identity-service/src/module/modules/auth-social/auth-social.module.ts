@@ -18,6 +18,15 @@ import { AUTH_SSO_SERVICE } from '../../application/services/interfaces/auth-sso
 import { AUTH_OAUTH_SERVICE } from '../../application/services/interfaces/auth-oauth.service.interface.js';
 
 import { AuthSocialSaga } from '../../application/sagas/auth-social.saga.js';
+import { SocialIntegrationModule } from '../social-integration/social-integration.module.js';
+import { GoogleOAuthClient } from '../../infrastructure/external/oauth/google-oauth.client.js';
+import { FacebookOAuthClient } from '../../infrastructure/external/oauth/facebook-oauth.client.js';
+import { GithubOAuthClient } from '../../infrastructure/external/oauth/github-oauth.client.js';
+import { LinkedinOAuthClient } from '../../infrastructure/external/oauth/linkedin-oauth.client.js';
+import { TwitterOAuthClient } from '../../infrastructure/external/oauth/twitter-oauth.client.js';
+import { MicrosoftOAuthClient } from '../../infrastructure/external/oauth/microsoft-oauth.client.js';
+import { AppleOAuthClient } from '../../infrastructure/external/oauth/apple-oauth.client.js';
+import { OAuthStateService } from '../../infrastructure/services/internal/oauth-state.service.js';
 
 const SERVICES = [
   AuthSocialService,
@@ -26,10 +35,18 @@ const SERVICES = [
   { provide: AUTH_SSO_SERVICE, useExisting: AuthSsoService },
   AuthOAuthService,
   { provide: AUTH_OAUTH_SERVICE, useExisting: AuthOAuthService },
+  GoogleOAuthClient,
+  FacebookOAuthClient,
+  GithubOAuthClient,
+  LinkedinOAuthClient,
+  TwitterOAuthClient,
+  MicrosoftOAuthClient,
+  AppleOAuthClient,
+  OAuthStateService,
 ];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, SocialIntegrationModule],
   controllers: [AuthSocialController, AuthSsoController],
   providers: [
     ...SERVICES,

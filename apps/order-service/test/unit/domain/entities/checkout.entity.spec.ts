@@ -43,7 +43,7 @@ describe('CheckoutEntity', () => {
       const entity = CheckoutEntity.create(makeCreateParams());
       const events = entity.domainEvents;
       expect(events.length).toBe(1);
-      expect(events[0].type).toBe('order-service.checkout.started');
+      expect(events[0].type).toBe('order.checkout.started');
     });
 
     it('throws for non-started status', () => {

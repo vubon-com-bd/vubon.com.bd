@@ -14,7 +14,9 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "generate:postman": "node scripts/generate-postman-collection.mjs",
     "generate:readme": "node scripts/generate-readme.mjs",
-    "generate:docker": "node scripts/generate-docker.mjs"
+    "generate:docker": "node scripts/generate-docker.mjs",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "test:e2e": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --config ./test/jest-e2e.json --runInBand --forceExit"
   },
   "dependencies": {
     "@apollo/server": "5.5.1",

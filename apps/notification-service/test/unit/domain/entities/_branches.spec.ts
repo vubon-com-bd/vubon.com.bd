@@ -32,6 +32,8 @@ import { WebhookIdVO } from '@domain/primitives/webhook-id.vo.js';
 import { WebhookTypeVO } from '@domain/primitives/webhook-type.vo.js';
 import { WebhookStatusVO } from '@domain/primitives/webhook-status.vo.js';
 import { WebhookUrlVO } from '@domain/primitives/webhook-url.vo.js';
+import { TemplateTypeVO } from '@domain/primitives/template-type.vo.js';
+import { NotificationSubjectVO } from '@domain/primitives/notification-subject.vo.js';
 
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
@@ -184,7 +186,8 @@ describe('TemplateEntity — branch coverage', () => {
       id: TemplateIdVO.create(IDS.templateId),
       name: TemplateNameVO.create('Test'),
       slug: 'test',
-      type: NotificationTypeVO.create('promotional'),
+      type: TemplateTypeVO.create('email'),
+      subject: NotificationSubjectVO.create('Test Subject'),
       status: 'draft' as const,
       format: TemplateFormatVO.html(),
       body: TemplateContentVO.create('<p>{{userName}}</p>'),
@@ -212,7 +215,8 @@ describe('TemplateEntity — branch coverage', () => {
         createdAt: NOW,
         updatedAt: NOW,
         props: {
-          vo: makeVO({ type: NotificationTypeVO.create('transactional') }),
+          vo: makeVO({ subject: undefined,  type: TemplateTypeVO.create('email') }),
+          subject: NotificationSubjectVO.create('Test Subject'),
           renderedHistory: [],
         },
       }),

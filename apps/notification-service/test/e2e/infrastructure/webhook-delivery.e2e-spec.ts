@@ -2,6 +2,8 @@
  * Webhook Delivery E2E
  * @module notification-service/test/e2e/infrastructure
  */
+import * as cryptoModule from 'node:crypto';
+
 import { WebhookSignerInfraService } from '@infrastructure/services/internal/webhook-signer.service.js';
 import { WebhookVerifierInfraService } from '@infrastructure/services/internal/webhook-verifier.service.js';
 import { HttpWebhookProvider } from '@infrastructure/providers/webhook/http.provider.js';
@@ -36,7 +38,8 @@ describe('Webhook Delivery E2E', () => {
   });
 
   it('verifier handles sendgrid', () => {
-    const crypto = require('node:crypto');
+    // use imported crypto (top of file)
+    const crypto = cryptoModule;
     const secret = 'sg-secret';
     const payload = 'event-payload';
     const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');

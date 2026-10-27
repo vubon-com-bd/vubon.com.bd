@@ -2,6 +2,8 @@
  * Broadcast Flow E2E
  * @module notification-service/test/e2e/infrastructure
  */
+import { jest } from '@jest/globals';
+
 import { BroadcastPrismaMapper } from '@infrastructure/persistence/prisma/mappers/broadcast.prisma.mapper.js';
 import { BroadcastPrismaRepository } from '@infrastructure/persistence/prisma/repositories/broadcast.prisma.repository.js';
 import { BroadcastProcessorWorker } from '@infrastructure/workers/broadcast-processor.worker.js';

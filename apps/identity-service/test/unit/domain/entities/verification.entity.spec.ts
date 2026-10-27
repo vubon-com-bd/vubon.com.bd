@@ -82,7 +82,7 @@ describe('VerificationEntity', () => {
       expect(v.status.isVerified()).toBe(true);
       expect(v.verifiedAt).toBeDefined();
       const events = v.pullDomainEvents();
-      expect(events.some((e) => e.type === 'verification.verified')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.verification.verified')).toBe(true);
     });
 
     it('should throw when already verified', () => {
@@ -103,7 +103,7 @@ describe('VerificationEntity', () => {
       v.expire();
       expect(v.status.isExpired()).toBe(true);
       const events = v.pullDomainEvents();
-      expect(events.some((e) => e.type === 'verification.expired')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.verification.expired')).toBe(true);
     });
 
     it('should be idempotent', () => {
@@ -125,7 +125,7 @@ describe('VerificationEntity', () => {
       expect(v.attempts).toBe(0);
       expect(v.code?.value).toBe('999888');
       const events = v.pullDomainEvents();
-      expect(events.some((e) => e.type === 'verification.otp_resent')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.verification.otp_resent')).toBe(true);
     });
 
     it('should throw when cannot resend', () => {

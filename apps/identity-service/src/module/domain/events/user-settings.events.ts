@@ -6,10 +6,10 @@ import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import { AUTH_AGGREGATE_TYPE, buildEventParams, type BaseEventParams } from './event.helpers.js';
 
 export const USER_SETTINGS_EVENT_TYPE = {
-  CREATED: 'user.settings_created',
-  UPDATED: 'user.settings_updated',
-  THEME_CHANGED: 'user.settings_theme_changed',
-  LANGUAGE_CHANGED: 'user.settings_language_changed',
+  CREATED: 'identity.user.settings_created',
+  UPDATED: 'identity.user.settings_updated',
+  THEME_CHANGED: 'identity.user.settings_theme_changed',
+  LANGUAGE_CHANGED: 'identity.user.settings_language_changed',
 } as const;
 
 export interface UserSettingsCreatedPayload {

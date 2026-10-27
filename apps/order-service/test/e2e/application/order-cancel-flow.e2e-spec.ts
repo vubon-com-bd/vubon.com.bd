@@ -46,7 +46,7 @@ describe('E2E — Order Cancel Flow', () => {
     const order = createPendingOrder();
     order.cancel('customer request', 'customer-1', E2E_NOW);
     const cancelledEvents = order.domainEvents.filter(
-      (e) => e.type === 'order-service.order.cancelled',
+      (e) => e.type === 'order.order.cancelled',
     );
     expect(cancelledEvents.length).toBe(1);
   });

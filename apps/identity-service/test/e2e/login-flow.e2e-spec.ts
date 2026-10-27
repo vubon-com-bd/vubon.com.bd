@@ -80,7 +80,7 @@ describe('E2E — Login Flow', () => {
     expect(auth.lastLoginAt).toBeDefined();
 
     // Events verified
-    expect(events.countByType('session.created')).toBe(1);
+    expect(events.countByType('identity.session.created')).toBe(1);
   });
 
   it('repeated failures trigger account lock', () => {

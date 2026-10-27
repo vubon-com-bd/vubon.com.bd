@@ -27,7 +27,7 @@ describe('MfaEntity', () => {
       expect(m.verified).toBe(false);
       expect(m.enabled).toBe(false);
       const events = m.pullDomainEvents();
-      expect(events.some((e) => e.type === 'mfa.setup_started')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.mfa.setup_started')).toBe(true);
     });
   });
 
@@ -66,7 +66,7 @@ describe('MfaEntity', () => {
       expect(m.verified).toBe(true);
       expect(m.verifiedAt).toBeDefined();
       const events = m.pullDomainEvents();
-      expect(events.some((e) => e.type === 'mfa.verified')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.mfa.verified')).toBe(true);
     });
 
     it('should be idempotent', () => {
@@ -85,7 +85,7 @@ describe('MfaEntity', () => {
       expect(m.enabled).toBe(true);
       expect(m.enabledAt).toBeDefined();
       const events = m.pullDomainEvents();
-      expect(events.some((e) => e.type === 'mfa.enabled')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.mfa.enabled')).toBe(true);
     });
 
     it('should throw when not verified', () => {
@@ -109,7 +109,7 @@ describe('MfaEntity', () => {
       expect(m.enabled).toBe(false);
       expect(m.disabledAt).toBeDefined();
       const events = m.pullDomainEvents();
-      expect(events.some((e) => e.type === 'mfa.disabled')).toBe(true);
+      expect(events.some((e) => e.type === 'identity.mfa.disabled')).toBe(true);
     });
 
     it('should be idempotent on non-enabled', () => {
