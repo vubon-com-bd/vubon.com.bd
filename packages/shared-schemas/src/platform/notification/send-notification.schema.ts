@@ -34,6 +34,7 @@ export const SendNotificationRequestSchema = z
     priority: NotificationPrioritySchema.optional(),
     subject: z.string().trim().min(1).max(200),
     body: z.string().trim().min(1).max(50000),
+    html: z.string().max(500000).optional(),
     imageUrl: UrlSchema.optional(),
     iconUrl: UrlSchema.optional(),
     actionUrl: UrlSchema.optional(),

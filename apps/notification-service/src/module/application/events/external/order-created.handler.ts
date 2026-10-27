@@ -17,6 +17,7 @@ import {
 } from '../../services/interfaces/notification.service.interface.js';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderOrderConfirmationEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 export const ORDER_CREATED_EVENT = 'order.order.created';
 
@@ -80,7 +81,15 @@ export class OrderCreatedHandler implements OnModuleInit {
       this.logger.log(`🌐 Locale: ${locale} | Subject: ${resolved.subject}`);
       this.logger.log(`📝 Body: ${resolved.body.substring(0, 100)}...`);
 
-      const result = await this.notificationService.send({
+      const html = renderOrderConfirmationEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'Customer',
+          orderId: payload.orderId,
+          total: payload.total,
+          currency: payload.currency,
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
+        const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
         category: NOTIFICATION_CATEGORY.ORDER,
@@ -92,6 +101,7 @@ export class OrderCreatedHandler implements OnModuleInit {
           eventType: 'order.order.created',
           eventId: event.id,
           ...payload,
+          html,
         },
         idempotencyKey: `ordercreated-${event.id}`,
       });

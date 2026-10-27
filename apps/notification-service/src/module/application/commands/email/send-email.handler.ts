@@ -36,10 +36,15 @@ export class SendEmailHandler
       category: 'system',
       channels: ['email'],
       subject: c.dto.subject,
-      body: c.dto.text ?? c.dto.html ?? '',
+      body: c.dto.text ?? '',
       // ─── Direct email hint (bypasses identity lookup) ───
       email: firstEmail,
-      data: { recipients, cc: c.dto.cc, bcc: c.dto.bcc, attachments: c.dto.attachments },
+      data: {
+        recipients,
+        cc: c.dto.cc,
+        bcc: c.dto.bcc,
+        attachments: c.dto.attachments,
+        },
       idempotencyKey: c.dto.idempotencyKey,
     }, c.actorId);
 

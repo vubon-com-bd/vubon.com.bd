@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderWelcomeEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -73,6 +74,12 @@ export class UserVerifiedHandler implements OnModuleInit {
           },
         );
 
+        const html = renderWelcomeEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'User',
+          email: (payload as unknown as { email?: string }).email ?? '',
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
         const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.VERIFICATION,
@@ -85,6 +92,7 @@ export class UserVerifiedHandler implements OnModuleInit {
           eventType: 'identity.user.email_verified',
           eventId: event.id,
           ...payload,
+          html,
         },
         idempotencyKey: `userverified-${event.id}`,
       });

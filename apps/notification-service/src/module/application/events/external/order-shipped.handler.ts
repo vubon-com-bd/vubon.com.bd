@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderDeliveryEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -73,6 +74,14 @@ export class OrderShippedHandler implements OnModuleInit {
           },
         );
 
+        const html = renderDeliveryEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'Customer',
+          orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
+          status: 'shipped',
+          trackingNumber: (payload as unknown as { trackingNumber?: string }).trackingNumber,
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
         const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
@@ -85,6 +94,7 @@ export class OrderShippedHandler implements OnModuleInit {
           eventType: 'order.order.shipped',
           eventId: event.id,
           ...payload,
+          html,
         },
         idempotencyKey: `ordershipped-${event.id}`,
       });

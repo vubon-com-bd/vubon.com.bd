@@ -9,6 +9,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderWelcomeEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -81,6 +82,12 @@ export class UserCreatedHandler implements OnModuleInit {
           },
         );
 
+        const html = renderWelcomeEmail({
+          name: email.split('@')[0],
+          email: email,
+          locale: ((event.payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
         const result = await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.WELCOME,
@@ -93,6 +100,7 @@ export class UserCreatedHandler implements OnModuleInit {
           eventType: 'identity.user.created',
           eventId: event.id,
           roles,
+          html,
         },
         idempotencyKey: `welcome-${userId}`,
         // Recipient hints for memory mode (avoid identity-service lookup)

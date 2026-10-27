@@ -62,11 +62,27 @@ import { I18nService } from '../../domain/services/i18n.service.js';
 import { CleanupExpiredHandler } from '@application/sagas/commands/cleanup-expired.handler.js';
 import { UpdateAnalyticsHandler } from '@application/sagas/commands/update-analytics.handler.js';
 import { PreferenceModule } from '../preference/preference.module.js';
+import { SendEmailDispatchHandler } from '@application/commands/email/send-email-dispatch.handler.js';
+import { ProviderResolverService } from '@infrastructure/providers/base/provider-resolver.service.js';
+import { SmtpProvider } from '@infrastructure/providers/email/smtp.provider.js';
+import { SendgridProvider } from '@infrastructure/providers/email/sendgrid.provider.js';
+import { MailgunProvider } from '@infrastructure/providers/email/mailgun.provider.js';
+import { SesProvider } from '@infrastructure/providers/email/ses.provider.js';
+import { ResendProvider } from '@infrastructure/providers/email/resend.provider.js';
+import { PostmarkProvider } from '@infrastructure/providers/email/postmark.provider.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule],
   controllers: [NotificationController],
   providers: [
+    SendEmailDispatchHandler,
+    ProviderResolverService,
+    SmtpProvider,
+    SendgridProvider,
+    MailgunProvider,
+    SesProvider,
+    ResendProvider,
+    PostmarkProvider,
     UpdateAnalyticsHandler,
     CleanupExpiredHandler,
     I18nService,

@@ -19,6 +19,7 @@ import {
 } from '@domain/events/notification.events.js';
 
 import { SendEmailCommand } from '@application/commands/email/send-email.command.js';
+import { SendEmailDispatchCommand } from '@application/commands/email/send-email-dispatch.command.js';
 import { SendSmsCommand } from '@application/commands/sms/send-sms.command.js';
 import { SendPushCommand } from '@application/commands/push/send-push.command.js';
 import { UpdateAnalyticsCommand } from './commands/update-analytics.command.js';
@@ -46,14 +47,18 @@ export class NotificationDeliverySaga {
           }),
         );
 
-        // Route to channel-specific command (email by default)
-        // In real impl, use ChannelSelectorService to decide
-        return new SendEmailCommand(
-          {
-            to: [e.payload.userId],
-            subject: 'Notification',
-            text: 'Please check your notifications',
-          },
+        // Route to dispatch only for email channel — NO LOOP
+        // (uses new dispatch handler that calls provider directly)
+        if (e.payload.channel === 'email') {
+          return new SendEmailDispatchCommand(
+            e.payload.notificationId,
+            'system',
+          );
+        }
+
+        // For other channels: skip (handled by their own workers)
+        return new SendEmailDispatchCommand(
+          e.payload.notificationId,
           'system',
         );
       }),

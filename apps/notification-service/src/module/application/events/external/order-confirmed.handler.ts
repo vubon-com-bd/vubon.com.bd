@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderOrderConfirmationEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -72,6 +73,14 @@ export class OrderConfirmedHandler implements OnModuleInit {
           },
         );
 
+        const html = renderOrderConfirmationEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'Customer',
+          orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
+          total: 0,
+          currency: 'BDT',
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
         const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
@@ -84,6 +93,7 @@ export class OrderConfirmedHandler implements OnModuleInit {
           eventType: 'order.order.confirmed',
           eventId: event.id,
           ...payload,
+          html,
         },
         idempotencyKey: `orderconfirmed-${event.id}`,
       });
