@@ -7,6 +7,7 @@ import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/e
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import { renderWelcomeEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
+import { UserClient } from '@infrastructure/services/external/user.client.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -45,6 +46,7 @@ export class UserVerifiedHandler implements OnModuleInit {
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
     private readonly i18n: I18nService,
+    private readonly userClient: UserClient,
     private readonly eventBus: EventBusService,
   ) {}
 
@@ -58,6 +60,21 @@ export class UserVerifiedHandler implements OnModuleInit {
   private async handle(event: UserVerifiedHandlerEvent): Promise<void> {
     const payload = event.payload;
     this.logger.log(`Received user.email_verified — ${JSON.stringify(payload)}`);
+
+    // ─── Fetch user email if missing ───
+    const userId = payload.userId ?? event.aggregateId;
+    let userEmail = payload.email;
+    if (!userEmail && userId) {
+      try {
+        const profile = await this.userClient.getById(userId);
+        if (profile) {
+          userEmail = profile.email;
+          this.logger.log(`Fetched email from identity-service: ${userEmail ? 'yes' : 'no'}`);
+        }
+      } catch (err) {
+        this.logger.warn(`User fetch failed for ${userId}: ${err}`);
+      }
+    }
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
@@ -85,6 +102,7 @@ export class UserVerifiedHandler implements OnModuleInit {
         type: NOTIFICATION_TYPE.VERIFICATION,
         category: NOTIFICATION_CATEGORY.USER,
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
+        email: userEmail,
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,
