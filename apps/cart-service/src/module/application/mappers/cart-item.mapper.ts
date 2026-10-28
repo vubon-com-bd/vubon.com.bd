@@ -15,6 +15,7 @@ export class CartItemMapper {
       id: entity.id,
       cartId: entity.cartId.value,
       productId: entity.productId.value,
+      vendorId: entity.vendorId?.value,
       variantId: entity.variantId?.value,
       quantity: entity.quantity.value,
       status: entity.status.value,

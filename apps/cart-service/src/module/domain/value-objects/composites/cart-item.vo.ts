@@ -8,10 +8,12 @@ import { CartItemIdVO } from '../primitives/cart-item-id.vo.js';
 import { CartItemQuantityVO } from '../primitives/cart-item-quantity.vo.js';
 import { CartItemStatusVO } from '../primitives/cart-item-status.vo.js';
 import { ProductIdVO } from '../primitives/product-id.vo.js';
+import { VendorIdVO } from '../primitives/vendor-id.vo.js';
 
 export interface CartItemVOProps {
   readonly id: CartItemIdVO;
   readonly productId: ProductIdVO;
+  readonly vendorId?: VendorIdVO;
   readonly quantity: CartItemQuantityVO;
   readonly status: CartItemStatusVO;
   readonly unitPrice: number;
@@ -47,6 +49,7 @@ export class CartItemVO extends BaseVO<CartItemVOProps> {
 
   get id(): CartItemIdVO { return this.value.id; }
   get productId(): ProductIdVO { return this.value.productId; }
+  get vendorId(): VendorIdVO | undefined { return this.value.vendorId; }
   get quantity(): CartItemQuantityVO { return this.value.quantity; }
   get status(): CartItemStatusVO { return this.value.status; }
   get unitPrice(): number { return this.value.unitPrice; }

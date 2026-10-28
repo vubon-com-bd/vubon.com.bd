@@ -155,6 +155,7 @@ export class CartTotalsRecalculatedEvent extends BaseDomainEvent<
 // ─── CartCheckedOutEvent (rich payload for order-service) ──────────────
 export interface CartCheckedOutItemPayload {
   readonly productId: string;
+  readonly vendorId?: string;
   readonly variantId?: string;
   readonly name: string;
   readonly sku: string;

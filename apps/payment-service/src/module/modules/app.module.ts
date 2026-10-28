@@ -15,6 +15,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 
 // ─── Common + Health ────────────────────────
 import { PaymentCommonModule } from './common/index.js';
+import { AuthModule } from './auth/index.js';
 import { HealthModule } from './health/index.js';
 
 // ─── Feature modules ────────────────────────
@@ -38,6 +39,7 @@ import { GatewayModule } from './gateway/index.js';
 
     // ─── Common (global aggregates) ─────────
     PaymentCommonModule,
+    AuthModule,
 
     // ─── Health ─────────────────────────────
     HealthModule,

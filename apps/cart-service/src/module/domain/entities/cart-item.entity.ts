@@ -14,12 +14,14 @@ import { CartItemStatusVO } from '../value-objects/primitives/cart-item-status.v
 import { CartItemNoteVO } from '../value-objects/primitives/cart-item-note.vo.js';
 import { ProductIdVO } from '../value-objects/primitives/product-id.vo.js';
 import { VariantIdVO } from '../value-objects/primitives/variant-id.vo.js';
+import { VendorIdVO } from '../value-objects/primitives/vendor-id.vo.js';
 import { CartIdVO } from '../value-objects/primitives/cart-id.vo.js';
 
 export interface CartItemEntityProps {
   readonly cartId: CartIdVO;
   readonly productId: ProductIdVO;
   readonly variantId?: VariantIdVO;
+  readonly vendorId?: VendorIdVO;
   readonly quantity: CartItemQuantityVO;
   readonly status: CartItemStatusVO;
   readonly unitPrice: number;
@@ -37,6 +39,7 @@ export class CartItemEntity extends BaseEntity<string> {
   private readonly _cartId: CartIdVO;
   private readonly _productId: ProductIdVO;
   private readonly _variantId?: VariantIdVO;
+  private readonly _vendorId?: VendorIdVO;
   private readonly _currency: string;
 
   private constructor(
@@ -50,6 +53,7 @@ export class CartItemEntity extends BaseEntity<string> {
     this._cartId = props.cartId;
     this._productId = props.productId;
     this._variantId = props.variantId;
+    this._vendorId = props.vendorId;
     this._quantity = props.quantity;
     this._status = props.status;
     this._unitPrice = props.unitPrice;
@@ -73,6 +77,7 @@ export class CartItemEntity extends BaseEntity<string> {
   get cartId(): CartIdVO { return this._cartId; }
   get productId(): ProductIdVO { return this._productId; }
   get variantId(): VariantIdVO | undefined { return this._variantId; }
+  get vendorId(): VendorIdVO | undefined { return this._vendorId; }
   get quantity(): CartItemQuantityVO { return this._quantity; }
   get status(): CartItemStatusVO { return this._status; }
   get unitPrice(): number { return this._unitPrice; }

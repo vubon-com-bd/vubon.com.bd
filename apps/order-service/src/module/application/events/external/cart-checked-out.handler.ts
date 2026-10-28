@@ -18,6 +18,7 @@ interface CartCheckedOutPayload {
   readonly userId: string;
   readonly items: readonly {
     readonly productId: string;
+    readonly vendorId?: string;
     readonly variantId?: string;
     readonly name: string;
     readonly sku: string;

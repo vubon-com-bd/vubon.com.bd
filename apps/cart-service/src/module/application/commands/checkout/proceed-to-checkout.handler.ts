@@ -62,6 +62,7 @@ export class ProceedToCheckoutHandler
               const product = productMap.get(item.productId);
               return {
                 productId: item.productId,
+                vendorId: item.vendorId,
                 variantId: item.variantId,
                 name: product?.name ?? item.productId,
                 sku: product?.sku ?? item.productId,

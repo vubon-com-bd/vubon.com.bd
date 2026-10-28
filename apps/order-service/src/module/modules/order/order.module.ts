@@ -33,11 +33,18 @@ import { PaymentFailedHandler } from '../../application/events/external/payment-
 
 // ─── Feature health ─────────────────────────
 import { OrderFeatureHealthIndicator } from './health/index.js';
+import { UserStatusChangedHandler } from '../../application/events/external/user-status-changed.handler.js';
+import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
+import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
+import { OrderCancelModule } from '../order-cancel/order-cancel.module.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule],
+  imports: [CqrsModule, EventBridgeModule, OrderCancelModule],
   controllers: [OrderController, PublicOrderController],
   providers: [
+    UserStatusChangedHandler,
+    VendorSuspendedHandler,
+    VendorApprovedHandler,
     // ─── Service + DI Token ─────────────────
     OrderService,
     { provide: ORDER_SERVICE, useExisting: OrderService },

@@ -25,7 +25,7 @@ export class UserNameVO extends BaseNameVO {
         'name',
       );
     }
-    if (!/^[\p{L}\s'.-]+$/u.test(normalized)) {
+    if (!/^[\p{L}\p{N}\s'._-]+$/u.test(normalized)) {
       throw new ValidationError('UserName contains invalid characters', 'name');
     }
     return new UserNameVO(normalized);

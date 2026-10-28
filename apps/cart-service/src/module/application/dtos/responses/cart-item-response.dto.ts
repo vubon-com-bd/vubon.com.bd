@@ -14,6 +14,7 @@ export interface CartItemResponseDTO {
   readonly id: string;
   readonly cartId: string;
   readonly productId: string;
+  readonly vendorId?: string;
   readonly variantId?: string;
   readonly quantity: number;
   readonly status: CartItemStatusValue;
