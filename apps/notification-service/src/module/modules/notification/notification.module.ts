@@ -103,6 +103,24 @@ import { VendorRejectedHandler } from '../../application/events/external/vendor-
 import { VendorReinstatedHandler } from '../../application/events/external/vendor-reinstated.handler.js';
 import { ProductDeletedHandler } from '../../application/events/external/product-deleted.handler.js';
 import { PricingChangedHandler } from '../../application/events/external/pricing-changed.handler.js';
+import { OrderStatusChangedHandler } from '../../application/events/external/order-status-changed.handler.js';
+import { OrderPackedHandler } from '../../application/events/external/order-packed.handler.js';
+import { OrderRefundedHandler } from '../../application/events/external/order-refunded.handler.js';
+import { ReturnRejectedHandler } from '../../application/events/external/return-rejected.handler.js';
+import { ReturnClosedHandler } from '../../application/events/external/return-closed.handler.js';
+import { ReturnReceivedHandler } from '../../application/events/external/return-received.handler.js';
+import { RefundRejectedHandler } from '../../application/events/external/refund-rejected.handler.js';
+import { InvoiceOverdueHandler } from '../../application/events/external/invoice-overdue.handler.js';
+import { InvoiceVoidedHandler } from '../../application/events/external/invoice-voided.handler.js';
+import { PaymentAuthorizedHandler } from '../../application/events/external/payment-authorized.handler.js';
+import { PaymentCancelledHandler } from '../../application/events/external/payment-cancelled.handler.js';
+import { VendorAppealedHandler } from '../../application/events/external/vendor-appealed.handler.js';
+import { VendorInfoRequestedHandler } from '../../application/events/external/vendor-info-requested.handler.js';
+import { CommissionCalculatedHandler } from '../../application/events/external/commission-calculated.handler.js';
+import { SettlementCompletedHandler } from '../../application/events/external/settlement-completed.handler.js';
+import { CartCreatedHandler } from '../../application/events/external/cart-created.handler.js';
+import { CartClearedHandler } from '../../application/events/external/cart-cleared.handler.js';
+import { CartMergedHandler } from '../../application/events/external/cart-merged.handler.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule],
@@ -146,6 +164,24 @@ import { PricingChangedHandler } from '../../application/events/external/pricing
 
     // ─── External Event Handlers (added) ───
     CartAbandonedHandler,
+    CartMergedHandler,
+    CartClearedHandler,
+    CartCreatedHandler,
+    SettlementCompletedHandler,
+    CommissionCalculatedHandler,
+    VendorInfoRequestedHandler,
+    VendorAppealedHandler,
+    PaymentCancelledHandler,
+    PaymentAuthorizedHandler,
+    InvoiceVoidedHandler,
+    InvoiceOverdueHandler,
+    RefundRejectedHandler,
+    ReturnReceivedHandler,
+    ReturnClosedHandler,
+    ReturnRejectedHandler,
+    OrderRefundedHandler,
+    OrderPackedHandler,
+    OrderStatusChangedHandler,
     PricingChangedHandler,
     ProductDeletedHandler,
     VendorReinstatedHandler,
