@@ -11,13 +11,14 @@ import { SCHEDULE_COMMAND_HANDLERS } from './commands/index.js';
 import { SCHEDULE_QUERY_HANDLERS } from './queries/index.js';
 import { SCHEDULE_SAGAS } from './sagas/index.js';
 import { ScheduleHealthIndicator } from './health/index.js';
+import { QueuesWorkersModule } from '@infrastructure/modules/queues-workers.module.js';
 
 // ─── Services ───────────────────────────────
 import { ScheduleService } from '@application/services/impl/schedule.service.js';
 import { SCHEDULE_SERVICE } from '@application/services/interfaces/schedule.service.interface.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule],
+  imports: [CqrsModule, EventBridgeModule, QueuesWorkersModule],
   controllers: [ScheduleController],
   providers: [
     ScheduleService,

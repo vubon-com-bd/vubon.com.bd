@@ -36,7 +36,7 @@ export class BroadcastQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
-        jobId: `broadcast:start:${payload.broadcastId}`,
+        jobId: `broadcast:start:${payload.broadcastId}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -48,7 +48,7 @@ export class BroadcastQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
-        jobId: `broadcast:batch:${payload.broadcastId}:${payload.batchNumber}`,
+        jobId: `broadcast:batch:${payload.broadcastId}:${payload.batchNumber}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -61,7 +61,7 @@ export class BroadcastQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.LOW,
         delayMs: 5_000,
-        jobId: `broadcast:complete:${payload.broadcastId}`,
+        jobId: `broadcast:complete:${payload.broadcastId}`.replace(/[:.]/g, '-'),
       },
     );
   }

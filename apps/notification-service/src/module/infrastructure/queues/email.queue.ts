@@ -32,7 +32,7 @@ export class EmailQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
         delayMs,
-        jobId: `email:${payload.notificationId}`,
+        jobId: `email:${payload.notificationId}`.replace(/[:.]/g, '-'),
       },
     );
   }

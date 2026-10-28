@@ -33,7 +33,7 @@ export class WebhookQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
-        jobId: `webhook:deliver:${payload.deliveryId}`,
+        jobId: `webhook:deliver:${payload.deliveryId}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -49,7 +49,7 @@ export class WebhookQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
         delayMs,
-        jobId: `webhook:retry:${payload.deliveryId}:${payload.attempt}`,
+        jobId: `webhook:retry:${payload.deliveryId}:${payload.attempt}`.replace(/[:.]/g, '-'),
       },
     );
   }

@@ -38,7 +38,7 @@ export class DigestQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
         delayMs,
-        jobId: `digest:generate:${payload.digestId}`,
+        jobId: `digest:generate:${payload.digestId}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -50,7 +50,7 @@ export class DigestQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
-        jobId: `digest:send:${payload.digestId}`,
+        jobId: `digest:send:${payload.digestId}`.replace(/[:.]/g, '-'),
       },
     );
   }

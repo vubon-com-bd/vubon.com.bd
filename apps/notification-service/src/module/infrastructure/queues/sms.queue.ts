@@ -29,7 +29,7 @@ export class SmsQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
         delayMs,
-        jobId: `sms:${payload.notificationId}`,
+        jobId: `sms:${payload.notificationId}`.replace(/[:.]/g, '-'),
       },
     );
   }

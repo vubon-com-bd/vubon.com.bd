@@ -35,7 +35,7 @@ export class ScheduleQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
         delayMs,
-        jobId: `schedule:trigger:${payload.scheduleId}:${payload.scheduledFor}`,
+        jobId: `schedule-trigger-${payload.scheduleId}-${payload.scheduledFor}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -47,7 +47,7 @@ export class ScheduleQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.LOW,
-        jobId: `schedule:next:${payload.scheduleId}`,
+        jobId: `schedule-next-${payload.scheduleId}`.replace(/[:.]/g, '-'),
       },
     );
   }

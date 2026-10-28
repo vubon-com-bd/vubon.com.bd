@@ -34,7 +34,7 @@ export class InAppQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
-        jobId: `in-app:${payload.notificationId}`,
+        jobId: `in-app:${payload.notificationId}`.replace(/[:.]/g, '-'),
       },
     );
   }

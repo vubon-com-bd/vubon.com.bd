@@ -39,7 +39,7 @@ export class RetryQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
         delayMs,
-        jobId: `retry:${payload.notificationId}:${payload.attempt}`,
+        jobId: `retry:${payload.notificationId}:${payload.attempt}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -52,7 +52,7 @@ export class RetryQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.LOW,
-        jobId: `cleanup:${payload.scope}:${Date.now()}`,
+        jobId: `cleanup:${payload.scope}:${Date.now()}`.replace(/[:.]/g, '-'),
       },
     );
   }

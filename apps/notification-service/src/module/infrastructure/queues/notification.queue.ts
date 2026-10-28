@@ -39,7 +39,7 @@ export class NotificationQueue {
       {
         priority: options?.priority ?? NOTIFICATION_QUEUE_PRIORITY.NORMAL,
         delayMs: options?.delayMs,
-        jobId: `send:${payload.notificationId}`,
+        jobId: `send:${payload.notificationId}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -55,7 +55,7 @@ export class NotificationQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.NORMAL,
         delayMs: options?.delayMs,
-        jobId: `send-bulk:${Date.now()}`,
+        jobId: `send-bulk:${Date.now()}`.replace(/[:.]/g, '-'),
       },
     );
   }
@@ -67,7 +67,7 @@ export class NotificationQueue {
       payload,
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
-        jobId: `deliver:${payload.notificationId}:${payload.channel}`,
+        jobId: `deliver:${payload.notificationId}:${payload.channel}`.replace(/[:.]/g, '-'),
       },
     );
   }

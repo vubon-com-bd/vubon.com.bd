@@ -31,7 +31,7 @@ export class PushQueue {
       {
         priority: NOTIFICATION_QUEUE_PRIORITY.HIGH,
         delayMs,
-        jobId: `push:${payload.notificationId}`,
+        jobId: `push:${payload.notificationId}`.replace(/[:.]/g, '-'),
       },
     );
   }

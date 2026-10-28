@@ -26,6 +26,7 @@ import { ScheduleVO } from '@domain/value-objects/composites/schedule.vo.js';
 import { ScheduleCalculatorService } from '@domain/services/schedule-calculator.service.js';
 
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { ScheduleQueue } from '@infrastructure/queues/schedule.queue.js';
 
 import { ScheduleMapper } from '@application/mappers/schedule.mapper.js';
 import {
@@ -58,6 +59,7 @@ export class ScheduleService implements IScheduleService {
     @Inject(SCHEDULE_REPOSITORY)
     private readonly repo: ScheduleRepository,
     private readonly eventBridge: DomainEventBridgeService,
+    private readonly scheduleQueue: ScheduleQueue,
   ) {}
 
   async create(
@@ -88,6 +90,13 @@ export class ScheduleService implements IScheduleService {
     let entity: ScheduleEntity;
     try {
       entity = await this.buildAndCreate({ id, dto, nextRunAt, now });
+
+      // ─── Auto-activate schedule (pending → active) ───
+      // Without this, isRunnable() returns false and trigger is skipped
+      if (dto.type === 'scheduled' || dto.type === 'delayed' || dto.type === 'recurring') {
+        entity.activate(nextRunAt, now);
+        this.logger.log(`Schedule ${id} auto-activated (will fire at ${nextRunAt ?? 'N/A'})`);
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Unknown';
       throw new ScheduleCreationError(msg);
@@ -95,6 +104,28 @@ export class ScheduleService implements IScheduleService {
 
     const saved = await this.repo.save(entity);
     await this.eventBridge.publishFromEntity(saved);
+
+    // ─── Enqueue trigger job ───
+    if (saved.nextRunAt) {
+      try {
+        const scheduleTime = new Date(saved.nextRunAt).getTime();
+        const delayMs = Math.max(0, scheduleTime - Date.now());
+        await this.scheduleQueue.enqueueTrigger(
+          {
+            scheduleId: saved.id,
+            scheduledFor: saved.nextRunAt,
+          },
+          delayMs,
+        );
+        this.logger.log(
+          `⏰ Schedule ${saved.id} trigger enqueued — fires at ${saved.nextRunAt} (delay: ${Math.round(delayMs/1000)}s)`,
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.logger.error(`Failed to enqueue schedule trigger for ${saved.id}: ${msg}`);
+      }
+    }
+
     this.logger.log(`Schedule ${saved.id} created by ${actorId ?? 'system'}`);
     return ScheduleMapper.toResponse(saved);
   }
