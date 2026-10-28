@@ -824,3 +824,447 @@ export function renderReviewPostedEmail(input: ReviewPostedEmailInput): string {
     `,
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+// ABANDONED CART — DETECTED (Initial)
+// ═══════════════════════════════════════════════════════════
+export interface AbandonedCartDetectedEmailInput {
+  readonly name: string;
+  readonly cartId: string;
+  readonly itemCount: number;
+  readonly cartValue: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderAbandonedCartDetectedEmail(input: AbandonedCartDetectedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আপনার কার্টে পণ্য অপেক্ষা করছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার কার্টে <strong>${input.itemCount}টি পণ্য</strong> রয়েছে। 🛒</p>
+        <p><strong>মোট মূল্য:</strong> ৳${input.cartValue.toLocaleString('bn-BD')}</p>
+        <p>এখনই চেকআউট করুন এবং আপনার পণ্য বুঝে নিন!</p>
+      `,
+      ctaButton: { label: 'চেকআউট করুন', url: `https://vubon.com.bd/cart/${input.cartId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Your Cart is Waiting',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>You have <strong>${input.itemCount} items</strong> in your cart.</p>`,
+    ctaButton: { label: 'Checkout Now', url: `https://vubon.com.bd/cart/${input.cartId}`, variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ABANDONED CART — REMINDER (1h / 24h / 72h)
+// ═══════════════════════════════════════════════════════════
+export interface AbandonedCartReminderEmailInput {
+  readonly name: string;
+  readonly cartId: string;
+  readonly remindersSent: number;
+  readonly cartValue?: number;
+  readonly discount?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderAbandonedCartReminderEmail(input: AbandonedCartReminderEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  const reminderLabels: Record<number, string> = {
+    1: '১ ঘণ্টা',
+    2: '২৪ ঘণ্টা',
+    3: '৭২ ঘণ্টা',
+  };
+  const label = reminderLabels[input.remindersSent] ?? `${input.remindersSent}`;
+  
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: `রিমাইন্ডার #${input.remindersSent}`,
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনি ${label} আগে কার্টে কিছু পণ্য রেখেছিলেন। 🛒</p>
+        ${input.discount ? `<p style="color:#16a34a;font-size:18px;"><strong>🎁 ${input.discount}% ছাড়!</strong></p>` : ''}
+        ${input.cartValue ? `<p><strong>কার্টে মোট:</strong> ৳${input.cartValue.toLocaleString('bn-BD')}</p>` : ''}
+        <p>এখনই চেকআউট করুন!</p>
+      `,
+      ctaButton: { label: 'চেকআউট করুন', url: `https://vubon.com.bd/cart/${input.cartId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: `Reminder #${input.remindersSent}`,
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>You left items in your cart ${label} ago.</p>`,
+    ctaButton: { label: 'Checkout Now', url: `https://vubon.com.bd/cart/${input.cartId}`, variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ABANDONED CART — RECOVERED
+// ═══════════════════════════════════════════════════════════
+export interface AbandonedCartRecoveredEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly recoveredValue: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderAbandonedCartRecoveredEmail(input: AbandonedCartRecoveredEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'স্বাগতম ফিরে! 🎉',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>অভিনন্দন! আপনার কার্ট থেকে সফলভাবে অর্ডার করা হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p><strong>পরিমাণ:</strong> ৳${input.recoveredValue.toLocaleString('bn-BD')}</p>
+        <p>আপনার পণ্য শীঘ্রই পাঠানো হবে।</p>
+      `,
+      ctaButton: { label: 'অর্ডার ট্র্যাক করুন', url: `https://vubon.com.bd/orders/${input.orderId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Welcome Back! 🎉',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your abandoned cart was recovered successfully!</p>`,
+    ctaButton: { label: 'Track Order', url: `https://vubon.com.bd/orders/${input.orderId}`, variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ABANDONED CART — LOST (Final Offer)
+// ═══════════════════════════════════════════════════════════
+export interface AbandonedCartLostEmailInput {
+  readonly name: string;
+  readonly cartId: string;
+  readonly itemCount: number;
+  readonly discount?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderAbandonedCartLostEmail(input: AbandonedCartLostEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  const discount = input.discount ?? 15;
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: `শেষ সুযোগ! ${discount}% ছাড় 🎁`,
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার কার্টের পণ্যগুলো শীঘ্রই স্টক থেকে সরে যাবে।</p>
+        <p style="color:#16a34a;font-size:20px;"><strong>🎁 ${discount}% বিশেষ ছাড়!</strong></p>
+        <p>শুধু আপনার জন্য — আজ রাত ১২টা পর্যন্ত।</p>
+        <p>এখনই চেকআউট করুন!</p>
+      `,
+      ctaButton: { label: `${discount}% ছাড় নিন`, url: `https://vubon.com.bd/cart/${input.cartId}?coupon=COMEBACK${discount}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: `Last Chance! ${discount}% Off 🎁`,
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your cart items are about to go out of stock.</p>`,
+    ctaButton: { label: `Get ${discount}% Off`, url: `https://vubon.com.bd/cart/${input.cartId}`, variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CART EXPIRED
+// ═══════════════════════════════════════════════════════════
+export interface CartExpiredEmailInput {
+  readonly name: string;
+  readonly cartId: string;
+  readonly itemCount?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCartExpiredEmail(input: CartExpiredEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আপনার কার্ট এক্সপায়ার হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার কার্টটি ${input.itemCount ? `${input.itemCount}টি পণ্য সহ ` : ''}এক্সপায়ার হয়ে গেছে। 😔</p>
+        <p>কোনো সমস্যা নেই! আপনি সহজেই নতুন করে শুরু করতে পারেন।</p>
+        <p>আজকের বেস্ট ডিলগুলো দেখুন।</p>
+      `,
+      ctaButton: { label: 'আবার শুরু করুন', url: 'https://vubon.com.bd/shop', variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Your Cart Expired',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your cart has expired. Start fresh today!</p>`,
+    ctaButton: { label: 'Start Shopping', url: 'https://vubon.com.bd/shop', variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CART MERGER — COMPLETED
+// ═══════════════════════════════════════════════════════════
+export interface CartMergerCompletedEmailInput {
+  readonly name: string;
+  readonly sourceCartId?: string;
+  readonly targetCartId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCartMergerCompletedEmail(input: CartMergerCompletedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'কার্ট সফলভাবে merge হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার দুটি কার্ট সফলভাবে একসাথে করা হয়েছে। ✅</p>
+        <p>সব পণ্য এখন একটি কার্টে — চেকআউট করতে প্রস্তুত!</p>
+      `,
+      ctaButton: { label: 'কার্ট দেখুন', url: `https://vubon.com.bd/cart/${input.targetCartId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Carts Merged Successfully',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your carts have been merged successfully.</p>`,
+    ctaButton: { label: 'View Cart', url: `https://vubon.com.bd/cart/${input.targetCartId}`, variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// COUPON / VOUCHER / CART TEMPLATES
+// ═══════════════════════════════════════════════════════════
+
+function simpleBanglaEmail(input: { title: string; titleEn: string; greeting: string; bodyBn: string; bodyEn: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return BanglaEmailTemplate.render({
+    title: isBangla ? input.title : input.titleEn,
+    locale: isBangla ? 'bn' : 'en',
+    greeting: input.greeting,
+    bodyHtml: isBangla ? input.bodyBn : input.bodyEn,
+  });
+}
+
+// ─── Coupon ────────────────────────────────────────────────
+export function renderCouponAppliedEmail(input: { name: string; code: string; discount: number; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'কুপন প্রয়োগ হয়েছে',
+    titleEn: 'Coupon Applied',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>✅ আপনার কুপন <strong>${input.code}</strong> সফলভাবে প্রয়োগ হয়েছে!</p><p><strong>ছাড়:</strong> ৳${input.discount.toLocaleString('bn-BD')}</p>`,
+    bodyEn: `<p>✅ Your coupon <strong>${input.code}</strong> applied successfully!</p><p><strong>Discount:</strong> ৳${input.discount.toLocaleString('en-BD')}</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderCouponRejectedEmail(input: { name: string; code: string; reason?: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'কুপন গ্রহণ হয়নি',
+    titleEn: 'Coupon Not Accepted',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>❌ দুঃখিত, কুপন <strong>${input.code}</strong> গ্রহণ করা যায়নি।</p>${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}`,
+    bodyEn: `<p>❌ Sorry, coupon <strong>${input.code}</strong> could not be applied.</p>${input.reason ? `<p><strong>Reason:</strong> ${input.reason}</p>` : ''}`,
+    locale: input.locale,
+  });
+}
+
+export function renderCouponRemovedEmail(input: { name: string; code: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'কুপন সরানো হয়েছে',
+    titleEn: 'Coupon Removed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>কুপন <strong>${input.code}</strong> সরানো হয়েছে।</p>`,
+    bodyEn: `<p>Coupon <strong>${input.code}</strong> has been removed.</p>`,
+    locale: input.locale,
+  });
+}
+
+// ─── Voucher ────────────────────────────────────────────────
+export function renderVoucherAppliedEmail(input: { name: string; code: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'ভাউচার প্রয়োগ হয়েছে',
+    titleEn: 'Voucher Applied',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>✅ আপনার ভাউচার <strong>${input.code}</strong> সফলভাবে প্রয়োগ হয়েছে!</p>`,
+    bodyEn: `<p>✅ Your voucher <strong>${input.code}</strong> applied successfully!</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderVoucherRedeemedEmail(input: { name: string; code: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'ভাউচার ব্যবহৃত হয়েছে',
+    titleEn: 'Voucher Redeemed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>✅ আপনার ভাউচার <strong>${input.code}</strong> সফলভাবে ব্যবহৃত হয়েছে।</p>`,
+    bodyEn: `<p>✅ Your voucher <strong>${input.code}</strong> has been redeemed.</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderVoucherRejectedEmail(input: { name: string; code: string; reason?: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'ভাউচার গ্রহণ হয়নি',
+    titleEn: 'Voucher Not Accepted',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>❌ দুঃখিত, ভাউচার <strong>${input.code}</strong> গ্রহণ করা যায়নি।</p>${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}`,
+    bodyEn: `<p>❌ Sorry, voucher <strong>${input.code}</strong> could not be applied.</p>${input.reason ? `<p><strong>Reason:</strong> ${input.reason}</p>` : ''}`,
+    locale: input.locale,
+  });
+}
+
+export function renderVoucherRemovedEmail(input: { name: string; code: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'ভাউচার সরানো হয়েছে',
+    titleEn: 'Voucher Removed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>ভাউচার <strong>${input.code}</strong> সরানো হয়েছে।</p>`,
+    bodyEn: `<p>Voucher <strong>${input.code}</strong> has been removed.</p>`,
+    locale: input.locale,
+  });
+}
+
+// ─── Cart Status ────────────────────────────────────────────
+export function renderCartStatusChangedEmail(input: { name: string; fromStatus: string; toStatus: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'কার্ট স্ট্যাটাস পরিবর্তন',
+    titleEn: 'Cart Status Changed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>আপনার কার্টের স্ট্যাটাস পরিবর্তন হয়েছে।</p><p><strong>আগের:</strong> ${input.fromStatus}</p><p><strong>নতুন:</strong> ${input.toStatus}</p>`,
+    bodyEn: `<p>Your cart status changed.</p><p><strong>From:</strong> ${input.fromStatus}</p><p><strong>To:</strong> ${input.toStatus}</p>`,
+    locale: input.locale,
+  });
+}
+
+// ─── Cart Merger ────────────────────────────────────────────
+export function renderCartMergerFailedEmail(input: { name: string; reason?: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'কার্ট মার্জ ব্যর্থ',
+    titleEn: 'Cart Merge Failed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>❌ দুঃখিত, আপনার কার্টগুলো merge করা যায়নি।</p>${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}`,
+    bodyEn: `<p>❌ Sorry, your carts could not be merged.</p>${input.reason ? `<p><strong>Reason:</strong> ${input.reason}</p>` : ''}`,
+    locale: input.locale,
+  });
+}
+
+// ─── Cart Item ──────────────────────────────────────────────
+export function renderCartItemAddedEmail(input: { name: string; productName: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'পণ্য কার্টে যোগ হয়েছে',
+    titleEn: 'Item Added',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>✅ <strong>${input.productName}</strong> আপনার কার্টে যোগ হয়েছে।</p>`,
+    bodyEn: `<p>✅ <strong>${input.productName}</strong> added to your cart.</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderCartItemRemovedEmail(input: { name: string; productName: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'পণ্য সরানো হয়েছে',
+    titleEn: 'Item Removed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p><strong>${input.productName}</strong> আপনার কার্ট থেকে সরানো হয়েছে।</p>`,
+    bodyEn: `<p><strong>${input.productName}</strong> removed from your cart.</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderCartItemQuantityChangedEmail(input: { name: string; productName: string; oldQty: number; newQty: number; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'পরিমাণ পরিবর্তন',
+    titleEn: 'Quantity Changed',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p><strong>${input.productName}</strong>-এর পরিমাণ পরিবর্তন: ${input.oldQty} → ${input.newQty}</p>`,
+    bodyEn: `<p><strong>${input.productName}</strong> quantity changed: ${input.oldQty} → ${input.newQty}</p>`,
+    locale: input.locale,
+  });
+}
+
+// ─── Saved for Later ───────────────────────────────────────
+export function renderSavedForLaterSavedEmail(input: { name: string; productName: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'পরে কেনার জন্য সংরক্ষিত',
+    titleEn: 'Saved for Later',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p><strong>${input.productName}</strong> পরে কেনার জন্য সংরক্ষণ করা হয়েছে।</p>`,
+    bodyEn: `<p><strong>${input.productName}</strong> saved for later.</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderSavedForLaterMovedEmail(input: { name: string; productName: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'কার্টে ফিরিয়ে আনা',
+    titleEn: 'Moved to Cart',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p><strong>${input.productName}</strong> আপনার কার্টে ফিরিয়ে আনা হয়েছে।</p>`,
+    bodyEn: `<p><strong>${input.productName}</strong> moved back to your cart.</p>`,
+    locale: input.locale,
+  });
+}
+
+// ─── Guest Cart ────────────────────────────────────────────
+export function renderGuestCartCreatedEmail(input: { name: string; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'স্বাগতম!',
+    titleEn: 'Welcome!',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>আপনার guest cart তৈরি হয়েছে। চেকআউট করতে চাইলে login করুন।</p>`,
+    bodyEn: `<p>Your guest cart is ready. Login to checkout.</p>`,
+    locale: input.locale,
+  });
+}
+
+export function renderGuestCartMergedEmail(input: { name: string; itemCount: number; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'গেস্ট কার্ট merge হয়েছে',
+    titleEn: 'Guest Cart Merged',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>আপনার গেস্ট কার্ট merge হয়েছে। <strong>${input.itemCount}টি পণ্য</strong> যুক্ত হয়েছে।</p>`,
+    bodyEn: `<p>Your guest cart merged. <strong>${input.itemCount} items</strong> added.</p>`,
+    locale: input.locale,
+  });
+}
+
+// ─── Cart Tax ──────────────────────────────────────────────
+export function renderCartTaxRecalculatedEmail(input: { name: string; taxAmount: number; locale?: 'en' | 'bn' }): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  return simpleBanglaEmail({
+    title: 'ট্যাক্স পুনরায় গণনা',
+    titleEn: 'Tax Recalculated',
+    greeting: isBangla ? `প্রিয় ${input.name},` : `Hi ${input.name},`,
+    bodyBn: `<p>আপনার কার্টের ট্যাক্স পুনরায় গণনা হয়েছে: <strong>৳${input.taxAmount.toLocaleString('bn-BD')}</strong></p>`,
+    bodyEn: `<p>Your cart tax recalculated: <strong>৳${input.taxAmount.toLocaleString('en-BD')}</strong></p>`,
+    locale: input.locale,
+  });
+}

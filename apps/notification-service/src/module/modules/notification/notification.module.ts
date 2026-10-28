@@ -122,11 +122,44 @@ import { CartCreatedHandler } from '../../application/events/external/cart-creat
 import { CartClearedHandler } from '../../application/events/external/cart-cleared.handler.js';
 import { CartMergedHandler } from '../../application/events/external/cart-merged.handler.js';
 import { ServicesModule } from '@infrastructure/modules/services.module.js';
+import { AbandonedCartDetectedHandler } from '@application/events/external/abandoned-cart-detected.handler.js';
+import { AbandonedCartReminderSentHandler } from '@application/events/external/abandoned-cart-reminder-sent.handler.js';
+import { AbandonedCartRecoveredHandler } from '@application/events/external/abandoned-cart-recovered.handler.js';
+import { AbandonedCartLostHandler } from '@application/events/external/abandoned-cart-lost.handler.js';
+import { AbandonedCartStatusChangedHandler } from '@application/events/external/abandoned-cart-status-changed.handler.js';
+import { AbandonedCartUnsubscribedHandler } from '@application/events/external/abandoned-cart-unsubscribed.handler.js';
+import { CartExpiredHandler } from '@application/events/external/cart-expired.handler.js';
+import { CartMergerCompletedHandler } from '@application/events/external/cart-merger-completed.handler.js';
+import { CartCouponAppliedHandler } from '../../application/events/external/cart-coupon-applied.handler.js';
+import { CartCouponRejectedHandler } from '../../application/events/external/cart-coupon-rejected.handler.js';
+import { CartCouponRemovedHandler } from '../../application/events/external/cart-coupon-removed.handler.js';
+import { CartVoucherAppliedHandler } from '../../application/events/external/cart-voucher-applied.handler.js';
+import { CartVoucherRedeemedHandler } from '../../application/events/external/cart-voucher-redeemed.handler.js';
+import { CartVoucherRejectedHandler } from '../../application/events/external/cart-voucher-rejected.handler.js';
+import { CartVoucherRemovedHandler } from '../../application/events/external/cart-voucher-removed.handler.js';
+import { CartStatusChangedHandler } from '../../application/events/external/cart-status-changed.handler.js';
+import { CartMergerFailedHandler } from '../../application/events/external/cart-merger-failed.handler.js';
+import { CartItemAddedHandler } from '../../application/events/external/cart-item-added.handler.js';
+import { CartItemRemovedHandler } from '../../application/events/external/cart-item-removed.handler.js';
+import { CartItemQuantityChangedHandler } from '../../application/events/external/cart-item-quantity-changed.handler.js';
+import { SavedForLaterSavedHandler } from '../../application/events/external/saved-for-later-saved.handler.js';
+import { SavedForLaterMovedToCartHandler } from '../../application/events/external/saved-for-later-moved-to-cart.handler.js';
+import { GuestCartCreatedHandler } from '../../application/events/external/guest-cart-created.handler.js';
+import { GuestCartMergedHandler } from '../../application/events/external/guest-cart-merged.handler.js';
+import { CartTaxRecalculatedHandler } from '../../application/events/external/cart-tax-recalculated.handler.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule, ServicesModule],
   controllers: [NotificationController, PublicUnsubscribeController],
   providers: [
+    AbandonedCartDetectedHandler,
+    AbandonedCartReminderSentHandler,
+    AbandonedCartRecoveredHandler,
+    AbandonedCartLostHandler,
+    AbandonedCartStatusChangedHandler,
+    AbandonedCartUnsubscribedHandler,
+    CartExpiredHandler,
+    CartMergerCompletedHandler,
     SendEmailDispatchHandler,
     ProviderResolverService,
     SmtpProvider,
@@ -158,6 +191,23 @@ import { ServicesModule } from '@infrastructure/modules/services.module.js';
 
     // ─── External Event Handlers ───────────
     NotificationEventSubscriberService,
+    CartCouponAppliedHandler,
+    CartCouponRejectedHandler,
+    CartCouponRemovedHandler,
+    CartVoucherAppliedHandler,
+    CartVoucherRedeemedHandler,
+    CartVoucherRejectedHandler,
+    CartVoucherRemovedHandler,
+    CartStatusChangedHandler,
+    CartMergerFailedHandler,
+    CartItemAddedHandler,
+    CartItemRemovedHandler,
+    CartItemQuantityChangedHandler,
+    SavedForLaterSavedHandler,
+    SavedForLaterMovedToCartHandler,
+    GuestCartCreatedHandler,
+    GuestCartMergedHandler,
+    CartTaxRecalculatedHandler,
     UserCreatedHandler,
 
     // ─── Handlers ──────────────────────────
