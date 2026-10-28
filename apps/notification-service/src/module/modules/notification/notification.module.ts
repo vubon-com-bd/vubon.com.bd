@@ -90,6 +90,19 @@ import { MfaEnabledHandler } from '../../application/events/external/mfa-enabled
 import { ProductCreatedHandler } from '../../application/events/external/product-created.handler.js';
 import { ProductPublishedHandler } from '../../application/events/external/product-published.handler.js';
 import { SubscriptionRenewedHandler } from '../../application/events/external/subscription-renewed.handler.js';
+import { PhoneVerifiedHandler } from '../../application/events/external/phone-verified.handler.js';
+import { AddressAddedHandler } from '../../application/events/external/address-added.handler.js';
+import { ContactAddedHandler } from '../../application/events/external/contact-added.handler.js';
+import { OrderProcessingStartedHandler } from '../../application/events/external/order-processing-started.handler.js';
+import { OrderReturnedHandler } from '../../application/events/external/order-returned.handler.js';
+import { RefundRequestedHandler } from '../../application/events/external/refund-requested.handler.js';
+import { RefundApprovedHandler } from '../../application/events/external/refund-approved.handler.js';
+import { RefundCompletedHandler } from '../../application/events/external/refund-completed.handler.js';
+import { SubscriptionExpiredHandler } from '../../application/events/external/subscription-expired.handler.js';
+import { VendorRejectedHandler } from '../../application/events/external/vendor-rejected.handler.js';
+import { VendorReinstatedHandler } from '../../application/events/external/vendor-reinstated.handler.js';
+import { ProductDeletedHandler } from '../../application/events/external/product-deleted.handler.js';
+import { PricingChangedHandler } from '../../application/events/external/pricing-changed.handler.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule],
@@ -133,6 +146,19 @@ import { SubscriptionRenewedHandler } from '../../application/events/external/su
 
     // ─── External Event Handlers (added) ───
     CartAbandonedHandler,
+    PricingChangedHandler,
+    ProductDeletedHandler,
+    VendorReinstatedHandler,
+    VendorRejectedHandler,
+    SubscriptionExpiredHandler,
+    RefundCompletedHandler,
+    RefundApprovedHandler,
+    RefundRequestedHandler,
+    OrderReturnedHandler,
+    OrderProcessingStartedHandler,
+    ContactAddedHandler,
+    AddressAddedHandler,
+    PhoneVerifiedHandler,
     SubscriptionRenewedHandler,
     ProductPublishedHandler,
     ProductCreatedHandler,
