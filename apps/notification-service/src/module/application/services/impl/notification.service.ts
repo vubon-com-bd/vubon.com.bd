@@ -29,6 +29,7 @@ import { NotificationChannelVO } from '@domain/primitives/notification-channel.v
 import { NotificationCategoryVO } from '@domain/primitives/notification-category.vo.js';
 import { NotificationTypeVO } from '@domain/primitives/notification-type.vo.js';
 import { PreferenceCheckerService } from '@domain/services/preference-checker.service.js';
+import { QuietHoursService } from '@domain/services/quiet-hours.service.js';
 import { PREFERENCE_SERVICE, type IPreferenceService } from '@application/services/interfaces/preference.service.interface.js';
 
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
@@ -83,23 +84,35 @@ export class NotificationService implements INotificationService {
     const notificationIds: string[] = [];
     let failedCount = 0;
 
-    // ─── PREFERENCE ENFORCEMENT ───
+    // ─── PREFERENCE + QUIET HOURS ENFORCEMENT ───
     try {
       const pref = await this.preferenceService.getByUser(dto.userId);
       const category = NotificationCategoryVO.create(dto.category);
       const typeVO = NotificationTypeVO.create(dto.type);
-      
+      const prefAny = pref as unknown as {
+        quietHoursEnabled?: boolean;
+        quietHoursStart?: number;
+        quietHoursEnd?: number;
+        timezone?: string;
+        options?: unknown;
+      };
+
+      // Compute local hour in user's timezone
+      const tz = prefAny.timezone ?? 'Asia/Dhaka';
+      const localHour = QuietHoursService.localHour(now, tz);
+
       for (const channel of dto.channels) {
         const check = PreferenceCheckerService.check({
           preference: pref as never,
           category,
           channel,
           type: typeVO,
+          localHour,
         });
-        
+
         if (!check.allowed) {
           this.logger.log(
-            `⏭️  Notification skipped for user ${dto.userId} — ${check.reason}`,
+            `⏭️  Notification skipped (preference) for user ${dto.userId} — ${check.reason}`,
           );
           return {
             success: true,
@@ -110,9 +123,44 @@ export class NotificationService implements INotificationService {
           } as unknown as NotificationSendResponseDTO;
         }
       }
+
+      // ─── QUIET HOURS ENFORCEMENT ───
+      if (prefAny.quietHoursEnabled) {
+        const quietCheck = QuietHoursService.check({
+          config: {
+            enabled: true,
+            start: prefAny.quietHoursStart,
+            end: prefAny.quietHoursEnd,
+            timezone: tz,
+          },
+          now,
+        });
+
+        if (quietCheck.inQuietHours) {
+          // Only block non-critical notifications
+          const isCritical = typeVO.isSecurity() || typeVO.isTransactional();
+          if (!isCritical) {
+            this.logger.log(
+              `🌙 Quiet hours for user ${dto.userId} (localHour=${quietCheck.localHour}, ends=${quietCheck.nextAllowedHour}h) — notification skipped`,
+            );
+            return {
+              success: true,
+              status: 'skipped',
+              queuedCount: 0,
+              notificationIds: [],
+              failedCount: 0,
+            } as unknown as NotificationSendResponseDTO;
+          }
+          this.logger.log(
+            `🔔 Critical notification bypasses quiet hours for user ${dto.userId}`,
+          );
+        }
+      }
     } catch (err) {
-      // User has no preferences or lookup failed — use defaults
-      this.logger.debug(`Preference check failed for ${dto.userId}: ${err}`);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const errStack = err instanceof Error ? err.stack?.split('\n').slice(0, 3).join(' | ') : '';
+      this.logger.error(`Preference check FAILED for ${dto.userId}: ${errMsg}`);
+      this.logger.error(`Stack: ${errStack}`);
     }
 
     for (const channel of dto.channels) {

@@ -9,8 +9,8 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { Saga, ofType, CommandBus, ICommand } from '@nestjs/cqrs';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
+import { map, tap, filter, mergeMap } from 'rxjs/operators';
 
 import {
   NotificationCreatedEvent,
@@ -23,12 +23,20 @@ import { SendEmailDispatchCommand } from '@application/commands/email/send-email
 import { SendSmsCommand } from '@application/commands/sms/send-sms.command.js';
 import { SendPushCommand } from '@application/commands/push/send-push.command.js';
 import { UpdateAnalyticsCommand } from './commands/update-analytics.command.js';
+import { Inject } from '@nestjs/common';
+import { PREFERENCE_SERVICE, type IPreferenceService } from '@application/services/interfaces/preference.service.interface.js';
+import { QuietHoursService } from '@domain/services/quiet-hours.service.js';
+import { NotificationTypeVO } from '@domain/primitives/notification-type.vo.js';
 
 @Injectable()
 export class NotificationDeliverySaga {
   private readonly logger = new Logger(NotificationDeliverySaga.name);
 
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    @Inject(PREFERENCE_SERVICE)
+    private readonly preferenceService: IPreferenceService,
+  ) {}
 
   @Saga()
   onCreated = (events$: Observable<unknown>): Observable<ICommand> => {
@@ -37,7 +45,8 @@ export class NotificationDeliverySaga {
       tap((e: NotificationCreatedEvent) => {
         this.logger.log(`Saga: notification created → ${e.payload.notificationId}`);
       }),
-      map((e: NotificationCreatedEvent) => {
+      filter(() => true), // placeholder for sync filtering
+      mergeMap((e: NotificationCreatedEvent) => {
         // Fire-and-forget analytics
         void this.commandBus.execute(
           new UpdateAnalyticsCommand(e.payload.notificationId, 'notification.created', {
@@ -47,19 +56,21 @@ export class NotificationDeliverySaga {
           }),
         );
 
-        // Route to dispatch only for email channel — NO LOOP
-        // (uses new dispatch handler that calls provider directly)
-        if (e.payload.channel === 'email') {
-          return new SendEmailDispatchCommand(
-            e.payload.notificationId,
-            'system',
-          );
-        }
-
-        // For other channels: skip (handled by their own workers)
-        return new SendEmailDispatchCommand(
-          e.payload.notificationId,
-          'system',
+        // ─── Check quiet hours + preferences ───
+        return from(this.checkQuietHours(e)).pipe(
+          map((allowed) => {
+            if (!allowed) {
+              this.logger.log(
+                `🌙 Saga: notification ${e.payload.notificationId} skipped (quiet hours / preferences)`,
+              );
+              return null;
+            }
+            return new SendEmailDispatchCommand(
+              e.payload.notificationId,
+              'system',
+            );
+          }),
+          filter((cmd): cmd is SendEmailDispatchCommand => cmd !== null),
         );
       }),
     );
@@ -103,4 +114,47 @@ export class NotificationDeliverySaga {
       }),
     );
   };
+
+  private async checkQuietHours(e: NotificationCreatedEvent): Promise<boolean> {
+    try {
+      const pref = await this.preferenceService.getByUser(e.payload.userId);
+      const prefAny = pref as unknown as {
+        quietHoursEnabled?: boolean;
+        quietHoursStart?: number;
+        quietHoursEnd?: number;
+        timezone?: string;
+      };
+
+      if (!prefAny.quietHoursEnabled) return true;
+
+      const typeVO = NotificationTypeVO.create(e.payload.type);
+      const isCritical = typeVO.isSecurity() || typeVO.isTransactional();
+      if (isCritical) return true;
+
+      const tz = prefAny.timezone ?? 'Asia/Dhaka';
+      const now = new Date().toISOString();
+      const check = QuietHoursService.check({
+        config: {
+          enabled: true,
+          start: prefAny.quietHoursStart,
+          end: prefAny.quietHoursEnd,
+          timezone: tz,
+        },
+        now,
+      });
+
+      if (check.inQuietHours) {
+        this.logger.log(
+          `🌙 Saga quiet hours for user ${e.payload.userId} (localHour=${check.localHour}, ends=${check.nextAllowedHour}h)`,
+        );
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      this.logger.debug(`Saga quiet hours check failed: ${err}`);
+      return true; // Default allow
+    }
+  }
+
 }

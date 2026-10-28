@@ -70,10 +70,11 @@ import { MailgunProvider } from '@infrastructure/providers/email/mailgun.provide
 import { SesProvider } from '@infrastructure/providers/email/ses.provider.js';
 import { ResendProvider } from '@infrastructure/providers/email/resend.provider.js';
 import { PostmarkProvider } from '@infrastructure/providers/email/postmark.provider.js';
+import { PublicUnsubscribeController } from '@interfaces/controllers/rest/public-unsubscribe.controller.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule],
-  controllers: [NotificationController],
+  controllers: [NotificationController, PublicUnsubscribeController],
   providers: [
     SendEmailDispatchHandler,
     ProviderResolverService,
