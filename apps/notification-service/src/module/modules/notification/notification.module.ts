@@ -74,6 +74,22 @@ import { PublicUnsubscribeController } from '@interfaces/controllers/rest/public
 import { ReminderChainService, REMINDER_CHAIN_SERVICE } from '../../application/services/impl/reminder-chain.service.js';
 import { ScheduleModule } from '../schedule/schedule.module.js';
 import { FallbackDispatcherService, FALLBACK_DISPATCHER } from '../../infrastructure/providers/base/fallback-dispatcher.service.js';
+import { PasswordChangedHandler } from '../../application/events/external/password-changed.handler.js';
+import { AccountLockedHandler } from '../../application/events/external/account-locked.handler.js';
+import { SessionCreatedHandler } from '../../application/events/external/session-created.handler.js';
+import { SessionRevokedHandler } from '../../application/events/external/session-revoked.handler.js';
+import { OrderCancelledHandler } from '../../application/events/external/order-cancelled.handler.js';
+import { OrderReturnRequestedHandler } from '../../application/events/external/order-return-requested.handler.js';
+import { OrderReturnApprovedHandler } from '../../application/events/external/order-return-approved.handler.js';
+import { CartCheckedOutHandler } from '../../application/events/external/cart-checked-out.handler.js';
+import { CartConvertedHandler } from '../../application/events/external/cart-converted.handler.js';
+import { InvoiceCreatedHandler } from '../../application/events/external/invoice-created.handler.js';
+import { PayoutProcessedHandler } from '../../application/events/external/payout-processed.handler.js';
+import { PayoutApprovedHandler } from '../../application/events/external/payout-approved.handler.js';
+import { MfaEnabledHandler } from '../../application/events/external/mfa-enabled.handler.js';
+import { ProductCreatedHandler } from '../../application/events/external/product-created.handler.js';
+import { ProductPublishedHandler } from '../../application/events/external/product-published.handler.js';
+import { SubscriptionRenewedHandler } from '../../application/events/external/subscription-renewed.handler.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule],
@@ -117,6 +133,22 @@ import { FallbackDispatcherService, FALLBACK_DISPATCHER } from '../../infrastruc
 
     // ─── External Event Handlers (added) ───
     CartAbandonedHandler,
+    SubscriptionRenewedHandler,
+    ProductPublishedHandler,
+    ProductCreatedHandler,
+    MfaEnabledHandler,
+    PayoutApprovedHandler,
+    PayoutProcessedHandler,
+    InvoiceCreatedHandler,
+    CartConvertedHandler,
+    CartCheckedOutHandler,
+    OrderReturnApprovedHandler,
+    OrderReturnRequestedHandler,
+    OrderCancelledHandler,
+    SessionRevokedHandler,
+    SessionCreatedHandler,
+    AccountLockedHandler,
+    PasswordChangedHandler,
     InventoryLowStockHandler,
     InventoryOutOfStockHandler,
     OrderConfirmedHandler,
