@@ -3,6 +3,12 @@
  * @module order-service/application/services/impl
  */
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { OrderFulfillmentVO } from '../../../domain/value-objects/composites/order-fulfillment.vo.js';
+import { FulfillmentStatusVO } from '../../../domain/value-objects/primitives/fulfillment-status.vo.js';
+import { OrderIdVO } from '../../../domain/value-objects/primitives/order-id.vo.js';
+import { OrderFulfillmentEntity } from '../../../domain/entities/order-fulfillment.entity.js';
 import type {
   IOrderFulfillmentService,
   FulfillmentListOptionsDTO,
@@ -11,7 +17,6 @@ import {
   ORDER_FULFILLMENT_REPOSITORY,
   type OrderFulfillmentRepository,
 } from '../../../domain/repositories/order-fulfillment.repository.interface.js';
-import type { OrderFulfillmentEntity } from '../../../domain/entities/order-fulfillment.entity.js';
 import { FulfillmentIdVO } from '../../../domain/value-objects/primitives/fulfillment-id.vo.js';
 import { FulfillmentMapper } from '../../mappers/fulfillment.mapper.js';
 import { FulfillmentNotFoundApplicationError } from '../../errors/fulfillment.errors.js';
@@ -33,14 +38,35 @@ export class OrderFulfillmentService implements IOrderFulfillmentService {
   constructor(
     @Inject(ORDER_FULFILLMENT_REPOSITORY)
     private readonly repo: OrderFulfillmentRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async start(
     dto: StartFulfillmentCommandDTO,
-    _actorId?: string,
+    actorId?: string,
   ): Promise<FulfillmentResponseDTO> {
     this.logger.log(`Starting fulfillment for order ${dto.orderId}`);
-    throw new FulfillmentNotFoundApplicationError('new-fulfillment');
+
+    const now = new Date().toISOString();
+    const id = randomUUID();
+
+    const vo = OrderFulfillmentVO.create({
+      id: FulfillmentIdVO.create(id),
+      orderId: OrderIdVO.create(dto.orderId),
+      itemIds: (dto.itemIds ?? []) as readonly string[],
+      status: FulfillmentStatusVO.create('unfulfilled'),
+      trackingNumber: undefined,
+      fulfilledAt: undefined,
+    });
+
+    const entity = OrderFulfillmentEntity.create({ id, vo, now });
+    entity.start(now);
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+
+    this.logger.log(`✅ Fulfillment ${saved.id} started by ${actorId ?? 'system'}`);
+    return FulfillmentMapper.toResponse(saved);
   }
 
   async pack(
@@ -49,6 +75,7 @@ export class OrderFulfillmentService implements IOrderFulfillmentService {
   ): Promise<FulfillmentResponseDTO> {
     const entity = await this.loadById(dto.fulfillmentId);
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
     return FulfillmentMapper.toResponse(saved);
   }
 
@@ -62,6 +89,7 @@ export class OrderFulfillmentService implements IOrderFulfillmentService {
     const entity = await this.loadById(dto.fulfillmentId);
     entity.fulfill(dto.trackingNumber);
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
     return FulfillmentMapper.toResponse(saved);
   }
 
@@ -71,6 +99,7 @@ export class OrderFulfillmentService implements IOrderFulfillmentService {
   ): Promise<FulfillmentResponseDTO> {
     const entity = await this.loadById(dto.fulfillmentId);
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
     return FulfillmentMapper.toResponse(saved);
   }
 

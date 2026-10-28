@@ -4,13 +4,20 @@
  *
  * ⚠️ BaseEntity-তে version নেই।
  */
-import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
 import { OrderCancelVO } from '../value-objects/composites/order-cancel.vo.js';
 import { CancelStatusVO } from '../value-objects/primitives/cancel-status.vo.js';
+import {
+  OrderCancelRequestedEvent,
+  OrderCancelApprovedEvent,
+  OrderCancelRejectedEvent,
+  OrderCancelProcessedEvent,
+  OrderCancelRefundedEvent,
+} from '../events/order-cancel.events.js';
 
-export class OrderCancelEntity extends BaseEntity<string> {
+export class OrderCancelEntity extends AggregateRoot<string> {
   private _vo: OrderCancelVO;
 
   private constructor(
@@ -48,6 +55,17 @@ export class OrderCancelEntity extends BaseEntity<string> {
       approvedBy,
       processedAt: now,
     });
+    this.addDomainEvent(
+      new OrderCancelApprovedEvent({
+        aggregateId: this.id,
+        payload: {
+          cancelId: this.id,
+          orderId: this.orderId.value,
+          approvedBy,
+          approvedAt: now,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -66,6 +84,17 @@ export class OrderCancelEntity extends BaseEntity<string> {
       notes,
       processedAt: now,
     });
+    this.addDomainEvent(
+      new OrderCancelRejectedEvent({
+        aggregateId: this.id,
+        payload: {
+          cancelId: this.id,
+          orderId: this.orderId.value,
+          rejectedBy,
+          rejectionReason: reason,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -82,6 +111,16 @@ export class OrderCancelEntity extends BaseEntity<string> {
       status: CancelStatusVO.create('processed'),
       processedAt: now,
     });
+    this.addDomainEvent(
+      new OrderCancelProcessedEvent({
+        aggregateId: this.id,
+        payload: {
+          cancelId: this.id,
+          orderId: this.orderId.value,
+          processedAt: now,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -98,6 +137,18 @@ export class OrderCancelEntity extends BaseEntity<string> {
       status: CancelStatusVO.create('refunded'),
       processedAt: now,
     });
+    this.addDomainEvent(
+      new OrderCancelRefundedEvent({
+        aggregateId: this.id,
+        payload: {
+          cancelId: this.id,
+          orderId: this.orderId.value,
+          refundAmount: 0,
+          currency: 'BDT',
+          refundedAt: now,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -107,7 +158,20 @@ export class OrderCancelEntity extends BaseEntity<string> {
     vo: OrderCancelVO;
     now: string;
   }): OrderCancelEntity {
-    return new OrderCancelEntity(params.id, params.now, params.now, params.vo, null);
+    const entity = new OrderCancelEntity(params.id, params.now, params.now, params.vo, null);
+    entity.addDomainEvent(
+      new OrderCancelRequestedEvent({
+        aggregateId: params.id,
+        payload: {
+          cancelId: params.id,
+          orderId: params.vo.orderId.value,
+          reason: params.vo.reason.value,
+          requestedBy: params.vo.requestedBy,
+          requestedAt: params.now,
+        },
+      }),
+    );
+    return entity;
   }
 
   static reconstitute(params: {

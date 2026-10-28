@@ -4,13 +4,20 @@
  *
  * ⚠️ BaseEntity-তে version নেই।
  */
-import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
 import { OrderFulfillmentVO } from '../value-objects/composites/order-fulfillment.vo.js';
 import { FulfillmentStatusVO } from '../value-objects/primitives/fulfillment-status.vo.js';
+import {
+  FulfillmentStartedEvent,
+  FulfillmentPartiallyFulfilledEvent,
+  FulfillmentCompletedEvent,
+  FulfillmentRestockedEvent,
+  FulfillmentCancelledEvent,
+} from '../events/order-fulfillment.events.js';
 
-export class OrderFulfillmentEntity extends BaseEntity<string> {
+export class OrderFulfillmentEntity extends AggregateRoot<string> {
   private _vo: OrderFulfillmentVO;
 
   private constructor(
@@ -38,10 +45,31 @@ export class OrderFulfillmentEntity extends BaseEntity<string> {
   // ═══ Business methods ═══
   start(now: string = new Date().toISOString()): void {
     this.transitionTo('pending', now);
+    this.addDomainEvent(
+      new FulfillmentStartedEvent({
+        aggregateId: this.id,
+        payload: {
+          fulfillmentId: this.id,
+          orderId: this.orderId.value,
+          itemIds: [...this.itemIds],
+        },
+      }),
+    );
   }
 
   markPartiallyFulfilled(now: string = new Date().toISOString()): void {
     this.transitionTo('partially_fulfilled', now);
+    this.addDomainEvent(
+      new FulfillmentPartiallyFulfilledEvent({
+        aggregateId: this.id,
+        payload: {
+          fulfillmentId: this.id,
+          orderId: this.orderId.value,
+          fromStatus: 'pending',
+          toStatus: 'partially_fulfilled',
+        },
+      }),
+    );
   }
 
   fulfill(trackingNumber?: string, now: string = new Date().toISOString()): void {
@@ -58,15 +86,48 @@ export class OrderFulfillmentEntity extends BaseEntity<string> {
       trackingNumber: trackingNumber ?? this._vo.trackingNumber,
       fulfilledAt: now,
     });
+    this.addDomainEvent(
+      new FulfillmentCompletedEvent({
+        aggregateId: this.id,
+        payload: {
+          fulfillmentId: this.id,
+          orderId: this.orderId.value,
+          fulfilledAt: now,
+          itemIds: [...this.itemIds],
+          trackingNumber,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
   restock(now: string = new Date().toISOString()): void {
     this.transitionTo('restocked', now);
+    this.addDomainEvent(
+      new FulfillmentRestockedEvent({
+        aggregateId: this.id,
+        payload: {
+          fulfillmentId: this.id,
+          orderId: this.orderId.value,
+          fromStatus: 'fulfilled',
+          toStatus: 'restocked',
+        },
+      }),
+    );
   }
 
   cancel(now: string = new Date().toISOString()): void {
     this.transitionTo('cancelled', now);
+    this.addDomainEvent(
+      new FulfillmentCancelledEvent({
+        aggregateId: this.id,
+        payload: {
+          fulfillmentId: this.id,
+          orderId: this.orderId.value,
+          reason: 'Cancelled by system',
+        },
+      }),
+    );
   }
 
   // ═══ Private Helpers ═══

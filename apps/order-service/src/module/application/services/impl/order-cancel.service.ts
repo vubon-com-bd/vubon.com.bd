@@ -1,8 +1,10 @@
 /**
- * OrderCancelService
+ * OrderCancelService — order cancellation lifecycle
  * @module order-service/application/services/impl
  */
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type {
   IOrderCancelService,
   CancelListOptionsDTO,
@@ -12,7 +14,11 @@ import {
   type OrderCancelRepository,
 } from '../../../domain/repositories/order-cancel.repository.interface.js';
 import type { OrderCancelEntity } from '../../../domain/entities/order-cancel.entity.js';
+import { OrderCancelVO } from '../../../domain/value-objects/composites/order-cancel.vo.js';
 import { CancelIdVO } from '../../../domain/value-objects/primitives/cancel-id.vo.js';
+import { CancelReasonVO } from '../../../domain/value-objects/primitives/cancel-reason.vo.js';
+import { CancelStatusVO } from '../../../domain/value-objects/primitives/cancel-status.vo.js';
+import { OrderIdVO } from '../../../domain/value-objects/primitives/order-id.vo.js';
 import { CancelMapper } from '../../mappers/cancel.mapper.js';
 import { CancelNotFoundApplicationError } from '../../errors/cancel.errors.js';
 import type {
@@ -32,14 +38,39 @@ export class OrderCancelService implements IOrderCancelService {
   constructor(
     @Inject(ORDER_CANCEL_REPOSITORY)
     private readonly repo: OrderCancelRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async request(
     dto: RequestCancelCommandDTO,
-    _actorId?: string,
+    actorId?: string,
   ): Promise<CancelResponseDTO> {
     this.logger.log(`Cancel requested for order ${dto.orderId}`);
-    throw new CancelNotFoundApplicationError('new-cancel');
+
+    const now = new Date().toISOString();
+    const id = randomUUID();
+
+    const vo = OrderCancelVO.create({
+      id: CancelIdVO.create(id),
+      orderId: OrderIdVO.create(dto.orderId),
+      reason: CancelReasonVO.create(dto.reason ?? 'Customer request'),
+      status: CancelStatusVO.requested(),
+      requestedBy: actorId ?? dto.actorId ?? 'system',
+      requestedAt: now,
+      notes: dto.reason,
+    });
+
+    const entity = (await import('../../../domain/entities/order-cancel.entity.js')).OrderCancelEntity.create({
+      id,
+      vo,
+      now,
+    });
+
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+
+    this.logger.log(`✅ Cancel ${saved.id} requested for order ${dto.orderId}`);
+    return CancelMapper.toResponse(saved);
   }
 
   async approve(
@@ -49,6 +80,8 @@ export class OrderCancelService implements IOrderCancelService {
     const entity = await this.loadById(dto.cancelId);
     entity.approve(actorId ?? 'system');
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`✅ Cancel ${saved.id} approved by ${actorId ?? 'system'}`);
     return CancelMapper.toResponse(saved);
   }
 
@@ -59,6 +92,8 @@ export class OrderCancelService implements IOrderCancelService {
     const entity = await this.loadById(dto.cancelId);
     entity.reject(actorId ?? 'system', dto.reason);
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`✅ Cancel ${saved.id} rejected by ${actorId ?? 'system'}`);
     return CancelMapper.toResponse(saved);
   }
 

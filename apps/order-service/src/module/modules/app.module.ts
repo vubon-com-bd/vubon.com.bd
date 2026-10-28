@@ -22,10 +22,10 @@ import { OrderFulfillmentModule } from './order-fulfillment/index.js';
 import { OrderHistoryModule } from './order-history/index.js';
 import { OrderTrackingModule } from './order-tracking/index.js';
 import { PublicOrderModule } from './public-order/index.js';
+import { SecurityModule } from '../infrastructure/security/security.module.js';
 
 @Module({
-  imports: [
-    // ─── Root config ────────────────────────
+  imports: [// ─── Root config ────────────────────────
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     CqrsModule.forRoot(),
 
@@ -47,8 +47,7 @@ import { PublicOrderModule } from './public-order/index.js';
     OrderFulfillmentModule,
     OrderHistoryModule,
     OrderTrackingModule,
-    PublicOrderModule,
-  ],
+    PublicOrderModule, SecurityModule],
 })
 export class OrderAppModule {}
 

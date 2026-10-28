@@ -5,12 +5,13 @@
  * ⚠️ BaseEntity-তে version নেই।
  * ⚠️ Append-only — new tracking events are added, not modified.
  */
-import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
 
 import { OrderTrackingVO } from '../value-objects/composites/order-tracking.vo.js';
 import { TrackingStatusVO } from '../value-objects/primitives/tracking-status.vo.js';
+import { OrderTrackingUpdatedEvent } from '../events/order-tracking.events.js';
 
-export class OrderTrackingEntity extends BaseEntity<string> {
+export class OrderTrackingEntity extends AggregateRoot<string> {
   private readonly _vo: OrderTrackingVO;
 
   private constructor(
@@ -42,7 +43,20 @@ export class OrderTrackingEntity extends BaseEntity<string> {
     vo: OrderTrackingVO;
     now: string;
   }): OrderTrackingEntity {
-    return new OrderTrackingEntity(params.id, params.now, params.now, params.vo, null);
+    const entity = new OrderTrackingEntity(params.id, params.now, params.now, params.vo, null);
+    entity.addDomainEvent(
+      new OrderTrackingUpdatedEvent({
+        aggregateId: params.id,
+        payload: {
+          trackingId: params.id,
+          orderId: params.vo.orderId.value,
+          status: params.vo.status.value,
+          message: params.vo.message,
+          occurredAt: params.vo.occurredAt,
+        },
+      }),
+    );
+    return entity;
   }
 
   static reconstitute(params: {

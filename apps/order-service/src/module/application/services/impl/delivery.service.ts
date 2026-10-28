@@ -21,6 +21,7 @@ import { DeliveryVO } from '../../../domain/value-objects/composites/delivery.vo
 import { randomUUID } from 'node:crypto';
 import { DeliveryMapper } from '../../mappers/delivery.mapper.js';
 import { DeliveryNotFoundApplicationError } from '../../errors/delivery.errors.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 import type {
   ScheduleDeliveryCommandDTO,
   RescheduleDeliveryCommandDTO,
@@ -38,6 +39,7 @@ export class DeliveryService implements IDeliveryService {
   constructor(
     @Inject(DELIVERY_REPOSITORY)
     private readonly repo: DeliveryRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   async schedule(
@@ -62,6 +64,7 @@ export class DeliveryService implements IDeliveryService {
 
       const entity = DeliveryEntity.create({ id, vo, now });
       const saved = await this.repo.save(entity);
+      await this.eventBridge.publishFromEntity(saved);
 
       this.logger.log(`✅ Delivery ${saved.id} scheduled for order ${dto.orderId} by ${actorId ?? 'system'}`);
       return DeliveryMapper.toResponse(saved);
@@ -79,6 +82,7 @@ export class DeliveryService implements IDeliveryService {
     const entity = await this.loadById(dto.deliveryId);
     entity.reschedule(dto.reason, dto.newEstimatedAt);
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
     return DeliveryMapper.toResponse(saved);
   }
 
@@ -97,6 +101,7 @@ export class DeliveryService implements IDeliveryService {
     entity.markDelivered(dto.receivedBy, dto.signature, now);
 
     const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
     this.logger.log(`✅ Delivery ${saved.id} confirmed for order ${saved.orderId.value}`);
     return DeliveryMapper.toResponse(saved);
   }

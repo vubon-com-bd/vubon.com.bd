@@ -105,3 +105,22 @@ export class FulfillmentCancelledEvent extends BaseDomainEvent<
     super(buildParams(ORDER_FULFILLMENT_EVENT_TYPE.CANCELLED, p));
   }
 }
+
+export class FulfillmentPartiallyFulfilledEvent extends BaseDomainEvent<
+  typeof ORDER_FULFILLMENT_EVENT_TYPE.PARTIALLY_FULFILLED,
+  FulfillmentStatusChangedPayload
+> {
+  constructor(p: EventParams<FulfillmentStatusChangedPayload>) {
+    super(buildParams(ORDER_FULFILLMENT_EVENT_TYPE.PARTIALLY_FULFILLED, p));
+  }
+}
+
+export class FulfillmentRestockedEvent extends BaseDomainEvent<
+  typeof ORDER_FULFILLMENT_EVENT_TYPE.RESTOCKED,
+  FulfillmentStatusChangedPayload
+> {
+  constructor(p: EventParams<FulfillmentStatusChangedPayload>) {
+    super(buildParams(ORDER_FULFILLMENT_EVENT_TYPE.RESTOCKED, p));
+  }
+}
+

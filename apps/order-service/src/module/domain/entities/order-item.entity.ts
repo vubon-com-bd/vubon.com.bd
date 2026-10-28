@@ -4,15 +4,21 @@
  *
  * ⚠️ BaseEntity-তে version নেই।
  */
-import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
 import { OrderItemVO } from '../value-objects/composites/order-item.vo.js';
 import { OrderItemStatusVO } from '../value-objects/primitives/order-item-status.vo.js';
 import { OrderItemQuantityVO } from '../value-objects/primitives/order-item-quantity.vo.js';
+import {
+  OrderItemAddedEvent,
+  OrderItemRemovedEvent,
+  OrderItemStatusChangedEvent,
+  OrderItemQuantityChangedEvent,
+} from '../events/order-item.events.js';
 
-export class OrderItemEntity extends BaseEntity<string> {
+export class OrderItemEntity extends AggregateRoot<string> {
   private _vo: OrderItemVO;
 
   private constructor(
@@ -47,7 +53,19 @@ export class OrderItemEntity extends BaseEntity<string> {
         { itemId: this.id, status: this.status.value },
       );
     }
+    const fromQuantity = this._vo.quantity.value;
     this._vo = OrderItemVO.create({ ...this._vo.value, quantity });
+    this.addDomainEvent(
+      new OrderItemQuantityChangedEvent({
+        aggregateId: this.id,
+        payload: {
+          orderItemId: this.id,
+          orderId: this.orderId.value,
+          fromQuantity,
+          toQuantity: quantity.value,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -59,10 +77,22 @@ export class OrderItemEntity extends BaseEntity<string> {
         { from: this.status.value, to: target, itemId: this.id },
       );
     }
+    const fromStatus = this.status.value;
     this._vo = OrderItemVO.create({
       ...this._vo.value,
       status: OrderItemStatusVO.create(target),
     });
+    this.addDomainEvent(
+      new OrderItemStatusChangedEvent({
+        aggregateId: this.id,
+        payload: {
+          orderItemId: this.id,
+          orderId: this.orderId.value,
+          fromStatus,
+          toStatus: target,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -78,6 +108,17 @@ export class OrderItemEntity extends BaseEntity<string> {
       ...this._vo.value,
       status: OrderItemStatusVO.cancelled(),
     });
+    this.addDomainEvent(
+      new OrderItemStatusChangedEvent({
+        aggregateId: this.id,
+        payload: {
+          orderItemId: this.id,
+          orderId: this.orderId.value,
+          fromStatus: this.status.value,
+          toStatus: 'cancelled',
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -93,6 +134,17 @@ export class OrderItemEntity extends BaseEntity<string> {
       ...this._vo.value,
       status: OrderItemStatusVO.create('returned'),
     });
+    this.addDomainEvent(
+      new OrderItemStatusChangedEvent({
+        aggregateId: this.id,
+        payload: {
+          orderItemId: this.id,
+          orderId: this.orderId.value,
+          fromStatus: this.status.value,
+          toStatus: 'returned',
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -105,7 +157,22 @@ export class OrderItemEntity extends BaseEntity<string> {
     if (!params.vo.status.isPending()) {
       throw new ValidationError('New order item must be in pending status', 'status');
     }
-    return new OrderItemEntity(params.id, params.now, params.now, params.vo, null);
+    const entity = new OrderItemEntity(params.id, params.now, params.now, params.vo, null);
+    entity.addDomainEvent(
+      new OrderItemAddedEvent({
+        aggregateId: params.id,
+        payload: {
+          orderItemId: params.id,
+          orderId: params.vo.orderId.value,
+          productId: params.vo.productId.value,
+          variantId: params.vo.variantId?.value,
+          quantity: params.vo.quantity.value,
+          unitPrice: params.vo.lineTotal.amount,
+          currency: 'BDT',
+        },
+      }),
+    );
+    return entity;
   }
 
   static reconstitute(params: {

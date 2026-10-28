@@ -4,13 +4,18 @@
  *
  * ⚠️ BaseEntity-তে version নেই।
  */
-import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
 import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
 import { OrderReturnVO } from '../value-objects/composites/order-return.vo.js';
 import { ReturnStatusVO } from '../value-objects/primitives/return-status.vo.js';
+import {
+  OrderReturnRequestedEvent,
+  OrderReturnStatusChangedEvent,
+  OrderReturnRefundedEvent,
+} from '../events/order-return.events.js';
 
-export class OrderReturnEntity extends BaseEntity<string> {
+export class OrderReturnEntity extends AggregateRoot<string> {
   private _vo: OrderReturnVO;
 
   private constructor(
@@ -48,11 +53,23 @@ export class OrderReturnEntity extends BaseEntity<string> {
         { returnId: this.id, status: this.status.value },
       );
     }
+    const fromStatus = this.status.value;
     this._vo = OrderReturnVO.create({
       ...this._vo.value,
       status: ReturnStatusVO.create('rejected'),
       notes: reason,
     });
+    this.addDomainEvent(
+      new OrderReturnStatusChangedEvent({
+        aggregateId: this.id,
+        payload: {
+          returnId: this.id,
+          orderId: this.orderId.value,
+          fromStatus,
+          toStatus: 'rejected',
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -74,6 +91,18 @@ export class OrderReturnEntity extends BaseEntity<string> {
 
   refund(now: string = new Date().toISOString()): void {
     this.transitionTo('refunded', now);
+    this.addDomainEvent(
+      new OrderReturnRefundedEvent({
+        aggregateId: this.id,
+        payload: {
+          returnId: this.id,
+          orderId: this.orderId.value,
+          refundAmount: 0,
+          currency: 'BDT',
+          refundedAt: now,
+        },
+      }),
+    );
   }
 
   replace(now: string = new Date().toISOString()): void {
@@ -93,10 +122,22 @@ export class OrderReturnEntity extends BaseEntity<string> {
         { from: this.status.value, to: target, returnId: this.id },
       );
     }
+    const fromStatus = this.status.value;
     this._vo = OrderReturnVO.create({
       ...this._vo.value,
       status: ReturnStatusVO.create(target),
     });
+    this.addDomainEvent(
+      new OrderReturnStatusChangedEvent({
+        aggregateId: this.id,
+        payload: {
+          returnId: this.id,
+          orderId: this.orderId.value,
+          fromStatus,
+          toStatus: target,
+        },
+      }),
+    );
     (this as unknown as { updatedAt: string }).updatedAt = now;
   }
 
@@ -106,7 +147,21 @@ export class OrderReturnEntity extends BaseEntity<string> {
     vo: OrderReturnVO;
     now: string;
   }): OrderReturnEntity {
-    return new OrderReturnEntity(params.id, params.now, params.now, params.vo, null);
+    const entity = new OrderReturnEntity(params.id, params.now, params.now, params.vo, null);
+    entity.addDomainEvent(
+      new OrderReturnRequestedEvent({
+        aggregateId: params.id,
+        payload: {
+          returnId: params.id,
+          orderId: params.vo.orderId.value,
+          customerId: params.vo.customerId.value,
+          itemIds: [...params.vo.itemIds],
+          reason: params.vo.reason?.value ?? 'Customer request',
+          requestedAt: params.now,
+        },
+      }),
+    );
+    return entity;
   }
 
   static reconstitute(params: {
