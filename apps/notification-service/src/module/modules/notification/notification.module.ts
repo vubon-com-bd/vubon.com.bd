@@ -71,9 +71,12 @@ import { SesProvider } from '@infrastructure/providers/email/ses.provider.js';
 import { ResendProvider } from '@infrastructure/providers/email/resend.provider.js';
 import { PostmarkProvider } from '@infrastructure/providers/email/postmark.provider.js';
 import { PublicUnsubscribeController } from '@interfaces/controllers/rest/public-unsubscribe.controller.js';
+import { ReminderChainService, REMINDER_CHAIN_SERVICE } from '../../application/services/impl/reminder-chain.service.js';
+import { ScheduleModule } from '../schedule/schedule.module.js';
+import { FallbackDispatcherService, FALLBACK_DISPATCHER } from '../../infrastructure/providers/base/fallback-dispatcher.service.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule],
+  imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule],
   controllers: [NotificationController, PublicUnsubscribeController],
   providers: [
     SendEmailDispatchHandler,
@@ -87,6 +90,8 @@ import { PublicUnsubscribeController } from '@interfaces/controllers/rest/public
     UpdateAnalyticsHandler,
     CleanupExpiredHandler,
     I18nService,
+    ReminderChainService,
+    { provide: REMINDER_CHAIN_SERVICE, useExisting: ReminderChainService },
     // ─── Services + DI tokens ───────────────
     NotificationService,
     { provide: NOTIFICATION_SERVICE, useExisting: NotificationService },
@@ -141,8 +146,14 @@ import { PublicUnsubscribeController } from '@interfaces/controllers/rest/public
     NotificationRateLimitGuard,
     NotificationCacheInterceptor,
     DeliveryTrackingInterceptor,
+
+    // ─── Fallback Dispatcher ────────────────
+    FallbackDispatcherService,
+    { provide: FALLBACK_DISPATCHER, useExisting: FallbackDispatcherService },
   ],
   exports: [
+    FallbackDispatcherService,
+    FALLBACK_DISPATCHER,
     NotificationService,
     NOTIFICATION_SERVICE,
     NotificationContentService,

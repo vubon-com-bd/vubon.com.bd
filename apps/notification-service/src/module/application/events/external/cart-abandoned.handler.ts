@@ -7,6 +7,7 @@ import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/e
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import { renderAbandonedCartEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
+import { REMINDER_CHAIN_SERVICE, type ReminderChainService } from '../../services/impl/reminder-chain.service.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -44,6 +45,8 @@ export class CartAbandonedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
+    @Inject(REMINDER_CHAIN_SERVICE)
+    private readonly reminderChain: ReminderChainService,
     private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
   ) {}
@@ -104,6 +107,18 @@ export class CartAbandonedHandler implements OnModuleInit {
       });
 
       this.logger.log(`✅ Notification sent — ${result.notificationIds?.length ?? 0} channel(s)`);
+
+      // 📅 Schedule reminder chain (1h, 24h, 72h)
+      try {
+        await this.reminderChain.scheduleAbandonedCartReminders({
+          cartId: (payload as any).cartId ?? event.aggregateId,
+          userId: (payload as any).userId ?? '',
+          itemCount: (payload as any).itemCount ?? 0,
+        });
+      } catch (reminderErr) {
+        const msg = reminderErr instanceof Error ? reminderErr.message : 'unknown';
+        this.logger.warn(`Reminder chain scheduling failed: ${msg}`);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'unknown';
       this.logger.error(`CartAbandonedHandler failed: ${msg}`);
