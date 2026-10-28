@@ -121,9 +121,10 @@ import { SettlementCompletedHandler } from '../../application/events/external/se
 import { CartCreatedHandler } from '../../application/events/external/cart-created.handler.js';
 import { CartClearedHandler } from '../../application/events/external/cart-cleared.handler.js';
 import { CartMergedHandler } from '../../application/events/external/cart-merged.handler.js';
+import { ServicesModule } from '@infrastructure/modules/services.module.js';
 
 @Module({
-  imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule],
+  imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule, ServicesModule],
   controllers: [NotificationController, PublicUnsubscribeController],
   providers: [
     SendEmailDispatchHandler,

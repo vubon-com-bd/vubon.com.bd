@@ -32,7 +32,13 @@ export class UserClient {
 
   async getById(id: string): Promise<UserProfileDTO | null> {
     try {
+      const headers: Record<string, string> = {};
+      const internalToken = getOptionalEnv('INTERNAL_SERVICE_TOKEN', '');
+      if (internalToken) {
+        headers['Authorization'] = `Bearer ${internalToken}`;
+      }
       const res = await fetch(`${this.baseUrl}/users/${id}`, {
+        headers,
         signal: AbortSignal.timeout(this.timeoutMs),
       });
       if (!res.ok) {
@@ -52,9 +58,14 @@ export class UserClient {
   async getByIds(ids: readonly string[]): Promise<readonly UserProfileDTO[]> {
     if (ids.length === 0) return [];
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const internalToken = getOptionalEnv('INTERNAL_SERVICE_TOKEN', '');
+      if (internalToken) {
+        headers['Authorization'] = `Bearer ${internalToken}`;
+      }
       const res = await fetch(`${this.baseUrl}/users/batch`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ ids }),
         signal: AbortSignal.timeout(this.timeoutMs),
       });

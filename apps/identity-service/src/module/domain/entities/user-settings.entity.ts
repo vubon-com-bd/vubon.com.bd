@@ -51,7 +51,7 @@ export class UserSettingsEntity extends BaseEntity<string> {
   static create(params: { id: string; userId: UserIdVO; now: string }): UserSettingsEntity {
     return new UserSettingsEntity(params.id, params.now, params.now, {
       userId: params.userId,
-      language: 'en',
+      language: 'bn',  // Bangladesh default
       timezone: 'Asia/Dhaka',
       currency: 'BDT',
       dateFormat: 'DD/MM/YYYY',

@@ -1,64 +1,72 @@
 /**
- * JWT Auth Guard
- * @module shared-kernel/interfaces/guards
- *
- * Respects @Public() decorator (via Reflector).
- * Also respects DISABLE_AUTH=true env (for local testing).
+ * Global JWT auth guard.
+ * Respects `@Public()` to skip auth on specific routes.
+ * Also accepts INTERNAL_SERVICE_TOKEN for service-to-service calls.
  */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import type { CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  type ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { HTTP_STATUS } from '@vubon/shared-constants/common';
+import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
 
 export interface AuthenticatedUser {
   readonly userId: string;
-  readonly sessionId?: string;
+  readonly sub?: string;
   readonly roles?: readonly string[];
   readonly permissions?: readonly string[];
+  readonly internal?: boolean;
+  readonly email?: string;
+  readonly [key: string]: unknown;
 }
 
+
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly reflector?: Reflector) {}
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private readonly reflector: Reflector) {
+    super();
+  }
 
-  canActivate(context: ExecutionContext): boolean {
-    // 0. DISABLE_AUTH bypass (dev/test only — BLOCKED in production)
-    if (
-      process.env['NODE_ENV'] !== 'production' &&
-      process.env['DISABLE_AUTH'] === 'true'
-    ) {
-      const request = context.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
-      if (!request.user) {
-        request.user = {
-          userId: '00000000-0000-4000-8000-000000000001',
-          roles: ['admin', 'super_admin'],
-          permissions: ['*'],
+  override canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+    // 1. Check @Public()
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
+    // 2. Accept internal service token
+    const internalToken = process.env['INTERNAL_SERVICE_TOKEN'];
+    if (internalToken) {
+      const req = context.switchToHttp().getRequest<{
+        headers?: { authorization?: string };
+        user?: unknown;
+      }>();
+      const authHeader = req?.headers?.authorization ?? '';
+      if (authHeader === `Bearer ${internalToken}`) {
+        // Set a synthetic user for internal calls
+        req.user = {
+          userId: 'internal-service',
+          sub: 'internal-service',
+          roles: ['service'],
+          internal: true,
         };
+        return true;
       }
-      return true;
     }
 
-    // 1. @Public() opt-out
-    if (this.reflector) {
-      const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-        context.getHandler(),
-        context.getClass(),
-      ]);
-      if (isPublic) return true;
-    }
+    // 3. Default JWT flow
+    return super.canActivate(context) as boolean | Promise<boolean>;
+  }
 
-    // 2. require authenticated user
-    const request = context.switchToHttp().getRequest<{
-      user?: AuthenticatedUser;
-    }>();
-
-    if (!request.user) {
-      throw new UnauthorizedException({
-        statusCode: HTTP_STATUS.UNAUTHORIZED,
-        message: 'Authentication required',
-      });
+  override handleRequest<TUser>(err: unknown, user: TUser | false): TUser {
+    if (err || !user) {
+      throw err instanceof Error
+        ? err
+        : new UnauthorizedException('Authentication required');
     }
-    return true;
+    return user;
   }
 }

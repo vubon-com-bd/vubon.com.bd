@@ -65,10 +65,15 @@ export class NotificationDeliverySaga {
               );
               return null;
             }
-            return new SendEmailDispatchCommand(
-              e.payload.notificationId,
-              'system',
-            );
+            // Only dispatch email for EMAIL channel
+            if (e.payload.channel === 'email') {
+              return new SendEmailDispatchCommand(
+                e.payload.notificationId,
+                'system',
+              );
+            }
+            // In-app, SMS, push handled separately
+            return null;
           }),
           filter((cmd): cmd is SendEmailDispatchCommand => cmd !== null),
         );

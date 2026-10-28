@@ -43,5 +43,5 @@ export function resolveTemplate(
  * Get user locale from payload (assumes user event carries it)
  */
 export function getLocale(payload: Record<string, unknown>): string {
-  return (payload.locale as string) ?? (payload.preferredLocale as string) ?? 'en';
+  return (payload.locale as string) ?? (payload.preferredLocale as string) ?? 'bn';  // Bangladesh default
 }
