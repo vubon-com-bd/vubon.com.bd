@@ -31,6 +31,11 @@ import { CartNotEmptyGuard } from '../../interfaces/guards/cart-not-empty.guard.
 
 import { CartCacheInterceptor } from '../../interfaces/interceptors/cart-cache.interceptor.js';
 import { CartLockInterceptor } from '../../interfaces/interceptors/cart-lock.interceptor.js';
+import { PaymentRefundedHandler } from '../../application/events/external/payment-refunded.handler.js';
+import { OrderCompletedHandler } from '../../application/events/external/order-completed.handler.js';
+import { OrderRefundedHandler } from '../../application/events/external/order-refunded.handler.js';
+import { OrderReturnedHandler } from '../../application/events/external/order-returned.handler.js';
+import { UserStatusChangedHandler } from '../../application/events/external/user-status-changed.handler.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule],
@@ -54,6 +59,11 @@ import { CartLockInterceptor } from '../../interfaces/interceptors/cart-lock.int
     UserDeletedHandler,
     UserCreatedHandler,
     VendorSuspendedHandler,
+    UserStatusChangedHandler,
+    OrderReturnedHandler,
+    OrderRefundedHandler,
+    OrderCompletedHandler,
+    PaymentRefundedHandler,
     OrderCancelledHandler,
     PaymentFailedHandler,
     PaymentCompletedHandler,

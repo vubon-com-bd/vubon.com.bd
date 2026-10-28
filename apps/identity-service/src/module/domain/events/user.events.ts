@@ -11,6 +11,7 @@ export const USER_EVENT_TYPE = {
   EMAIL_VERIFIED: 'identity.user.email_verified',
   PHONE_VERIFIED: 'identity.user.phone_verified',
   SUSPENDED: 'identity.user.suspended',
+  DELETED: 'identity.user.deleted',
   ROLE_ASSIGNED: 'identity.user.role_assigned',
   ROLE_REVOKED: 'identity.user.role_revoked',
 } as const;
@@ -42,6 +43,14 @@ export interface UserSuspendedPayload {
   readonly userId: string;
   readonly reason: string;
   readonly suspendedAt: string;
+}
+
+
+export interface UserDeletedPayload {
+  readonly userId: string;
+  readonly email?: string;
+  readonly deletedAt: string;
+  readonly reason?: string;
 }
 
 export interface UserRolePayload {
@@ -80,6 +89,13 @@ export class UserPhoneVerifiedEvent extends BaseDomainEvent<typeof USER_EVENT_TY
 export class UserSuspendedEvent extends BaseDomainEvent<typeof USER_EVENT_TYPE.SUSPENDED, UserSuspendedPayload> {
   constructor(p: BaseEventParams<UserSuspendedPayload>) {
     super(buildEventParams(USER_EVENT_TYPE.SUSPENDED, AUTH_AGGREGATE_TYPE.USER, p));
+  }
+}
+
+
+export class UserDeletedEvent extends BaseDomainEvent<typeof USER_EVENT_TYPE.DELETED, UserDeletedPayload> {
+  constructor(p: BaseEventParams<UserDeletedPayload>) {
+    super(buildEventParams(USER_EVENT_TYPE.DELETED, AUTH_AGGREGATE_TYPE.USER, p));
   }
 }
 
