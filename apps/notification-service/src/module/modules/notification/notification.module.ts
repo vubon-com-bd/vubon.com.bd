@@ -147,11 +147,91 @@ import { SavedForLaterMovedToCartHandler } from '../../application/events/extern
 import { GuestCartCreatedHandler } from '../../application/events/external/guest-cart-created.handler.js';
 import { GuestCartMergedHandler } from '../../application/events/external/guest-cart-merged.handler.js';
 import { CartTaxRecalculatedHandler } from '../../application/events/external/cart-tax-recalculated.handler.js';
+import { DeliveryScheduledHandler } from '../../application/events/external/delivery-scheduled.handler.js';
+import { DeliveryInTransitHandler } from '../../application/events/external/delivery-in-transit.handler.js';
+import { DeliveryOutForDeliveryHandler } from '../../application/events/external/delivery-out-for-delivery.handler.js';
+import { DeliveryFailedHandler } from '../../application/events/external/delivery-failed.handler.js';
+import { OrderCancelRequestedHandler } from '../../application/events/external/order-cancel-requested.handler.js';
+import { OrderCancelApprovedHandler } from '../../application/events/external/order-cancel-approved.handler.js';
+import { OrderCancelRejectedHandler } from '../../application/events/external/order-cancel-rejected.handler.js';
+import { OrderCancelRefundedHandler } from '../../application/events/external/order-cancel-refunded.handler.js';
+import { OrderItemAddedHandler } from '../../application/events/external/order-item-added.handler.js';
+import { OrderItemRemovedHandler } from '../../application/events/external/order-item-removed.handler.js';
+import { CheckoutCompletedHandler } from '../../application/events/external/checkout-completed.handler.js';
+import { CheckoutAbandonedHandler } from '../../application/events/external/checkout-abandoned.handler.js';
+import { CheckoutExpiredHandler } from '../../application/events/external/checkout-expired.handler.js';
+import { DeliveryDeliveredHandler } from '../../application/events/external/delivery-delivered.handler.js';
+import { DeliveryCancelledHandler } from '../../application/events/external/delivery-cancelled.handler.js';
+import { OrderCompletedHandler } from '../../application/events/external/order-completed.handler.js';
+import { OrderOutForDeliveryHandler } from '../../application/events/external/order-out-for-delivery.handler.js';
+import { OrderCancelProcessedHandler } from '../../application/events/external/order-cancel-processed.handler.js';
+import { ReturnPickupScheduledHandler } from '../../application/events/external/return-pickup-scheduled.handler.js';
+import { ReturnPickedUpHandler } from '../../application/events/external/return-picked-up.handler.js';
+import { ReturnRefundedHandler } from '../../application/events/external/return-refunded.handler.js';
+import { ReturnReplacedHandler } from '../../application/events/external/return-replaced.handler.js';
+import { ReturnInspectedHandler } from '../../application/events/external/return-inspected.handler.js';
+import { TrackingUpdatedHandler } from '../../application/events/external/tracking-updated.handler.js';
+import { OrderItemUpdatedHandler } from '../../application/events/external/order-item-updated.handler.js';
+import { OrderItemQuantityChangedHandler } from '../../application/events/external/order-item-quantity-changed.handler.js';
+import { OrderItemStatusChangedHandler } from '../../application/events/external/order-item-status-changed.handler.js';
+import { DeliveryPickedUpHandler } from '../../application/events/external/delivery-picked-up.handler.js';
+import { DeliveryRescheduledHandler } from '../../application/events/external/delivery-rescheduled.handler.js';
+import { OrderNoteAddedHandler } from '../../application/events/external/order-note-added.handler.js';
+import { OrderPriorityChangedHandler } from '../../application/events/external/order-priority-changed.handler.js';
+import { OrderFulfillmentStartedHandler } from '../../application/events/external/order-fulfillment-started.handler.js';
+import { OrderFulfillmentFulfilledHandler } from '../../application/events/external/order-fulfillment-fulfilled.handler.js';
+import { CheckoutStartedHandler } from '../../application/events/external/checkout-started.handler.js';
+import { CheckoutStepChangedHandler } from '../../application/events/external/checkout-step-changed.handler.js';
+import { FulfillmentCancelledHandler } from '../../application/events/external/fulfillment-cancelled.handler.js';
+import { PartiallyFulfilledHandler } from '../../application/events/external/partially-fulfilled.handler.js';
+import { RestockedHandler } from '../../application/events/external/restocked.handler.js';
+import { TrackingLocationUpdatedHandler } from '../../application/events/external/tracking-location-updated.handler.js';
+import { TrackingStatusChangedHandler } from '../../application/events/external/tracking-status-changed.handler.js';
 
 @Module({
   imports: [CqrsModule, EventBridgeModule, EventBusModule, PreferenceModule, ScheduleModule, ServicesModule],
   controllers: [NotificationController, PublicUnsubscribeController],
   providers: [
+    TrackingStatusChangedHandler,
+    TrackingLocationUpdatedHandler,
+    RestockedHandler,
+    PartiallyFulfilledHandler,
+    FulfillmentCancelledHandler,
+    CheckoutStepChangedHandler,
+    CheckoutStartedHandler,
+    OrderFulfillmentFulfilledHandler,
+    OrderFulfillmentStartedHandler,
+    OrderPriorityChangedHandler,
+    OrderNoteAddedHandler,
+    DeliveryRescheduledHandler,
+    DeliveryPickedUpHandler,
+    OrderItemStatusChangedHandler,
+    OrderItemQuantityChangedHandler,
+    OrderItemUpdatedHandler,
+    TrackingUpdatedHandler,
+    ReturnInspectedHandler,
+    ReturnReplacedHandler,
+    ReturnRefundedHandler,
+    ReturnPickedUpHandler,
+    ReturnPickupScheduledHandler,
+    OrderCancelProcessedHandler,
+    OrderOutForDeliveryHandler,
+    OrderCompletedHandler,
+    DeliveryCancelledHandler,
+    DeliveryDeliveredHandler,
+    CheckoutExpiredHandler,
+    CheckoutAbandonedHandler,
+    CheckoutCompletedHandler,
+    OrderItemRemovedHandler,
+    OrderItemAddedHandler,
+    OrderCancelRefundedHandler,
+    OrderCancelRejectedHandler,
+    OrderCancelApprovedHandler,
+    OrderCancelRequestedHandler,
+    DeliveryFailedHandler,
+    DeliveryOutForDeliveryHandler,
+    DeliveryInTransitHandler,
+    DeliveryScheduledHandler,
     AbandonedCartDetectedHandler,
     AbandonedCartReminderSentHandler,
     AbandonedCartRecoveredHandler,

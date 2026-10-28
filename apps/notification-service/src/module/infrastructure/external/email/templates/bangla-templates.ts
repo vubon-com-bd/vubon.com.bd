@@ -1268,3 +1268,1319 @@ export function renderCartTaxRecalculatedEmail(input: { name: string; taxAmount:
     locale: input.locale,
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY SCHEDULED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryScheduledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly estimatedAt?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryScheduledEmail(input: DeliveryScheduledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ডেলিভারি নির্ধারিত হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের ডেলিভারি নির্ধারিত হয়েছে! 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.estimatedAt ? `<p><strong>আনুমানিক ডেলিভারি:</strong> ${input.estimatedAt}</p>` : ''}
+        <p>ডেলিভারির আগে আমরা আপনাকে আবার জানাবো।</p>
+      `,
+      ctaButton: { label: 'অর্ডার ট্র্যাক করুন', url: `https://vubon.com.bd/orders/${input.orderId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Delivery Scheduled',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `
+      <p>Your order delivery has been scheduled! 📦</p>
+      <p><strong>Order:</strong> #${input.orderId}</p>
+      ${input.estimatedAt ? `<p><strong>Estimated:</strong> ${input.estimatedAt}</p>` : ''}
+    `,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY IN TRANSIT EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryInTransitEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly trackingNumber?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryInTransitEmail(input: DeliveryInTransitEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আপনার অর্ডার পথে আছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার এখন পথে আছে! 🚚</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.trackingNumber ? `<p><strong>ট্র্যাকিং নম্বর:</strong> ${input.trackingNumber}</p>` : ''}
+        <p>শীঘ্রই আপনার কাছে পৌঁছে যাবে।</p>
+      `,
+      ctaButton: { label: 'ট্র্যাক করুন', url: `https://vubon.com.bd/orders/${input.orderId}/track`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order In Transit',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `
+      <p>Your order is on the way! 🚚</p>
+      <p><strong>Order:</strong> #${input.orderId}</p>
+      ${input.trackingNumber ? `<p><strong>Tracking:</strong> ${input.trackingNumber}</p>` : ''}
+    `,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY OUT FOR DELIVERY EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryOutForDeliveryEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryOutForDeliveryEmail(input: DeliveryOutForDeliveryEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আজ ডেলিভারি হবে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আজ আপনার অর্ডার ডেলিভারি হবে! 🎉</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>ডেলিভারি ম্যান শীঘ্রই আসবেন। অনুগ্রহ করে বাসায় থাকুন।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Arriving Today',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is arriving today! 🎉</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY FAILED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryFailedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryFailedEmail(input: DeliveryFailedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ডেলিভারি ব্যর্থ হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>দুঃখিত, আপনার ডেলিভারি সম্পন্ন হয়নি। 😔</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+        <p>আমরা আবার চেষ্টা করব, অথবা আপনি সরাসরি যোগাযোগ করুন।</p>
+      `,
+      ctaButton: { label: 'রিশিডিউল করুন', url: `https://vubon.com.bd/orders/${input.orderId}/reschedule`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Delivery Failed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Sorry, your delivery failed.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER CANCEL REQUESTED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderCancelRequestedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderCancelRequestedEmail(input: OrderCancelRequestedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার বাতিলের অনুরোধ',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার বাতিলের অনুরোধ পেয়েছি। 📝</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+        <p>আমরা যাচাই করে শীঘ্রই জানাবো।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Cancellation Requested',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your cancellation request has been received.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER CANCEL APPROVED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderCancelApprovedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderCancelApprovedEmail(input: OrderCancelApprovedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার বাতিল অনুমোদিত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার বাতিল অনুমোদিত হয়েছে। ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>রিফান্ড ৩-৭ কর্মদিবসের মধ্যে প্রক্রিয়া হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Cancellation Approved',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your cancellation has been approved. ✅</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER CANCEL REJECTED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderCancelRejectedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderCancelRejectedEmail(input: OrderCancelRejectedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার বাতিল প্রত্যাখ্যাত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>দুঃখিত, আপনার অর্ডার বাতিলের অনুরোধ প্রত্যাখ্যাত হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+        <p>সাহায্যের জন্য যোগাযোগ করুন: <a href="mailto:support@vubon.com.bd">support@vubon.com.bd</a></p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Cancellation Rejected',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Sorry, your cancellation was rejected.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER CANCEL REFUNDED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderCancelRefundedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly amount?: number;
+  readonly currency?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderCancelRefundedEmail(input: OrderCancelRefundedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'রিফান্ড সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের রিফান্ড সম্পন্ন হয়েছে। 💰</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.amount ? `<p><strong>পরিমাণ:</strong> ৳${input.amount.toLocaleString('bn-BD')}</p>` : ''}
+        <p>আপনার অ্যাকাউন্টে ৩-৭ কর্মদিবসের মধ্যে জমা হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Refund Processed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your refund has been processed. 💰</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER ITEM ADDED EMAIL (Vendor)
+// ═══════════════════════════════════════════════════════════
+export interface OrderItemAddedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly productName?: string;
+  readonly quantity?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderItemAddedEmail(input: OrderItemAddedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'নতুন আইটেম যোগ হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার একটি অর্ডারে নতুন আইটেম যোগ হয়েছে। 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.productName ? `<p><strong>পণ্য:</strong> ${input.productName}</p>` : ''}
+        ${input.quantity ? `<p><strong>পরিমাণ:</strong> ${input.quantity}</p>` : ''}
+      `,
+      ctaButton: { label: 'অর্ডার দেখুন', url: `https://vubon.com.bd/vendor/orders/${input.orderId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Item Added',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>New item added to order.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER ITEM REMOVED EMAIL (Vendor)
+// ═══════════════════════════════════════════════════════════
+export interface OrderItemRemovedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly productName?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderItemRemovedEmail(input: OrderItemRemovedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আইটেম সরানো হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার একটি অর্ডার থেকে আইটেম সরানো হয়েছে। ❌</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.productName ? `<p><strong>পণ্য:</strong> ${input.productName}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Item Removed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Item removed from order.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECKOUT COMPLETED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface CheckoutCompletedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly total?: number;
+  readonly currency?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCheckoutCompletedEmail(input: CheckoutCompletedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'চেকআউট সম্পূর্ণ',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার চেকআউট সম্পূর্ণ হয়েছে! ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.total ? `<p><strong>মোট:</strong> ৳${input.total.toLocaleString('bn-BD')}</p>` : ''}
+        <p>আমরা শীঘ্রই আপনার অর্ডার প্রক্রিয়া করব।</p>
+      `,
+      ctaButton: { label: 'অর্ডার দেখুন', url: `https://vubon.com.bd/orders/${input.orderId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Checkout Complete',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your checkout is complete! ✅</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECKOUT ABANDONED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface CheckoutAbandonedEmailInput {
+  readonly name: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCheckoutAbandonedEmail(input: CheckoutAbandonedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'চেকআউট সম্পূর্ণ করুন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার চেকআউট সম্পূর্ণ হয়নি! 🛒</p>
+        <p>আপনার নির্বাচিত পণ্যগুলি এখনো কার্টে অপেক্ষা করছে।</p>
+        <p>সম্পূর্ণ করুন এবং অর্ডার নিশ্চিত করুন।</p>
+      `,
+      ctaButton: { label: 'চেকআউট চালিয়ে যান', url: 'https://vubon.com.bd/checkout', variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Complete Your Checkout',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>You didn't finish your checkout! 🛒</p>`,
+    ctaButton: { label: 'Continue Checkout', url: 'https://vubon.com.bd/checkout', variant: 'primary' },
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECKOUT EXPIRED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface CheckoutExpiredEmailInput {
+  readonly name: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCheckoutExpiredEmail(input: CheckoutExpiredEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'চেকআউট মেয়াদ শেষ',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `<p>আপনার চেকআউট সেশন মেয়াদ শেষ হয়েছে। আবার শুরু করুন।</p>`,
+      ctaButton: { label: 'আবার চেকআউট', url: 'https://vubon.com.bd/checkout', variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Checkout Expired',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your checkout session has expired. Please start again.</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY DELIVERED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryDeliveredEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryDeliveredEmail(input: DeliveryDeliveredEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ডেলিভারি সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার সফলভাবে ডেলিভারি হয়েছে! 🎉</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>ধন্যবাদ ভুবনকে বেছে নেওয়ার জন্য।</p>
+      `,
+      ctaButton: { label: 'রিভিউ দিন', url: `https://vubon.com.bd/orders/${input.orderId}/review`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Delivery Complete',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order has been delivered! 🎉</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY CANCELLED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryCancelledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryCancelledEmail(input: DeliveryCancelledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ডেলিভারি বাতিল',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার ডেলিভারি বাতিল করা হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Delivery Cancelled',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your delivery has been cancelled.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER COMPLETED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderCompletedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderCompletedEmail(input: OrderCompletedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার সম্পূর্ণ',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে! ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>আবার কেনাকাটা করতে ভুবনে আসুন।</p>
+      `,
+      ctaButton: { label: 'আবার কিনুন', url: 'https://vubon.com.bd/shop', variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Completed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is complete! ✅</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER OUT FOR DELIVERY EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderOutForDeliveryEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderOutForDeliveryEmail(input: OrderOutForDeliveryEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার ডেলিভারির জন্য বের হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার ডেলিভারির জন্য বের হয়েছে! 🚚</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>শীঘ্রই আপনার কাছে পৌঁছে যাবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Out for Delivery',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is out for delivery! 🚚</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER CANCEL PROCESSED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderCancelProcessedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderCancelProcessedEmail(input: OrderCancelProcessedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'বাতিল প্রক্রিয়া সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার বাতিল প্রক্রিয়া সম্পন্ন হয়েছে। ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Cancellation Processed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your cancellation has been fully processed. ✅</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RETURN PICKUP SCHEDULED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface ReturnPickupScheduledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly returnId?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderReturnPickupScheduledEmail(input: ReturnPickupScheduledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'রিটার্ন পিকআপ নির্ধারিত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার রিটার্ন পিকআপ নির্ধারিত হয়েছে। 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>আমাদের প্রতিনিধি শীঘ্রই পণ্য সংগ্রহ করতে আসবেন।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Return Pickup Scheduled',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your return pickup has been scheduled. 📦</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RETURN PICKED UP EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface ReturnPickedUpEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderReturnPickedUpEmail(input: ReturnPickedUpEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'রিটার্ন পণ্য গৃহীত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার রিটার্ন পণ্য সফলভাবে সংগ্রহ করা হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>আমরা পরিদর্শন করে শীঘ্রই রিফান্ড প্রক্রিয়া করব।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Return Picked Up',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your returned item has been picked up. 📦</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RETURN REFUNDED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface ReturnRefundedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly amount?: number;
+  readonly currency?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderReturnRefundedEmail(input: ReturnRefundedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'রিটার্ন রিফান্ড সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার রিটার্নের রিফান্ড সম্পন্ন হয়েছে। 💰</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.amount ? `<p><strong>পরিমাণ:</strong> ৳${input.amount.toLocaleString('bn-BD')}</p>` : ''}
+        <p>৩-৭ কর্মদিবসের মধ্যে অ্যাকাউন্টে জমা হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Return Refunded',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your return has been refunded. 💰</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RETURN REPLACED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface ReturnReplacedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderReturnReplacedEmail(input: ReturnReplacedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'পণ্য প্রতিস্থাপিত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার পণ্য প্রতিস্থাপন করা হয়েছে। 🔄</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>নতুন পণ্য শীঘ্রই আপনার কাছে পৌঁছে যাবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Item Replaced',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your item has been replaced. 🔄</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RETURN INSPECTED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface ReturnInspectedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderReturnInspectedEmail(input: ReturnInspectedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'রিটার্ন পরিদর্শন সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার রিটার্ন পণ্য পরিদর্শন সম্পন্ন হয়েছে। 🔍</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>শীঘ্রই পরবর্তী পদক্ষেপ নেওয়া হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Return Inspected',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your return has been inspected. 🔍</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRACKING UPDATED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface TrackingUpdatedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly trackingNumber?: string;
+  readonly location?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderTrackingUpdatedEmail(input: TrackingUpdatedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ট্র্যাকিং আপডেট',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের ট্র্যাকিং আপডেট এসেছে। 📍</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.trackingNumber ? `<p><strong>ট্র্যাকিং:</strong> ${input.trackingNumber}</p>` : ''}
+        ${input.location ? `<p><strong>অবস্থান:</strong> ${input.location}</p>` : ''}
+      `,
+      ctaButton: { label: 'ট্র্যাক করুন', url: `https://vubon.com.bd/orders/${input.orderId}/track`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Tracking Update',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Tracking update for your order. 📍</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER ITEM UPDATED EMAIL (Vendor)
+// ═══════════════════════════════════════════════════════════
+export interface OrderItemUpdatedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly productName?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderItemUpdatedEmail(input: OrderItemUpdatedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার আইটেম আপডেট',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার একটি অর্ডারের আইটেম আপডেট হয়েছে। 📝</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.productName ? `<p><strong>পণ্য:</strong> ${input.productName}</p>` : ''}
+      `,
+      ctaButton: { label: 'অর্ডার দেখুন', url: `https://vubon.com.bd/vendor/orders/${input.orderId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Item Updated',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Order item updated.</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER ITEM QUANTITY CHANGED EMAIL (Vendor)
+// ═══════════════════════════════════════════════════════════
+export interface OrderItemQuantityChangedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly productName?: string;
+  readonly oldQuantity?: number;
+  readonly newQuantity?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderItemQuantityChangedEmail(input: OrderItemQuantityChangedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'পরিমাণ পরিবর্তন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>অর্ডার আইটেমের পরিমাণ পরিবর্তন হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.productName ? `<p><strong>পণ্য:</strong> ${input.productName}</p>` : ''}
+        ${input.oldQuantity && input.newQuantity ? `<p><strong>পুরনো → নতুন:</strong> ${input.oldQuantity} → ${input.newQuantity}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Quantity Changed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Order item quantity changed.</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER ITEM STATUS CHANGED EMAIL (Vendor)
+// ═══════════════════════════════════════════════════════════
+export interface OrderItemStatusChangedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly status?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderItemStatusChangedEmail(input: OrderItemStatusChangedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আইটেম স্ট্যাটাস পরিবর্তন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>অর্ডার আইটেমের স্ট্যাটাস পরিবর্তন হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.status ? `<p><strong>নতুন স্ট্যাটাস:</strong> ${input.status}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Item Status Changed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Order item status changed.</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY PICKED UP EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryPickedUpEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly trackingNumber?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryPickedUpEmail(input: DeliveryPickedUpEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'পণ্য সংগ্রহ করা হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের পণ্য কুরিয়ার সংগ্রহ করেছে। 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.trackingNumber ? `<p><strong>ট্র্যাকিং:</strong> ${input.trackingNumber}</p>` : ''}
+        <p>শীঘ্রই এটি পথে যাত্রা শুরু করবে।</p>
+      `,
+      ctaButton: { label: 'ট্র্যাক করুন', url: `https://vubon.com.bd/orders/${input.orderId}/track`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Picked Up',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order has been picked up by courier.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELIVERY RESCHEDULED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface DeliveryRescheduledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly newEstimatedAt?: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderDeliveryRescheduledEmail(input: DeliveryRescheduledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ডেলিভারি পুনর্নির্ধারিত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার ডেলিভারি পুনর্নির্ধারিত হয়েছে। 📅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.newEstimatedAt ? `<p><strong>নতুন তারিখ:</strong> ${input.newEstimatedAt}</p>` : ''}
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Delivery Rescheduled',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your delivery has been rescheduled.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER NOTE ADDED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderNoteAddedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly note?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderNoteAddedEmail(input: OrderNoteAddedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডারে নতুন নোট',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারে একটি নতুন নোট যোগ হয়েছে। 📝</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.note ? `<p><strong>নোট:</strong> "${input.note}"</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Note Added',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>A new note was added to your order.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER PRIORITY CHANGED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderPriorityChangedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly fromPriority?: string;
+  readonly toPriority?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderPriorityChangedEmail(input: OrderPriorityChangedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডারের অগ্রাধিকার পরিবর্তন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের অগ্রাধিকার পরিবর্তন হয়েছে। ⚡</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.fromPriority ? `<p><strong>আগের:</strong> ${input.fromPriority}</p>` : ''}
+        ${input.toPriority ? `<p><strong>নতুন:</strong> ${input.toPriority}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Priority Changed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Order priority updated.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER FULFILLMENT STARTED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderFulfillmentStartedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderFulfillmentStartedEmail(input: OrderFulfillmentStartedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার প্রস্তুত হচ্ছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার প্রস্তুত করা শুরু হয়েছে! 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>শীঘ্রই প্যাকিং সম্পন্ন হবে।</p>
+      `,
+      ctaButton: { label: 'অর্ডার দেখুন', url: `https://vubon.com.bd/orders/${input.orderId}`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Preparing Your Order',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is being prepared.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER FULFILLMENT FULFILLED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderFulfillmentFulfilledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderFulfillmentFulfilledEmail(input: OrderFulfillmentFulfilledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার প্রস্তুত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার সম্পূর্ণ প্রস্তুত! ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>শীঘ্রই শিপমেন্টের জন্য পাঠানো হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Ready',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is ready to ship.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECKOUT STARTED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface CheckoutStartedEmailInput {
+  readonly name: string;
+  readonly checkoutId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCheckoutStartedEmail(input: CheckoutStartedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'চেকআউট শুরু হয়েছে',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার চেকআউট শুরু হয়েছে। 🛒</p>
+        <p><strong>চেকআউট:</strong> #${input.checkoutId}</p>
+        <p>সম্পূর্ণ করতে ধাপগুলো অনুসরণ করুন।</p>
+      `,
+      ctaButton: { label: 'চেকআউট চালিয়ে যান', url: 'https://vubon.com.bd/checkout', variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Checkout Started',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your checkout has started. 🛒</p><p><strong>Checkout:</strong> #${input.checkoutId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECKOUT STEP CHANGED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface CheckoutStepChangedEmailInput {
+  readonly name: string;
+  readonly checkoutId: string;
+  readonly fromStep?: string;
+  readonly toStep?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderCheckoutStepChangedEmail(input: CheckoutStepChangedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'চেকআউট ধাপ পরিবর্তন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>চেকআউট প্রক্রিয়ার পরবর্তী ধাপে এগিয়ে গেছে।</p>
+        <p><strong>চেকআউট:</strong> #${input.checkoutId}</p>
+        ${input.fromStep ? `<p><strong>আগের ধাপ:</strong> ${input.fromStep}</p>` : ''}
+        ${input.toStep ? `<p><strong>বর্তমান ধাপ:</strong> ${input.toStep}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Checkout Step Changed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Checkout moved to next step.</p><p><strong>Checkout:</strong> #${input.checkoutId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// FULFILLMENT CANCELLED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface FulfillmentCancelledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderFulfillmentCancelledEmail(input: FulfillmentCancelledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ফুলফিলমেন্ট বাতিল',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>দুঃখিত, আপনার অর্ডারের ফুলফিলমেন্ট বাতিল হয়েছে।</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Fulfillment Cancelled',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Order fulfillment cancelled.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// PARTIALLY FULFILLED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface PartiallyFulfilledEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly fulfilledItems?: number;
+  readonly totalItems?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderPartiallyFulfilledEmail(input: PartiallyFulfilledEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'আংশিক প্রস্তুত',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের কিছু অংশ প্রস্তুত হয়েছে। 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.fulfilledItems && input.totalItems ? `<p><strong>প্রস্তুত:</strong> ${input.fulfilledItems}/${input.totalItems} আইটেম</p>` : ''}
+        <p>বাকিগুলো শীঘ্রই প্রস্তুত হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Partially Fulfilled',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is partially fulfilled.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESTOCKED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface RestockedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly productName?: string;
+  readonly quantity?: number;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderRestockedEmail(input: RestockedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'স্টক পুনরুদ্ধার',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডারের পণ্য স্টকে ফেরত এসেছে। ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.productName ? `<p><strong>পণ্য:</strong> ${input.productName}</p>` : ''}
+        ${input.quantity ? `<p><strong>পরিমাণ:</strong> ${input.quantity}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Restocked',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Product restocked.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRACKING LOCATION UPDATED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface TrackingLocationUpdatedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly location?: string;
+  readonly trackingNumber?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderTrackingLocationUpdatedEmail(input: TrackingLocationUpdatedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অবস্থান আপডেট',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার প্যাকেজের নতুন অবস্থান আপডেট হয়েছে। 📍</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.location ? `<p><strong>অবস্থান:</strong> ${input.location}</p>` : ''}
+        ${input.trackingNumber ? `<p><strong>ট্র্যাকিং:</strong> ${input.trackingNumber}</p>` : ''}
+      `,
+      ctaButton: { label: 'ট্র্যাক করুন', url: `https://vubon.com.bd/orders/${input.orderId}/track`, variant: 'primary' },
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Location Updated',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Package location updated.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRACKING STATUS CHANGED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface TrackingStatusChangedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly fromStatus?: string;
+  readonly toStatus?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderTrackingStatusChangedEmail(input: TrackingStatusChangedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'ট্র্যাকিং স্ট্যাটাস আপডেট',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার প্যাকেজের ট্র্যাকিং স্ট্যাটাস আপডেট হয়েছে। 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.fromStatus ? `<p><strong>আগের:</strong> ${input.fromStatus}</p>` : ''}
+        ${input.toStatus ? `<p><strong>বর্তমান:</strong> ${input.toStatus}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Tracking Updated',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Tracking status updated.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
