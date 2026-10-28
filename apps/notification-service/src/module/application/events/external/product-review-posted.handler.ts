@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderReviewPostedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -73,7 +74,20 @@ export class ProductReviewPostedHandler implements OnModuleInit {
           },
         );
 
-        const result = await this.notificationService.send({
+              let html = '';
+      try {
+        html = renderReviewPostedEmail({
+          name: (payload as any).name ?? 'Vendor',
+          productId: (payload as any).productId ?? '',
+          rating: (payload as any).rating ?? 5,
+          reviewText: (payload as any).reviewText,
+          locale: (payload as any).locale ?? 'bn',
+        });
+      } catch (err) {
+        this.logger.warn(`HTML template render failed: ${err}`);
+      }
+
+      const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ALERT,
         category: NOTIFICATION_CATEGORY.PRODUCT,
@@ -82,6 +96,7 @@ export class ProductReviewPostedHandler implements OnModuleInit {
         subject: resolved.subject,
         body: resolved.body,
         data: {
+          html,
           eventType: 'product.review.submitted',
           eventId: event.id,
           ...payload,

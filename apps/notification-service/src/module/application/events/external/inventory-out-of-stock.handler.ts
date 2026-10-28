@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderOutOfStockEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -72,7 +73,18 @@ export class InventoryOutOfStockHandler implements OnModuleInit {
           },
         );
 
-        const result = await this.notificationService.send({
+              let html = '';
+      try {
+        html = renderOutOfStockEmail({
+          name: (payload as any).name ?? 'Vendor',
+          productId: (payload as any).productId ?? '',
+          locale: (payload as any).locale ?? 'bn',
+        });
+      } catch (err) {
+        this.logger.warn(`HTML template render failed: ${err}`);
+      }
+
+      const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ALERT,
         category: NOTIFICATION_CATEGORY.PRODUCT,
@@ -81,6 +93,7 @@ export class InventoryOutOfStockHandler implements OnModuleInit {
         subject: resolved.subject,
         body: resolved.body,
         data: {
+          html,
           eventType: 'product.inventory.out_of_stock',
           eventId: event.id,
           ...payload,

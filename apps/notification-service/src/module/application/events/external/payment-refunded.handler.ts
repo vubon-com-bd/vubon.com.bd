@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderRefundEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -74,7 +75,20 @@ export class PaymentRefundedHandler implements OnModuleInit {
           },
         );
 
-        const result = await this.notificationService.send({
+              let html = '';
+      try {
+        html = renderRefundEmail({
+          name: (payload as any).name ?? 'Customer',
+          orderId: (payload as any).orderId ?? '',
+          amount: (payload as any).amount ?? 0,
+          currency: (payload as any).currency ?? 'BDT',
+          locale: (payload as any).locale ?? 'bn',
+        });
+      } catch (err) {
+        this.logger.warn(`HTML template render failed: ${err}`);
+      }
+
+      const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.PAYMENT_UPDATE,
         category: NOTIFICATION_CATEGORY.PAYMENT,
@@ -83,6 +97,7 @@ export class PaymentRefundedHandler implements OnModuleInit {
         subject: resolved.subject,
         body: resolved.body,
         data: {
+          html,
           eventType: 'payment.payment.refunded',
           eventId: event.id,
           ...payload,

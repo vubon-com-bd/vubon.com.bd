@@ -21,6 +21,7 @@ export class NotificationContentPrismaMapper {
     const content = NotificationContentVO.reconstitute({
       subject: NotificationSubjectVO.reconstitute(raw.title),
       body: NotificationBodyVO.reconstitute(raw.body),
+      html: (raw as unknown as { html?: string | null }).html ?? undefined,
       imageUrl: raw.imageUrl ? ActionUrlVO.reconstitute(raw.imageUrl) : undefined,
       iconUrl: raw.iconUrl ? ActionUrlVO.reconstitute(raw.iconUrl) : undefined,
       actionUrl: raw.actionUrl ? ActionUrlVO.reconstitute(raw.actionUrl) : undefined,

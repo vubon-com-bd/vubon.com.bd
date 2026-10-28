@@ -62,6 +62,7 @@ import type {
   NotificationUserFeedResponseDTO,
 } from '@application/dtos/responses/notification-response.dto.js';
 import type { NotificationDetailResponseDTO } from '@application/dtos/responses/notification-detail-response.dto.js';
+import { UnsubscribeTokenInfraService } from '@infrastructure/services/internal/unsubscribe-token.service.js';
 
 @Injectable()
 export class NotificationService implements INotificationService {
@@ -73,6 +74,7 @@ export class NotificationService implements INotificationService {
     private readonly eventBridge: DomainEventBridgeService,
     @Inject(PREFERENCE_SERVICE)
     private readonly preferenceService: IPreferenceService,
+      private readonly unsubscribeTokenService: UnsubscribeTokenInfraService,
   ) {}
 
   // ═══════════════ COMMANDS ═══════════════
@@ -161,6 +163,15 @@ export class NotificationService implements INotificationService {
       const errStack = err instanceof Error ? err.stack?.split('\n').slice(0, 3).join(' | ') : '';
       this.logger.error(`Preference check FAILED for ${dto.userId}: ${errMsg}`);
       this.logger.error(`Stack: ${errStack}`);
+      // ⚠️ FAIL-SAFE: block notification when preference check fails
+      // (Better to not send than to violate user preferences / GDPR)
+      return {
+        success: false,
+        status: 'failed' as never,
+        queuedCount: 0,
+        notificationIds: [],
+        failedCount: dto.channels.length,
+      } as unknown as NotificationSendResponseDTO;
     }
 
     for (const channel of dto.channels) {
@@ -200,6 +211,7 @@ export class NotificationService implements INotificationService {
           priority: priority.value,
           subject: dto.subject,
           body: dto.body,
+          html: dto.html ? this.injectUnsubscribeLink(dto.html, dto) : undefined,
           data: dto.data,
           recipients: recipientResult.resolved,
           expiresAt: dto.expiresAt,
@@ -230,6 +242,28 @@ export class NotificationService implements INotificationService {
       queuedCount: notificationIds.length,
       failedCount,
     };
+  }
+
+  /**
+   * Inject unsubscribe URL into HTML content
+   */
+  private injectUnsubscribeLink(html: string, dto: SendNotificationRequestDTO): string {
+    try {
+      const primaryChannel = dto.channels[0] ?? 'email';
+      const link = this.unsubscribeTokenService.generateLink({
+        userId: dto.userId,
+        channel: primaryChannel,
+        ttlDays: 90,
+      });
+
+      return html
+        .replace(/\{\{unsubscribeUrl\}\}/g, link.url)
+        .replace(/\{\{preferencesUrl\}\}/g, 'https://vubon.com.bd/account/preferences')
+        .replace(/\{\{supportEmail\}\}/g, 'support@vubon.com.bd');
+    } catch (err) {
+      this.logger.warn(`Failed to inject unsubscribe link: ${err}`);
+      return html;
+    }
   }
 
   async sendBulk(

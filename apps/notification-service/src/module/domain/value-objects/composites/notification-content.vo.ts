@@ -15,6 +15,7 @@ import { ActionUrlVO } from '@domain/primitives/action-url.vo.js';
 export interface NotificationContentProps {
   readonly subject: NotificationSubjectVO;
   readonly body: NotificationBodyVO;
+  readonly html?: string;
   readonly imageUrl?: ActionUrlVO;
   readonly iconUrl?: ActionUrlVO;
   readonly actionUrl?: ActionUrlVO;
@@ -44,10 +45,14 @@ export class NotificationContentVO extends BaseVO<NotificationContentProps> {
     if (v.actionUrl && !v.actionUrl.isExternal) {
       throw new ValidationError('Action URL must be http(s)', 'actionUrl');
     }
+    if (v.html !== undefined && v.html.length > 500_000) {
+      throw new ValidationError('HTML content exceeds 500KB limit', 'html');
+    }
   }
 
   get subject(): NotificationSubjectVO { return this.value.subject; }
   get body(): NotificationBodyVO { return this.value.body; }
+  get html(): string | undefined { return this.value.html; }
   get imageUrl(): ActionUrlVO | undefined { return this.value.imageUrl; }
   get iconUrl(): ActionUrlVO | undefined { return this.value.iconUrl; }
   get actionUrl(): ActionUrlVO | undefined { return this.value.actionUrl; }

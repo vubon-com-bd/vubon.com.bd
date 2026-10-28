@@ -13,3 +13,10 @@ export type SendNotificationRequestDTO = SendNotificationRequestSchemaType;
 export interface SendNotificationCommandDTO extends SendNotificationRequestDTO {
   readonly actorId?: string;
 }
+
+// ─── Extra optional fields (from Zod schema) ───
+declare module '@vubon/shared-schemas/platform' {
+  interface __NotificationExtras {
+    readonly html?: string;
+  }
+}

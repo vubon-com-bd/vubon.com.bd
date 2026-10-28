@@ -34,6 +34,7 @@ export interface BuildNotificationInput {
   readonly priority?: string;
   readonly subject: string;
   readonly body: string;
+  readonly html?: string;
   readonly data?: Readonly<Record<string, unknown>>;
   readonly recipients: readonly NotificationRecipientVO[];
   readonly actions?: readonly NotificationActionVO[];
@@ -70,6 +71,7 @@ export class NotificationBuilderService {
     const content = NotificationContentVO.create({
       subject,
       body,
+      html: input.html,
       data,
     });
 

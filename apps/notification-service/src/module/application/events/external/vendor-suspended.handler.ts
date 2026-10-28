@@ -6,6 +6,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
+import { renderVendorSuspendedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -72,7 +73,18 @@ export class VendorSuspendedHandler implements OnModuleInit {
           },
         );
 
-        const result = await this.notificationService.send({
+              let html = '';
+      try {
+        html = renderVendorSuspendedEmail({
+          name: (payload as any).name ?? 'Vendor',
+          reason: (payload as any).reason,
+          locale: (payload as any).locale ?? 'bn',
+        });
+      } catch (err) {
+        this.logger.warn(`HTML template render failed: ${err}`);
+      }
+
+      const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
         category: NOTIFICATION_CATEGORY.USER,
@@ -81,6 +93,7 @@ export class VendorSuspendedHandler implements OnModuleInit {
         subject: resolved.subject,
         body: resolved.body,
         data: {
+          html,
           eventType: 'vendor.vendor.suspended',
           eventId: event.id,
           ...payload,
