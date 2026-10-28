@@ -21,6 +21,7 @@ import {
 } from '../../services/interfaces/notification.service.interface.js';
 
 export const PAYMENT_PAID_EVENT = 'payment.payment.paid';
+export const PAYMENT_COMPLETED_NOTIF_EVENT = 'payment.payment.completed';
 
 interface PaymentPaidHandlerPayload {
   readonly paymentId: string;
@@ -55,7 +56,10 @@ export class PaymentPaidHandler implements OnModuleInit {
     this.eventBus.registerHandler(PAYMENT_PAID_EVENT, async (event) => {
       await this.handle(event as unknown as PaymentPaidHandlerEvent);
     });
-    this.logger.log(`✅ Registered handler for "${PAYMENT_PAID_EVENT}"`);
+    this.eventBus.registerHandler(PAYMENT_COMPLETED_NOTIF_EVENT, async (event) => {
+      await this.handle(event as unknown as PaymentPaidHandlerEvent);
+    });
+    this.logger.log(`✅ Registered handler for "${PAYMENT_PAID_EVENT}" + "${PAYMENT_COMPLETED_NOTIF_EVENT}"`);
   }
 
   private async handle(event: PaymentPaidHandlerEvent): Promise<void> {

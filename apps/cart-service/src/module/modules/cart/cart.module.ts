@@ -13,6 +13,9 @@ import { CartEventSubscriberService } from '../../application/services/impl/cart
 import { UserDeletedHandler } from '../../application/events/external/user-deleted.handler.js';
 import { UserCreatedHandler } from '../../application/events/external/user-registered.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
+import { OrderCancelledHandler } from '../../application/events/external/order-cancelled.handler.js';
+import { PaymentFailedHandler } from '../../application/events/external/payment-failed.handler.js';
+import { PaymentCompletedHandler } from '../../application/events/external/payment-completed.handler.js';
 
 import { CART_COMMAND_HANDLERS } from './commands/index.js';
 import { CART_QUERY_HANDLERS } from './queries/index.js';
@@ -51,6 +54,9 @@ import { CartLockInterceptor } from '../../interfaces/interceptors/cart-lock.int
     UserDeletedHandler,
     UserCreatedHandler,
     VendorSuspendedHandler,
+    OrderCancelledHandler,
+    PaymentFailedHandler,
+    PaymentCompletedHandler,
 
     CartFeatureHealthIndicator,
   ],
