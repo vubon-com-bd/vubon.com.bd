@@ -3,6 +3,7 @@
  * @module vendor-service/modules
  */
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
@@ -10,6 +11,7 @@ import { getOptionalEnv } from '@vubon/shared-config/common';
 
 // ─── Security ────────────────────────────────
 import { JwtAuthMiddleware } from '../infrastructure/security/jwt-auth.middleware.js';
+import { JwtStrategy } from '../infrastructure/security/jwt.strategy.js';
 
 // ─── Common (global) ─────────────────────────
 import { VendorCommonModule } from './common/index.js';
@@ -20,6 +22,12 @@ import { HealthModule } from './health/index.js';
 // ─── Cross-service event subscribers ─────────
 import { VendorEventSubscriberService } from '../application/services/impl/vendor-event-subscriber.service.js';
 import { UserCreatedHandler } from '../application/handlers/user-created.handler.js';
+import { ProductInventoryAdjustedHandler } from '../application/handlers/product-inventory-adjusted.handler.js';
+import { ProductVariantAddedHandler } from '../application/handlers/product-variant-added.handler.js';
+import { OrderCreatedHandler } from '../application/handlers/order-created.handler.js';
+import { OrderCancelledHandler } from '../application/handlers/order-cancelled.handler.js';
+import { OrderReturnedHandler } from '../application/handlers/order-returned.handler.js';
+
 
 // ─── Feature modules ─────────────────────────
 import { VendorModule } from './vendor/index.js';
@@ -48,6 +56,7 @@ import { PublicVendorModule } from './public-vendor/index.js';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // ─── Root config ────────────────────────
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     CqrsModule.forRoot(),
@@ -94,8 +103,14 @@ import { PublicVendorModule } from './public-vendor/index.js';
     PublicVendorModule,
   ],
   providers: [
+    JwtStrategy,
     // ─── Cross-service event subscribers ────
     UserCreatedHandler,
+    OrderCreatedHandler,
+    ProductVariantAddedHandler,
+    ProductInventoryAdjustedHandler,
+    OrderCancelledHandler,
+    OrderReturnedHandler,
     VendorEventSubscriberService,
   ],
 })

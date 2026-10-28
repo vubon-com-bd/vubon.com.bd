@@ -33,6 +33,32 @@ import { ProductReviewPostedHandler } from '../../application/events/external/pr
 import { UserRoleAssignedHandler } from '../../application/events/external/user-role-assigned.handler.js';
 import { UserRoleRevokedHandler } from '../../application/events/external/user-role-revoked.handler.js';
 import { UserStatusChangedHandler } from '../../application/events/external/user-status-changed.handler.js';
+import { SavedForLaterStatusHandler } from '../../application/events/external/saved-for-later-status.handler.js';
+
+import { VendorPayoutProcessedHandler } from '../../application/events/external/vendor-payout-processed.handler.js';
+import { ProductReviewApprovedHandler } from '../../application/events/external/product-review-approved.handler.js';
+import { ProductReviewRejectedHandler } from '../../application/events/external/product-review-rejected.handler.js';
+import { ProductReviewReportedHandler } from '../../application/events/external/product-review-reported.handler.js';
+import { ProductBrandCreatedHandler } from '../../application/events/external/product-brand-created.handler.js';
+import { ProductBrandUpdatedHandler } from '../../application/events/external/product-brand-updated.handler.js';
+import { ProductCategoryCreatedHandler } from '../../application/events/external/product-category-created.handler.js';
+import { ProductBrandActivatedHandler } from '../../application/events/external/product-brand-activated.handler.js';
+import { ProductBrandDeactivatedHandler } from '../../application/events/external/product-brand-deactivated.handler.js';
+import { ProductBrandDeletedHandler } from '../../application/events/external/product-brand-deleted.handler.js';
+import { ProductCategoryDeletedHandler } from '../../application/events/external/product-category-deleted.handler.js';
+import { ProductCollectionDeletedHandler } from '../../application/events/external/product-collection-deleted.handler.js';
+import { ProductReviewDeletedHandler } from '../../application/events/external/product-review-deleted.handler.js';
+import { ProductReviewUpdatedHandler } from '../../application/events/external/product-review-updated.handler.js';
+import { ProductCollectionCreatedHandler } from '../../application/events/external/product-collection-created.handler.js';
+import { VendorReinstatedHandler } from '../../application/events/external/vendor-reinstated.handler.js';
+
+import { SavedForLaterRemovedHandler } from '../../application/events/external/saved-for-later-removed.handler.js';
+import { GuestCartStatusHandler } from '../../application/events/external/guest-cart-status.handler.js';
+import { GuestCartExpiredHandler } from '../../application/events/external/guest-cart-expired.handler.js';
+import { GuestCartAbandonedHandler } from '../../application/events/external/guest-cart-abandoned.handler.js';
+import { CartItemStatusHandler } from '../../application/events/external/cart-item-status.handler.js';
+import { CartItemSavedHandler } from '../../application/events/external/cart-item-saved.handler.js';
+import { CartItemMovedHandler } from '../../application/events/external/cart-item-moved.handler.js';
 import { UserSuspendedHandler } from '../../application/events/external/user-suspended.handler.js';
 import { UserVerifiedHandler } from '../../application/events/external/user-verified.handler.js';
 import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
@@ -100,7 +126,6 @@ import { RefundApprovedHandler } from '../../application/events/external/refund-
 import { RefundCompletedHandler } from '../../application/events/external/refund-completed.handler.js';
 import { SubscriptionExpiredHandler } from '../../application/events/external/subscription-expired.handler.js';
 import { VendorRejectedHandler } from '../../application/events/external/vendor-rejected.handler.js';
-import { VendorReinstatedHandler } from '../../application/events/external/vendor-reinstated.handler.js';
 import { ProductDeletedHandler } from '../../application/events/external/product-deleted.handler.js';
 import { PricingChangedHandler } from '../../application/events/external/pricing-changed.handler.js';
 import { OrderStatusChangedHandler } from '../../application/events/external/order-status-changed.handler.js';
@@ -316,6 +341,20 @@ import { TrackingStatusChangedHandler } from '../../application/events/external/
     PricingChangedHandler,
     ProductDeletedHandler,
     VendorReinstatedHandler,
+    ProductCollectionCreatedHandler,
+    ProductReviewUpdatedHandler,
+    ProductReviewDeletedHandler,
+    ProductCollectionDeletedHandler,
+    ProductCategoryDeletedHandler,
+    ProductBrandDeletedHandler,
+    ProductBrandDeactivatedHandler,
+    ProductBrandActivatedHandler,
+    ProductCategoryCreatedHandler,
+    ProductBrandUpdatedHandler,
+    ProductBrandCreatedHandler,
+    ProductReviewReportedHandler,
+    ProductReviewRejectedHandler,
+    ProductReviewApprovedHandler,
     VendorRejectedHandler,
     SubscriptionExpiredHandler,
     RefundCompletedHandler,
@@ -355,6 +394,15 @@ import { TrackingStatusChangedHandler } from '../../application/events/external/
     UserRoleAssignedHandler,
     UserRoleRevokedHandler,
     UserStatusChangedHandler,
+    SavedForLaterStatusHandler,
+    VendorPayoutProcessedHandler,
+    SavedForLaterRemovedHandler,
+    GuestCartStatusHandler,
+    GuestCartExpiredHandler,
+    GuestCartAbandonedHandler,
+    CartItemStatusHandler,
+    CartItemSavedHandler,
+    CartItemMovedHandler,
     UserSuspendedHandler,
     UserVerifiedHandler,
     VendorApprovedHandler,

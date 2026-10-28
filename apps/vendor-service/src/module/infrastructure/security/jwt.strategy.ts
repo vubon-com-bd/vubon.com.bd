@@ -14,7 +14,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { getOptionalEnv } from '@vubon/shared-config/common';
 
 export interface JwtPayload {
-  readonly userId: string;
+  readonly userId?: string;
+  readonly sub?: string;
   readonly roles?: readonly string[];
   readonly permissions?: readonly string[];
   readonly sessionId?: string;
@@ -23,7 +24,8 @@ export interface JwtPayload {
 }
 
 export interface AuthenticatedUser {
-  readonly userId: string;
+  readonly userId?: string;
+  readonly sub?: string;
   readonly roles: readonly string[];
   readonly permissions: readonly string[];
   readonly sessionId?: string;
@@ -43,11 +45,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   validate(payload: JwtPayload): AuthenticatedUser {
-    if (!payload?.userId) {
-      throw new UnauthorizedException('Invalid token payload');
+    const userId = payload?.userId ?? payload?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('Invalid token payload — missing userId/sub');
     }
     return {
-      userId: payload.userId,
+      userId,
       roles: payload.roles ?? [],
       permissions: payload.permissions ?? [],
       sessionId: payload.sessionId,

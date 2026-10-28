@@ -2,7 +2,9 @@
  * CartAppModule — cart-service root module
  * @module cart-service/modules
  */
+import { JwtStrategy } from '../infrastructure/security/jwt.strategy.js';
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
@@ -26,11 +28,13 @@ import { CartMergerModule } from './cart-merger/index.js';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // ─── Root config ────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       envFilePath: ['.env', '../../.env'],
+
     }),
     CqrsModule.forRoot(),
 
@@ -52,6 +56,7 @@ import { CartMergerModule } from './cart-merger/index.js';
     GuestCartModule,
     CartMergerModule,
   ],
+  providers: [JwtStrategy],
 })
 export class CartAppModule {}
 

@@ -3,6 +3,7 @@
  * @module order-service/modules
  */
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
@@ -23,9 +24,11 @@ import { OrderHistoryModule } from './order-history/index.js';
 import { OrderTrackingModule } from './order-tracking/index.js';
 import { PublicOrderModule } from './public-order/index.js';
 import { SecurityModule } from '../infrastructure/security/security.module.js';
+import { JwtStrategy } from '../infrastructure/security/jwt.strategy.js';
 
 @Module({
-  imports: [// ─── Root config ────────────────────────
+  imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),// ─── Root config ────────────────────────
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     CqrsModule.forRoot(),
 
@@ -48,6 +51,7 @@ import { SecurityModule } from '../infrastructure/security/security.module.js';
     OrderHistoryModule,
     OrderTrackingModule,
     PublicOrderModule, SecurityModule],
+  providers: [JwtStrategy],
 })
 export class OrderAppModule {}
 

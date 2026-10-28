@@ -9,7 +9,9 @@
  *  - HealthModule
  *  - 12 feature modules
  */
+import { JwtStrategy } from '../infrastructure/security/jwt.strategy.js';
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
@@ -35,11 +37,13 @@ import { PublicProductModule } from './public-product/index.js';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // ─── Root config ────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       envFilePath: ['.env', '../../.env'],
+
     }),
     CqrsModule.forRoot(),
 
@@ -63,6 +67,7 @@ import { PublicProductModule } from './public-product/index.js';
     CategoryModule,
     PublicProductModule,
   ],
+  providers: [JwtStrategy],
 })
 export class ProductAppModule {}
 

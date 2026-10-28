@@ -36,6 +36,17 @@ import { OrderFeatureHealthIndicator } from './health/index.js';
 import { UserStatusChangedHandler } from '../../application/events/external/user-status-changed.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
 import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
+import { UserDeletedHandler } from '../../application/events/external/user-deleted.handler.js';
+import { PaymentRefundedHandler } from '../../application/events/external/payment-refunded.handler.js';
+
+import { VendorDeletedHandler } from '../../application/events/external/vendor-deleted.handler.js';
+import { InventoryReservedHandler } from '../../application/events/external/inventory-reserved.handler.js';
+import { InventoryReleasedHandler } from '../../application/events/external/inventory-released.handler.js';
+import { ProductVariantUpdatedHandler } from '../../application/events/external/product-variant-updated.handler.js';
+import { InventoryRestockedHandler } from '../../application/events/external/inventory-restocked.handler.js';
+import { VendorBlockedHandler } from '../../application/events/external/vendor-blocked.handler.js';
+
+
 import { OrderCancelModule } from '../order-cancel/order-cancel.module.js';
 
 @Module({
@@ -45,6 +56,14 @@ import { OrderCancelModule } from '../order-cancel/order-cancel.module.js';
     UserStatusChangedHandler,
     VendorSuspendedHandler,
     VendorApprovedHandler,
+    UserDeletedHandler,
+    PaymentRefundedHandler,
+    VendorDeletedHandler,
+    VendorBlockedHandler,
+    InventoryRestockedHandler,
+    ProductVariantUpdatedHandler,
+    InventoryReleasedHandler,
+    InventoryReservedHandler,
     // ─── Service + DI Token ─────────────────
     OrderService,
     { provide: ORDER_SERVICE, useExisting: OrderService },

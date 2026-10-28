@@ -41,6 +41,7 @@ import { OwnPaymentGuard } from '@interfaces/guards/own-payment.guard';
 import { PaymentCacheInterceptor } from '@interfaces/interceptors/payment-cache.interceptor';
 
 import { OrderReturnRequestedHandler } from '../../application/events/external/order-return-requested.handler.js';
+import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
 import { InvoiceModule } from '../invoice/invoice.module.js';
 import { RefundModule } from '../refund/refund.module.js';
 
@@ -49,6 +50,7 @@ import { RefundModule } from '../refund/refund.module.js';
   controllers: [PaymentController, AnalyticsController],
   providers: [
     OrderReturnRequestedHandler,
+    VendorSuspendedHandler,
     UpdateAnalyticsHandler,
     NotifyPaymentSuccessHandler,
     UpdateOrderStatusHandler,

@@ -23,7 +23,8 @@ export interface JwtPayload {
 }
 
 export interface AuthenticatedUser {
-  readonly userId: string;
+  readonly userId?: string;
+  readonly sub?: string;
   readonly roles: readonly string[];
   readonly permissions: readonly string[];
   readonly sessionId?: string;

@@ -12,6 +12,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { PassportModule } from '@nestjs/passport';
 
 // ─── Common (kernel + infra globals) ────────
 import { NotificationCommonModule } from './common/index.js';
@@ -35,9 +36,12 @@ import { DeviceModule } from './device/index.js';
 import { WebhookModule } from './webhook/index.js';
 import { DeliveryModule } from './delivery/index.js';
 import { ProviderGatewaysModule } from './provider-gateways/index.js';
+import { JwtStrategy } from '../infrastructure/security/jwt.strategy.js';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+
     // ─── Root config (global) ───────────────
     ConfigModule.forRoot({
       isGlobal: true,
@@ -71,6 +75,7 @@ import { ProviderGatewaysModule } from './provider-gateways/index.js';
     DeliveryModule,
     ProviderGatewaysModule,
   ],
+  providers: [JwtStrategy],
 })
 export class NotificationAppModule {}
 

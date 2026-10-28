@@ -9,7 +9,9 @@
  *  - HealthModule
  *  - All feature modules
  */
+import { JwtStrategy } from '../infrastructure/security/jwt.strategy.js';
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
@@ -33,6 +35,7 @@ import { GatewayModule } from './gateway/index.js';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // ─── Root config ────────────────────────
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     CqrsModule.forRoot(),
@@ -59,6 +62,7 @@ import { GatewayModule } from './gateway/index.js';
     InvoiceModule,
     WebhookModule,
   ],
+  providers: [JwtStrategy],
 })
 export class PaymentAppModule {}
 

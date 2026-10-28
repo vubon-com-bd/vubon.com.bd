@@ -2,7 +2,9 @@
  * Identity Service — Root App Module
  * @module identity-service
  */
+import { JwtStrategy } from './module/infrastructure/security/jwt.strategy.js';
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
@@ -31,14 +33,19 @@ import { UserKycModule } from './module/modules/user-kyc/index.js';
 import { UserActivityModule } from './module/modules/user-activity/index.js';
 import { PublicProfileModule } from './module/modules/public-profile/index.js';
 import { SocialIntegrationModule } from './module/modules/social-integration/social-integration.module.js';
+import { IdentityEventsModule } from './module/modules/identity-events/identity-events.module.js';
+// External Event Handlers (order tracking)
+
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // Root config
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       envFilePath: ['.env', '../../.env'],
+
     }),
     CqrsModule.forRoot(),
 
@@ -52,6 +59,7 @@ import { SocialIntegrationModule } from './module/modules/social-integration/soc
     AuthModule,
     UserModule,
     SocialIntegrationModule,
+    IdentityEventsModule,
     AuthDeviceModule,
     AuthSocialModule,
     AuthBiometricModule,
@@ -68,5 +76,6 @@ import { SocialIntegrationModule } from './module/modules/social-integration/soc
     UserActivityModule,
     PublicProfileModule,
   ],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

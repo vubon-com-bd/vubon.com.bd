@@ -23,6 +23,15 @@ import { OwnProductGuard } from '../../interfaces/guards/own-product.guard.js';
 
 import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
+import { ProductOrderCreatedHandler } from '../../application/events/external/order-created.handler.js';
+import { ProductOrderCancelledHandler } from '../../application/events/external/order-cancelled.handler.js';
+import { ProductOrderReturnedHandler } from '../../application/events/external/order-returned.handler.js';
+
+import { VendorDeletedHandler } from '../../application/events/external/vendor-deleted.handler.js';
+import { VendorActivatedHandler } from '../../application/events/external/vendor-activated.handler.js';
+import { VendorDeactivatedHandler } from '../../application/events/external/vendor-deactivated.handler.js';
+import { VendorVerifiedHandler } from '../../application/events/external/vendor-verified.handler.js';
+
 
 @Module({
   imports: [CqrsModule],
@@ -30,6 +39,13 @@ import { VendorSuspendedHandler } from '../../application/events/external/vendor
   providers: [
     VendorApprovedHandler,
     VendorSuspendedHandler,
+    ProductOrderCreatedHandler,
+    ProductOrderCancelledHandler,
+    ProductOrderReturnedHandler,
+    VendorDeletedHandler,
+    VendorActivatedHandler,
+    VendorDeactivatedHandler,
+    VendorVerifiedHandler,
     // Service + DI token
     ProductService,
     { provide: PRODUCT_SERVICE, useExisting: ProductService },

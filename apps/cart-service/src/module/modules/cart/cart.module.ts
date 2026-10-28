@@ -13,6 +13,20 @@ import { CartEventSubscriberService } from '../../application/services/impl/cart
 import { UserDeletedHandler } from '../../application/events/external/user-deleted.handler.js';
 import { UserCreatedHandler } from '../../application/events/external/user-registered.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
+import { ProductStatusChangedHandler } from '../../application/events/external/product-status-changed.handler.js';
+import { ProductStockChangedHandler } from '../../application/events/external/product-stock-changed.handler.js';
+import { ProductUnpublishedHandler } from '../../application/events/external/product-unpublished.handler.js';
+import { VariantStockChangedHandler } from '../../application/events/external/variant-stock-changed.handler.js';
+import { VariantRemovedHandler } from '../../application/events/external/variant-removed.handler.js';
+import { PricingDiscountAppliedHandler } from '../../application/events/external/pricing-discount-applied.handler.js';
+import { ProductBrandDeletedHandler } from '../../application/events/external/product-brand-deleted.handler.js';
+import { ProductCategoryDeletedHandler } from '../../application/events/external/product-category-deleted.handler.js';
+import { ProductVariantAddedHandler } from '../../application/events/external/product-variant-added.handler.js';
+import { ProductCategoryUpdatedHandler } from '../../application/events/external/product-category-updated.handler.js';
+import { ProductCategoryActivatedHandler } from '../../application/events/external/product-category-activated.handler.js';
+import { ProductCategoryDeactivatedHandler } from '../../application/events/external/product-category-deactivated.handler.js';
+import { PricingDiscountRemovedHandler } from '../../application/events/external/pricing-discount-removed.handler.js';
+import { VendorReinstatedHandler } from '../../application/events/external/vendor-reinstated.handler.js';
 import { OrderCancelledHandler } from '../../application/events/external/order-cancelled.handler.js';
 import { PaymentFailedHandler } from '../../application/events/external/payment-failed.handler.js';
 import { PaymentCompletedHandler } from '../../application/events/external/payment-completed.handler.js';
@@ -59,6 +73,20 @@ import { UserStatusChangedHandler } from '../../application/events/external/user
     UserDeletedHandler,
     UserCreatedHandler,
     VendorSuspendedHandler,
+    VendorReinstatedHandler,
+    PricingDiscountRemovedHandler,
+    ProductCategoryDeactivatedHandler,
+    ProductCategoryActivatedHandler,
+    ProductCategoryUpdatedHandler,
+    ProductVariantAddedHandler,
+    ProductCategoryDeletedHandler,
+    ProductBrandDeletedHandler,
+    PricingDiscountAppliedHandler,
+    VariantRemovedHandler,
+    VariantStockChangedHandler,
+    ProductUnpublishedHandler,
+    ProductStockChangedHandler,
+    ProductStatusChangedHandler,
     UserStatusChangedHandler,
     OrderReturnedHandler,
     OrderRefundedHandler,
