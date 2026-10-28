@@ -7,6 +7,7 @@ import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/e
 import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import { renderReviewPostedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
+import { UserClient } from '@infrastructure/services/external/user.client.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -46,7 +47,7 @@ export class ProductReviewPostedHandler implements OnModuleInit {
     private readonly notificationService: INotificationService,
     private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
-  ) {}
+    private readonly userClient: UserClient,) {}
 
   onModuleInit(): void {
     this.eventBus.registerHandler(PRODUCT_REVIEW_POSTED_EVENT, async (event) => {
@@ -57,6 +58,24 @@ export class ProductReviewPostedHandler implements OnModuleInit {
 
   private async handle(event: ProductReviewPostedHandlerEvent): Promise<void> {
     const payload = event.payload;
+
+    // ─── Fetch user profile for email/name/locale ───
+    const _userId = (payload as any).userId ?? (payload as any).customerId ?? event.aggregateId;
+    let userEmail = (payload as any).email;
+    let userName = (payload as any).name;
+    let userLocale = (payload as any).locale;
+    if (!userEmail && _userId) {
+      try {
+        const profile = await this.userClient.getById(_userId);
+        if (profile) {
+          userEmail = userEmail ?? profile.email;
+          userName = userName ?? profile.name ?? profile.firstName;
+          userLocale = userLocale ?? (profile.locale as 'en' | 'bn' | undefined);
+        }
+      } catch (err) {
+        this.logger.warn(`User fetch failed for ${_userId}: ${err}`);
+      }
+    }
     this.logger.log(`Received product.review.submitted — ${JSON.stringify(payload)}`);
 
     try {
@@ -89,9 +108,10 @@ export class ProductReviewPostedHandler implements OnModuleInit {
 
       const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
+        email: userEmail,
         type: NOTIFICATION_TYPE.ALERT,
         category: NOTIFICATION_CATEGORY.PRODUCT,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,

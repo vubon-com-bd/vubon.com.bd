@@ -92,7 +92,7 @@ export class UserCreatedHandler implements OnModuleInit {
         userId,
         type: NOTIFICATION_TYPE.WELCOME,
         category: NOTIFICATION_CATEGORY.USER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,

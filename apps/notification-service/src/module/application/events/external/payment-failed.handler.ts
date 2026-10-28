@@ -8,6 +8,7 @@ import { I18nService } from '../../../domain/services/i18n.service.js';
 import { resolveTemplate, getLocale } from './_handler-helpers.js';
 import { renderPaymentFailedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import { REMINDER_CHAIN_SERVICE, type ReminderChainService } from '../../services/impl/reminder-chain.service.js';
+import { UserClient } from '@infrastructure/services/external/user.client.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -50,7 +51,7 @@ export class PaymentFailedHandler implements OnModuleInit {
     private readonly reminderChain: ReminderChainService,
     private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
-  ) {}
+    private readonly userClient: UserClient,) {}
 
   onModuleInit(): void {
     this.eventBus.registerHandler(PAYMENT_FAILED_EVENT, async (event) => {
@@ -61,6 +62,24 @@ export class PaymentFailedHandler implements OnModuleInit {
 
   private async handle(event: PaymentFailedHandlerEvent): Promise<void> {
     const payload = event.payload;
+
+    // ─── Fetch user profile for email/name/locale ───
+    const _userId = (payload as any).userId ?? (payload as any).customerId ?? event.aggregateId;
+    let userEmail = (payload as any).email;
+    let userName = (payload as any).name;
+    let userLocale = (payload as any).locale;
+    if (!userEmail && _userId) {
+      try {
+        const profile = await this.userClient.getById(_userId);
+        if (profile) {
+          userEmail = userEmail ?? profile.email;
+          userName = userName ?? profile.name ?? profile.firstName;
+          userLocale = userLocale ?? (profile.locale as 'en' | 'bn' | undefined);
+        }
+      } catch (err) {
+        this.logger.warn(`User fetch failed for ${_userId}: ${err}`);
+      }
+    }
     this.logger.log(`Received payment.payment.failed — ${JSON.stringify(payload)}`);
 
     try {
@@ -94,9 +113,10 @@ export class PaymentFailedHandler implements OnModuleInit {
 
       const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
+        email: userEmail,
         type: NOTIFICATION_TYPE.PAYMENT_UPDATE,
         category: NOTIFICATION_CATEGORY.PAYMENT,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: resolved.subject,
         body: resolved.body,
