@@ -4,6 +4,8 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderOrderProcessingStartedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
+import { UserClient } from '@infrastructure/services/external/user.client.js';
 import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
@@ -21,7 +23,7 @@ export class OrderProcessingStartedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE) private readonly notificationService: INotificationService,
     private readonly eventBus: EventBusService,
-  ) {}
+    private readonly userClient: UserClient,) {}
 
   onModuleInit(): void {
     this.eventBus.registerHandler(ORDER_PROCESSING_STARTED_EVENT, async (event) => {
@@ -35,6 +37,35 @@ export class OrderProcessingStartedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+            // ─── Resolve user profile (email, name, locale) ───
+      let resolvedEmail = payload?.email as string | undefined;
+      let resolvedName = payload?.name as string | undefined;
+      let resolvedLocale = payload?.locale as string | undefined;
+      if (!resolvedEmail || !resolvedName) {
+        try {
+          const userProfile = await this.userClient.getById(payload?.userId ?? event.aggregateId);
+          if (userProfile) {
+            resolvedEmail = resolvedEmail ?? userProfile.email;
+            resolvedName = resolvedName ?? userProfile.name ?? userProfile.firstName;
+            resolvedLocale = resolvedLocale ?? userProfile.locale;
+          }
+        } catch (err) {
+          this.logger.warn(`User profile fetch failed: ${err}`);
+        }
+      }
+
+      // ─── Render HTML email ───
+      let html = '';
+      try {
+        html = renderOrderProcessingStartedEmail({
+          name: payload?.name ?? 'Customer',
+          orderId: payload?.orderId ?? '',
+          locale: (payload?.locale ?? 'bn') as 'bn' | 'en',
+        });
+      } catch (err) {
+        this.logger.warn(`HTML template render failed: ${err}`);
+      }
+
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
@@ -43,8 +74,9 @@ export class OrderProcessingStartedHandler implements OnModuleInit {
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? `⚙️ অর্ডার প্রসেসিং শুরু হয়েছে` : `⚙️ Order Processing Started`,
         body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার অর্ডার #${payload?.orderId ?? ""}-এর প্রসেসিং শুরু হয়েছে।` : `Hi ${payload?.name ?? "Customer"}, processing has started for order #${payload?.orderId ?? ""}.`,
+        html,
         data: { eventType: 'order.order.processing_started', ...payload },
-        email: payload?.email,
+        email: resolvedEmail,
         phone: payload?.phone,
         idempotencyKey: `order-processing-${event.id}`,
       });

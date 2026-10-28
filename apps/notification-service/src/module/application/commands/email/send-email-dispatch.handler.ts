@@ -52,14 +52,16 @@ export class SendEmailDispatchHandler
       return { success: false, reason: 'no-recipient' };
     }
 
-    const html = dataValue.html;
+    // ─── HTML: prefer content.html (proper field), fallback to data.html ───
+    const contentHtml = entity.content?.html;
+    const html = contentHtml ?? dataValue.html;
     const subject = entity.vo?.subject?.value ?? 'Notification';
     const text = entity.vo?.body?.value ?? '';
 
     try {
       const provider = this.providerResolver.resolve('email');
       this.logger.log(
-        `📧 Sending via ${provider.metadata.name} → ${email} | subject="${subject}" | html=${!!html}`,
+        `📧 Sending via ${provider.metadata.name} → ${email} | subject="${subject}" | html=${!!html} | source=${contentHtml ? 'content.html' : (dataValue.html ? 'data.html' : 'none')}`,
       );
 
       const input: EmailProviderInput = {

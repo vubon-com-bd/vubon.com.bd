@@ -2584,3 +2584,130 @@ export function renderTrackingStatusChangedEmail(input: TrackingStatusChangedEma
     bodyHtml: `<p>Tracking status updated.</p><p><strong>Order:</strong> #${input.orderId}</p>`,
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+// ORDER PACKED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderPackedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderPackedEmail(input: OrderPackedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার প্যাকিং সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার সফলভাবে প্যাক করা হয়েছে! 📦</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>শীঘ্রই ডেলিভারির জন্য পাঠানো হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Packed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order has been packed! 📦</p><p><strong>Order:</strong> #${input.orderId}</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER PROCESSING STARTED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderProcessingStartedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderProcessingStartedEmail(input: OrderProcessingStartedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার প্রসেসিং শুরু',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার প্রসেস করা শুরু হয়েছে! 🔄</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        <p>আমরা শীঘ্রই এটি প্যাক করে পাঠাব।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Processing Started',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order is being processed! 🔄</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDER RETURNED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface OrderReturnedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly reason?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderOrderReturnedEmail(input: OrderReturnedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'অর্ডার রিটার্ন সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার অর্ডার রিটার্ন সম্পন্ন হয়েছে। ↩️</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.reason ? `<p><strong>কারণ:</strong> ${input.reason}</p>` : ''}
+        <p>রিফান্ড শীঘ্রই প্রসেস করা হবে।</p>
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Order Returned',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your order has been returned. ↩️</p>`,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RETURN CLOSED EMAIL
+// ═══════════════════════════════════════════════════════════
+export interface ReturnClosedEmailInput {
+  readonly name: string;
+  readonly orderId: string;
+  readonly returnId?: string;
+  readonly locale?: 'en' | 'bn';
+}
+
+export function renderReturnClosedEmail(input: ReturnClosedEmailInput): string {
+  const isBangla = (input.locale ?? 'bn') === 'bn';
+  if (isBangla) {
+    return BanglaEmailTemplate.render({
+      title: 'রিটার্ন ক্লোজ সম্পন্ন',
+      locale: 'bn',
+      greeting: `প্রিয় ${input.name},`,
+      bodyHtml: `
+        <p>আপনার রিটার্ন কেস সফলভাবে ক্লোজ করা হয়েছে। ✅</p>
+        <p><strong>অর্ডার:</strong> #${input.orderId}</p>
+        ${input.returnId ? `<p><strong>রিটার্ন:</strong> #${input.returnId}</p>` : ''}
+      `,
+    });
+  }
+  return BanglaEmailTemplate.render({
+    title: 'Return Closed',
+    locale: 'en',
+    greeting: `Hi ${input.name},`,
+    bodyHtml: `<p>Your return has been closed. ✅</p>`,
+  });
+}
