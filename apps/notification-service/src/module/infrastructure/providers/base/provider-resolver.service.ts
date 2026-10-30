@@ -13,6 +13,10 @@ import { MailgunProvider } from '../email/mailgun.provider.js';
 import { SesProvider } from '../email/ses.provider.js';
 import { ResendProvider } from '../email/resend.provider.js';
 import { PostmarkProvider } from '../email/postmark.provider.js';
+import { SslwirelessProvider } from '../sms/sslwireless.provider.js';
+import { BulksmsbdProvider } from '../sms/bulksmsbd.provider.js';
+import { MimsmsProvider } from '../sms/mimsms.provider.js';
+import { TwilioProvider } from '../sms/twilio.provider.js';
 
 @Injectable()
 export class ProviderResolverService implements IProviderResolver {
@@ -26,12 +30,21 @@ export class ProviderResolverService implements IProviderResolver {
     @Optional() ses?: SesProvider,
     @Optional() resend?: ResendProvider,
     @Optional() postmark?: PostmarkProvider,
+    @Optional() sslwireless?: SslwirelessProvider,
+    @Optional() bulksmsbd?: BulksmsbdProvider,
+    @Optional() mimsms?: MimsmsProvider,
+    @Optional() twilio?: TwilioProvider,
   ) {
-    const all = [smtp, sendgrid, mailgun, ses, resend, postmark].filter(
+    const emailProviders = [smtp, sendgrid, mailgun, ses, resend, postmark].filter(
       (p): p is NonNullable<typeof p> => p !== undefined && p !== null,
     );
-    this.providers = all as unknown as readonly AnyProvider[];
-    this.logger.log(`ProviderResolver: ${this.providers.length} email providers registered`);
+    const smsProviders = [sslwireless, bulksmsbd, mimsms, twilio].filter(
+      (p): p is NonNullable<typeof p> => p !== undefined && p !== null,
+    );
+    this.providers = [...emailProviders, ...smsProviders] as unknown as readonly AnyProvider[];
+    this.logger.log(
+      `ProviderResolver: ${emailProviders.length} email + ${smsProviders.length} SMS providers registered`,
+    );
   }
 
   resolve(channel: ProviderChannel, name?: string): AnyProvider {
