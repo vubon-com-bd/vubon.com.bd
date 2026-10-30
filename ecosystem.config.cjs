@@ -6,8 +6,8 @@ module.exports = {
   apps: [
     {
       name: 'identity',
-      script: 'apps/identity-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/identity-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'identity', PORT: 3001 },
       max_memory_restart: '500M',
       autorestart: true,
@@ -19,8 +19,8 @@ module.exports = {
     },
     {
       name: 'product',
-      script: 'apps/product-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/product-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'product', PORT: 3002 },
       max_memory_restart: '500M',
       autorestart: true,
@@ -32,8 +32,8 @@ module.exports = {
     },
     {
       name: 'vendor',
-      script: 'apps/vendor-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/vendor-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'vendor', PORT: 3003 },
       max_memory_restart: '500M',
       autorestart: true,
@@ -45,8 +45,8 @@ module.exports = {
     },
     {
       name: 'cart',
-      script: 'apps/cart-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/cart-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'cart', PORT: 3004 },
       max_memory_restart: '500M',
       autorestart: true,
@@ -58,8 +58,8 @@ module.exports = {
     },
     {
       name: 'order',
-      script: 'apps/order-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/order-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'order', PORT: 3005 },
       max_memory_restart: '500M',
       autorestart: true,
@@ -71,8 +71,8 @@ module.exports = {
     },
     {
       name: 'payment',
-      script: 'apps/payment-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/payment-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'payment', PORT: 3006 },
       max_memory_restart: '500M',
       autorestart: true,
@@ -106,8 +106,8 @@ module.exports = {
     },
     {
       name: 'notification',
-      script: 'apps/notification-service/dist/main.js',
-      cwd: '/data/data/com.termux/files/home/vubon.com.bd',
+      script: 'dist/main.js',
+      cwd: '/data/data/com.termux/files/home/vubon.com.bd/apps/notification-service',
       env: { NODE_ENV: 'production', SERVICE_NAME: 'notification', PORT: 4006 },
       max_memory_restart: '500M',
       autorestart: true,
