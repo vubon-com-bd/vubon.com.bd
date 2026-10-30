@@ -10,6 +10,8 @@ import { AppModule } from './app.module.js';
 import { DomainExceptionFilter } from './module/interfaces/filters/domain-exception.filter.js';
 import { ApplicationExceptionFilter } from './module/interfaces/filters/application-exception.filter.js';
 import { PrismaUnavailableFilter } from './module/interfaces/filters/prisma-unavailable.filter.js';
+import { RateLimitInterceptor } from './module/interfaces/interceptors/rate-limit.interceptor.js';
+import { RateLimiterService } from './module/infrastructure/services/internal/rate-limiter.service.js';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -37,6 +39,15 @@ async function bootstrap(): Promise<void> {
     new DomainExceptionFilter(),
     new ApplicationExceptionFilter(),
   );
+
+  // Global rate limiting (Redis sliding-window)
+  try {
+    const rateLimiter = app.get(RateLimiterService);
+    app.useGlobalInterceptors(new RateLimitInterceptor(rateLimiter));
+    logger.log('🛡️  Rate limiting enabled');
+  } catch (err) {
+    logger.warn(`Rate limiting disabled: ${err instanceof Error ? err.message : 'unknown'}`);
+  }
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Identity Service API')
