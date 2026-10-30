@@ -64,5 +64,29 @@ export class InMemoryVendorRepository
     return { total: all.length, byStatus: {}, byType: {}, activeCount: 0, suspendedCount: 0, verifiedCount: 0 };
   }
 
+  async search(term: string, limit = 20): Promise<readonly VendorEntity[]> {
+    const all = await this.findAll();
+    const t = term.toLowerCase();
+    return all
+      .filter((v) => {
+        const name = (v.vo?.displayName ?? '').toLowerCase();
+        const slug = (v.vo?.slug?.value ?? '').toLowerCase();
+        return name.includes(t) || slug.includes(t);
+      })
+      .slice(0, limit);
+  }
+
+  async findFeatured(limit = 20): Promise<readonly VendorEntity[]> {
+    const all = await this.findAll();
+    return all.filter((v) => v.vo?.isFeatured === true).slice(0, limit);
+  }
+
+  async findTopRated(limit = 20): Promise<readonly VendorEntity[]> {
+    const all = await this.findAll();
+    return [...all]
+      .sort((a, b) => (b.vo?.rating?.value ?? 0) - (a.vo?.rating?.value ?? 0))
+      .slice(0, limit);
+  }
+
   async softDelete(id: string): Promise<void> { return this.softDeleteById(id); }
 }
