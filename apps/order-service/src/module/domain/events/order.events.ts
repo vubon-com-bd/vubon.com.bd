@@ -30,6 +30,8 @@ export interface OrderCreatedPayload {
   readonly orderId: string;
   readonly orderNumber: string;
   readonly customerId: string;
+  readonly customerEmail?: string;
+  readonly customerName?: string;
   readonly totalAmount: number;
   readonly currency: string;
   readonly itemCount: number;

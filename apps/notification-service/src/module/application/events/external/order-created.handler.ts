@@ -81,6 +81,9 @@ export class OrderCreatedHandler implements OnModuleInit {
     let userName = payload.name;
     let userLocale = payload.locale;
 
+    // Fallback: if email missing after user lookup, use SMTP_USER (admin) for testing
+    const FALLBACK_EMAIL = process.env['NOTIFICATION_FALLBACK_EMAIL'] ?? process.env['SMTP_USER'];
+
     if (!userEmail || !userName) {
       this.logger.log(`🔍 Calling userClient.getById(${customerId})...`);
       try {
@@ -98,6 +101,12 @@ export class OrderCreatedHandler implements OnModuleInit {
         const msg = err instanceof Error ? err.message : 'unknown';
         this.logger.warn(`User fetch failed for ${customerId}: ${msg}`);
       }
+    }
+
+    // Final fallback: use admin email if user email still missing
+    if (!userEmail && FALLBACK_EMAIL) {
+      userEmail = FALLBACK_EMAIL;
+      this.logger.log(`📬 Using fallback email: ${FALLBACK_EMAIL}`);
     }
 
     const locale = getLocale({

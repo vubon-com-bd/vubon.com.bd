@@ -82,6 +82,13 @@ export class PaymentPaidHandler implements OnModuleInit {
         this.logger.warn(`User fetch failed for ${_userId}: ${err}`);
       }
     }
+    // Fallback: use admin email if user email missing
+    const FALLBACK_EMAIL = process.env['NOTIFICATION_FALLBACK_EMAIL'] ?? process.env['SMTP_USER'];
+    if (!userEmail && FALLBACK_EMAIL) {
+      userEmail = FALLBACK_EMAIL;
+      this.logger.log(`📬 Payment handler using fallback email: ${FALLBACK_EMAIL}`);
+    }
+
     this.logger.log(`Received payment.payment.paid — ${JSON.stringify(payload)}`);
 
     try {
