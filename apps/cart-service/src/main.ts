@@ -1,4 +1,11 @@
 import 'reflect-metadata';
+import { config as loadEnvFile } from 'dotenv';
+import { resolve } from 'node:path';
+
+// Load .env BEFORE anything else
+loadEnvFile({ path: resolve(process.cwd(), 'apps/cart-service/.env') });
+loadEnvFile({ path: resolve(process.cwd(), '.env') });
+loadEnvFile();
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

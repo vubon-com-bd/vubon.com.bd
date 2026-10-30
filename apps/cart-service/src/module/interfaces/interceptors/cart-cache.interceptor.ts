@@ -32,8 +32,23 @@ export class CartCacheInterceptor implements NestInterceptor {
       user?: { userId?: string };
     }>();
 
-    // Only cache GET requests
-    if (req.method !== 'GET') return next.handle();
+    // Invalidate user cart cache on mutations
+    if (req.method !== 'GET') {
+      const userId = req.user?.userId ?? 'anon';
+      try {
+        const keys = await (this.redis as unknown as { keys?: (p: string) => Promise<string[]> }).keys?.(`${PREFIX}${userId}:*`);
+        if (keys && keys.length > 0) {
+          for (const k of keys) {
+            await (this.redis as unknown as { del?: (k: string) => Promise<unknown> }).del?.(k);
+          }
+          this.logger.debug(`Cache INVALIDATED ${keys.length} keys for user ${userId}`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'unknown';
+        this.logger.warn(`Cache invalidation failed: ${msg.slice(0, 100)}`);
+      }
+      return next.handle();
+    }
 
     const key = this.buildKey(req);
 
