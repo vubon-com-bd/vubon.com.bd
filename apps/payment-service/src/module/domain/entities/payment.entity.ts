@@ -34,6 +34,7 @@ import {
   PaymentCapturedEvent,
   PaymentCompletedEvent,
   PaymentFailedEvent,
+  PaymentCancelledEvent,
   PaymentRefundedEvent,
 } from '@domain/events/payment.events';
 
@@ -332,6 +333,19 @@ export class PaymentEntity extends AggregateRoot<string> {
     this._status = PaymentStatusVO.cancelled();
     this._failureReason = reason;
     this.emitStatusChange(from, 'cancelled', cancelledBy, reason);
+    this.addDomainEvent(
+      new PaymentCancelledEvent({
+        aggregateId: this.id,
+        payload: {
+          paymentId: this.id,
+          fromStatus: from,
+          toStatus: 'cancelled',
+          changedBy: cancelledBy,
+          reason,
+        },
+        version: this.version + 1,
+      }),
+    );
     this.touch(now);
     this.incrementVersion();
   }
