@@ -85,7 +85,7 @@ export class OrderItemStatusChangedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: subject,
-        body: `অর্ডার আইটেমের স্ট্যাটাস পরিবর্তন হয়েছে।`,
+        body: html || `অর্ডার আইটেমের স্ট্যাটাস পরিবর্তন হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-item.status_changed',

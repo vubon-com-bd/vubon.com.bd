@@ -20,8 +20,15 @@ import { ProductInventoryEntity } from '../../../domain/entities/product-invento
 import { ProductInventoryVO } from '../../../domain/value-objects/composites/product-inventory.vo.js';
 import { InventoryIdVO } from '../../../domain/value-objects/primitives/inventory-id.vo.js';
 import { ProductIdVO } from '../../../domain/value-objects/primitives/product-id.vo.js';
+import {
+  VARIANT_REPOSITORY,
+  type ProductVariantRepository,
+} from '../../../domain/repositories/product-variant.repository.interface.js';
 import { VariantIdVO } from '../../../domain/value-objects/primitives/variant-id.vo.js';
 import { InventoryQuantityVO } from '../../../domain/value-objects/primitives/inventory-quantity.vo.js';
+import { InventoryStatusVO } from '../../../domain/value-objects/primitives/inventory-status.vo.js';
+import { ProductSkuVO } from '../../../domain/value-objects/primitives/product-sku.vo.js';
+import { VendorIdVO } from '../../../domain/value-objects/primitives/vendor-id.vo.js';
 import { ProductInventoryService as InventoryDomainService } from '../../../domain/services/product-inventory.service.js';
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
 
@@ -30,6 +37,7 @@ import type {
   IProductInventoryService,
   InventoryListOptionsDTO,
   InventoryListFilterDTO,
+  CreateDefaultInventoryDTO,
 } from '../interfaces/product-inventory.service.interface.js';
 import {
   InventoryNotFoundApplicationError,
@@ -60,10 +68,36 @@ export class ProductInventoryApplicationService implements IProductInventoryServ
   constructor(
     @Inject(INVENTORY_REPOSITORY)
     private readonly repo: ProductInventoryRepository,
+    @Inject(VARIANT_REPOSITORY)
+    private readonly variantRepo: ProductVariantRepository,
     private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   // ═══════════════ COMMANDS ═══════════════
+  async createDefault(dto: CreateDefaultInventoryDTO): Promise<InventoryResponseDTO> {
+    const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    const qty = dto.quantity ?? 0;
+
+    const vo = ProductInventoryVO.create({
+      id: InventoryIdVO.create(id),
+      productId: ProductIdVO.create(dto.productId),
+      ...(dto.variantId ? { variantId: VariantIdVO.create(dto.variantId) } : {}),
+      ...(dto.vendorId ? { vendorId: VendorIdVO.create(dto.vendorId) } : {}),
+      sku: ProductSkuVO.create(dto.sku),
+      quantity: InventoryQuantityVO.create(qty),
+      reserved: InventoryQuantityVO.zero(),
+      status: InventoryStatusVO.create(qty > 0 ? 'in_stock' : 'out_of_stock'),
+      lowStockThreshold: dto.lowStockThreshold ?? 10,
+      updatedAt: now,
+    });
+
+    const entity = ProductInventoryEntity.create({ id, vo, now });
+    const saved = await this.repo.save(entity);
+    this.logger.log(`Inventory created for product ${dto.productId} (${qty} units)`);
+    return InventoryMapper.toResponse(saved);
+  }
+
   async update(dto: UpdateInventoryCommandDTO): Promise<InventoryResponseDTO> {
     const entity = await this.load(dto.inventoryId);
     const previous = entity.quantity.value;
@@ -77,6 +111,22 @@ export class ProductInventoryApplicationService implements IProductInventoryServ
     }
 
     const saved = await this.repo.save(entity);
+
+    // ─── Sync stock to variant ───
+    if (saved.vo.variantId?.value) {
+      try {
+        const variant = await this.variantRepo.findById(saved.vo.variantId.value);
+        if (variant) {
+          variant.adjustStock(delta);
+          await this.variantRepo.save(variant);
+          this.logger.log(`Variant ${variant.id} stock synced to ${variant.stock.value}`);
+        }
+      } catch (syncErr) {
+        const msg = syncErr instanceof Error ? syncErr.message : 'Unknown';
+        this.logger.warn(`Variant stock sync failed: ${msg}`);
+      }
+    }
+
     // NOTE: child entity (inventory) → no domain events; parent aggregate (product) emits.
     // Application-level alerts only:
 
@@ -163,8 +213,22 @@ export class ProductInventoryApplicationService implements IProductInventoryServ
 
   async getByProduct(productId: string): Promise<InventoryResponseDTO> {
     const entity = await this.repo.findByProduct(ProductIdVO.create(productId));
-    if (!entity) throw new InventoryNotFoundApplicationError(productId);
-    return InventoryMapper.toResponse(entity);
+    if (entity) return InventoryMapper.toResponse(entity);
+
+    // Fallback: scan all inventory records for matching productId
+    this.logger.log(`[DEBUG] getByProduct fallback for ${productId}`);
+    const all = await this.repo.findAll();
+    this.logger.log(`[DEBUG] total inventory: ${all.length}`);
+    for (const it of all) {
+      const pid = it.vo?.productId?.value;
+      this.logger.log(`[DEBUG] inventory ${it.id} productId=${pid}`);
+      if (pid === productId) {
+        this.logger.log(`[DEBUG] MATCH found: ${it.id}`);
+        return InventoryMapper.toResponse(it);
+      }
+    }
+
+    throw new InventoryNotFoundApplicationError(productId);
   }
 
   async getByVariant(variantId: string): Promise<InventoryResponseDTO> {

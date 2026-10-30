@@ -83,7 +83,7 @@ export class ReturnPickedUpHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার রিটার্ন পণ্য সংগ্রহ করা হয়েছে।`,
+        body: html || `আপনার রিটার্ন পণ্য সংগ্রহ করা হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-return.picked_up',

@@ -12,6 +12,7 @@ import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
 import { I18nService } from '../../../domain/services/i18n.service.js';
+import { renderPasswordChangedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 export const PASSWORD_CHANGED_EVENT = 'identity.auth.password_changed';
 
@@ -45,6 +46,15 @@ export class PasswordChangedHandler implements OnModuleInit {
     const locale = payload.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderPasswordChangedEmail({
+      name: (payload.name as string) ?? 'ব্যবহারকারী',
+      changedAt: (payload.changedAt as string) ?? new Date().toISOString(),
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
       await this.notificationService.send({
         userId: payload.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SECURITY,
@@ -52,10 +62,11 @@ export class PasswordChangedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.EMAIL, NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: isBn ? 'পাসওয়ার্ড পরিবর্তন হয়েছে' : 'Password Changed',
-        body: isBn
+        body: html || isBn
           ? `প্রিয় ${payload.name ?? 'গ্রাহক'}, আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। আপনি এটি না করে থাকলে সাথে সাথে যোগাযোগ করুন: support@vubon.com.bd`
           : `Hi ${payload.name ?? 'Customer'}, your password was changed successfully. If this wasn't you, contact support@vubon.com.bd immediately.`,
-        data: { eventType: PASSWORD_CHANGED_EVENT, ...payload },
+        data: {
+          html, eventType: PASSWORD_CHANGED_EVENT, ...payload },
         idempotencyKey: `pw-changed-${event.id}`,
       });
       this.logger.log(`✅ Password change notification sent`);

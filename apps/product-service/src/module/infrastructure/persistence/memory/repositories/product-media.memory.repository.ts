@@ -27,7 +27,7 @@ export class InMemoryProductMediaRepository
 
   async findAllByProduct(productId: ProductIdVO): Promise<readonly ProductMediaEntity[]> {
     const all = await this.findAll();
-    return all.filter((e) => e.vo.productId === productId.value);
+    return all.filter((e) => (e.vo as unknown as { productId: string }).productId === productId.value);
   }
 
   async deleteByProduct(productId: ProductIdVO): Promise<number> {

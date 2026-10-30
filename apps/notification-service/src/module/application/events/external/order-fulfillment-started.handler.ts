@@ -102,7 +102,7 @@ export class OrderFulfillmentStartedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `অর্ডার প্রস্তুত হচ্ছে - #{{orderId}}`,
-        body: `আপনার অর্ডার প্রস্তুত করা শুরু হয়েছে।`,
+        body: html || `আপনার অর্ডার প্রস্তুত করা শুরু হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-fulfillment.started',

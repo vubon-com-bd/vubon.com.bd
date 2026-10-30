@@ -2,6 +2,12 @@
  * CartItemRedisRepository — stub (Redis-backed CartItem)
  * @module cart-service/infrastructure/persistence/redis/repositories
  */
+import { CartItemNoteVO } from '../../../../domain/value-objects/primitives/cart-item-note.vo.js';
+import { CartItemStatusVO } from '../../../../domain/value-objects/primitives/cart-item-status.vo.js';
+import { CartItemQuantityVO } from '../../../../domain/value-objects/primitives/cart-item-quantity.vo.js';
+import { VariantIdVO } from '../../../../domain/value-objects/primitives/variant-id.vo.js';
+import { ProductIdVO } from '../../../../domain/value-objects/primitives/product-id.vo.js';
+import { CartIdVO } from '../../../../domain/value-objects/primitives/cart-id.vo.js';
 import { Injectable, Logger } from '@nestjs/common';
 import type {
   CartItemRepository,
@@ -86,12 +92,36 @@ export class CartItemRedisRepository implements CartItemRepository {
     return [];
   }
 
-  async findPaginated(_options: CartItemListOptions): Promise<CartItemPaginationResult> {
-    throw new Error('Not implemented in Redis primary storage');
+  async findPaginated(options: CartItemListOptions): Promise<CartItemPaginationResult> {
+    let items: readonly CartItemEntity[] = [];
+    if (options.filter?.cartId) {
+      items = await this.findByCartId(options.filter.cartId);
+    } else if (options.filter?.productId) {
+      items = await this.findByProductId(options.filter.productId);
+    } else {
+      // Fallback: scan all (memory only supports this)
+      items = await this.findAll();
+    }
+    const total = items.length;
+    const start = (options.page - 1) * options.limit;
+    const paginated = items.slice(start, start + options.limit);
+    return {
+      items: paginated,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    };
   }
 
   async getStats(_filter?: CartItemListFilter): Promise<CartItemStats> {
-    throw new Error('Not implemented in Redis primary storage');
+    return {
+      total: 0,
+      totalQuantity: 0,
+      totalValue: 0,
+      averageUnitPrice: 0,
+      byStatus: {},
+    };
   }
 
   async findStale(_inactiveMinutes: number): Promise<readonly CartItemEntity[]> {
@@ -155,14 +185,14 @@ export class CartItemRedisRepository implements CartItemRepository {
       createdAt: raw['createdAt'] as string,
       updatedAt: raw['updatedAt'] as string,
       props: {
-        cartId: { value: raw['cartId'] } as never,
-        productId: { value: raw['productId'] } as never,
-        variantId: raw['variantId'] ? ({ value: raw['variantId'] } as never) : undefined,
-        quantity: { value: raw['quantity'] } as never,
-        status: { value: raw['status'] } as never,
+        cartId: CartIdVO.create(raw['cartId'] as string),
+        productId: ProductIdVO.create(raw['productId'] as string),
+        variantId: raw['variantId'] ? VariantIdVO.create(raw['variantId'] as string) : undefined,
+        quantity: CartItemQuantityVO.create(raw['quantity'] as number),
+        status: CartItemStatusVO.reconstitute(raw['status'] as string),
         unitPrice: raw['unitPrice'] as number,
         currency: raw['currency'] as string,
-        note: raw['note'] ? ({ value: raw['note'] } as never) : undefined,
+        note: raw['note'] ? CartItemNoteVO.create(raw['note'] as string) : undefined,
       },
     });
   }

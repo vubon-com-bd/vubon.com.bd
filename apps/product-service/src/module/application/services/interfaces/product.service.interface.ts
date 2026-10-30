@@ -56,6 +56,9 @@ export interface IProductService {
   create(dto: CreateProductCommandDTO, userId: string, actorId?: string): Promise<ProductCreateResponseDTO>;
   update(dto: UpdateProductCommandDTO, actorId?: string): Promise<ProductResponseDTO>;
   delete(dto: DeleteProductRequestDTO): Promise<{ readonly success: true; readonly productId: string }>;
+  submit(productId: string): Promise<ProductResponseDTO>;
+  approve(productId: string, approvedBy?: string): Promise<ProductResponseDTO>;
+  reject(productId: string, reason: string, rejectedBy?: string): Promise<ProductResponseDTO>;
   publish(dto: PublishProductRequestDTO): Promise<ProductResponseDTO>;
   archive(dto: ArchiveProductRequestDTO): Promise<ProductResponseDTO>;
   duplicate(dto: DuplicateProductRequestDTO): Promise<ProductCreateResponseDTO>;

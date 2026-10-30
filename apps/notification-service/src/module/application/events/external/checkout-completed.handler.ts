@@ -87,7 +87,7 @@ export class CheckoutCompletedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার চেকআউট সম্পূর্ণ হয়েছে।`,
+        body: html || `আপনার চেকআউট সম্পূর্ণ হয়েছে।`,
         data: {
           html,
           eventType: 'order.checkout.completed',

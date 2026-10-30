@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderProductPublishedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
@@ -35,6 +36,16 @@ export class ProductPublishedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderProductPublishedEmail({
+      name: (payload.name as string) ?? 'ভেন্ডর',
+      productName: (payload.productName as string) ?? '',
+      publishedAt: (payload.publishedAt as string) ?? new Date().toISOString(),
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
+      
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
@@ -42,8 +53,9 @@ export class ProductPublishedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? `পণ্য এখন live` : `Product is Live`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "ভেন্ডর"}, আপনার পণ্য "${payload?.productName ?? ""}" এখন গ্রাহকদের কাছে live হয়েছে।` : `Hi ${payload?.name ?? "Vendor"}, your product "${payload?.productName ?? ""}" is now live for customers.`,
-        data: { eventType: 'product.product.published', ...payload },
+        body: html || isBn ? `প্রিয় ${payload?.name ?? "ভেন্ডর"}, আপনার পণ্য "${payload?.productName ?? ""}" এখন গ্রাহকদের কাছে live হয়েছে।` : `Hi ${payload?.name ?? "Vendor"}, your product "${payload?.productName ?? ""}" is now live for customers.`,
+        data: {
+          html, eventType: 'product.product.published', ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `product-published-${event.id}`,

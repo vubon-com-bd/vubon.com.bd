@@ -16,7 +16,7 @@ export interface CreateSessionInput {
 }
 
 export interface AuthSessionServiceInterface extends BaseServiceInterface<SessionEntity, string> {
-  create(userId: string, input?: CreateSessionInput): Promise<AuthSessionResponseDTO>;
+  create(userId: string, input?: CreateSessionInput & { authId?: string }): Promise<AuthSessionResponseDTO>;
   findById(sessionId: string): Promise<AuthSessionResponseDTO | null>;
   findActiveByUser(userId: string): Promise<readonly AuthSessionResponseDTO[]>;
   revoke(sessionId: string, reason: string): Promise<void>;

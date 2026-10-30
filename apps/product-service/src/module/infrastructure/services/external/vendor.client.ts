@@ -21,7 +21,7 @@ export class VendorClient {
   private readonly timeout: number;
 
   constructor() {
-    this.baseUrl = getOptionalEnv('VENDOR_SERVICE_URL', 'http://localhost:3005');
+    this.baseUrl = getOptionalEnv('VENDOR_SERVICE_URL', 'http://localhost:3003');
     this.timeout = Number(getOptionalEnv('VENDOR_SERVICE_TIMEOUT', '5000'));
   }
 
@@ -38,6 +38,24 @@ export class VendorClient {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       this.logger.warn(`Vendor fetch failed (${id}): ${msg.slice(0, 100)}`);
+      return null;
+    }
+  }
+
+
+  async getByUserId(userId: string): Promise<VendorDTO | null> {
+    try {
+      const res = await fetch(`${this.baseUrl}/vendors/by-user/${userId}`, {
+        signal: AbortSignal.timeout(this.timeout),
+      });
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return (await res.json()) as VendorDTO;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Vendor fetch by userId failed (${userId}): ${msg.slice(0, 100)}`);
       return null;
     }
   }

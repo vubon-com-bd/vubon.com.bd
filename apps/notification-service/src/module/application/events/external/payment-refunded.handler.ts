@@ -81,20 +81,8 @@ export class PaymentRefundedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'PAYMENT_REFUNDED',
-          locale,
-          {
-            amount: (payload as any).amount
-          },
-          {
-            subject: 'Refund Processed',
-            body: 'Refund of {{amount}} has been processed.',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderRefundEmail({
           name: (payload as any).name ?? 'Customer',
@@ -107,7 +95,22 @@ export class PaymentRefundedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'PAYMENT_REFUNDED',
+          locale,
+          {
+            amount: (payload as any).amount
+          },
+          {
+            subject: 'Refund Processed',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.PAYMENT_UPDATE,

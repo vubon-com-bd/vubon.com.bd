@@ -85,7 +85,7 @@ export class PartiallyFulfilledHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `আংশিক প্রস্তুত - #{{orderId}}`,
-        body: `আপনার অর্ডারের কিছু অংশ প্রস্তুত হয়েছে।`,
+        body: html || `আপনার অর্ডারের কিছু অংশ প্রস্তুত হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-fulfillment.partially_fulfilled',

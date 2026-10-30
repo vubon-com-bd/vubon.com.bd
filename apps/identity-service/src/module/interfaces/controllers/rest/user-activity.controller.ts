@@ -20,7 +20,7 @@ import { ActivityControllerMapper } from '../../mappers/activity.controller.mapp
 @ApiTags('user-activity')
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/activity')
+@Controller('users/me/activity')
 export class UserActivityController {
   constructor(private readonly queryBus: QueryBus) {}
 

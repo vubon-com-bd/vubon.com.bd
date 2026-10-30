@@ -8,132 +8,136 @@ import {
   IsString, IsUUID, Length, Min,
 } from 'class-validator';
 
-const PRICING_TYPE_VALUES = ['fixed', 'dynamic', 'tiered', 'auction', 'negotiable'];
+const PRICING_TYPE_VALUES = ['fixed', 'dynamic', 'tiered', 'auction', 'negotiable'] as const;
 
 export class UpdatePriceHttpDTO {
-  @ApiProperty()
-  @IsNumber({ maxDecimalPlaces: 2 })
+  @ApiProperty({ description: 'New selling price', example: 1500 })
+  @IsNumber({ allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 })
   @Min(0)
-  readonly sellingPrice!: number;
+  sellingPrice!: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Compare-at price', example: 2000 })
   @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsNumber({ allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 })
   @Min(0)
-  readonly compareAtPrice?: number;
+  compareAtPrice?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Cost price', example: 1000 })
   @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsNumber({ allowNaN: false, allowInfinity: false, maxDecimalPlaces: 2 })
   @Min(0)
-  readonly costPrice?: number;
+  costPrice?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Change reason', example: 'Seasonal discount' })
   @IsOptional()
   @IsString()
-  readonly reason?: string;
+  reason?: string;
 
-  @ApiPropertyOptional({ enum: ['admin', 'vendor', 'staff'] })
+  @ApiPropertyOptional({
+    description: 'Actor role',
+    enum: ['admin', 'vendor', 'staff'],
+    example: 'admin',
+  })
   @IsOptional()
   @IsEnum(['admin', 'vendor', 'staff'])
-  readonly actorRole?: string;
+  actorRole?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Bypass minimum margin check', example: false })
   @IsOptional()
   @IsBoolean()
-  readonly bypassMinMargin?: boolean;
+  bypassMinMargin?: boolean;
 }
 
 export class CreatePricingRuleHttpDTO {
   @ApiProperty({ example: 'Bulk discount' })
   @IsString()
   @Length(1, 150)
-  readonly name!: string;
+  name!: string;
 
   @ApiProperty({ enum: PRICING_TYPE_VALUES })
   @IsEnum(PRICING_TYPE_VALUES)
-  readonly type!: string;
+  type!: string;
 
   @ApiProperty({ example: { minQuantity: 10 } })
   @IsObject()
-  readonly conditions!: Readonly<Record<string, unknown>>;
+  conditions!: Readonly<Record<string, unknown>>;
 
   @ApiProperty({ example: 5 })
   @IsNumber()
-  readonly priceAdjustment!: number;
+  priceAdjustment!: number;
 
   @ApiProperty({ example: true })
   @IsBoolean()
-  readonly isPercent!: boolean;
+  isPercent!: boolean;
 
   @ApiPropertyOptional({ example: 10 })
   @IsOptional()
   @IsInt()
   @Min(0)
-  readonly priority?: number;
+  priority?: number;
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()
   @IsBoolean()
-  readonly isActive?: boolean;
+  isActive?: boolean;
 }
 
 export class UpdatePricingRuleHttpDTO {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  readonly name?: string;
+  name?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsObject()
-  readonly conditions?: Readonly<Record<string, unknown>>;
+  conditions?: Readonly<Record<string, unknown>>;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
-  readonly priceAdjustment?: number;
+  priceAdjustment?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
-  readonly isPercent?: boolean;
+  isPercent?: boolean;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
   @Min(0)
-  readonly priority?: number;
+  priority?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
-  readonly isActive?: boolean;
+  isActive?: boolean;
 }
 
 export class CalculatePriceHttpDTO {
   @ApiProperty()
   @IsUUID()
-  readonly productId!: string;
+  productId!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
-  readonly variantId?: string;
+  variantId?: string;
 
   @ApiProperty({ example: 1 })
   @IsInt()
   @Min(1)
-  readonly quantity!: number;
+  quantity!: number;
 
   @ApiPropertyOptional({ example: 'BDT', minLength: 3, maxLength: 3 })
   @IsOptional()
   @IsString()
   @Length(3, 3)
-  readonly currency?: string;
+  currency?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
-  readonly applyAit?: boolean;
+  applyAit?: boolean;
 }

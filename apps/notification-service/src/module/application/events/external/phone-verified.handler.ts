@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderPhoneVerifiedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
@@ -35,6 +36,15 @@ export class PhoneVerifiedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderPhoneVerifiedEmail({
+      name: (payload.name as string) ?? 'ব্যবহারকারী',
+      phone: (payload.phone as string) ?? '',
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
+      
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
@@ -42,8 +52,9 @@ export class PhoneVerifiedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? `📱 ফোন যাচাই সম্পন্ন` : `📱 Phone Verified`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার ফোন নম্বর সফলভাবে যাচাই করা হয়েছে।` : `Hi ${payload?.name ?? "Customer"}, your phone number has been verified.`,
-        data: { eventType: 'identity.user.phone_verified', ...payload },
+        body: html || isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার ফোন নম্বর সফলভাবে যাচাই করা হয়েছে।` : `Hi ${payload?.name ?? "Customer"}, your phone number has been verified.`,
+        data: {
+          html, eventType: 'identity.user.phone_verified', ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `phone-verified-${event.id}`,

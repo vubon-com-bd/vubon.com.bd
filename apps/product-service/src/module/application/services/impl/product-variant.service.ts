@@ -22,6 +22,10 @@ import { PriceAmountVO } from '../../../domain/value-objects/primitives/price-am
 import { PriceCurrencyVO } from '../../../domain/value-objects/primitives/price-currency.vo.js';
 import { InventoryQuantityVO } from '../../../domain/value-objects/primitives/inventory-quantity.vo.js';
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import {
+  INVENTORY_SERVICE,
+  type IProductInventoryService,
+} from '../interfaces/product-inventory.service.interface.js';
 
 import { VariantMapper } from '../../mappers/variant.mapper.js';
 import type {
@@ -57,6 +61,8 @@ export class ProductVariantService implements IProductVariantService {
     private readonly repo: ProductVariantRepository,
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepo: ProductRepository,
+    @Inject(INVENTORY_SERVICE)
+    private readonly inventoryService: IProductInventoryService,
     private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
@@ -91,6 +97,22 @@ export class ProductVariantService implements IProductVariantService {
 
       const entity = ProductVariantEntity.create({ id, vo, now });
       const saved = await this.repo.save(entity);
+
+      // ─── Auto-create default inventory record ───
+      try {
+        const vendorId = product.vo.vendorId?.value;
+        await this.inventoryService.createDefault({
+          productId: dto.productId,
+          variantId: saved.id,
+          ...(vendorId ? { vendorId } : {}),
+          sku: dto.sku,
+          quantity: 0,
+        });
+        this.logger.log(`Default inventory created for variant ${saved.id}`);
+      } catch (invErr) {
+        const msg = invErr instanceof Error ? invErr.message : 'Unknown';
+        this.logger.warn(`Inventory auto-create failed for variant ${saved.id}: ${msg}`);
+      }
 
       this.logger.log(`Variant ${saved.id} added to product ${dto.productId}`);
       return VariantMapper.toResponse(saved);

@@ -19,11 +19,11 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
-import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
+import { CurrentUser, Public } from '@vubon/shared-kernel/interfaces/decorators';
 import type { CurrentUserShape } from '@vubon/shared-kernel/interfaces/decorators';
 
 import {
@@ -117,6 +117,40 @@ export class ProductController extends BaseController {
   ): Promise<ProductHttpResponseDTO> {
     const appDto = ProductControllerMapper.toUpdateAppDto(id, dto, user.userId);
     const result = await this.productService.update(appDto, user.userId);
+    return ProductControllerMapper.toHttpResponse(result);
+  }
+
+  @Post(':id/submit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit product for approval (auto-approves trusted vendors)' })
+  @UseGuards(OwnProductGuard)
+  async submit(
+    @Param('id') id: string,
+  ): Promise<ProductHttpResponseDTO> {
+    const result = await this.productService.submit(id);
+    return ProductControllerMapper.toHttpResponse(result);
+  }
+
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Approve pending product (admin only)' })
+  async approve(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ProductHttpResponseDTO> {
+    const result = await this.productService.approve(id, user.userId);
+    return ProductControllerMapper.toHttpResponse(result);
+  }
+
+  @Post(':id/reject')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reject pending product (admin only)' })
+  async reject(
+    @Param('id') id: string,
+    @Body() body: { reason: string },
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ProductHttpResponseDTO> {
+    const result = await this.productService.reject(id, body.reason, user.userId);
     return ProductControllerMapper.toHttpResponse(result);
   }
 
@@ -226,6 +260,7 @@ export class ProductController extends BaseController {
   }
 
   @Get(':id/public')
+  @Public()
   @ApiGetProductPublic()
   async publicView(
     @Param('id') id: string,

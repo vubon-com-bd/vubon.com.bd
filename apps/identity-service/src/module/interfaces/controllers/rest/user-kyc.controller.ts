@@ -29,7 +29,7 @@ import { ApiKycTag, ApiSubmitKyc, ApiVerifyKyc, ApiRejectKyc } from '../../swagg
 @ApiKycTag()
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/kyc')
+@Controller('users/me/kyc')
 export class UserKycController {
   constructor(
     private readonly commandBus: CommandBus,

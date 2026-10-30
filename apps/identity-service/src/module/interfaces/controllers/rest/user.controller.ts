@@ -46,6 +46,7 @@ import type { UserHttpResponseDTO } from '../../dtos/responses/user/user.respons
 import type { UserListHttpResponseDTO } from '../../dtos/responses/user/user-list.response.dto.js';
 
 import { UserControllerMapper } from '../../mappers/user.controller.mapper.js';
+import { Public } from '../../decorators/public.decorator.js';
 import {
   ApiUserTag,
   ApiCreateUser,
@@ -89,6 +90,13 @@ export class UserController {
   @Get(':id')
   @ApiGetUser()
   async getById(@Param('id') id: string): Promise<UserHttpResponseDTO> {
+    const app = await this.queryBus.execute(new GetUserQuery(id));
+    return UserControllerMapper.toHttpResponse(app);
+  }
+
+  @Public()
+  @Get('public/:id')
+  async getPublicById(@Param('id') id: string): Promise<UserHttpResponseDTO> {
     const app = await this.queryBus.execute(new GetUserQuery(id));
     return UserControllerMapper.toHttpResponse(app);
   }

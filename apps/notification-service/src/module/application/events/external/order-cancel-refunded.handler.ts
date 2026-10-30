@@ -110,7 +110,7 @@ export class OrderCancelRefundedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার রিফান্ড সম্পন্ন হয়েছে।`,
+        body: html || `আপনার রিফান্ড সম্পন্ন হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-cancel.refunded',

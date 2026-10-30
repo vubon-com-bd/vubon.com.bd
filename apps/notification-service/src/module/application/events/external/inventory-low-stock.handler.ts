@@ -80,20 +80,8 @@ export class InventoryLowStockHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'REVIEW_POSTED',
-          locale,
-          {
-            productId: (payload as any).productId
-          },
-          {
-            subject: 'Low Stock Alert',
-            body: 'Product {{productId}} is running low.',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderLowStockEmail({
           name: (payload as any).name ?? 'Vendor',
@@ -106,7 +94,22 @@ export class InventoryLowStockHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'REVIEW_POSTED',
+          locale,
+          {
+            productId: (payload as any).productId
+          },
+          {
+            subject: 'Low Stock Alert',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ALERT,

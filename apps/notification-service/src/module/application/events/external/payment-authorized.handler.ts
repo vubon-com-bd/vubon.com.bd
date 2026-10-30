@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderPaymentAuthorizedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
@@ -35,6 +36,17 @@ export class PaymentAuthorizedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderPaymentAuthorizedEmail({
+      name: (payload.name as string) ?? 'গ্রাহক',
+      orderId: (payload.orderId as string) ?? '',
+      amount: (payload.amount as number) ?? 0,
+      currency: (payload.currency as string) ?? 'BDT',
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
+      
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.PAYMENT_UPDATE,
@@ -42,8 +54,9 @@ export class PaymentAuthorizedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? `✅ পেমেন্ট authorized` : `✅ Payment Authorized`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার ৳${payload?.amount ?? 0} পেমেন্ট authorized হয়েছে। শীঘ্রই capture হবে।` : `Hi ${payload?.name ?? "Customer"}, ৳${payload?.amount ?? 0} payment has been authorized. Capture will follow.`,
-        data: { eventType: 'payment.payment.authorized', ...payload },
+        body: html || isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার ৳${payload?.amount ?? 0} পেমেন্ট authorized হয়েছে। শীঘ্রই capture হবে।` : `Hi ${payload?.name ?? "Customer"}, ৳${payload?.amount ?? 0} payment has been authorized. Capture will follow.`,
+        data: {
+          html, eventType: 'payment.payment.authorized', ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `pay-authorized-${event.id}`,

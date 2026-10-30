@@ -34,6 +34,8 @@ import { PaymentFailedHandler } from '../../application/events/external/payment-
 // ─── Feature health ─────────────────────────
 import { OrderFeatureHealthIndicator } from './health/index.js';
 import { UserStatusChangedHandler } from '../../application/events/external/user-status-changed.handler.js';
+import { VendorActivatedHandler } from '../../application/events/external/vendor-activated.handler.js';
+import { VendorDeactivatedHandler } from '../../application/events/external/vendor-deactivated.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
 import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
 import { UserDeletedHandler } from '../../application/events/external/user-deleted.handler.js';
@@ -55,6 +57,8 @@ import { OrderCancelModule } from '../order-cancel/order-cancel.module.js';
   providers: [
     UserStatusChangedHandler,
     VendorSuspendedHandler,
+    VendorDeactivatedHandler,
+    VendorActivatedHandler,
     VendorApprovedHandler,
     UserDeletedHandler,
     PaymentRefundedHandler,

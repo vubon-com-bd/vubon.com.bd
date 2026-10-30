@@ -85,7 +85,7 @@ export class CheckoutStepChangedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `চেকআউট ধাপ পরিবর্তন`,
-        body: `চেকআউটের পরবর্তী ধাপে এগিয়েছে।`,
+        body: html || `চেকআউটের পরবর্তী ধাপে এগিয়েছে।`,
         data: {
           html,
           eventType: 'order.checkout.step_changed',

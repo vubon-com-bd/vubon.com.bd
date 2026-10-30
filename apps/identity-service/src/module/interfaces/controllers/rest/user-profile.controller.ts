@@ -23,7 +23,7 @@ import { UserProfileControllerMapper } from '../../mappers/user-profile.controll
 @ApiTags('user-profile')
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/profile')
+@Controller('users/me/profile')
 export class UserProfileController {
   constructor(
     private readonly commandBus: CommandBus,

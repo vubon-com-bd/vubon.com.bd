@@ -28,6 +28,11 @@ import {
 import { ProductEntity } from '../../../domain/entities/product.entity.js';
 import { ProductVO } from '../../../domain/value-objects/composites/product.vo.js';
 import { ProductIdVO } from '../../../domain/value-objects/primitives/product-id.vo.js';
+import { VendorClient } from '../../../infrastructure/services/external/vendor.client.js';
+import {
+  MEDIA_REPOSITORY,
+  type ProductMediaRepository,
+} from '../../../domain/repositories/product-media.repository.interface.js';
 import { ProductNameVO } from '../../../domain/value-objects/primitives/product-name.vo.js';
 import { ProductSlugVO } from '../../../domain/value-objects/primitives/product-slug.vo.js';
 import { ProductSkuVO } from '../../../domain/value-objects/primitives/product-sku.vo.js';
@@ -44,6 +49,13 @@ import { ProductSlugService } from '../../../domain/services/product-slug.servic
 import { ProductSkuService } from '../../../domain/services/product-sku.service.js';
 import { ProductEligibilityService } from '../../../domain/services/product-eligibility.service.js';
 import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { PRICING_REPOSITORY, type ProductPricingRepository } from '../../../domain/repositories/product-pricing.repository.interface.js';
+import { ProductPricingVO } from '../../../domain/value-objects/composites/product-pricing.vo.js';
+import { ProductPricingEntity } from '../../../domain/entities/product-pricing.entity.js';
+import { PriceIdVO } from '../../../domain/value-objects/primitives/price-id.vo.js';
+import { PriceAmountVO } from '../../../domain/value-objects/primitives/price-amount.vo.js';
+import { PriceCurrencyVO } from '../../../domain/value-objects/primitives/price-currency.vo.js';
+import { PricingRuleTypeVO } from '../../../domain/value-objects/primitives/pricing-rule-type.vo.js';
 import { ProductMapper } from '../../mappers/product.mapper.js';
 
 import type {
@@ -84,10 +96,15 @@ export class ProductService implements IProductService {
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly repo: ProductRepository,
+    @Inject(PRICING_REPOSITORY)
+    private readonly pricingRepo: ProductPricingRepository,
     @Inject(VARIANT_REPOSITORY)
     private readonly variantRepo: ProductVariantRepository,
     @Inject(ATTRIBUTE_REPOSITORY)
     private readonly attributeRepo: ProductAttributeRepository,
+    @Inject(MEDIA_REPOSITORY)
+    private readonly mediaRepo: ProductMediaRepository,
+    private readonly vendorClient: VendorClient,
     private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
@@ -146,6 +163,32 @@ export class ProductService implements IProductService {
     }
 
     const saved = await this.repo.save(entity);
+
+      // ─── Auto-create initial pricing entity ───
+      try {
+        const now = new Date().toISOString();
+        const pricingVo = ProductPricingVO.create({
+          id: PriceIdVO.create(randomUUID()),
+          productId: ProductIdVO.create(saved.id),
+          type: PricingRuleTypeVO.create('fixed'),
+          basePrice: PriceAmountVO.create(dto.price ?? 0),
+          sellingPrice: PriceAmountVO.create(dto.price ?? 0),
+          currency: PriceCurrencyVO.create(dto.currency),
+          taxInclusive: false,
+          updatedAt: now,
+        });
+        const pricingEntity = ProductPricingEntity.create({
+          id: pricingVo.value.id.value,
+          vo: pricingVo,
+          now,
+        });
+        await this.pricingRepo.save(pricingEntity);
+        this.logger.log(`✅ Initial pricing created for product ${saved.id}`);
+      } catch (pricingErr) {
+        this.logger.warn(
+          `Failed to create initial pricing for product ${saved.id}: ${pricingErr instanceof Error ? pricingErr.message : 'unknown'}`,
+        );
+      }
     await this.eventBridge.publishFromEntity(saved);
 
     this.logger.log(`Product ${saved.id} created — sku=${saved.vo.sku.value} by ${userId}`);
@@ -201,8 +244,81 @@ export class ProductService implements IProductService {
     return { success: true, productId: saved.id };
   }
 
+  async submit(productId: string): Promise<ProductResponseDTO> {
+    const entity = await this.load(productId);
+    entity.submit();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} submitted for approval`);
+
+    // ─── Auto-approve for trusted vendors ───
+    try {
+      const vendorId = saved.vo.vendorId?.value;
+      if (vendorId) {
+        const vendor = await this.vendorClient.getById(vendorId);
+        const isTrusted = vendor && (vendor as unknown as { tier?: string }).tier === 'gold' || (vendor as unknown as { tier?: string }).tier === 'platinum';
+        if (vendor?.isApproved && isTrusted) {
+          saved.approve('auto-approve:trusted-vendor');
+          const autoSaved = await this.repo.save(saved);
+          await this.eventBridge.publishFromEntity(autoSaved);
+          this.logger.log(`Product ${saved.id} auto-approved (trusted vendor ${vendorId})`);
+          return ProductMapper.toResponse(autoSaved);
+        }
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown';
+      this.logger.warn(`Auto-approve check failed: ${msg}`);
+    }
+
+    return ProductMapper.toResponse(saved);
+  }
+
+  async approve(productId: string, approvedBy?: string): Promise<ProductResponseDTO> {
+    const entity = await this.load(productId);
+    entity.approve(approvedBy);
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} approved`);
+    return ProductMapper.toResponse(saved);
+  }
+
+  async reject(productId: string, reason: string, rejectedBy?: string): Promise<ProductResponseDTO> {
+    const entity = await this.load(productId);
+    entity.reject(reason, rejectedBy);
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Product ${saved.id} rejected: ${reason}`);
+    return ProductMapper.toResponse(saved);
+  }
+
   async publish(dto: PublishProductRequestDTO): Promise<ProductResponseDTO> {
     const entity = await this.load(dto.productId);
+
+    // ─── Auto-aggregate stock from variants ───
+    const variants = await this.variantRepo.findByProduct(ProductIdVO.create(dto.productId));
+    const totalStock = variants.reduce((sum, v) => sum + (v.vo.stock?.value ?? 0), 0);
+    if (totalStock > 0 && entity.vo.totalStock !== totalStock) {
+      entity.updateStock(totalStock, 'auto-aggregate-from-variants');
+      this.logger.log(`Auto-aggregated stock for product ${dto.productId}: ${totalStock}`);
+    }
+
+    // ─── Auto-aggregate images from media repo ───
+    const mediaList = await this.mediaRepo.findAllByProduct(ProductIdVO.create(dto.productId));
+    if (mediaList && mediaList.length > 0 && entity.vo.images.length === 0) {
+      const imageUrls: string[] = [];
+      for (const m of mediaList) {
+        const items = (m.vo as unknown as { items?: readonly { url: string; type: string }[] }).items;
+        if (items) {
+          for (const item of items) {
+            if (item.type === 'image') imageUrls.push(item.url);
+          }
+        }
+      }
+      if (imageUrls.length > 0) {
+        entity.updateMetadata({ images: imageUrls });
+        this.logger.log(`Auto-aggregated ${imageUrls.length} images for product ${dto.productId}`);
+      }
+    }
 
     // ─── Eligibility (via domain service) ───
     const eligibility = ProductEligibilityService.canPublish(entity);
@@ -293,7 +409,42 @@ export class ProductService implements IProductService {
 
   async getPublic(id: string): Promise<ProductPublicResponseDTO> {
     const entity = await this.load(id);
-    return ProductMapper.toPublicResponse(entity);
+    const base = ProductMapper.toPublicResponse(entity);
+
+    // ─── Enrich with price (from pricing or variant) ───
+    let price: number | undefined;
+    let currency: string | undefined;
+    let sku: string | undefined;
+
+    try {
+      // Try pricing first
+      const pricing = await this.pricingRepo.findByProduct(ProductIdVO.create(id));
+      if (pricing) {
+        price = (pricing as unknown as { vo?: { basePrice?: { value: number }; currency?: { value: string } } }).vo?.basePrice?.value;
+        currency = (pricing as unknown as { vo?: { currency?: { value: string } } }).vo?.currency?.value;
+      }
+
+      // Fallback: variant price
+      if (price === undefined) {
+        const variants = await this.variantRepo.findByProduct(ProductIdVO.create(id));
+        if (variants.length > 0 && variants[0]) {
+          price = variants[0].vo.price?.value;
+          currency = variants[0].vo.currency?.value;
+          sku = variants[0].vo.sku?.value;
+        }
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown';
+      this.logger.warn(`Price enrich failed for ${id}: ${msg}`);
+    }
+
+    return {
+      ...base,
+      ...(price !== undefined ? { price } : {}),
+      ...(currency ? { currency } : {}),
+      ...(sku ? { sku } : {}),
+      ...(price !== undefined && price > 0 ? { isAvailable: true } : { isAvailable: false }),
+    };
   }
 
   async getDetail(id: string): Promise<ProductDetailResponseDTO> {

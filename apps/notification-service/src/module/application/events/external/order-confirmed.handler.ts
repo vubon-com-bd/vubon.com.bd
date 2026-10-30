@@ -79,7 +79,20 @@ export class OrderConfirmedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
+        
+
+        
+
+        ;
+const html = renderOrderConfirmationEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'Customer',
+          orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
+          total: 0,
+          currency: 'BDT',
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
+const resolved = resolveTemplate(
           this.i18n,
           'ORDER_CONFIRMED',
           locale,
@@ -88,19 +101,11 @@ export class OrderConfirmedHandler implements OnModuleInit {
           },
           {
             subject: 'Order Confirmed',
-            body: 'Your order #{{orderId}} has been confirmed.',
+            body: html || 'Your order #{{orderId}} has been confirmed.',
           },
         );
 
-        const html = renderOrderConfirmationEmail({
-          name: (payload as unknown as { name?: string }).name ?? 'Customer',
-          orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
-          total: 0,
-          currency: 'BDT',
-          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
-        });
-
-        const result = await this.notificationService.send({
+                const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,

@@ -80,7 +80,20 @@ export class OrderShippedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
+        
+
+        
+
+        ;
+const html = renderDeliveryEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'Customer',
+          orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
+          status: 'shipped',
+          trackingNumber: (payload as unknown as { trackingNumber?: string }).trackingNumber,
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
+const resolved = resolveTemplate(
           this.i18n,
           'ORDER_SHIPPED',
           locale,
@@ -89,19 +102,11 @@ export class OrderShippedHandler implements OnModuleInit {
           },
           {
             subject: 'Order Shipped',
-            body: 'Your order #{{orderId}} has been shipped. Tracking: {{trackingNumber}}',
+            body: html || 'Your order #{{orderId}} has been shipped. Tracking: {{trackingNumber}}',
           },
         );
 
-        const html = renderDeliveryEmail({
-          name: (payload as unknown as { name?: string }).name ?? 'Customer',
-          orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
-          status: 'shipped',
-          trackingNumber: (payload as unknown as { trackingNumber?: string }).trackingNumber,
-          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
-        });
-
-        const result = await this.notificationService.send({
+                const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,

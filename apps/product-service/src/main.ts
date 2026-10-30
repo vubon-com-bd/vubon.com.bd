@@ -26,8 +26,8 @@ async function bootstrap(): Promise<void> {
   // ─── Global Pipes ─────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
+      whitelist: false,  // TEMP FIX — was stripping DTOs
+      forbidNonWhitelisted: false,  // relaxed to allow explicit DTOs
       transform: true,
       transformOptions: { enableImplicitConversion: true },
     }),

@@ -35,6 +35,7 @@ import {
   PriceBelowCostApplicationError,
 } from '../../errors/pricing.errors.js';
 import type { UpdatePriceRequestDTO } from '../../dtos/requests/pricing/index.js';
+import { DiscountAppliedEvent } from '../../../domain/events/product-pricing.events.js';
 import type {
   PricingResponseDTO,
   PricingPublicResponseDTO,
@@ -56,7 +57,6 @@ export class ProductPricingApplicationService implements IProductPricingService 
   // ═══════════════ COMMANDS ═══════════════
   async updatePrice(dto: UpdatePriceRequestDTO): Promise<PricingResponseDTO> {
     const entity = await this.loadByProduct(dto.productId);
-
     const newPrice = PriceAmountVO.create(dto.sellingPrice);
     const cost = entity.vo.costPrice?.value;
     if (cost !== undefined && newPrice.value < cost) {
@@ -71,7 +71,33 @@ export class ProductPricingApplicationService implements IProductPricingService 
     }
 
     const saved = await this.repo.save(entity);
-    // NOTE: child entity (pricing) → no domain events; parent aggregate (product) emits.
+    
+    // ✅ Manual event publish (BaseEntity has no domain events)
+    try {
+      const oldPrice = entity.vo.basePrice?.value ?? 0;
+      const newPriceVal = newPrice.value;
+      const discountAmount = oldPrice - newPriceVal;
+      const discountPercent = oldPrice > 0 ? Math.round((discountAmount / oldPrice) * 100 * 100) / 100 : 0;
+      
+      if (discountAmount > 0) {
+        const event = new DiscountAppliedEvent({
+          aggregateId: saved.productId.value,
+          payload: {
+            productId: saved.productId.value,
+            discountPercent,
+            discountAmount,
+            effectiveFrom: new Date().toISOString(),
+          },
+          metadata: { userId: dto.actorId, source: 'product-service' },
+        });
+        // ✅ Direct publish via eventBridge.publish() — exists and works!
+        await this.eventBridge.publish(event);
+        this.logger.log(`✅ Discount event published — ${discountPercent}% (${discountAmount} BDT off)`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'unknown';
+      this.logger.warn(`Discount event publish failed: ${msg}`);
+    }
     this.logger.log(
       `Price updated for product ${dto.productId} → ${newPrice.value} ${saved.currency.value}`,
     );

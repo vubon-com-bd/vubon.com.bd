@@ -11,6 +11,7 @@ import {
 import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
+import { renderCartClearedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 export const CART_CLEARED_EVENT = 'cart.cart.cleared';
 
@@ -35,6 +36,14 @@ export class CartClearedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      const html = renderCartClearedEmail({
+        name: payload?.name ?? (isBn ? 'গ্রাহক' : 'Customer'),
+        cartId: payload?.cartId ?? event.aggregateId,
+        itemCount: payload?.itemCount,
+        clearedAt: payload?.clearedAt ?? new Date().toISOString(),
+        locale: locale as 'en' | 'bn',
+      });
+
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.REMINDER,
@@ -42,7 +51,7 @@ export class CartClearedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.LOW,
         subject: isBn ? `🧹 কার্ট খালি করা হয়েছে` : `🧹 Cart Cleared`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার কার্টের সব পণ্য মুছে ফেলা হয়েছে।` : `Hi ${payload?.name ?? "Customer"}, all items removed from your cart.`,
+        body: html,
         data: { eventType: 'cart.cart.cleared', ...payload },
         email: payload?.email,
         phone: payload?.phone,

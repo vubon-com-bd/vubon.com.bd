@@ -158,9 +158,20 @@ export class HttpErrorTranslator {
     }
 
     if (err instanceof BusinessRuleError) {
+      // Auth-specific errors → 401 Unauthorized
+      const name = err.name || '';
+      const code = String((err as unknown as { code?: string }).code ?? '');
+      const rule = String((err as unknown as { rule?: string }).rule ?? '');
+      const isAuthError =
+        name.includes('InvalidCredential') ||
+        name.includes('AuthLocked') ||
+        name.includes('AuthExpired') ||
+        name.includes('Unverified') ||
+        code.includes('AUTH_') ||
+        rule.includes('AUTH_');
       return {
         success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: isAuthError ? HttpStatus.UNAUTHORIZED : HttpStatus.BAD_REQUEST,
         code: err.code,
         message: err.message,
         timestamp,

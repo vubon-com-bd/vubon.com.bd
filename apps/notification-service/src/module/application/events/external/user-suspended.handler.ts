@@ -1,12 +1,9 @@
 /**
- * UserSuspendedHandler — reacts to user.suspended
- * @module notification-service/application/events/external
+ * UserSuspendedHandler — reacts to identity.user.suspended
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
-import { I18nService } from '../../../domain/services/i18n.service.js';
-import { resolveTemplate, getLocale } from './_handler-helpers.js';
-import { renderAccountSuspendedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
+import { renderUserSuspendedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import { UserClient } from '@infrastructure/services/external/user.client.js';
 import {
   NOTIFICATION_CHANNEL,
@@ -26,6 +23,9 @@ interface UserSuspendedHandlerPayload {
   readonly userId: string;
   readonly reason: string;
   readonly suspendedAt: string;
+  readonly name?: string;
+  readonly email?: string;
+  readonly locale?: 'en' | 'bn';
 }
 
 interface UserSuspendedHandlerEvent {
@@ -45,9 +45,9 @@ export class UserSuspendedHandler implements OnModuleInit {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: INotificationService,
-    private readonly i18n: I18nService,
     private readonly eventBus: EventBusService,
-    private readonly userClient: UserClient,) {}
+    private readonly userClient: UserClient,
+  ) {}
 
   onModuleInit(): void {
     this.eventBus.registerHandler(USER_SUSPENDED_EVENT, async (event) => {
@@ -59,60 +59,47 @@ export class UserSuspendedHandler implements OnModuleInit {
   private async handle(event: UserSuspendedHandlerEvent): Promise<void> {
     const payload = event.payload;
 
-    // ─── Fetch user profile for email/name/locale ───
-    const _userId = (payload as any).userId ?? (payload as any).customerId ?? event.aggregateId;
-    let userEmail = (payload as any).email;
-    let userName = (payload as any).name;
-    let userLocale = (payload as any).locale;
-    if (!userEmail && _userId) {
+    const userId = payload.userId ?? event.aggregateId;
+    let userEmail = payload.email;
+    let userName = payload.name;
+    let userLocale = payload.locale;
+
+    if (!userEmail && userId) {
       try {
-        const profile = await this.userClient.getById(_userId);
+        const profile = await this.userClient.getById(userId);
         if (profile) {
           userEmail = userEmail ?? profile.email;
-          userName = userName ?? profile.name ?? profile.firstName;
+          userName = userName ?? (profile as unknown as { name?: string }).name;
           userLocale = userLocale ?? (profile.locale as 'en' | 'bn' | undefined);
         }
       } catch (err) {
-        this.logger.warn(`User fetch failed for ${_userId}: ${err}`);
+        this.logger.warn(`User fetch failed for ${userId}: ${err}`);
       }
     }
+
     this.logger.log(`Received user.suspended — ${JSON.stringify(payload)}`);
 
     try {
-      const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'VENDOR_SUSPENDED',
-          locale,
-          {
-            reason: (payload as any).reason
-          },
-          {
-            subject: 'Account Suspended',
-            body: 'Your account has been suspended. Reason: {{reason}}',
-          },
-        );
-
-              let html = '';
+      let html = '';
       try {
-        html = renderAccountSuspendedEmail({
-          name: (payload as any).name ?? 'User',
-          reason: (payload as any).reason,
-          locale: (payload as any).locale ?? 'bn',
+        html = renderUserSuspendedEmail({
+          name: userName ?? 'ব্যবহারকারী',
+          reason: payload.reason,
+          locale: userLocale ?? 'bn',
         });
       } catch (err) {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
       const result = await this.notificationService.send({
-        userId: (payload as { userId?: string }).userId ?? event.aggregateId,
+        userId,
         email: userEmail,
         type: NOTIFICATION_TYPE.SECURITY,
         category: NOTIFICATION_CATEGORY.USER,
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
-        subject: resolved.subject,
-        body: resolved.body,
+        subject: 'Account Suspended',
+        body: html || `Your account has been suspended. Reason: ${payload.reason}`,
         data: {
           html,
           eventType: 'identity.user.suspended',

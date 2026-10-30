@@ -108,7 +108,7 @@ export class DeliveryFailedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.CRITICAL,
         subject: subject,
-        body: `দুঃখিত, আপনার ডেলিভারি সম্পন্ন হয়নি।`,
+        body: html || `দুঃখিত, আপনার ডেলিভারি সম্পন্ন হয়নি।`,
         data: {
           html,
           eventType: 'order.delivery.failed',

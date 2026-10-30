@@ -85,7 +85,7 @@ export class ReturnPickupScheduledHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার রিটার্ন পিকআপ নির্ধারিত হয়েছে।`,
+        body: html || `আপনার রিটার্ন পিকআপ নির্ধারিত হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-return.pickup_scheduled',

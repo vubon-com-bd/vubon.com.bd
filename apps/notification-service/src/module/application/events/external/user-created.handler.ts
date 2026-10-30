@@ -69,7 +69,18 @@ export class UserCreatedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(event.payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
+        
+
+        
+
+        ;
+const html = renderWelcomeEmail({
+          name: email.split('@')[0],
+          email: email,
+          locale: ((event.payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
+const resolved = resolveTemplate(
           this.i18n,
           'WELCOME',
           locale,
@@ -78,17 +89,11 @@ export class UserCreatedHandler implements OnModuleInit {
           },
           {
             subject: 'Welcome to Vubon!',
-            body: 'Hello {{name}}, welcome to Vubon.com.bd!',
+            body: html || 'Hello {{name}}, welcome to Vubon.com.bd!',
           },
         );
 
-        const html = renderWelcomeEmail({
-          name: email.split('@')[0],
-          email: email,
-          locale: ((event.payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
-        });
-
-        const result = await this.notificationService.send({
+                const result = await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.WELCOME,
         category: NOTIFICATION_CATEGORY.USER,

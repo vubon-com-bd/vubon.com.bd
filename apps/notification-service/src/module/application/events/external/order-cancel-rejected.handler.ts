@@ -108,7 +108,7 @@ export class OrderCancelRejectedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `দুঃখিত, আপনার বাতিলের অনুরোধ প্রত্যাখ্যাত হয়েছে।`,
+        body: html || `দুঃখিত, আপনার বাতিলের অনুরোধ প্রত্যাখ্যাত হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-cancel.rejected',

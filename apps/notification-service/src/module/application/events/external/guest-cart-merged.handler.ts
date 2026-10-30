@@ -61,18 +61,7 @@ export class GuestCartMergedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as Record<string, unknown>);
-      const resolved = resolveTemplate(
-        this.i18n,
-        'cart.guest_cart.merged',
-        locale,
-        payload as Record<string, unknown>,
-        {
-          subject: 'Guest Cart Merged',
-          body: 'Your guest cart has been merged. {{itemCount}} items added.',
-        },
-      );
-
-      // ─── HTML template ───
+      // ─── HTML template (rendered first) ───
       let html = '';
       try {
         html = renderGuestCartMergedEmail({
@@ -84,11 +73,25 @@ export class GuestCartMergedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+        this.i18n,
+        'cart.guest_cart.merged',
+        locale,
+        payload as Record<string, unknown>,
+        {
+          subject: 'Guest Cart Merged',
+          body: html,
+        },
+      );
+
+      // ─── HTML template ───
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SYSTEM,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,

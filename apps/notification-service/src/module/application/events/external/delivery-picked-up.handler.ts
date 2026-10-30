@@ -104,7 +104,7 @@ export class DeliveryPickedUpHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: `পণ্য সংগ্রহ হয়েছে - #{{orderId}}`,
-        body: `আপনার অর্ডারের পণ্য কুরিয়ার সংগ্রহ করেছে।`,
+        body: html || `আপনার অর্ডারের পণ্য কুরিয়ার সংগ্রহ করেছে।`,
         data: {
           html,
           eventType: 'order.delivery.picked_up',

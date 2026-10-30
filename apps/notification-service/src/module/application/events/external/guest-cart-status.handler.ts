@@ -10,6 +10,7 @@ import {
   NOTIFICATION_TYPE,
   NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderGuestCartStatusChangedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 import {
   NOTIFICATION_SERVICE,
@@ -59,22 +60,31 @@ export class GuestCartStatusHandler implements OnModuleInit {
     this.logger.log(`Received cart.guest_cart.status_changed — userId=${userId}`);
 
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderGuestCartStatusChangedEmail({
+          name: ((payload.name as string) ?? (typeof payload.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload.locale as string) ?? 'bn') === 'bn';
+
       await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Guest Cart Updated',
-        body: 'Your guest cart status has changed.',
-        data: {
-          eventType: 'cart.guest_cart.status_changed',
-          eventId: event.id,
-          ...payload,
-        },
-        idempotencyKey: `guest-cart-status-${event.id}`,
+        subject: isBn ? 'Status Changed' : 'Status Changed',
+        body: html || 'Notification sent',
+        data: { eventType: 'cart.guest_cart.status_changed' , html },
+        idempotencyKey: 'cart.guest_cart.status_changed-' + (event as { id: string }).id,
       });
-
       this.logger.log(`✅ Notification sent for ${userId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'unknown';

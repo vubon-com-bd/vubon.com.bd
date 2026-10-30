@@ -22,6 +22,11 @@ import { PRODUCT_SERVICE } from '../../application/services/interfaces/product.s
 import { OwnProductGuard } from '../../interfaces/guards/own-product.guard.js';
 
 import { VendorApprovedHandler } from '../../application/events/external/vendor-approved.handler.js';
+import { VendorCommissionUpdatedHandler } from '../../application/events/external/vendor-commission-updated.handler.js';
+import { VendorTierUpgradedHandler } from '../../application/events/external/vendor-tier-upgraded.handler.js';
+import { VendorTierDowngradedHandler } from '../../application/events/external/vendor-tier-downgraded.handler.js';
+import { VendorVerificationApprovedHandler } from '../../application/events/external/vendor-verification-approved.handler.js';
+import { VendorVerificationExpiredHandler } from '../../application/events/external/vendor-verification-expired.handler.js';
 import { VendorSuspendedHandler } from '../../application/events/external/vendor-suspended.handler.js';
 import { ProductOrderCreatedHandler } from '../../application/events/external/order-created.handler.js';
 import { ProductOrderCancelledHandler } from '../../application/events/external/order-cancelled.handler.js';
@@ -31,6 +36,7 @@ import { VendorDeletedHandler } from '../../application/events/external/vendor-d
 import { VendorActivatedHandler } from '../../application/events/external/vendor-activated.handler.js';
 import { VendorDeactivatedHandler } from '../../application/events/external/vendor-deactivated.handler.js';
 import { VendorVerifiedHandler } from '../../application/events/external/vendor-verified.handler.js';
+import { VendorClient } from '../../infrastructure/services/external/vendor.client.js';
 
 
 @Module({
@@ -39,6 +45,11 @@ import { VendorVerifiedHandler } from '../../application/events/external/vendor-
   providers: [
     VendorApprovedHandler,
     VendorSuspendedHandler,
+    VendorVerificationExpiredHandler,
+    VendorVerificationApprovedHandler,
+    VendorTierDowngradedHandler,
+    VendorTierUpgradedHandler,
+    VendorCommissionUpdatedHandler,
     ProductOrderCreatedHandler,
     ProductOrderCancelledHandler,
     ProductOrderReturnedHandler,
@@ -58,6 +69,9 @@ import { VendorVerifiedHandler } from '../../application/events/external/vendor-
 
     // Sagas
     ...(PRODUCT_SAGAS as readonly unknown[] as never[]),
+
+    // External clients
+    VendorClient,
 
     // Guards
     OwnProductGuard,

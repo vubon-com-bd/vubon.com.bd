@@ -26,6 +26,7 @@ import { ProductCategoryUpdatedHandler } from '../../application/events/external
 import { ProductCategoryActivatedHandler } from '../../application/events/external/product-category-activated.handler.js';
 import { ProductCategoryDeactivatedHandler } from '../../application/events/external/product-category-deactivated.handler.js';
 import { PricingDiscountRemovedHandler } from '../../application/events/external/pricing-discount-removed.handler.js';
+import { VendorPayoutProcessedHandler } from '../../application/events/external/vendor-payout-processed.handler.js';
 import { VendorReinstatedHandler } from '../../application/events/external/vendor-reinstated.handler.js';
 import { OrderCancelledHandler } from '../../application/events/external/order-cancelled.handler.js';
 import { PaymentFailedHandler } from '../../application/events/external/payment-failed.handler.js';
@@ -74,6 +75,7 @@ import { UserStatusChangedHandler } from '../../application/events/external/user
     UserCreatedHandler,
     VendorSuspendedHandler,
     VendorReinstatedHandler,
+    VendorPayoutProcessedHandler,
     PricingDiscountRemovedHandler,
     ProductCategoryDeactivatedHandler,
     ProductCategoryActivatedHandler,

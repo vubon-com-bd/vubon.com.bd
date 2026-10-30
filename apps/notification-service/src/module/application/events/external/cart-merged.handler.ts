@@ -8,6 +8,7 @@ import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderCartMergedDirectEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
@@ -35,15 +36,29 @@ export class CartMergedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderCartMergedDirectEmail({
+          name: ((payload?.name as string) ?? (typeof payload?.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload?.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload?.locale as string) ?? 'bn') === 'bn';
+
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.REMINDER,
         category: NOTIFICATION_CATEGORY.SYSTEM,
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.LOW,
-        subject: isBn ? `🔗 কার্ট একত্রিত` : `🔗 Cart Merged`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার guest cart আপনার account cart-এর সাথে একত্রিত হয়েছে।` : `Hi ${payload?.name ?? "Customer"}, your guest cart has been merged with your account cart.`,
-        data: { eventType: 'cart.cart.merged', ...payload },
+        subject: isBn ? 'কার্ট একত্রিত হয়েছে' : 'Cart Merged',
+        body: html || (isBn ? 'প্রিয় গ্রাহক, নোটিফিকেশন পাঠানো হয়েছে।' : 'Hi Customer, notification sent.'),
+        data: { eventType: 'cart.cart.merged', html, ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `cart-merged-${event.id}`,

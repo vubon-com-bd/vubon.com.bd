@@ -107,7 +107,7 @@ export class AbandonedCartDetectedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.EMAIL, NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `Cart Abandoned - Initial Notification`,
-        body: `Notification: ${event.type}`,
+        body: html || `Notification: ${event.type}`,
         data: {
           html,
           eventType: event.type,

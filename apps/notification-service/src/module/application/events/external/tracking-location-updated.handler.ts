@@ -85,7 +85,7 @@ export class TrackingLocationUpdatedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `অবস্থান আপডেট - #{{orderId}}`,
-        body: `প্যাকেজের নতুন অবস্থান আপডেট হয়েছে।`,
+        body: html || `প্যাকেজের নতুন অবস্থান আপডেট হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-tracking.location_updated',

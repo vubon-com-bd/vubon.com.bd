@@ -31,6 +31,11 @@ import { VariantIdVO } from '../../../domain/value-objects/primitives/variant-id
 import { CartIdVO } from '../../../domain/value-objects/primitives/cart-id.vo.js';
 
 import { CartItemMapper } from '../../mappers/cart-item.mapper.js';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { UserClient } from '../../../infrastructure/services/external/user.client.js';
+import { ProductClient } from '../../../infrastructure/services/external/product.client.js';
+import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { CartItemAddedEvent, CartItemQuantityChangedEvent, CartItemRemovedEvent } from '../../../domain/events/cart-item.events.js';
 
 import {
   CartItemNotFoundApplicationError,
@@ -65,6 +70,10 @@ export class CartItemService implements ICartItemService {
     private readonly itemRepo: CartItemRepository,
     @Inject(CART_REPOSITORY)
     private readonly cartRepo: CartRepository,
+    private readonly eventBridge: DomainEventBridgeService,
+    private readonly eventBus: EventBusService,
+    private readonly userClient: UserClient,
+    private readonly productClient: ProductClient,
   ) {}
 
   // ═══════════════ COMMANDS ═══════════════
@@ -81,12 +90,32 @@ export class CartItemService implements ICartItemService {
       dto.productId,
       dto.variantId,
     );
+    if (existing) {
+      const itemStatus = (existing as unknown as { _status?: unknown })._status;
+      this.logger.log(`[DEBUG] existing item _status type: ${typeof itemStatus} ctor: ${itemStatus?.constructor?.name}`);
+      this.logger.log(`[DEBUG] isRemoved method exists: ${typeof existing.isRemoved}`);
+    }
     if (existing && !existing.isRemoved()) {
       throw new CartItemAlreadyExistsApplicationError(
         cart.id,
         dto.productId,
         dto.variantId,
       );
+    }
+
+    // ─── Fetch product price (enterprise: real-time snapshot at add time) ───
+    let unitPrice = 0;
+    try {
+      const product = await this.productClient.getById(dto.productId);
+      if (product) {
+        unitPrice = product.price ?? 0;
+        this.logger.log(`Fetched price for product ${dto.productId}: ${unitPrice} ${product.currency}`);
+      } else {
+        this.logger.warn(`Product ${dto.productId} not found — using price 0`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown';
+      this.logger.warn(`Price fetch failed for ${dto.productId}: ${msg}`);
     }
 
     const now = new Date().toISOString();
@@ -103,7 +132,7 @@ export class CartItemService implements ICartItemService {
           variantId: dto.variantId ? VariantIdVO.create(dto.variantId) : undefined,
           quantity: CartItemQuantityVO.create(dto.quantity),
           status: CartItemStatusVO.active(),
-          unitPrice: 0, // TODO: fetch from product-service via saga
+          unitPrice,
           currency: cart.currency,
         },
       });
@@ -114,7 +143,58 @@ export class CartItemService implements ICartItemService {
 
     const saved = await this.itemRepo.save(entity);
     cart.applyItemCountDelta(1, now);
+
+    // ─── Recalculate cart totals from all items ───
+    try {
+      const allItems = await this.itemRepo.findByCartId(cart.id);
+      const subtotal = allItems
+        .filter((i) => !i.isRemoved())
+        .reduce((sum, i) => sum + (i.unitPrice ?? 0) * i.quantity.value, 0);
+      cart.updateTotals({
+        subtotal,
+        discount: cart.discountAmount,
+        tax: cart.taxAmount,
+        shipping: cart.shippingAmount,
+      }, now);
+      this.logger.log(`Cart totals recalculated: subtotal=${subtotal}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown';
+      this.logger.warn(`Cart totals recalc failed: ${msg}`);
+    }
+
     await this.cartRepo.save(cart);
+    await this.eventBridge.publishFromEntity(cart);
+    
+    // Fetch user email for notification
+    let userEmail: string | undefined;
+    if (cart.userId?.value) {
+      try {
+        const user = await this.userClient.getById(cart.userId.value);
+        userEmail = user?.email;
+      } catch (err) {
+        this.logger.warn(`Failed to fetch email: ${err}`);
+      }
+    }
+    
+    // Manual CartItemAdded event
+    await this.eventBus.publish(
+      new CartItemAddedEvent({
+        aggregateId: saved.id,
+        payload: {
+          cartId: cart.id,
+          itemId: saved.id,
+          userId: cart.userId?.value,
+          userEmail,
+          productId: dto.productId,
+          variantId: dto.variantId,
+          quantity: dto.quantity,
+          unitPrice: saved.unitPrice ?? 0,
+          currency: cart.currency,
+          addedAt: now,
+        },
+        version: 1,
+      }),
+    );
 
     this.logger.log(
       `Item ${saved.id} added to cart ${cart.id} — product=${dto.productId} qty=${dto.quantity}`,
@@ -175,6 +255,23 @@ export class CartItemService implements ICartItemService {
     const cart = await this.cartRepo.findById(dto.cartId);
     if (cart) {
       cart.applyItemCountDelta(-1, now);
+
+      // ─── Recalculate cart totals ───
+      try {
+        const allItems = await this.itemRepo.findByCartId(cart.id);
+        const subtotal = allItems
+          .filter((i) => !i.isRemoved())
+          .reduce((sum, i) => sum + (i.unitPrice ?? 0) * i.quantity.value, 0);
+        cart.updateTotals({
+          subtotal,
+          discount: cart.discountAmount,
+          tax: cart.taxAmount,
+          shipping: cart.shippingAmount,
+        }, now);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unknown';
+        this.logger.warn(`Cart totals recalc failed on remove: ${msg}`);
+      }
       await this.cartRepo.save(cart);
     }
 

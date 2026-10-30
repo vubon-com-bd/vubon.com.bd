@@ -54,6 +54,7 @@ export interface ProductPublicResponseDTO {
   readonly id: string;
   readonly name: string;
   readonly slug: string;
+  readonly sku?: string;
   readonly shortDescription?: string;
   readonly type: ProductTypeValue;
   readonly status: ProductStatusValue;
@@ -64,6 +65,9 @@ export interface ProductPublicResponseDTO {
   readonly thumbnailUrl?: string;
   readonly totalStock: number;
   readonly isFeatured: boolean;
+  readonly price?: number;
+  readonly currency?: string;
+  readonly isAvailable?: boolean;
 }
 
 // ─── Summary (list views) ─────────────────

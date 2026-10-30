@@ -80,20 +80,8 @@ export class ProductReviewPostedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'REVIEW_POSTED',
-          locale,
-          {
-            rating: (payload as any).rating
-          },
-          {
-            subject: 'New Review',
-            body: 'Your product got a new review: {{rating}}/5 stars',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderReviewPostedEmail({
           name: (payload as any).name ?? 'Vendor',
@@ -106,7 +94,22 @@ export class ProductReviewPostedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'REVIEW_POSTED',
+          locale,
+          {
+            rating: (payload as any).rating
+          },
+          {
+            subject: 'New Review',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ALERT,

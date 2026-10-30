@@ -3,6 +3,8 @@
  * @module product-service/application/services/impl
  */
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { DomainEventBridgeService } from '@vubon/shared-kernel/infrastructure/messaging/event-bridge';
+import { DiscountAppliedEvent, PricingRuleAddedEvent } from '../../../domain/events/product-pricing.events.js';
 import { randomUUID } from 'node:crypto';
 
 import {
@@ -36,6 +38,7 @@ export class ProductPricingRuleApplicationService implements IProductPricingRule
   constructor(
     @Inject(PRICING_RULE_REPOSITORY)
     private readonly repo: ProductPricingRuleRepository,
+    private readonly eventBridge: DomainEventBridgeService,
   ) {}
 
   // ═══════════════ COMMANDS ═══════════════

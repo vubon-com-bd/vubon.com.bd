@@ -29,7 +29,7 @@ import { UserAddressControllerMapper } from '../../mappers/user-address.controll
 @ApiTags('user-address')
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/addresses')
+@Controller('users/me/addresses')
 export class UserAddressController {
   constructor(
     private readonly commandBus: CommandBus,

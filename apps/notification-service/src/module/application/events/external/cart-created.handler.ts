@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderCartCreatedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
@@ -35,6 +36,15 @@ export class CartCreatedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderCartCreatedEmail({
+      name: (payload.name as string) ?? 'গ্রাহক',
+      cartId: (payload.cartId as string) ?? '',
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
+      
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.REMINDER,
@@ -42,8 +52,9 @@ export class CartCreatedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.LOW,
         subject: isBn ? `🛒 কার্ট তৈরি` : `🛒 Cart Created`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার কার্ট প্রস্তুত। এখনই শপিং শুরু করুন।` : `Hi ${payload?.name ?? "Customer"}, your cart is ready. Start shopping now!`,
-        data: { eventType: 'cart.cart.created', ...payload },
+        body: html || isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার কার্ট প্রস্তুত। এখনই শপিং শুরু করুন।` : `Hi ${payload?.name ?? "Customer"}, your cart is ready. Start shopping now!`,
+        data: {
+          html, eventType: 'cart.cart.created', ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `cart-created-${event.id}`,

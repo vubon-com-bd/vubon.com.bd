@@ -61,18 +61,7 @@ export class CartItemRemovedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as Record<string, unknown>);
-      const resolved = resolveTemplate(
-        this.i18n,
-        'cart.cart_item.removed',
-        locale,
-        payload as Record<string, unknown>,
-        {
-          subject: 'Item Removed',
-          body: '{{productName}} has been removed from your cart.',
-        },
-      );
-
-      // ─── HTML template ───
+      // ─── HTML template (rendered first) ───
       let html = '';
       try {
         html = renderCartItemRemovedEmail({
@@ -84,11 +73,25 @@ export class CartItemRemovedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+        this.i18n,
+        'cart.cart_item.removed',
+        locale,
+        payload as Record<string, unknown>,
+        {
+          subject: 'Item Removed',
+          body: html,
+        },
+      );
+
+      // ─── HTML template ───
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SYSTEM,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,

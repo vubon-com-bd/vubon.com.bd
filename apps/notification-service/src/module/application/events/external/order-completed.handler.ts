@@ -83,7 +83,7 @@ export class OrderCompletedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে।`,
+        body: html || `আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে।`,
         data: {
           html,
           eventType: 'order.order.completed',

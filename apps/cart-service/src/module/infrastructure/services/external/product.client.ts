@@ -46,7 +46,7 @@ export class ProductClient {
 
   private async fetchOne(path: string): Promise<ProductDTO | null> {
     try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
+      const res = await fetch(`${this.baseUrl}${path}/public`, {
         signal: AbortSignal.timeout(this.timeout),
       });
       if (!res.ok) {
@@ -66,7 +66,7 @@ export class ProductClient {
     body: unknown,
   ): Promise<readonly ProductDTO[]> {
     try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
+      const res = await fetch(`${this.baseUrl}${path}/public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -81,7 +81,7 @@ export class ProductClient {
 
   private async healthCheck(path: string): Promise<boolean> {
     try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
+      const res = await fetch(`${this.baseUrl}${path}/public`, {
         signal: AbortSignal.timeout(2000),
       });
       return res.ok;

@@ -1,130 +1,58 @@
 /**
- * VendorApprovedHandler — reacts to vendor.approval.approved
- * @module notification-service/application/events/external
+ * VendorApprovedHandler — vendor.vendor.approved → Bengali notification
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
-import { I18nService } from '../../../domain/services/i18n.service.js';
-import { resolveTemplate, getLocale } from './_handler-helpers.js';
-import { renderVendorApprovedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
-import { UserClient } from '@infrastructure/services/external/user.client.js';
+import { renderVendorApprovedLifecycleEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
-  NOTIFICATION_CHANNEL,
-  NOTIFICATION_CATEGORY,
-  NOTIFICATION_TYPE,
-  NOTIFICATION_PRIORITY,
+  NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
+  NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
-
 import {
-  NOTIFICATION_SERVICE,
-  type INotificationService,
+  NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
 
-export const VENDOR_APPROVED_EVENT = 'vendor.approval.approved';
-
-interface VendorApprovedHandlerPayload {
-  readonly vendorId: string;
-  readonly approvedBy: string | undefined;
-}
-
-interface VendorApprovedHandlerEvent {
-  readonly id: string;
-  readonly type: 'vendor.approval.approved';
-  readonly aggregateId: string;
-  readonly aggregateType: string;
-  readonly payload: VendorApprovedHandlerPayload;
-  readonly occurredAt: string;
-  readonly version: number;
-}
+export const VENDOR_APPROVED_EVENT = 'vendor.vendor.approved';
 
 @Injectable()
 export class VendorApprovedHandler implements OnModuleInit {
   private readonly logger = new Logger(VendorApprovedHandler.name);
-
   constructor(
-    @Inject(NOTIFICATION_SERVICE)
-    private readonly notificationService: INotificationService,
-    private readonly i18n: I18nService,
+    @Inject(NOTIFICATION_SERVICE) private readonly notificationService: INotificationService,
     private readonly eventBus: EventBusService,
-    private readonly userClient: UserClient,) {}
-
+  ) {}
   onModuleInit(): void {
     this.eventBus.registerHandler(VENDOR_APPROVED_EVENT, async (event) => {
-      await this.handle(event as unknown as VendorApprovedHandlerEvent);
+      const p = (event as { payload?: Record<string, unknown>; aggregateId: string; id: string }).payload ?? {};
+      const userId = (p.vendorId as string) ?? (p.userId as string) ?? (event as { aggregateId: string }).aggregateId;
+      const email = (p.email as string) ?? undefined;
+      try {
+        
+      // ─── Render Bangla HTML template ───
+      const html = renderVendorApprovedLifecycleEmail({
+      name: (p.name as string) ?? 'ভেন্ডর',
+      vendorId: (p.vendorId as string) ?? '',
+      locale: (p.locale as 'en' | 'bn') ?? 'bn',
     });
-    this.logger.log(`✅ Registered handler for "${VENDOR_APPROVED_EVENT}"`);
-  }
 
-  private async handle(event: VendorApprovedHandlerEvent): Promise<void> {
-    const payload = event.payload;
-
-    // ─── Fetch user profile for email/name/locale ───
-    const _userId = (payload as any).userId ?? (payload as any).customerId ?? event.aggregateId;
-    let userEmail = (payload as any).email;
-    let userName = (payload as any).name;
-    let userLocale = (payload as any).locale;
-    if (!userEmail && _userId) {
-      try {
-        const profile = await this.userClient.getById(_userId);
-        if (profile) {
-          userEmail = userEmail ?? profile.email;
-          userName = userName ?? profile.name ?? profile.firstName;
-          userLocale = userLocale ?? (profile.locale as 'en' | 'bn' | undefined);
-        }
-      } catch (err) {
-        this.logger.warn(`User fetch failed for ${_userId}: ${err}`);
-      }
-    }
-    this.logger.log(`Received vendor.approval.approved — ${JSON.stringify(payload)}`);
-
-    try {
-      const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'VENDOR_APPROVED',
-          locale,
-          {
-            
-          },
-          {
-            subject: 'Vendor Approved',
-            body: 'Congratulations! Your vendor account has been approved.',
-          },
-        );
-
-              let html = '';
-      try {
-        html = renderVendorApprovedEmail({
-          name: (payload as any).name ?? 'Vendor',
-          businessName: (payload as any).businessName ?? '',
-          locale: (payload as any).locale ?? 'bn',
+      await this.notificationService.send({
+          userId,
+          type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
+          category: NOTIFICATION_CATEGORY.USER,
+          channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
+          priority: NOTIFICATION_PRIORITY.HIGH,
+          subject: '🎉 অভিনন্দন! ভেন্ডর অনুমোদিত',
+          body: html || `প্রিয় ভেন্ডর,\n\n🎉 অভিনন্দন! আপনার ভেন্ডর application অনুমোদিত হয়েছে!\n\nএখন আপনি:\n✓ পণ্য যোগ করুন\n✓ অর্ডার গ্রহণ করুন\n✓ বিক্রয় শুরু করুন\n\nড্যাশবোর্ড →\nVubon Seller`,
+          data: {
+          html, eventType: 'vendor.vendor.approved', ...p },
+          idempotencyKey: 'vendor-approved-' + (event as { id: string }).id,
+          email,
         });
+        this.logger.log('✅ Bengali notification sent → ' + userId);
       } catch (err) {
-        this.logger.warn(`HTML template render failed: ${err}`);
+        this.logger.error('Failed: ' + (err instanceof Error ? err.message : 'unknown'));
       }
-
-      const result = await this.notificationService.send({
-        userId: (payload as { userId?: string }).userId ?? event.aggregateId,
-        email: userEmail,
-        type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
-        category: NOTIFICATION_CATEGORY.USER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
-        priority: NOTIFICATION_PRIORITY.HIGH,
-        subject: resolved.subject,
-        body: resolved.body,
-        data: {
-          html,
-          eventType: 'vendor.approval.approved',
-          eventId: event.id,
-          ...payload,
-        },
-        idempotencyKey: `vendorapproved-${event.id}`,
-      });
-
-      this.logger.log(`✅ Notification sent — ${result.notificationIds?.length ?? 0} channel(s)`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'unknown';
-      this.logger.error(`VendorApprovedHandler failed: ${msg}`);
-    }
+    });
+    this.logger.log('✅ Registered handler for "vendor.vendor.approved"');
   }
 }

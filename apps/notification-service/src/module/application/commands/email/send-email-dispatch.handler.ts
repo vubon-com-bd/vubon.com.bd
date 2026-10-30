@@ -54,9 +54,12 @@ export class SendEmailDispatchHandler
 
     // ─── HTML: prefer content.html (proper field), fallback to data.html ───
     const contentHtml = entity.content?.html;
-    const html = contentHtml ?? dataValue.html;
+    const rawBody = entity.vo?.body?.value ?? '';
+    const bodyLooksLikeHtml = /<[a-zA-Z][\s\S]*>/.test(rawBody);
+    const html = contentHtml ?? dataValue.html ?? (bodyLooksLikeHtml ? rawBody : undefined);
     const subject = entity.vo?.subject?.value ?? 'Notification';
-    const text = entity.vo?.body?.value ?? '';
+    // Plain text fallback: strip HTML tags if body is HTML, otherwise use as-is
+    const text = bodyLooksLikeHtml ? rawBody.replace(/<[^>]*>/g, '').trim() : rawBody;
 
     try {
       const provider = this.providerResolver.resolve('email');

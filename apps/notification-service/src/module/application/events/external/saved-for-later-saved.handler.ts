@@ -61,18 +61,7 @@ export class SavedForLaterSavedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as Record<string, unknown>);
-      const resolved = resolveTemplate(
-        this.i18n,
-        'cart.saved_for_later.saved',
-        locale,
-        payload as Record<string, unknown>,
-        {
-          subject: 'Saved for Later',
-          body: '{{productName}} has been saved for later.',
-        },
-      );
-
-      // ─── HTML template ───
+      // ─── HTML template (rendered first) ───
       let html = '';
       try {
         html = renderSavedForLaterSavedEmail({
@@ -84,11 +73,25 @@ export class SavedForLaterSavedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+        this.i18n,
+        'cart.saved_for_later.saved',
+        locale,
+        payload as Record<string, unknown>,
+        {
+          subject: 'Saved for Later',
+          body: html,
+        },
+      );
+
+      // ─── HTML template ───
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SYSTEM,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,

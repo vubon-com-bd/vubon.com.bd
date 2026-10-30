@@ -5,6 +5,7 @@
  * Conditional: DB_MODE=memory → MemoryRepositoriesModule
  *              DB_MODE=prisma (default) → PrismaRepositoriesModule
  */
+import { PASSWORD_HASHER_SERVICE } from '../application/services/interfaces/password-hasher.service.interface.js';
 import { Global, Module } from '@nestjs/common';
 
 // ─── Kernel externals ──────────────────────
@@ -95,6 +96,7 @@ const RepositoryModule =
     HashService,
     JwtService,
     ...INTERNAL_SERVICES,
+    { provide: PASSWORD_HASHER_SERVICE, useExisting: PasswordHasherService },
   ],
   exports: [
     // Kernel
@@ -120,6 +122,7 @@ const RepositoryModule =
 
     // Internal services
     ...INTERNAL_SERVICES,
+    { provide: PASSWORD_HASHER_SERVICE, useExisting: PasswordHasherService },
   ],
 })
 export class InfrastructureModule {}

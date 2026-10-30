@@ -8,6 +8,7 @@ import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderApprovalAppealedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
@@ -35,15 +36,29 @@ export class VendorAppealedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderApprovalAppealedEmail({
+          name: ((payload?.name as string) ?? (typeof payload?.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload?.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload?.locale as string) ?? 'bn') === 'bn';
+
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,
         category: NOTIFICATION_CATEGORY.USER,
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: isBn ? `📩 আপিল গৃহীত` : `📩 Appeal Received`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "ভেন্ডর"}, আপনার আপিল গৃহীত হয়েছে। ৩-৫ কর্মদিবসে সিদ্ধান্ত জানানো হবে।` : `Hi ${payload?.name ?? "Vendor"}, your appeal was received. Decision in 3-5 business days.`,
-        data: { eventType: 'vendor.approval.appealed', ...payload },
+        subject: isBn ? 'আপিল জমা হয়েছে' : 'Appeal Submitted',
+        body: html || (isBn ? 'প্রিয় গ্রাহক, নোটিফিকেশন পাঠানো হয়েছে।' : 'Hi Customer, notification sent.'),
+        data: { eventType: 'vendor.approval.appealed', html, ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `vendor-appealed-${event.id}`,

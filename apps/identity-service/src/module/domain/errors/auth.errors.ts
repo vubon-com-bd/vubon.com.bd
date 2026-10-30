@@ -104,3 +104,16 @@ export class AuthUnverifiedError extends BusinessRuleError {
     this.name = 'AuthUnverifiedError';
   }
 }
+
+/**
+ * InvalidCredentialsError — wrong password / no credential
+ */
+export class InvalidCredentialsError extends BusinessRuleError {
+  constructor() {
+    super(
+      'Invalid email or password',
+      'AUTH_INVALID_CREDENTIALS',
+      { reason: 'invalid_credentials' },
+    );
+  }
+}

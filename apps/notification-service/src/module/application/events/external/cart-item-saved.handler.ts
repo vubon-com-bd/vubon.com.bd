@@ -10,6 +10,7 @@ import {
   NOTIFICATION_TYPE,
   NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderCartItemSavedForLaterEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 import {
   NOTIFICATION_SERVICE,
@@ -59,19 +60,33 @@ export class CartItemSavedHandler implements OnModuleInit {
     this.logger.log(`Received cart.cart_item.saved_for_later — userId=${userId}`);
 
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderCartItemSavedForLaterEmail({
+          name: ((payload.name as string) ?? (typeof payload.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload.locale as string) ?? 'bn') === 'bn';
+
       await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Item Saved for Later',
-        body: 'An item has been saved for later.',
+        subject: isBn ? 'পরে কেনার জন্য সেভ' : 'Saved For Later',
+        body: html || 'An item has been saved for later.',
         data: {
           eventType: 'cart.cart_item.saved_for_later',
           eventId: event.id,
           ...payload,
-        },
+        html },
         idempotencyKey: `cart-item-saved-${event.id}`,
       });
 

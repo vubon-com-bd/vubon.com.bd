@@ -61,18 +61,7 @@ export class CartItemAddedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as Record<string, unknown>);
-      const resolved = resolveTemplate(
-        this.i18n,
-        'cart.cart_item.added',
-        locale,
-        payload as Record<string, unknown>,
-        {
-          subject: 'Item Added',
-          body: '{{productName}} has been added to your cart.',
-        },
-      );
-
-      // ─── HTML template ───
+      // ─── HTML template (rendered first) ───
       let html = '';
       try {
         html = renderCartItemAddedEmail({
@@ -84,11 +73,26 @@ export class CartItemAddedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+        this.i18n,
+        'cart.cart_item.added',
+        locale,
+        payload as Record<string, unknown>,
+        {
+          subject: 'Item Added',
+          body: html,
+        },
+      );
+
+      // ─── HTML template ───
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
+        email: (payload as { userEmail?: string }).userEmail,
         type: NOTIFICATION_TYPE.SYSTEM,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: resolved.subject,
         body: resolved.body,

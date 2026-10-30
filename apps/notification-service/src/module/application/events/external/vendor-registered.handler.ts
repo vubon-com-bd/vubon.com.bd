@@ -80,20 +80,8 @@ export class VendorRegisteredHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'WELCOME',
-          locale,
-          {
-            name: (payload as any).name
-          },
-          {
-            subject: 'Welcome Vendor',
-            body: 'Welcome {{name}}, your vendor account has been registered.',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderVendorWelcomeEmail({
           name: (payload as any).name ?? 'Vendor',
@@ -104,7 +92,22 @@ export class VendorRegisteredHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'WELCOME',
+          locale,
+          {
+            name: (payload as any).name
+          },
+          {
+            subject: 'Welcome Vendor',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,

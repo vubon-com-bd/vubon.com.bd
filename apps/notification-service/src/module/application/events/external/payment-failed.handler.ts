@@ -84,20 +84,8 @@ export class PaymentFailedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'PAYMENT_FAILED',
-          locale,
-          {
-            amount: (payload as any).amount, reason: (payload as any).reason
-          },
-          {
-            subject: 'Payment Failed',
-            body: 'Your payment of {{amount}} failed. Reason: {{reason}}',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderPaymentFailedEmail({
           name: (payload as any).name ?? 'Customer',
@@ -111,7 +99,22 @@ export class PaymentFailedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'PAYMENT_FAILED',
+          locale,
+          {
+            amount: (payload as any).amount, reason: (payload as any).reason
+          },
+          {
+            subject: 'Payment Failed',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.PAYMENT_UPDATE,

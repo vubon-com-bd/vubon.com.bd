@@ -83,7 +83,7 @@ export class ReturnInspectedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: subject,
-        body: `আপনার রিটার্ন পরিদর্শন সম্পন্ন হয়েছে।`,
+        body: html || `আপনার রিটার্ন পরিদর্শন সম্পন্ন হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-return.inspected',

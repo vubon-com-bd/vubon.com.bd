@@ -7,6 +7,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
+import { DomainExceptionFilter } from './module/interfaces/filters/domain-exception.filter.js';
+import { ApplicationExceptionFilter } from './module/interfaces/filters/application-exception.filter.js';
 import { PrismaUnavailableFilter } from './module/interfaces/filters/prisma-unavailable.filter.js';
 
 async function bootstrap(): Promise<void> {
@@ -30,7 +32,11 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  app.useGlobalFilters(new PrismaUnavailableFilter());
+  app.useGlobalFilters(
+    new PrismaUnavailableFilter(),
+    new DomainExceptionFilter(),
+    new ApplicationExceptionFilter(),
+  );
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Identity Service API')

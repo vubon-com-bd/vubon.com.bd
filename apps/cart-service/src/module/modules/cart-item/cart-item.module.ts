@@ -21,6 +21,7 @@ import { CART_ITEM_COMMAND_HANDLERS } from './commands/index.js';
 import { CART_ITEM_QUERY_HANDLERS } from './queries/index.js';
 
 import { CartItemService } from '../../application/services/impl/cart-item.service.js';
+import { UserClient } from '../../infrastructure/services/external/user.client.js';
 import { CART_ITEM_SERVICE } from '../../application/services/interfaces/cart-item.service.interface.js';
 
 import { CartOwnerGuard } from '../../interfaces/guards/cart-owner.guard.js';
@@ -45,6 +46,9 @@ import { CartLockInterceptor } from '../../interfaces/interceptors/cart-lock.int
     InventoryLowStockHandler,
     InventoryOutOfStockHandler,
     PricingChangedHandler,
+    
+    // ─── External Clients ───
+    UserClient,
   ],
   exports: [CartItemService, CART_ITEM_SERVICE],
 })

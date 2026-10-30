@@ -83,20 +83,8 @@ export class CartAbandonedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'CART_ABANDONED',
-          locale,
-          {
-            itemCount: (payload as any).itemCount
-          },
-          {
-            subject: 'Items Waiting in Your Cart',
-            body: 'You have {{itemCount}} item(s) in your cart.',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderAbandonedCartEmail({
           name: (payload as any).name ?? 'Customer',
@@ -104,11 +92,21 @@ export class CartAbandonedHandler implements OnModuleInit {
           itemCount: (payload as any).itemCount ?? 0,
           locale: (payload as any).locale ?? 'bn',
         });
-      } catch (err) {
-        this.logger.warn(`HTML template render failed: ${err}`);
-      }
+        } catch (err) {
+          this.logger.warn(`HTML template render failed: ${err}`);
+        }
 
-      const result = await this.notificationService.send({
+        const resolved = resolveTemplate(
+          this.i18n,
+          'CART_ABANDONED',
+          locale,
+          { itemCount: (payload as any).itemCount },
+          {
+            subject: locale === 'bn' ? 'আপনার কার্টে অপেক্ষা করছে' : 'Items Waiting in Your Cart',
+            body: html,
+          },
+        );
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.REMINDER,

@@ -34,8 +34,18 @@ export interface InventoryListOptionsDTO {
   readonly filter?: InventoryListFilterDTO;
 }
 
+export interface CreateDefaultInventoryDTO {
+  readonly productId: string;
+  readonly variantId?: string;
+  readonly vendorId?: string;
+  readonly sku: string;
+  readonly quantity?: number;
+  readonly lowStockThreshold?: number;
+}
+
 export interface IProductInventoryService {
   // Commands
+  createDefault(dto: CreateDefaultInventoryDTO): Promise<InventoryResponseDTO>;
   update(dto: UpdateInventoryCommandDTO): Promise<InventoryResponseDTO>;
   adjust(dto: AdjustInventoryRequestDTO): Promise<InventoryResponseDTO>;
   reserve(dto: ReserveInventoryRequestDTO): Promise<InventoryResponseDTO>;

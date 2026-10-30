@@ -104,7 +104,7 @@ export class OrderNoteAddedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `অর্ডারে নোট - #{{orderId}}`,
-        body: `আপনার অর্ডারে নতুন নোট যোগ হয়েছে।`,
+        body: html || `আপনার অর্ডারে নতুন নোট যোগ হয়েছে।`,
         data: {
           html,
           eventType: 'order.order.note_added',

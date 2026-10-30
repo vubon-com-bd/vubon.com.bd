@@ -85,7 +85,7 @@ export class DeliveryCancelledHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার ডেলিভারি বাতিল হয়েছে।`,
+        body: html || `আপনার ডেলিভারি বাতিল হয়েছে।`,
         data: {
           html,
           eventType: 'order.delivery.cancelled',

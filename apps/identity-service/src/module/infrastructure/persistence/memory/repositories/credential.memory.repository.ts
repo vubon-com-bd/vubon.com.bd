@@ -14,8 +14,15 @@ export class InMemoryCredentialRepository
   implements CredentialRepository
 {
   protected idOf(entity: CredentialEntity): string { return entity.id; }
-  async findByAuthId(_authId: AuthIdVO): Promise<CredentialEntity | null> { return null; }
-  async findByAuthIdRaw(_authId: string): Promise<CredentialEntity | null> { return null; }
+  async findByAuthId(authId: AuthIdVO): Promise<CredentialEntity | null> {
+    const all = await this.findAll();
+    return all.find((e) => e.authId.value === authId.value) ?? null;
+  }
+
+  async findByAuthIdRaw(authId: string): Promise<CredentialEntity | null> {
+    const all = await this.findAll();
+    return all.find((e) => e.authId.value === authId) ?? null;
+  }
   async findPaginated(options: CredentialListOptions): Promise<CredentialPaginationResult> {
     const all = await this.findAll();
     const start = (options.page - 1) * options.limit;

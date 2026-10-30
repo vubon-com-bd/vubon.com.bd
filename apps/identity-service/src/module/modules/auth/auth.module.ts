@@ -4,6 +4,10 @@
  */
 import { Module, forwardRef } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { PASSWORD_HASHER_SERVICE } from '../../application/services/interfaces/password-hasher.service.interface.js';
+import { PasswordHasherService } from '../../infrastructure/services/internal/password-hasher.service.js';
+import { CREDENTIAL_REPOSITORY } from '../../domain/repositories/credential.repository.interface.js';
+import { InMemoryCredentialRepository } from '../../infrastructure/persistence/memory/repositories/credential.memory.repository.js';
 
 // Controllers
 import { AuthController } from '../../interfaces/controllers/rest/auth.controller.js';
@@ -71,6 +75,10 @@ const SAGAS = [AuthLoginSaga, AuthRegisterSaga, AuthMfaSaga];
   ],
   providers: [
     ...SERVICES,
+    PasswordHasherService,
+    { provide: PASSWORD_HASHER_SERVICE, useExisting: PasswordHasherService },
+    InMemoryCredentialRepository,
+    { provide: CREDENTIAL_REPOSITORY, useExisting: InMemoryCredentialRepository },
     ...(AUTH_COMMAND_HANDLERS as readonly unknown[] as never[]),
     ...(AUTH_QUERY_HANDLERS as readonly unknown[] as never[]),
     ...SAGAS,

@@ -106,7 +106,7 @@ export class OrderPriorityChangedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `অগ্রাধিকার পরিবর্তন - #{{orderId}}`,
-        body: `অর্ডারের অগ্রাধিকার পরিবর্তন হয়েছে।`,
+        body: html || `অর্ডারের অগ্রাধিকার পরিবর্তন হয়েছে।`,
         data: {
           html,
           eventType: 'order.order.priority_changed',

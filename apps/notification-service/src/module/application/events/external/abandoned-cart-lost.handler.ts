@@ -106,7 +106,7 @@ export class AbandonedCartLostHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.EMAIL, NOTIFICATION_CHANNEL.IN_APP],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `Cart Abandoned - Final Offer with Discount`,
-        body: `Notification: ${event.type}`,
+        body: html || `Notification: ${event.type}`,
         data: {
           html,
           eventType: event.type,

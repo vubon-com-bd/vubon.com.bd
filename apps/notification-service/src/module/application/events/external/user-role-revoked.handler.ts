@@ -80,20 +80,8 @@ export class UserRoleRevokedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'EMAIL_VERIFIED',
-          locale,
-          {
-            role: (payload as any).role
-          },
-          {
-            subject: 'Role Revoked',
-            body: 'Your role has been revoked: {{role}}',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderRoleRevokedEmail({
           name: (payload as any).name ?? 'User',
@@ -104,7 +92,22 @@ export class UserRoleRevokedHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'EMAIL_VERIFIED',
+          locale,
+          {
+            role: (payload as any).role
+          },
+          {
+            subject: 'Role Revoked',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ACCOUNT_UPDATE,

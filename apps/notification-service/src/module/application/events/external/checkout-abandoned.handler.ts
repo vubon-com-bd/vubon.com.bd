@@ -79,7 +79,7 @@ export class CheckoutAbandonedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `চেকআউট সম্পূর্ণ করুন`,
-        body: `আপনার কার্টে পণ্য অপেক্ষা করছে।`,
+        body: html || `আপনার কার্টে পণ্য অপেক্ষা করছে।`,
         data: {
           html,
           eventType: 'order.checkout.abandoned',

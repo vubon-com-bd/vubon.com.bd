@@ -1,5 +1,5 @@
-import { GetUserSettingsHandler } from '../../../application/queries/index.js';
+import { GetUserSettingsNewHandler } from '../../../application/queries/settings/get-user-settings.handler.js';
 
 export const USER_SETTINGS_QUERY_HANDLERS = [
-  GetUserSettingsHandler,
+  GetUserSettingsNewHandler,
 ] as const;

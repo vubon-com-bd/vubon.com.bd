@@ -4,6 +4,7 @@
  */
 import {
   Body,
+  Inject,
   Controller,
   Delete,
   Get,
@@ -28,6 +29,8 @@ import { Public } from '@vubon/shared-kernel/interfaces/decorators';
 
 // Commands
 import { RegisterVendorCommand } from '../../../application/commands/vendor/register-vendor.command.js';
+import { VENDOR_SERVICE, type IVendorService } from '../../../application/services/interfaces/vendor.service.interface.js';
+import { ApproveVendorCommand } from '../../../application/commands/approval/approve-vendor.command.js';
 import { UpdateVendorCommand } from '../../../application/commands/vendor/update-vendor.command.js';
 import { DeleteVendorCommand } from '../../../application/commands/vendor/delete-vendor.command.js';
 
@@ -85,6 +88,7 @@ export class VendorController extends BaseController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    @Inject(VENDOR_SERVICE) private readonly vendorService: IVendorService,
   ) {
     super();
   }
@@ -109,6 +113,18 @@ export class VendorController extends BaseController {
         user.userId,
       ),
     );
+  }
+
+  // ─── Admin: Approve vendor ───
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Approve a pending vendor (admin only)' })
+  async approve(
+    @Param('id') id: string,
+    @Body() dto: any,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<any> {
+    return this.vendorService.approve(id, user.userId, dto?.notes);
   }
 
   @Patch(':id')
@@ -160,6 +176,15 @@ export class VendorController extends BaseController {
     @CurrentUser() user: CurrentUserShape,
   ): Promise<VendorHttpResponseDTO> {
     return this.queryBus.execute(new GetMyVendorQuery(user.userId));
+  }
+
+  @Get('by-user/:userId')
+  @Public()
+  @ApiOperation({ summary: 'Get vendor by user ID (internal)' })
+  async byUserId(
+    @Param('userId') userId: string,
+  ): Promise<VendorHttpResponseDTO> {
+    return this.queryBus.execute(new GetMyVendorQuery(userId));
   }
 
   @Get('search')

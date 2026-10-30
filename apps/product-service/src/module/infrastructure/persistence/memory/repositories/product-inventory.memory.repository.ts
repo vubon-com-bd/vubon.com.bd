@@ -28,7 +28,7 @@ export class InMemoryProductInventoryRepository
 
   async findByProduct(productId: ProductIdVO): Promise<ProductInventoryEntity | null> {
     const all = await this.findAll();
-    return all.find((e) => e.vo.productId.value === productId.value && !e.vo.variantId) ?? null;
+    return all.find((e) => e.vo.productId.value === productId.value) ?? null;
   }
 
   async findByVariant(variantId: VariantIdVO): Promise<ProductInventoryEntity | null> {

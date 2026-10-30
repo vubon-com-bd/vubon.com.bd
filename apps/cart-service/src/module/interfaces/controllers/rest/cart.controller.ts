@@ -34,6 +34,7 @@ import { RecoverCartCommand } from '../../../application/commands/cart/recover-c
 
 // Application queries
 import { GetCartQuery } from '../../../application/queries/cart/get-cart.query.js';
+import { ListCartsByUserQuery } from '../../../application/queries/cart/list-carts-by-user.query.js';
 import { GetCartByUserQuery } from '../../../application/queries/cart/get-cart-by-user.query.js';
 import { GetCartSummaryQuery } from '../../../application/queries/cart/get-cart-summary.query.js';
 import { GetCartCountQuery } from '../../../application/queries/cart/get-cart-count.query.js';
@@ -176,17 +177,18 @@ export class CartController extends BaseController {
   @ApiListCarts()
   async list(
     @Query() q: ListCartsHttpQueryDTO,
+    @CurrentUser() user: { userId: string },
   ): Promise<CartListHttpResponseDTO> {
     const options = CartControllerMapper.toListOptions(q);
-    void options;
-    // Placeholder list — real list requires a dedicated ListCartsQuery
-    return {
-      items: [],
-      total: 0,
-      page: options.page,
-      limit: options.limit,
-      totalPages: 0,
-    };
+    // Filter by current user's carts
+    const result = await this.queryBus.execute(
+      new ListCartsByUserQuery({
+        userId: user.userId,
+        page: options.page,
+        limit: options.limit,
+      }) as never,
+    );
+    return result as never;
   }
 
   @Get('stats')

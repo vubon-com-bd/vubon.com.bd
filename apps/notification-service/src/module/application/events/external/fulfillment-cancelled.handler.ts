@@ -83,7 +83,7 @@ export class FulfillmentCancelledHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: `ফুলফিলমেন্ট বাতিল - #{{orderId}}`,
-        body: `আপনার অর্ডারের ফুলফিলমেন্ট বাতিল হয়েছে।`,
+        body: html || `আপনার অর্ডারের ফুলফিলমেন্ট বাতিল হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-fulfillment.cancelled',

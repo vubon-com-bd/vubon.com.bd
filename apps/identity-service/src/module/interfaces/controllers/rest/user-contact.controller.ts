@@ -29,7 +29,7 @@ import { ContactControllerMapper } from '../../mappers/contact.controller.mapper
 @ApiTags('user-contact')
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/contacts')
+@Controller('users/me/contacts')
 export class UserContactController {
   constructor(
     private readonly commandBus: CommandBus,

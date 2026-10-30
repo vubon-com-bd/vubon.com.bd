@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderAuthLockedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
@@ -35,6 +36,15 @@ export class AccountLockedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderAuthLockedEmail({
+      name: (payload.name as string) ?? 'ব্যবহারকারী',
+      lockedUntil: (payload.lockedUntil as string) ?? undefined,
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
       await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SECURITY,
@@ -42,10 +52,11 @@ export class AccountLockedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.EMAIL, NOTIFICATION_CHANNEL.SMS],
         priority: NOTIFICATION_PRIORITY.CRITICAL,
         subject: isBn ? '🔒 অ্যাকাউন্ট লক করা হয়েছে' : '🔒 Account Locked',
-        body: isBn
+        body: html || isBn
           ? `আপনার অ্যাকাউন্ট সাময়িকভাবে লক করা হয়েছে। কারণ: ${payload?.reason ?? 'একাধিক ব্যর্থ লগইন'}. এটি আপনি না করে থাকলে সাথে সাথে যোগাযোগ করুন।`
           : `Your account has been temporarily locked. Reason: ${payload?.reason ?? 'Multiple failed login attempts'}.`,
-        data: { eventType: ACCOUNT_LOCKED_EVENT, ...payload },
+        data: {
+          html, eventType: ACCOUNT_LOCKED_EVENT, ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `acct-locked-${event.id}`,

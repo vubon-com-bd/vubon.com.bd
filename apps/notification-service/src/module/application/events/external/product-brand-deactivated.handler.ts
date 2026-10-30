@@ -7,6 +7,7 @@ import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderBrandDeactivatedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
@@ -28,15 +29,29 @@ export class ProductBrandDeactivatedHandler implements OnModuleInit {
       const userId = (p.updatedBy as string) ?? (p.createdBy as string) ?? (event as { aggregateId: string }).aggregateId;
       const name = typeof p.name === 'string' ? p.name : '';
       try {
+        // ─── Render Bengali HTML ───
+        let html = '';
+        try {
+          html = renderBrandDeactivatedEmail({
+            name: ((p.name as string) ?? (typeof p.firstName === 'string' ? p.firstName as string : 'গ্রাহক')),
+            locale: (((p.locale as 'en' | 'bn') ?? 'bn')),
+            ...p,
+          } as any);
+        } catch (err) {
+          this.logger.warn(`Template render failed: ${err}`);
+        }
+
+        const isBn = ((p.locale as string) ?? 'bn') === 'bn';
+
         await this.notificationService.send({
           userId,
           type: NOTIFICATION_TYPE.SYSTEM,
           category: NOTIFICATION_CATEGORY.SYSTEM,
-          channels: [NOTIFICATION_CHANNEL.IN_APP],
+          channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
           priority: NOTIFICATION_PRIORITY.LOW,
-          subject: 'Brand Deactivated',
-          body: name ? 'Brand Deactivated: ' + name : 'A brand has been deactivated.',
-          data: { eventType: 'product.brand.deactivated', ...p },
+          subject: isBn ? 'ব্র্যান্ড নিষ্ক্রিয়' : 'Deactivated',
+          body: html || 'Notification sent',
+          data: { eventType: 'product.brand.deactivated', ...p , html },
           idempotencyKey: 'brand-deactivated-' + (event as { id: string }).id,
         });
         this.logger.log('✅ Brand deactivated notification sent → ' + userId);

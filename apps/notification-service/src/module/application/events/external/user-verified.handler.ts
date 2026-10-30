@@ -78,7 +78,18 @@ export class UserVerifiedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
+        
+
+        
+
+        ;
+const html = renderWelcomeEmail({
+          name: (payload as unknown as { name?: string }).name ?? 'User',
+          email: (payload as unknown as { email?: string }).email ?? '',
+          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
+        });
+
+const resolved = resolveTemplate(
           this.i18n,
           'EMAIL_VERIFIED',
           locale,
@@ -87,17 +98,11 @@ export class UserVerifiedHandler implements OnModuleInit {
           },
           {
             subject: 'Email Verified',
-            body: 'Your email has been verified successfully.',
+            body: html || 'Your email has been verified successfully.',
           },
         );
 
-        const html = renderWelcomeEmail({
-          name: (payload as unknown as { name?: string }).name ?? 'User',
-          email: (payload as unknown as { email?: string }).email ?? '',
-          locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
-        });
-
-        const result = await this.notificationService.send({
+                const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.VERIFICATION,
         category: NOTIFICATION_CATEGORY.USER,

@@ -108,7 +108,7 @@ export class OrderCancelRequestedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার বাতিলের অনুরোধ পেয়েছি। যাচাই করছি।`,
+        body: html || `আপনার বাতিলের অনুরোধ পেয়েছি। যাচাই করছি।`,
         data: {
           html,
           eventType: 'order.order-cancel.requested',

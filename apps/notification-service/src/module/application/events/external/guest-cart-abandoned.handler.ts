@@ -15,6 +15,7 @@ import {
   NOTIFICATION_SERVICE,
   type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
+import { renderGuestCartAbandonedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 export const GUEST_CART_ABANDONED_EVENT = 'cart.guest_cart.abandoned';
 
@@ -59,14 +60,23 @@ export class GuestCartAbandonedHandler implements OnModuleInit {
     this.logger.log(`Received cart.guest_cart.abandoned — userId=${userId}`);
 
     try {
+      const html = renderGuestCartAbandonedEmail({
+        name: (payload as Record<string, unknown>).name as string ?? 'Customer',
+        cartId: payload.cartId ?? event.aggregateId,
+        itemCount: (payload as Record<string, unknown>).itemCount as number | undefined,
+        totalAmount: (payload as Record<string, unknown>).totalAmount as number | undefined,
+        abandonedAt: (payload as Record<string, unknown>).abandonedAt as string ?? new Date().toISOString(),
+        locale: ((payload as Record<string, unknown>).locale as 'en' | 'bn') ?? 'bn',
+      });
+
       await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.REMINDER,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: 'Guest Cart Abandoned',
-        body: 'You left items in your cart. Complete checkout to save them!',
+        body: html,
         data: {
           eventType: 'cart.guest_cart.abandoned',
           eventId: event.id,

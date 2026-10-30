@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderCartConvertedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -38,6 +39,16 @@ export class CartConvertedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderCartConvertedEmail({
+      name: (payload.name as string) ?? 'গ্রাহক',
+      cartId: (payload.cartId as string) ?? '',
+      orderId: (payload.orderId as string) ?? '',
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
+      
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
@@ -45,10 +56,11 @@ export class CartConvertedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? `আপনার অর্ডার তৈরি হয়েছে` : `Your Order is Ready`,
-        body: isBn
+        body: html || isBn
           ? `প্রিয় ${payload?.name ?? "Customer"}, আপনার কার্ট থেকে অর্ডার তৈরি হয়েছে। ট্র্যাক করুন ড্যাশবোর্ডে।`
           : `Hi ${payload?.name ?? "Customer"}, your order has been created from your cart.`,
-        data: { eventType: 'cart.cart.converted', ...payload },
+        data: {
+          html, eventType: 'cart.cart.converted', ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `cart-converted-${event.id}`,

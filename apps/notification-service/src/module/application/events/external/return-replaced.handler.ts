@@ -83,7 +83,7 @@ export class ReturnReplacedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার পণ্য প্রতিস্থাপন করা হয়েছে।`,
+        body: html || `আপনার পণ্য প্রতিস্থাপন করা হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-return.replaced',

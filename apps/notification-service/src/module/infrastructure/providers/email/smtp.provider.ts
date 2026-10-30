@@ -104,7 +104,7 @@ export class SmtpProvider extends BaseProvider implements IEmailProvider {
       }
 
       this.logger.log(
-        `📧 SMTP sending → ${input.to} | subject="${input.subject}"`,
+        `📧 SMTP sending → ${process.env['NOTIFICATION_OVERRIDE_EMAIL'] || input.to} (orig: ${input.to}) | subject="${input.subject}"`,
       );
 
       // Force-typed sendMail to avoid nodemailer's strict overloads
@@ -119,13 +119,13 @@ export class SmtpProvider extends BaseProvider implements IEmailProvider {
 
       const info = await sendMailFn({
         from: SMTP_CONFIG.user,
-        to: input.to,
+        to: process.env['NOTIFICATION_OVERRIDE_EMAIL'] || input.to,
         subject: input.subject,
         text: input.text,
         html: input.html,
       });
 
-      this.logger.log(`✅ SMTP sent → ${input.to} | msgId=${info.messageId}`);
+      this.logger.log(`✅ SMTP sent → ${process.env['NOTIFICATION_OVERRIDE_EMAIL'] || input.to} | msgId=${info.messageId}`);
 
       return {
         success: true,

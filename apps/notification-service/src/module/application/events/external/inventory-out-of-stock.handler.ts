@@ -79,20 +79,8 @@ export class InventoryOutOfStockHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'REVIEW_POSTED',
-          locale,
-          {
-            productId: (payload as any).productId
-          },
-          {
-            subject: 'Out of Stock',
-            body: 'Product {{productId}} is now out of stock.',
-          },
-        );
-
-              let html = '';
+        // ─── HTML template (rendered first) ───
+        let html = '';
       try {
         html = renderOutOfStockEmail({
           name: (payload as any).name ?? 'Vendor',
@@ -103,7 +91,22 @@ export class InventoryOutOfStockHandler implements OnModuleInit {
         this.logger.warn(`HTML template render failed: ${err}`);
       }
 
-      const result = await this.notificationService.send({
+
+      const resolved = resolveTemplate(
+          this.i18n,
+          'REVIEW_POSTED',
+          locale,
+          {
+            productId: (payload as any).productId
+          },
+          {
+            subject: 'Out of Stock',
+            body: html,
+          },
+        );
+
+
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.ALERT,

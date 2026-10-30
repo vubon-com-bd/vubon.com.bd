@@ -26,7 +26,7 @@ import { PreferencesControllerMapper } from '../../mappers/preferences.controlle
 @ApiTags('user-preferences')
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/preferences')
+@Controller('users/me/preferences')
 export class UserPreferencesController {
   constructor(
     private readonly commandBus: CommandBus,

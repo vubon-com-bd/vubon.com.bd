@@ -108,7 +108,7 @@ export class DeliveryInTransitHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: subject,
-        body: `আপনার অর্ডার এখন পথে আছে।`,
+        body: html || `আপনার অর্ডার এখন পথে আছে।`,
         data: {
           html,
           eventType: 'order.delivery.in_transit',

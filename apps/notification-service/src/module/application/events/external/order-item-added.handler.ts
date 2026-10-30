@@ -110,7 +110,7 @@ export class OrderItemAddedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: subject,
-        body: `অর্ডারে নতুন আইটেম যোগ হয়েছে।`,
+        body: html || `অর্ডারে নতুন আইটেম যোগ হয়েছে।`,
         data: {
           html,
           eventType: 'order.order-item.added',

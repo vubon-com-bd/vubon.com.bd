@@ -106,7 +106,7 @@ export class DeliveryRescheduledHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: `ডেলিভারি পুনর্নির্ধারিত - #{{orderId}}`,
-        body: `আপনার ডেলিভারি পুনর্নির্ধারিত হয়েছে।`,
+        body: html || `আপনার ডেলিভারি পুনর্নির্ধারিত হয়েছে।`,
         data: {
           html,
           eventType: 'order.delivery.rescheduled',

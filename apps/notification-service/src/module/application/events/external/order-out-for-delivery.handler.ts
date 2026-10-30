@@ -81,7 +81,7 @@ export class OrderOutForDeliveryHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
         subject: `অর্ডার ডেলিভারির জন্য বের হয়েছে`,
-        body: `আপনার অর্ডার ডেলিভারির জন্য বের হয়েছে।`,
+        body: html || `আপনার অর্ডার ডেলিভারির জন্য বের হয়েছে।`,
         data: {
           html,
           eventType: 'order.order.out_for_delivery',

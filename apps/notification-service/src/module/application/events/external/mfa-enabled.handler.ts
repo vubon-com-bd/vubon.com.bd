@@ -8,6 +8,7 @@ import {
   NOTIFICATION_CHANNEL, NOTIFICATION_CATEGORY,
   NOTIFICATION_TYPE, NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderMfaEnabledEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
@@ -35,15 +36,29 @@ export class MfaEnabledHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderMfaEnabledEmail({
+          name: ((payload?.name as string) ?? (typeof payload?.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload?.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload?.locale as string) ?? 'bn') === 'bn';
+
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SECURITY,
         category: NOTIFICATION_CATEGORY.SECURITY,
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.HIGH,
-        subject: isBn ? `🔐 MFA চালু হয়েছে` : `🔐 MFA Enabled`,
-        body: isBn ? `প্রিয় ${payload?.name ?? "গ্রাহক"}, আপনার অ্যাকাউন্টে MFA সফলভাবে চালু হয়েছে (${payload?.method ?? "TOTP"})।` : `Hi ${payload?.name ?? "Customer"}, MFA has been enabled on your account (${payload?.method ?? "TOTP"}).`,
-        data: { eventType: 'identity.mfa.enabled', ...payload },
+        subject: isBn ? 'MFA চালু হয়েছে' : 'MFA Enabled',
+        body: html || (isBn ? 'প্রিয় গ্রাহক, নোটিফিকেশন পাঠানো হয়েছে।' : 'Hi Customer, notification sent.'),
+        data: { eventType: 'identity.mfa.enabled', html, ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `mfa-enabled-${event.id}`,

@@ -59,6 +59,8 @@ export class ProductPricingController extends BaseController {
     @Body() dto: UpdatePriceHttpDTO,
     @CurrentUser() user: CurrentUserShape,
   ): Promise<PricingHttpResponseDTO> {
+    // eslint-disable-next-line no-console
+    console.log('[DEBUG-CONTROLLER] dto received:', JSON.stringify(dto), '| sellingPrice:', (dto as any)?.sellingPrice, '| type:', typeof (dto as any)?.sellingPrice);
     const appDto = PricingControllerMapper.toUpdatePriceAppDto(productId, dto);
     const result = await this.pricingService.updatePrice({
       ...appDto,

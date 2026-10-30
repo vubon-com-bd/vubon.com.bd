@@ -11,6 +11,7 @@ import {
 import {
   NOTIFICATION_SERVICE, type INotificationService,
 } from '../../services/interfaces/notification.service.interface.js';
+import { renderSessionRevokedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 export const SESSION_REVOKED_EVENT = 'identity.session.revoked';
 
@@ -35,6 +36,15 @@ export class SessionRevokedHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      const html = renderSessionRevokedEmail({
+        name: payload?.name ?? (isBn ? 'ব্যবহারকারী' : 'User'),
+        deviceInfo: payload?.deviceInfo ?? payload?.userAgent,
+        ipAddress: payload?.ipAddress,
+        revokedAt: payload?.revokedAt ?? new Date().toISOString(),
+        reason: payload?.reason,
+        locale: locale as 'en' | 'bn',
+      });
+
       await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.SECURITY,
@@ -42,9 +52,7 @@ export class SessionRevokedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? 'আপনার সেশন বন্ধ হয়েছে' : 'Session Ended',
-        body: isBn
-          ? `আপনার অ্যাকাউন্টের একটি সেশন বন্ধ হয়েছে। কারণ: ${payload?.reason ?? 'ব্যবহারকারীর অনুরোধ'}`
-          : `A session on your account has ended. Reason: ${payload?.reason ?? 'user request'}`,
+        body: html,
         data: { eventType: SESSION_REVOKED_EVENT, ...payload },
         email: payload?.email,
         phone: payload?.phone,

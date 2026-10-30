@@ -18,12 +18,15 @@ import {
   PRODUCT_REPOSITORY,
   type ProductRepository,
 } from '../../domain/repositories/product.repository.interface.js';
+import { VendorClient } from '../../infrastructure/services/external/vendor.client.js';
+
 
 @Injectable()
 export class OwnProductGuard extends BaseGuard {
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly repo: ProductRepository,
+    private readonly vendorClient: VendorClient,
   ) {
     super();
   }
@@ -58,8 +61,17 @@ export class OwnProductGuard extends BaseGuard {
       });
     }
 
-    const owner = product.vo.vendorId?.value;
-    if (owner !== user.userId) {
+    const ownerVendorId = product.vo.vendorId?.value;
+    if (!ownerVendorId) {
+      throw new ForbiddenException({
+        statusCode: HTTP_STATUS.FORBIDDEN,
+        message: 'Product has no vendor',
+      });
+    }
+
+    // Resolve user's vendor profile
+    const vendor = await this.vendorClient.getByUserId(user.userId);
+    if (!vendor || vendor.id !== ownerVendorId) {
       throw new ForbiddenException({
         statusCode: HTTP_STATUS.FORBIDDEN,
         message: 'You do not own this product',

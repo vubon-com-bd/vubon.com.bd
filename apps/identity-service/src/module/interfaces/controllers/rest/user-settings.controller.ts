@@ -22,7 +22,7 @@ import { SettingsControllerMapper } from '../../mappers/settings.controller.mapp
 @ApiTags('user-settings')
 @ApiBearerAuth('bearer')
 @UseGuards(JwtAuthGuard)
-@Controller('users/settings')
+@Controller('users/me/settings')
 export class UserSettingsController {
   constructor(
     private readonly commandBus: CommandBus,

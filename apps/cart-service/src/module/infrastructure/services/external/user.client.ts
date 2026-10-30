@@ -16,12 +16,12 @@ export interface UserDTO {
 @Injectable()
 export class UserClient {
   private readonly logger = new Logger(UserClient.name);
-  private readonly baseUrl = getOptionalEnv('IDENTITY_SERVICE_URL', 'http://localhost:3000');
+  private readonly baseUrl = getOptionalEnv('IDENTITY_SERVICE_URL', 'http://localhost:3001/api/v1');
   private readonly timeout = Number(getOptionalEnv('IDENTITY_SERVICE_TIMEOUT', '5000'));
 
   async getById(id: string): Promise<UserDTO | null> {
     try {
-      const res = await fetch(`${this.baseUrl}/user/profile/${id}`, {
+      const res = await fetch(`${this.baseUrl}/users/public/${id}`, {
         signal: AbortSignal.timeout(this.timeout),
       });
       if (!res.ok) return null;

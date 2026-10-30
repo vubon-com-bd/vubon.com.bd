@@ -63,18 +63,7 @@ export class CartVoucherRedeemedHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as Record<string, unknown>);
-      const resolved = resolveTemplate(
-        this.i18n,
-        'cart.voucher.redeemed',
-        locale,
-        payload as Record<string, unknown>,
-        {
-          subject: 'Voucher Redeemed',
-          body: 'Your voucher {{code}} has been redeemed.',
-        },
-      );
-
-      // ─── HTML template ───
+      // ─── HTML template (rendered first) ───
       let html = '';
       try {
         html = renderVoucherRedeemedEmail({
@@ -84,7 +73,20 @@ export class CartVoucherRedeemedHandler implements OnModuleInit {
         });
       } catch (err) {
         this.logger.warn(`HTML template render failed: ${err}`);
+
       }
+
+            const resolved = resolveTemplate(
+        this.i18n,
+        'cart.voucher.redeemed',
+        locale,
+        payload as Record<string, unknown>,
+        {
+          subject: 'Voucher Redeemed',
+          body: html,
+        },
+      );
+
 
       // ─── Fetch user email for real delivery ───
       let userEmail: string | undefined;
@@ -101,11 +103,13 @@ export class CartVoucherRedeemedHandler implements OnModuleInit {
         userEmail = (payload as { email?: string }).email;
       }
 
+
+      
+
       const channels = userEmail
         ? [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL]
         : [NOTIFICATION_CHANNEL.IN_APP];
-
-      const result = await this.notificationService.send({
+            const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.SYSTEM,

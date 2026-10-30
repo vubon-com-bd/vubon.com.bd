@@ -10,6 +10,7 @@ import {
   NOTIFICATION_TYPE,
   NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderGuestCartExpiredEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 import {
   NOTIFICATION_SERVICE,
@@ -59,22 +60,31 @@ export class GuestCartExpiredHandler implements OnModuleInit {
     this.logger.log(`Received cart.guest_cart.expired — userId=${userId}`);
 
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderGuestCartExpiredEmail({
+          name: ((payload.name as string) ?? (typeof payload.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload.locale as string) ?? 'bn') === 'bn';
+
       await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.ALERT,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Guest Cart Expired',
-        body: 'Your guest cart has expired. Please add items again.',
-        data: {
-          eventType: 'cart.guest_cart.expired',
-          eventId: event.id,
-          ...payload,
-        },
-        idempotencyKey: `guest-cart-expired-${event.id}`,
+        subject: isBn ? 'Expired' : 'Expired',
+        body: html || 'Notification sent',
+        data: { eventType: 'cart.guest_cart.expired' , html },
+        idempotencyKey: 'cart.guest_cart.expired-' + (event as { id: string }).id,
       });
-
       this.logger.log(`✅ Notification sent for ${userId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'unknown';

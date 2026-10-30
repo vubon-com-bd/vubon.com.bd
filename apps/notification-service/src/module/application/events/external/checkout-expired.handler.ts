@@ -79,7 +79,7 @@ export class CheckoutExpiredHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.LOW,
         subject: `চেকআউট মেয়াদ শেষ`,
-        body: `আপনার চেকআউট সেশন মেয়াদ শেষ হয়েছে।`,
+        body: html || `আপনার চেকআউট সেশন মেয়াদ শেষ হয়েছে।`,
         data: {
           html,
           eventType: 'order.checkout.expired',

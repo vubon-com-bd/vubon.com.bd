@@ -19,6 +19,8 @@ export const CART_ITEM_EVENT_TYPE = {
 export interface CartItemAddedPayload {
   readonly cartId: string;
   readonly itemId: string;
+  readonly userId?: string;
+  readonly userEmail?: string;
   readonly productId: string;
   readonly variantId?: string;
   readonly quantity: number;

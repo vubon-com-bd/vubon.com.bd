@@ -285,6 +285,34 @@ export class VendorService implements IVendorService {
   }
 
   // ═══════════════ HELPERS ═══════════════
+  async approve(vendorId: string, actorId: string, notes?: string): Promise<VendorResponseDTO> {
+    const entity = await this.load(vendorId);
+    try {
+      entity.approve(actorId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      throw new VendorUpdateError(vendorId, msg);
+    }
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Vendor ${vendorId} approved by ${actorId}${notes ? ` — ${notes}` : ''}`);
+    return VendorMapper.toResponse(saved);
+  }
+
+  async reject(vendorId: string, actorId: string, reason: string, notes?: string): Promise<VendorResponseDTO> {
+    const entity = await this.load(vendorId);
+    try {
+      entity.reject(reason, actorId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      throw new VendorUpdateError(vendorId, msg);
+    }
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Vendor ${vendorId} rejected by ${actorId} — reason: ${reason}`);
+    return VendorMapper.toResponse(saved);
+  }
+
   private async load(id: string): Promise<VendorEntity> {
     const vo = VendorIdVO.create(id);
     const entity = await this.repo.findByIdVO(vo);

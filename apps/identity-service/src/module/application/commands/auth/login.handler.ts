@@ -17,6 +17,9 @@ import { AUTH_TOKEN_SERVICE } from '../../services/interfaces/auth-token.service
 import type { AuthMfaServiceInterface } from '../../services/interfaces/auth-mfa.service.interface.js';
 import { AUTH_MFA_SERVICE } from '../../services/interfaces/auth-mfa.service.interface.js';
 import { UserNotFoundByEmailError } from '../../../domain/errors/user.errors.js';
+import { CREDENTIAL_REPOSITORY, type CredentialRepository } from '../../../domain/repositories/credential.repository.interface.js';
+import { PASSWORD_HASHER_SERVICE, type PasswordHasherServiceInterface } from '../../services/interfaces/password-hasher.service.interface.js';
+import { InvalidCredentialsError } from '../../../domain/errors/auth.errors.js';
 
 @CommandHandler(LoginCommand)
 export class LoginHandler
@@ -27,6 +30,8 @@ export class LoginHandler
   private readonly logger = new Logger(LoginHandler.name);
 
   constructor(
+    @Inject(CREDENTIAL_REPOSITORY) private readonly credentialRepo: CredentialRepository,
+    @Inject(PASSWORD_HASHER_SERVICE) private readonly passwordHasher: PasswordHasherServiceInterface,
     @Inject(AUTH_REPOSITORY) private readonly authRepo: AuthRepository,
     @Inject(AUTH_SESSION_SERVICE) private readonly sessionService: AuthSessionServiceInterface,
     @Inject(AUTH_TOKEN_SERVICE) private readonly tokenService: AuthTokenServiceInterface,
@@ -86,8 +91,24 @@ export class LoginHandler
       };
     }
 
+    // 2.5 Verify password
+    if (!command.input.password) {
+      throw new InvalidCredentialsError();
+    }
+    const credential = await this.credentialRepo.findByAuthIdRaw(auth.id);
+    if (!credential) {
+      this.logger.warn(`No credential found for authId=${auth.id}`);
+      throw new InvalidCredentialsError();
+    }
+    const isValid = await this.passwordHasher.verify(command.input.password, credential.passwordHash.value);
+    if (!isValid) {
+      this.logger.warn(`Invalid password for authId=${auth.id}`);
+      throw new InvalidCredentialsError();
+    }
+
     // 3. Create session
     const session = await this.sessionService.create(auth.userId.value, {
+      authId: auth.id,
       ipAddress: command.ipAddress,
       userAgent: command.userAgent,
       rememberMe: command.input.rememberMe ?? false,

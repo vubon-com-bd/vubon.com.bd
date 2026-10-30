@@ -4,6 +4,7 @@
  */
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ProductInventoryModule } from '../product-inventory/product-inventory.module.js';
 
 import { ProductVariantController } from '../../interfaces/controllers/rest/product-variant.controller.js';
 
@@ -14,7 +15,7 @@ import { ProductVariantService } from '../../application/services/impl/product-v
 import { VARIANT_SERVICE } from '../../application/services/interfaces/product-variant.service.interface.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, ProductInventoryModule],
   controllers: [ProductVariantController],
   providers: [
     ProductVariantService,

@@ -10,6 +10,7 @@ import {
   NOTIFICATION_TYPE,
   NOTIFICATION_PRIORITY,
 } from '@vubon/shared-constants/platform';
+import { renderSavedForLaterStatusChangedEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 
 import {
   NOTIFICATION_SERVICE,
@@ -59,22 +60,31 @@ export class SavedForLaterStatusHandler implements OnModuleInit {
     this.logger.log(`Received cart.saved_for_later.status_changed — userId=${userId}`);
 
     try {
+      // ─── Render Bengali HTML ───
+      let html = '';
+      try {
+        html = renderSavedForLaterStatusChangedEmail({
+          name: ((payload.name as string) ?? (typeof payload.firstName === 'string' ? payload.firstName as string : 'গ্রাহক')),
+          locale: (((payload.locale as 'en' | 'bn') ?? 'bn')),
+          ...payload,
+        } as any);
+      } catch (err) {
+        this.logger.warn(`Template render failed: ${err}`);
+      }
+
+      const isBn = ((payload.locale as string) ?? 'bn') === 'bn';
+
       await this.notificationService.send({
         userId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
         category: NOTIFICATION_CATEGORY.ORDER,
-        channels: [NOTIFICATION_CHANNEL.IN_APP],
+        channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
-        subject: 'Saved Item Updated',
-        body: 'Your saved item status has changed.',
-        data: {
-          eventType: 'cart.saved_for_later.status_changed',
-          eventId: event.id,
-          ...payload,
-        },
-        idempotencyKey: `saved-for-later-status-${event.id}`,
+        subject: isBn ? 'Status Changed' : 'Status Changed',
+        body: html || 'Notification sent',
+        data: { eventType: 'cart.saved_for_later.status_changed' , html },
+        idempotencyKey: 'cart.saved_for_later.status_changed-' + (event as { id: string }).id,
       });
-
       this.logger.log(`✅ Notification sent for ${userId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'unknown';

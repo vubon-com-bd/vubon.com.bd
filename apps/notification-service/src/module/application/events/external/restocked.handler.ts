@@ -85,7 +85,7 @@ export class RestockedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: `স্টক পুনরুদ্ধার - #{{orderId}}`,
-        body: `অর্ডারের পণ্য স্টকে ফেরত এসেছে।`,
+        body: html || `অর্ডারের পণ্য স্টকে ফেরত এসেছে।`,
         data: {
           html,
           eventType: 'order.order-fulfillment.restocked',

@@ -4,6 +4,7 @@
  */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventBusService } from '@vubon/shared-kernel/infrastructure/messaging/event-bus';
+import { renderCartCheckedOutEmail } from '@infrastructure/external/email/templates/bangla-templates.js';
 import {
   NOTIFICATION_CHANNEL,
   NOTIFICATION_CATEGORY,
@@ -38,6 +39,18 @@ export class CartCheckedOutHandler implements OnModuleInit {
     const locale = payload?.locale ?? 'bn';
     const isBn = locale === 'bn';
     try {
+      // ─── Render Bangla HTML template ───
+      const payloadAny = payload as unknown as Record<string, unknown>;
+      const html = renderCartCheckedOutEmail({
+      name: (payload.name as string) ?? 'গ্রাহক',
+      cartId: (payload.cartId as string) ?? '',
+      itemCount: (payload.itemCount as number) ?? 0,
+      total: (payload.total as number) ?? 0,
+      currency: (payload.currency as string) ?? 'BDT',
+      locale: (payload.locale as 'en' | 'bn') ?? 'bn',
+    });
+
+      
       const result = await this.notificationService.send({
         userId: payload?.userId ?? event.aggregateId,
         type: NOTIFICATION_TYPE.ORDER_UPDATE,
@@ -45,10 +58,11 @@ export class CartCheckedOutHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: isBn ? `চেকআউট সম্পন্ন` : `Checkout Complete`,
-        body: isBn
+        body: html || isBn
           ? `প্রিয় ${payload?.name ?? "Customer"}, আপনার চেকআউট সম্পন্ন হয়েছে। অর্ডার প্রসেসিং শুরু হয়েছে।`
           : `Hi ${payload?.name ?? "Customer"}, your checkout is complete. Order processing has started.`,
-        data: { eventType: 'cart.cart.checked_out', ...payload },
+        data: {
+          html, eventType: 'cart.cart.checked_out', ...payload },
         email: payload?.email,
         phone: payload?.phone,
         idempotencyKey: `cart-checked-out-${event.id}`,

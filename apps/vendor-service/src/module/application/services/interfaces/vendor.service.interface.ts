@@ -59,6 +59,8 @@ export interface IVendorService {
   delete(dto: DeleteVendorRequestDTO): Promise<{ readonly success: true; readonly vendorId: string }>;
   updateProfile(dto: UpdateProfileRequestDTO, actorId?: string): Promise<VendorResponseDTO>;
   updateBusiness(dto: UpdateBusinessRequestDTO, actorId?: string): Promise<VendorResponseDTO>;
+  approve(vendorId: string, actorId: string, notes?: string): Promise<VendorResponseDTO>;
+  reject(vendorId: string, actorId: string, reason: string, notes?: string): Promise<VendorResponseDTO>;
 
   // ─── Queries ───
   getById(id: string): Promise<VendorResponseDTO>;

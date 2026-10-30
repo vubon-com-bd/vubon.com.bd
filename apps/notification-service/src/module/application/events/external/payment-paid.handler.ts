@@ -86,20 +86,12 @@ export class PaymentPaidHandler implements OnModuleInit {
 
     try {
       const locale = getLocale(payload as unknown as Record<string, unknown>);
-        const resolved = resolveTemplate(
-          this.i18n,
-          'PAYMENT_RECEIVED',
-          locale,
-          {
-            amount: (payload as any).amount, transactionId: (payload as any).transactionId
-          },
-          {
-            subject: 'Payment Received',
-            body: 'Payment of {{amount}} received. TxnID: {{transactionId}}',
-          },
-        );
+        
 
-        const html = renderPaymentReceiptEmail({
+        
+
+        ;
+const html = renderPaymentReceiptEmail({
           name: (payload as unknown as { name?: string }).name ?? 'Customer',
           orderId: (payload as unknown as { orderId?: string }).orderId ?? '',
           amount: (payload as unknown as { amount?: number }).amount ?? 0,
@@ -108,7 +100,20 @@ export class PaymentPaidHandler implements OnModuleInit {
           locale: ((payload as unknown as { locale?: 'en' | 'bn' }).locale ?? 'bn'),
         });
 
-        const result = await this.notificationService.send({
+const resolved = resolveTemplate(
+          this.i18n,
+          'PAYMENT_RECEIVED',
+          locale,
+          {
+            amount: (payload as any).amount, transactionId: (payload as any).transactionId
+          },
+          {
+            subject: 'Payment Received',
+            body: html || 'Payment of {{amount}} received. TxnID: {{transactionId}}',
+          },
+        );
+
+                const result = await this.notificationService.send({
         userId: (payload as { userId?: string }).userId ?? event.aggregateId,
         email: userEmail,
         type: NOTIFICATION_TYPE.PAYMENT_UPDATE,

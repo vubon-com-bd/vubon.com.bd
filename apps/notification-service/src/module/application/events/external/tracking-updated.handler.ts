@@ -87,7 +87,7 @@ export class TrackingUpdatedHandler implements OnModuleInit {
         channels: [NOTIFICATION_CHANNEL.IN_APP, NOTIFICATION_CHANNEL.EMAIL],
         priority: NOTIFICATION_PRIORITY.NORMAL,
         subject: subject,
-        body: `আপনার অর্ডারের ট্র্যাকিং আপডেট এসেছে।`,
+        body: html || `আপনার অর্ডারের ট্র্যাকিং আপডেট এসেছে।`,
         data: {
           html,
           eventType: 'order.order-tracking.updated',
