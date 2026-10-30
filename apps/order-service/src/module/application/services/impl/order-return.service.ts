@@ -55,7 +55,9 @@ export class OrderReturnService implements IOrderReturnService {
     const vo = OrderReturnVO.create({
       id: ReturnIdVO.create(id),
       orderId: OrderIdVO.create(dto.orderId),
-      customerId: CustomerIdVO.create('system'),
+      customerId: CustomerIdVO.create(
+        actorId && /^[0-9a-f]{8}-/i.test(actorId) ? actorId : '00000000-0000-0000-0000-000000000000'
+      ),
       itemIds: (dto.itemIds ?? []) as readonly string[],
       reason: ReturnReasonVO.create(dto.reason ?? 'Customer request'),
       status: ReturnStatusVO.requested(),
@@ -79,6 +81,42 @@ export class OrderReturnService implements IOrderReturnService {
     entity.approve();
     const saved = await this.repo.save(entity);
     await this.eventBridge.publishFromEntity(saved);
+    return ReturnMapper.toResponse(saved);
+  }
+
+  async schedulePickup(returnId: string, actorId?: string): Promise<ReturnResponseDTO> {
+    const entity = await this.loadById(returnId);
+    entity.schedulePickup();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Return ${saved.id} pickup scheduled by ${actorId ?? 'system'}`);
+    return ReturnMapper.toResponse(saved);
+  }
+
+  async markPickedUp(returnId: string, actorId?: string): Promise<ReturnResponseDTO> {
+    const entity = await this.loadById(returnId);
+    entity.pickUp();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Return ${saved.id} picked up`);
+    return ReturnMapper.toResponse(saved);
+  }
+
+  async receive(returnId: string, actorId?: string): Promise<ReturnResponseDTO> {
+    const entity = await this.loadById(returnId);
+    entity.receive();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Return ${saved.id} received`);
+    return ReturnMapper.toResponse(saved);
+  }
+
+  async inspect(returnId: string, actorId?: string): Promise<ReturnResponseDTO> {
+    const entity = await this.loadById(returnId);
+    entity.inspect();
+    const saved = await this.repo.save(entity);
+    await this.eventBridge.publishFromEntity(saved);
+    this.logger.log(`Return ${saved.id} inspected`);
     return ReturnMapper.toResponse(saved);
   }
 

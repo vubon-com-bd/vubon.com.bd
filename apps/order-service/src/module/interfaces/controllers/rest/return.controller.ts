@@ -13,7 +13,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { BaseController } from '@vubon/shared-kernel/interfaces/controllers';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces/guards';
 import { CurrentUser } from '@vubon/shared-kernel/interfaces/decorators';
@@ -93,6 +93,50 @@ export class ReturnController extends BaseController {
     const appDto = ReturnControllerMapper.toRejectDto(id, dto as never, dto, user.userId);
     const app = await this.service.reject(appDto, user.userId);
     return ReturnControllerMapper.toHttpResponse(app);
+  }
+
+  @Post(':id/schedule-pickup')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Schedule pickup for return' })
+  async schedulePickup(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ReturnHttpResponseDTO> {
+    const result = await this.service.schedulePickup(id, user.userId);
+    return result as unknown as ReturnHttpResponseDTO;
+  }
+
+  @Post(':id/picked-up')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark return picked up' })
+  async markPickedUp(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ReturnHttpResponseDTO> {
+    const result = await this.service.markPickedUp(id, user.userId);
+    return result as unknown as ReturnHttpResponseDTO;
+  }
+
+  @Post(':id/receive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark return received' })
+  async receive(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ReturnHttpResponseDTO> {
+    const result = await this.service.receive(id, user.userId);
+    return result as unknown as ReturnHttpResponseDTO;
+  }
+
+  @Post(':id/inspect')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark return inspected' })
+  async inspect(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserShape,
+  ): Promise<ReturnHttpResponseDTO> {
+    const result = await this.service.inspect(id, user.userId);
+    return result as unknown as ReturnHttpResponseDTO;
   }
 
   @Post(':id/complete')

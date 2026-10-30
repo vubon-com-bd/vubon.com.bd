@@ -32,6 +32,10 @@ export interface ReturnListOptionsDTO {
 export interface IOrderReturnService {
   // Commands
   request(dto: RequestReturnCommandDTO, actorId?: string): Promise<ReturnResponseDTO>;
+  schedulePickup(returnId: string, actorId?: string): Promise<ReturnResponseDTO>;
+  markPickedUp(returnId: string, actorId?: string): Promise<ReturnResponseDTO>;
+  receive(returnId: string, actorId?: string): Promise<ReturnResponseDTO>;
+  inspect(returnId: string, actorId?: string): Promise<ReturnResponseDTO>;
   approve(dto: ApproveReturnCommandDTO, actorId?: string): Promise<ReturnResponseDTO>;
   reject(dto: RejectReturnCommandDTO, actorId?: string): Promise<ReturnResponseDTO>;
   complete(dto: CompleteReturnCommandDTO, actorId?: string): Promise<ReturnResponseDTO>;
