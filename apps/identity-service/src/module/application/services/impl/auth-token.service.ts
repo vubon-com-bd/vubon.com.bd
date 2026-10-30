@@ -65,11 +65,12 @@ export class AuthTokenService extends BaseService implements AuthTokenServiceInt
     const sessionId = input.sessionId ?? `${now}-${Math.random().toString(36).slice(2, 10)}`;
 
     // ─── Access token ───
-    const accessPayload: JwtPayload = {
+    const accessPayload: JwtPayload & { roles?: readonly string[] } = {
       sub: input.userId,
       sid: sessionId,
       type: 'access',
       scope: input.scope ?? [],
+      roles: input.roles ?? [],
     };
 
     const accessToken = jwt.sign(accessPayload, JWT_SECRET, {
@@ -80,10 +81,11 @@ export class AuthTokenService extends BaseService implements AuthTokenServiceInt
     });
 
     // ─── Refresh token ───
-    const refreshPayload: JwtPayload = {
+    const refreshPayload: JwtPayload & { roles?: readonly string[] } = {
       sub: input.userId,
       sid: sessionId,
       type: 'refresh',
+      roles: input.roles ?? [],
     };
 
     const refreshToken = jwt.sign(refreshPayload, JWT_SECRET, {

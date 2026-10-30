@@ -11,6 +11,7 @@ export const AUTH_TOKEN_SERVICE = Symbol('AUTH_TOKEN_SERVICE');
 export interface IssueTokenInput {
   readonly userId: string;
   readonly sessionId: string;
+  readonly roles?: readonly string[];
   readonly scope?: readonly string[];
 }
 

@@ -10,6 +10,7 @@ import { LoginCommand } from './login.command.js';
 import type { LoginResponseDTO } from '../../dtos/responses/login-response.dto.js';
 import type { AuthRepository } from '../../../domain/repositories/auth.repository.interface.js';
 import { AUTH_REPOSITORY } from '../../../domain/repositories/auth.repository.interface.js';
+import { USER_REPOSITORY, type UserRepository } from '../../../domain/repositories/user.repository.interface.js';
 import type { AuthSessionServiceInterface } from '../../services/interfaces/auth-session.service.interface.js';
 import { AUTH_SESSION_SERVICE } from '../../services/interfaces/auth-session.service.interface.js';
 import type { AuthTokenServiceInterface } from '../../services/interfaces/auth-token.service.interface.js';
@@ -33,6 +34,7 @@ export class LoginHandler
     @Inject(CREDENTIAL_REPOSITORY) private readonly credentialRepo: CredentialRepository,
     @Inject(PASSWORD_HASHER_SERVICE) private readonly passwordHasher: PasswordHasherServiceInterface,
     @Inject(AUTH_REPOSITORY) private readonly authRepo: AuthRepository,
+    @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
     @Inject(AUTH_SESSION_SERVICE) private readonly sessionService: AuthSessionServiceInterface,
     @Inject(AUTH_TOKEN_SERVICE) private readonly tokenService: AuthTokenServiceInterface,
     @Inject(AUTH_MFA_SERVICE) private readonly mfaService: AuthMfaServiceInterface,
@@ -115,9 +117,21 @@ export class LoginHandler
     });
 
     // 4. Issue tokens
+    // Fetch user roles for JWT
+    let roles: readonly string[] = ['customer'];
+    try {
+      const user = await this.userRepo.findById(auth.userId.value);
+      if (user && Array.isArray((user as unknown as { roles?: readonly { value: string }[] }).roles)) {
+        roles = ((user as unknown as { roles: readonly { value: string }[] }).roles).map((r) => r.value);
+      }
+    } catch (err) {
+      this.logger.warn(`Role fetch failed: ${err instanceof Error ? err.message : 'unknown'}`);
+    }
+
     const tokens = await this.tokenService.issue({
       userId: auth.userId.value,
       sessionId: session.id,
+      roles,
     });
 
     // 5. Update last login

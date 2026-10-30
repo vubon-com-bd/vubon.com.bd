@@ -22,6 +22,7 @@ import {
 } from '@interfaces/controllers/webhooks/index.js';
 
 import { WebhookService } from '@application/services/impl/webhook.service.js';
+import { WebhookDispatcherService, WEBHOOK_DISPATCHER } from '@application/services/impl/webhook-dispatcher.service.js';
 import { WEBHOOK_SERVICE } from '@application/services/interfaces/webhook.service.interface.js';
 
 import { AdminOnlyGuard } from '@interfaces/guards/admin-only.guard.js';
@@ -50,6 +51,8 @@ import {
   providers: [
     WebhookService,
     { provide: WEBHOOK_SERVICE, useExisting: WebhookService },
+    WebhookDispatcherService,
+    { provide: WEBHOOK_DISPATCHER, useExisting: WebhookDispatcherService },
     ...(WEBHOOK_COMMAND_HANDLERS as readonly unknown[] as never[]),
     ...(WEBHOOK_QUERY_HANDLERS as readonly unknown[] as never[]),
     HandleSendgridWebhookHandler,
