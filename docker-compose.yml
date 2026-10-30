@@ -1,0 +1,276 @@
+version: '3.9'
+
+# ═══════════════════════════════════════════════════════════
+# Vubon.com.bd — Production Docker Compose
+# 7 microservices + PostgreSQL + Redis + Nginx reverse proxy
+# Usage: docker compose up -d
+# ═══════════════════════════════════════════════════════════
+
+networks:
+  vubon-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  logs:
+    driver: local
+
+x-service-base: &service-base
+  restart: unless-stopped
+  networks:
+    - vubon-net
+  env_file:
+    - .env.production
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # ═══════════════════════════════════════════════════════════
+  # INFRASTRUCTURE
+  # ═══════════════════════════════════════════════════════════
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: vubon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vubon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_MULTIPLE_DATABASES: vubon_identity,vubon_product,vubon_vendors,vubon_cart,vubon_order,vubon_payment,vubon_notification
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    networks:
+      - vubon-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vubon}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: vubon-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD:-changeme}
+    volumes:
+      - redis-data:/data
+    networks:
+      - vubon-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  # ═══════════════════════════════════════════════════════════
+  # MICROSERVICES
+  # ═══════════════════════════════════════════════════════════
+
+  identity:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/identity-service/Dockerfile
+    container_name: vubon-identity
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: identity
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_identity
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3001/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  product:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/product-service/Dockerfile
+    container_name: vubon-product
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: product
+      PORT: 3002
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_product
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+      VENDOR_SERVICE_URL: http://vendor:3003
+    expose:
+      - "3002"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  vendor:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/vendor-service/Dockerfile
+    container_name: vubon-vendor
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: vendor
+      PORT: 3003
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_vendors
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+    expose:
+      - "3003"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  cart:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/cart-service/Dockerfile
+    container_name: vubon-cart
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: cart
+      PORT: 3004
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_cart
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+      PRODUCT_SERVICE_URL: http://product:3002
+      USER_SERVICE_URL: http://identity:3001
+    expose:
+      - "3004"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  order:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/order-service/Dockerfile
+    container_name: vubon-order
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: order
+      PORT: 3005
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_order
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+      CART_SERVICE_URL: http://cart:3004
+      PAYMENT_SERVICE_URL: http://payment:3006
+    expose:
+      - "3005"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  payment:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/payment-service/Dockerfile
+    container_name: vubon-payment
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: payment
+      PORT: 3006
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_payment
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+      ORDER_SERVICE_URL: http://order:3005
+    expose:
+      - "3006"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  notification:
+    <<: *service-base
+    build:
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: vubon-notification
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: notification
+      PORT: 4006
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vubon}:${POSTGRES_PASSWORD}@postgres:5432/vubon_notification
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
+    expose:
+      - "4006"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:4006/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  # ═══════════════════════════════════════════════════════════
+  # REVERSE PROXY
+  # ═══════════════════════════════════════════════════════════
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: vubon-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - vubon-net
+    depends_on:
+      identity:
+        condition: service_healthy
+      product:
+        condition: service_healthy
+      vendor:
+        condition: service_healthy
+      cart:
+        condition: service_healthy
+      order:
+        condition: service_healthy
+      payment:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
