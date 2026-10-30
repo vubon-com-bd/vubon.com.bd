@@ -27,7 +27,7 @@ AUTH2="Authorization: Bearer $TOKEN2"
 
 # T14.1 Register webhook (HTTPS only)
 echo "▶ T14.1: Register webhook"
-WH_RES=$(curl -s -X POST "$NOTIF/webhooks" -H "Content-Type: application/json" -H "$AUTH2" -d '{"name":"T14 Hook","url":"https://httpbin.org/post","events":["order.created"],"secret":"test-secret-1234567890abcdef"}')
+WH_RES=$(curl -s -X POST "$NOTIF/webhooks" -H "Content-Type: application/json" -H "$AUTH2" -d "{\"name\":\"T14 Hook\",\"url\":\"https://httpbin.org/post?ts=$TS\",\"events\":[\"order.created\"],\"secret\":\"test-secret-1234567890abcdef\"}")
 WH_ID=$(echo "$WH_RES" | grep -oP '"id":"[^"]+"' | head -1 | cut -d'"' -f4)
 if [ -n "$WH_ID" ]; then echo "  ✅ Webhook registered ($WH_ID)"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  🔴 $WH_RES"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 
@@ -35,7 +35,7 @@ if [ -n "$WH_ID" ]; then echo "  ✅ Webhook registered ($WH_ID)"; PASS_COUNT=$(
 echo ""
 echo "▶ T14.2: Dispatcher subscription"
 sleep 2
-DISPATCHER=$(pm2 logs notification --lines 200 --nostream 2>&1 | grep -c "WebhookDispatcher subscribed" || echo 0)
+DISPATCHER=$(pm2 logs notification --lines 1000 --nostream 2>&1 | grep "WebhookDispatcher subscribed" | wc -l)
 if [ "$DISPATCHER" -gt 0 ]; then echo "  ✅ Dispatcher active"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  🔴 Not subscribed"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 
 # T14.3 List webhooks
