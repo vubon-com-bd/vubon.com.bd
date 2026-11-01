@@ -1,0 +1,42 @@
+# Dependencies
+**/node_modules
+**/.pnpm-store
+
+# Build output
+**/dist
+**/build
+**/coverage
+**/coverage-report
+**/coverage-tmp
+
+# Git
+.git
+.github
+
+# Env files
+.env
+.env.*
+!**/.env.example
+!**/.env.production.example
+
+# Logs
+*.log
+dump.rdb
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+**/*.md
+!apps/user-service/README.md
+!apps/user-service/ARCHITECTURE.md
+!apps/user-service/TESTING.md
+!apps/user-service/DEPLOYMENT.md
+!README.md

@@ -1,233 +1,41 @@
-/**
- * Auth schemas module exports
- * Central export point for all authentication-related validation schemas
- */
+// shared-schemas/auth/index.ts
+// Auth domain barrel export — FINAL
 
-// Export register schemas
-export {
-  RegisterSchema,
-  validateRegistration,
-  safeValidateRegistration,
-  type RegisterSchemaType,
-  type ValidatedRegisterData,
-} from './register.schema';
+// Base schemas
+export * from './auth.schema.js';
+export * from './auth-status.schema.js';
+export * from './auth-type.schema.js';
+export * from './auth-provider.schema.js';
+export * from './auth-method.schema.js';
+export * from './auth-permission.schema.js';
+export * from './auth-role.schema.js';
+export * from './auth-session.schema.js';
+export * from './auth-token.schema.js';
+export * from './auth-verification.schema.js';
+export * from './auth-password.schema.js';
+export * from './auth-mfa.schema.js';
+export * from './auth-login-attempt.schema.js';
+export * from './auth-device.schema.js';
+export * from './auth-social.schema.js';
+export * from './auth-oauth.schema.js';
+export * from './auth-sso.schema.js';
 
-// Export login schemas
-export {
-  LoginSchema,
-  PhoneLoginSchema,
-  UsernameLoginSchema,
-  RefreshTokenSchema,
-  LogoutSchema,
-  RevokeAllSessionsSchema as LogoutRevokeAllSessionsSchema,
-  validateLogin,
-  safeValidateLogin,
-  validatePhoneLogin,
-  safeValidatePhoneLogin,
-  validateUsernameLogin,
-  safeValidateUsernameLogin,
-  validateRefreshToken,
-  safeValidateRefreshToken,
-  validateLogout,
-  safeValidateLogout,
-  validateRevokeAllSessions as validateLogoutRevokeAllSessions,
-  safeValidateRevokeAllSessions as safeValidateLogoutRevokeAllSessions,
-  type LoginSchemaType,
-  type PhoneLoginSchemaType,
-  type UsernameLoginSchemaType,
-  type RefreshTokenSchemaType,
-  type LogoutSchemaType,
-  type RevokeAllSessionsSchemaType as LogoutRevokeAllSessionsSchemaType,
-} from './login.schema';
+// Request schemas
+export * from './login-request.schema.js';
+export * from './register-request.schema.js';
+export * from './refresh-request.schema.js';
+export * from './logout-request.schema.js';
+export * from './forgot-password.schema.js';
+export * from './reset-password.schema.js';
+export * from './verify-email.schema.js';
+export * from './verify-mfa.schema.js';
+export * from './enable-mfa.schema.js';
+export * from './social-login.schema.js';
 
-// Export verification schemas
-export {
-  SendVerificationEmailSchema,
-  VerifyEmailSchema,
-  ResendVerificationEmailSchema,
-  validateSendVerificationEmail,
-  safeValidateSendVerificationEmail,
-  validateVerifyEmail,
-  safeValidateVerifyEmail,
-  validateResendVerificationEmail,
-  safeValidateResendVerificationEmail,
-  type SendVerificationEmailSchemaType,
-  type VerifyEmailSchemaType,
-  type ResendVerificationEmailSchemaType,
-} from './verification.schema';
-
-// Export MFA schemas
-export {
-  EnableMFASchema,
-  VerifyMFASchema,
-  DisableMFASchema,
-  validateEnableMFA,
-  safeValidateEnableMFA,
-  validateVerifyMFA,
-  safeValidateVerifyMFA,
-  validateDisableMFA,
-  safeValidateDisableMFA,
-  type EnableMFASchemaType,
-  type VerifyMFASchemaType,
-  type DisableMFASchemaType,
-} from './mfa.schema';
-
-// Export password reset schemas
-export {
-  ForgotPasswordSchema,
-  ResetPasswordSchema,
-  ResendResetLinkSchema,
-  validateForgotPassword,
-  safeValidateForgotPassword,
-  validateResetPassword,
-  safeValidateResetPassword,
-  validateResendResetLink,
-  safeValidateResendResetLink,
-  type ForgotPasswordSchemaType,
-  type ResetPasswordSchemaType,
-  type ResendResetLinkSchemaType,
-} from './password-reset.schema';
-
-// Export admin schemas
-export {
-  AdminUserListSchema,
-  AdminUpdateUserSchema,
-  AdminCreateUserSchema,
-  validateAdminUserList,
-  safeValidateAdminUserList,
-  validateAdminUpdateUser,
-  safeValidateAdminUpdateUser,
-  validateAdminCreateUser,
-  safeValidateAdminCreateUser,
-  type AdminUserListSchemaType,
-  type AdminUpdateUserSchemaType,
-  type AdminCreateUserSchemaType,
-} from './admin.schema';
-
-// Export security schemas
-export {
-  UnlockAccountSchema,
-  BlockIPSchema,
-  UnblockIPSchema,
-  validateUnlockAccount,
-  safeValidateUnlockAccount,
-  validateBlockIP,
-  safeValidateBlockIP,
-  validateUnblockIP,
-  safeValidateUnblockIP,
-  type UnlockAccountSchemaType,
-  type BlockIPSchemaType,
-  type UnblockIPSchemaType,
-} from './security.schema';
-
-// Export social schemas
-export {
-  SocialLoginSchema,
-  SocialCallbackSchema,
-  LinkSocialAccountSchema,
-  UnlinkSocialAccountSchema,
-  validateSocialLogin,
-  safeValidateSocialLogin,
-  validateSocialCallback,
-  safeValidateSocialCallback,
-  validateLinkSocialAccount,
-  safeValidateLinkSocialAccount,
-  validateUnlinkSocialAccount,
-  safeValidateUnlinkSocialAccount,
-  type SocialLoginSchemaType,
-  type SocialCallbackSchemaType,
-  type LinkSocialAccountSchemaType,
-  type UnlinkSocialAccountSchemaType,
-} from './social.schema';
-
-// Export user schemas
-export {
-  UpdateProfileSchema,
-  DeleteAccountSchema,
-  validateUpdateProfile,
-  safeValidateUpdateProfile,
-  validateDeleteAccount,
-  safeValidateDeleteAccount,
-  type UpdateProfileSchemaType,
-  type DeleteAccountSchemaType,
-} from './user.schema';
-
-// Export session schemas
-export {
-  SessionIdSchema,
-  RevokeAllSessionsSchema as SessionRevokeAllSessionsSchema,
-  validateSessionId,
-  safeValidateSessionId,
-  validateRevokeAllSessions as validateSessionRevokeAllSessions,
-  safeValidateRevokeAllSessions as safeValidateSessionRevokeAllSessions,
-  type SessionIdSchemaType,
-  type RevokeAllSessionsSchemaType as SessionRevokeAllSessionsSchemaType,
-} from './session.schema';
-
-// Export role schemas
-export {
-  RoleNameSchema,
-  CreateRoleSchema,
-  UpdateRoleSchema,
-  AssignRoleSchema,
-  RoleFilterSchema,
-  validateCreateRole,
-  safeValidateCreateRole,
-  validateUpdateRole,
-  safeValidateUpdateRole,
-  validateAssignRole,
-  safeValidateAssignRole,
-  validateRoleFilter,
-  safeValidateRoleFilter,
-  type RoleName,
-  type CreateRoleSchemaType,
-  type UpdateRoleSchemaType,
-  type AssignRoleSchemaType,
-  type RoleFilterSchemaType,
-} from './role.schema';
-
-// Export permission schemas
-export {
-  PermissionStringSchema,
-  CreatePermissionSchema,
-  CheckPermissionSchema,
-  BulkCheckPermissionSchema,
-  GrantPermissionSchema,
-  RevokePermissionSchema,
-  validateCreatePermission,
-  safeValidateCreatePermission,
-  validateCheckPermission,
-  safeValidateCheckPermission,
-  validateBulkCheckPermission,
-  safeValidateBulkCheckPermission,
-  validateGrantPermission,
-  safeValidateGrantPermission,
-  validateRevokePermission,
-  safeValidateRevokePermission,
-  type PermissionString,
-  type CreatePermissionSchemaType,
-  type CheckPermissionSchemaType,
-  type BulkCheckPermissionSchemaType,
-  type GrantPermissionSchemaType,
-  type RevokePermissionSchemaType,
-} from './permission.schema';
-
-// Export device schemas
-export {
-  DeviceTypeSchema,
-  DeviceTrustLevelSchema,
-  RegisterDeviceSchema,
-  UpdateDeviceTrustSchema,
-  DeviceFilterSchema,
-  validateRegisterDevice,
-  safeValidateRegisterDevice,
-  validateUpdateDeviceTrust,
-  safeValidateUpdateDeviceTrust,
-  validateDeviceFilter,
-  safeValidateDeviceFilter,
-  type DeviceType,
-  type DeviceTrustLevel,
-  type RegisterDeviceSchemaType,
-  type UpdateDeviceTrustSchemaType,
-  type DeviceFilterSchemaType,
-} from './device.schema';
+// Response schemas
+export * from './login-response.schema.js';
+export * from './register-response.schema.js';
+export * from './refresh-response.schema.js';
+export * from './mfa-response.schema.js';
+export * from './session-response.schema.js';
+export * from './logout-response.schema.js';

@@ -1,0 +1,29 @@
+# ═══════════════════════════════════════════════════════════════
+#  Nixpacks Configuration — Vendor Service
+# ═══════════════════════════════════════════════════════════════
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm-9_x", "openssl"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "pnpm --filter @vubon/shared-constants build",
+  "pnpm --filter @vubon/shared-types build",
+  "pnpm --filter @vubon/shared-utils build",
+  "pnpm --filter @vubon/shared-schemas build",
+  "pnpm --filter @vubon/shared-config build",
+  "pnpm --filter @vubon/shared-kernel build",
+  "pnpm --filter @vubon/shared-api build",
+  "pnpm --filter @vubon/vendor-service build",
+]
+
+[start]
+cmd = "node apps/vendor-service/dist/main.js"
+
+[variables]
+NODE_ENV = "production"
+DB_MODE = "prisma"
+PORT = "3004"

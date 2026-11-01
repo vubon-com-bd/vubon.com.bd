@@ -1,5 +1,4 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
@@ -7,19 +6,47 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": false,
-    "module": "CommonJS",
+    "module": "ESNext",
     "target": "ES2020",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
+    "lib": [
+      "ES2020"
+    ],
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
     "paths": {
-      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
-      "@vubon/shared-types": ["../shared-types/src/index.ts"],
-      "@vubon/shared-config": ["./src/index.ts"]
+      "@vubon/shared-constants": [
+        "../shared-constants/dist/index.d.ts"
+      ],
+      "@vubon/shared-constants/*": [
+        "../shared-constants/dist/*"
+      ],
+      "@vubon/shared-types": [
+        "../shared-types/dist/index.d.ts"
+      ],
+      "@vubon/shared-types/*": [
+        "../shared-types/dist/*"
+      ],
+      "@vubon/shared-schemas": [
+        "../shared-schemas/dist/index.d.ts"
+      ],
+      "@vubon/shared-schemas/*": [
+        "../shared-schemas/dist/*"
+      ]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ]
 }

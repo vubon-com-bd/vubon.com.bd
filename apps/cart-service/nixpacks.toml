@@ -1,0 +1,30 @@
+# ═══════════════════════════════════════════════════════════════
+# Nixpacks configuration — Cart Service
+# ═══════════════════════════════════════════════════════════════
+# Used by Railway, Coolify, and other Nixpacks-based platforms.
+# ═══════════════════════════════════════════════════════════════
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = [
+  "pnpm install --frozen-lockfile",
+]
+
+[phases.build]
+cmds = [
+  "pnpm --filter @vubon/shared-kernel build",
+  "pnpm --filter @vubon/shared-types build",
+  "pnpm --filter @vubon/shared-constants build",
+  "pnpm --filter @vubon/shared-utils build",
+  "pnpm --filter @vubon/shared-config build",
+  "pnpm --filter @vubon/cart-service build",
+]
+
+[start]
+cmd = "node apps/cart-service/dist/main.js"
+
+[variables]
+NODE_ENV = "production"
+DB_MODE = "prisma"

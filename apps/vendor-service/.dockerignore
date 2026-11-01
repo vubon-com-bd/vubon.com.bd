@@ -1,0 +1,43 @@
+# ─── Deps ───
+node_modules/
+.pnpm-store/
+
+# ─── Build ───
+dist/
+build/
+*.tsbuildinfo
+coverage/
+
+# ─── Git ───
+.git/
+.gitignore
+.github/
+
+# ─── Env ───
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# ─── Logs ───
+*.log
+logs/
+dump.rdb
+
+# ─── IDE ───
+.vscode/
+.idea/
+
+# ─── Test ───
+test-results.json
+e2e-results.json
+
+# ─── Docs ───
+docs/
+README.md
+ARCHITECTURE.md
+API.md
+TESTING.md
+DEVELOPMENT.md
+DEPLOYMENT.md
+CHANGELOG.md

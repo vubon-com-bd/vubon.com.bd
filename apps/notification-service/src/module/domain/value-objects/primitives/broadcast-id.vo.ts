@@ -1,0 +1,28 @@
+/**
+ * BroadcastId Value Object
+ * @module notification-service/domain/value-objects/primitives
+ */
+import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives';
+import { REGEX } from '@vubon/shared-constants/common';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+
+export class BroadcastIdVO extends BaseIdVO<string> {
+  private constructor(value: string) {
+    super(value);
+  }
+
+  static create(raw: string): BroadcastIdVO {
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      throw new ValidationError('BroadcastId cannot be empty', 'broadcastId');
+    }
+    const trimmed = raw.trim();
+    if (!REGEX.UUID.test(trimmed)) {
+      throw new ValidationError('BroadcastId must be a valid UUID', 'broadcastId');
+    }
+    return new BroadcastIdVO(trimmed);
+  }
+
+  static reconstitute(raw: string): BroadcastIdVO {
+    return new BroadcastIdVO(raw);
+  }
+}

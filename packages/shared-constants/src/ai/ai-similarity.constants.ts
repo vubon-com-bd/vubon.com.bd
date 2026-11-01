@@ -1,0 +1,28 @@
+export const AI_SIMILARITY_METRIC = {
+  COSINE: 'cosine',
+  EUCLIDEAN: 'euclidean',
+  DOT_PRODUCT: 'dot_product',
+  JACCARD: 'jaccard',
+  MANHATTAN: 'manhattan',
+  HAMMING: 'hamming',
+} as const;
+
+export const AI_SIMILARITY_THRESHOLD = {
+  VERY_HIGH: 0.95,
+  HIGH: 0.85,
+  MEDIUM: 0.7,
+  LOW: 0.5,
+  VERY_LOW: 0.3,
+} as const;
+
+export const AI_SIMILARITY = {
+  METRIC: AI_SIMILARITY_METRIC,
+  THRESHOLD: AI_SIMILARITY_THRESHOLD,
+  DEFAULT_METRIC: AI_SIMILARITY_METRIC.COSINE,
+  DEFAULT_THRESHOLD: AI_SIMILARITY_THRESHOLD.MEDIUM,
+  MAX_TOP_K: 1000,
+  DEFAULT_TOP_K: 10,
+  MAX_CANDIDATES: 100000,
+} as const;
+
+export type AiSimilarityType = typeof AI_SIMILARITY;

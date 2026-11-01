@@ -1,0 +1,1984 @@
+{
+  "info": {
+    "_postman_id": "logistics-service-v1-2026",
+    "name": "Product Service",
+    "description": "Vubon.com.bd \u2014 Product Service REST API (59 endpoints)\n\nBase URL: http://localhost:3002\nSwagger: http://localhost:3002/api/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3002",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "variantId",
+      "value": "00000000-0000-0000-0000-000000000002",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "00000000-0000-0000-0000-000000000003",
+      "type": "string"
+    },
+    {
+      "key": "brandId",
+      "value": "00000000-0000-0000-0000-000000000004",
+      "type": "string"
+    },
+    {
+      "key": "collectionId",
+      "value": "00000000-0000-0000-0000-000000000005",
+      "type": "string"
+    },
+    {
+      "key": "reviewId",
+      "value": "00000000-0000-0000-0000-000000000006",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-timestamp for requests",
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "\ud83c\udfe5 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has service field', () => pm.expect(pm.response.json()).to.have.property('service'));",
+                  "pm.test('Service is logistics-service', () => pm.expect(pm.response.json().service).to.eql('logistics-service'));",
+                  "pm.test('Status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Service health check. Public endpoint."
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udecd\ufe0f Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 or 400 or 409', () => pm.expect([201, 400, 409]).to.include(pm.response.code));",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.test('Has productId', () => pm.expect(json).to.have.property('productId'));",
+                  "  pm.test('Success is true', () => pm.expect(json.success).to.be.true);",
+                  "  pm.collectionVariables.set('productId', json.productId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "create-{{uniqueSuffix}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium T-Shirt {{uniqueSuffix}}\",\n  \"slug\": \"premium-tshirt-{{uniqueSuffix}}\",\n  \"sku\": \"TSHIRT-{{uniqueSuffix}}\",\n  \"type\": \"physical\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"price\": 1250.00,\n  \"currency\": \"BDT\",\n  \"description\": \"Soft cotton t-shirt\",\n  \"tags\": [\"summer\", \"cotton\"],\n  \"images\": [\"https://example.com/img.jpg\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            },
+            "description": "Create a new product. Requires auth."
+          }
+        },
+        {
+          "name": "List Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 or 401', () => pm.expect([200, 401]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List products paginated. Requires auth."
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/search?q=shirt&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "shirt"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Search products. Requires auth."
+          }
+        },
+        {
+          "name": "Featured Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/featured?limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "featured"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Product Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/by-slug/premium-tshirt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "by-slug",
+                "premium-tshirt"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/detail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "detail"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Public Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "public"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Related Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/related?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "related"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated T-Shirt {{uniqueSuffix}}\",\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Publish Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requireImages\": false,\n  \"requireStock\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "publish"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Archive Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "archive"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Duplicate Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newName\": \"Copy of T-Shirt\",\n  \"copyImages\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/duplicate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "duplicate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udf10 Public Products",
+      "item": [
+        {
+          "name": "Featured Public",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/products/featured",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "products",
+                "featured"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Public",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/products/search?q=shirt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "shirt"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Public By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udfa8 Product Variants",
+      "item": [
+        {
+          "name": "Add Variant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"name\": \"Variant - Medium\",\n  \"sku\": \"VAR-M-{{uniqueSuffix}}\",\n  \"type\": \"size\",\n  \"options\": [{\"name\": \"size\", \"value\": \"M\"}],\n  \"price\": 1250.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product-variants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-variants"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Variants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-variants?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-variants"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Variant Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-variants/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-variants",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Variant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-variants/{{variantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-variants",
+                "{{variantId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Variant",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1300.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product-variants/{{variantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-variants",
+                "{{variantId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udce6 Product Attributes",
+      "item": [
+        {
+          "name": "Add Attribute",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Color\",\n  \"type\": \"text\",\n  \"values\": [{\"value\": \"Red\", \"label\": \"Red\"}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/attributes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "attributes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Attributes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/attributes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "attributes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Attribute",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Color\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/attributes/{{attributeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "attributes",
+                "{{attributeId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Attribute",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/attributes/{{attributeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "attributes",
+                "{{attributeId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcca Product Inventory",
+      "item": [
+        {
+          "name": "Check Stock",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-inventory/check-stock?productId={{productId}}&quantity=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-inventory",
+                "check-stock"
+              ],
+              "query": [
+                {
+                  "key": "productId",
+                  "value": "{{productId}}"
+                },
+                {
+                  "key": "quantity",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Inventory Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-inventory/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-inventory",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Inventory By Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-inventory/by-product/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-inventory",
+                "by-product",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Inventory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-inventory/{{inventoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-inventory",
+                "{{inventoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Adjust Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-inventory/{{inventoryId}}/adjust",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-inventory",
+                "{{inventoryId}}",
+                "adjust"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delta\": 10,\n  \"reason\": \"restock\",\n  \"reference\": \"PO-123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-inventory/{{inventoryId}}/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-inventory",
+                "{{inventoryId}}",
+                "update"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delta\": 5,\n  \"reason\": \"adjustment\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcb0 Product Pricing",
+      "item": [
+        {
+          "name": "Pricing Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pricing By Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing/by-product/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing",
+                "by-product",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Public Pricing",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing/by-product/{{productId}}/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing",
+                "by-product",
+                "{{productId}}",
+                "public"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Calculate Price",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing/calculate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing",
+                "calculate"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 2,\n  \"currency\": \"BDT\",\n  \"applyAit\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Price",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing/by-product/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing",
+                "by-product",
+                "{{productId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sellingPrice\": 1300.00,\n  \"compareAtPrice\": 1500.00\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Pricing",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing/{{priceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing",
+                "{{priceId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udff7\ufe0f Pricing Rules",
+      "item": [
+        {
+          "name": "Create Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing-rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing-rules"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bulk Discount\",\n  \"type\": \"fixed\",\n  \"conditions\": {\"minQuantity\": 10},\n  \"priceAdjustment\": 5,\n  \"isPercent\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "List Rules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing-rules?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing-rules"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Active Rules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing-rules/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing-rules",
+                "active"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Rule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing-rules/{{ruleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing-rules",
+                "{{ruleId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Rule",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing-rules/{{ruleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing-rules",
+                "{{ruleId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Rule\",\n  \"isActive\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Rule",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-pricing-rules/{{ruleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-pricing-rules",
+                "{{ruleId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcda Product Collections",
+      "item": [
+        {
+          "name": "Create Collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Summer Collection\",\n  \"slug\": \"summer-{{uniqueSuffix}}\",\n  \"type\": \"manual\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Collections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Collection Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/by-slug/summer-collection",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "by-slug",
+                "summer-collection"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Collection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/{{collectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "{{collectionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Collection",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/{{collectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "{{collectionId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Collection\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Collection",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/{{collectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "{{collectionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/{{collectionId}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "{{collectionId}}",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-collections/{{collectionId}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-collections",
+                "{{collectionId}}",
+                "products",
+                "{{productId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\u2b50 Product Reviews",
+      "item": [
+        {
+          "name": "Submit Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"rating\": 5,\n  \"title\": \"Great product\",\n  \"comment\": \"This is a test review comment.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Review Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/stats/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "stats",
+                "{{productId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Review",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "{{reviewId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Updated comment.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "{{reviewId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/{{reviewId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "{{reviewId}}",
+                "approve"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/{{reviewId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "{{reviewId}}",
+                "reject"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Inappropriate content\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Helpful",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-reviews/{{reviewId}}/helpful",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-reviews",
+                "{{reviewId}}",
+                "helpful"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcf7 Product Media",
+      "item": [
+        {
+          "name": "List Media",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "media"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Media",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "media"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [{\n    \"url\": \"https://example.com/image.jpg\",\n    \"type\": \"image\",\n    \"order\": 0,\n    \"isPrimary\": true\n  }]\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Media",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/media/https%3A%2F%2Fexample.com%2Fimage.jpg",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}",
+                "media",
+                "https%3A%2F%2Fexample.com%2Fimage.jpg"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udfe2 Brands",
+      "item": [
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Brand\",\n  \"slug\": \"test-brand-{{uniqueSuffix}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Brand Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands/by-slug/test-brand",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands",
+                "by-slug",
+                "test-brand"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Brand",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands",
+                "{{brandId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Brand",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands",
+                "{{brandId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Brand\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Brand",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands",
+                "{{brandId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcc2 Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Category\",\n  \"slug\": \"test-category-{{uniqueSuffix}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Category Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "tree"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Root Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/roots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "roots"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Category Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/by-slug/test-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "by-slug",
+                "test-category"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Category\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Move Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}/move",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}",
+                "move"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newParentId\": null\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

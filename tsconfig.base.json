@@ -16,5 +16,24 @@
     "paths": {
       "@vubon/*": ["packages/*/src"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/coverage",
+    "**/.cache",
+    "**/.turbo",
+    "**/storage",
+    "**/uploads",
+    "**/*.0002",
+    "**/.l2s*",
+    "**/.l2s/**",
+    "/usr/**",
+    "/tmp/**",
+    "/proc/**",
+    "/sys/**",
+    "/dev/**"
+  ]
 }

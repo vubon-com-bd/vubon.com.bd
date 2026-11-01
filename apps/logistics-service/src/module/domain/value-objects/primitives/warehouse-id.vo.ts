@@ -1,0 +1,28 @@
+/**
+ * WarehouseId Value Object
+ * @module logistics-service/domain/value-objects/primitives
+ */
+import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives';
+import { REGEX } from '@vubon/shared-constants/common';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+
+export class WarehouseIdVO extends BaseIdVO<string> {
+  private constructor(value: string) {
+    super(value);
+  }
+
+  static create(raw: string): WarehouseIdVO {
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      throw new ValidationError('WarehouseId cannot be empty', 'warehouseId');
+    }
+    const trimmed = raw.trim();
+    if (!REGEX.UUID.test(trimmed)) {
+      throw new ValidationError('WarehouseId must be a valid UUID', 'warehouseId');
+    }
+    return new WarehouseIdVO(trimmed);
+  }
+
+  static reconstitute(raw: string): WarehouseIdVO {
+    return new WarehouseIdVO(raw);
+  }
+}

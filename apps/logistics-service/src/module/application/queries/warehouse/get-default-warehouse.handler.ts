@@ -1,0 +1,11 @@
+import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { GetDefaultWarehouseQuery } from './get-default-warehouse.query.js';
+import { WAREHOUSE_SERVICE, type IWarehouseService } from '@application/services/interfaces/warehouse.service.interface';
+import type { WarehouseResponseDTO } from '@application/dtos/responses/warehouse/index.js';
+
+@QueryHandler(GetDefaultWarehouseQuery)
+export class GetDefaultWarehouseHandler implements IQueryHandler<GetDefaultWarehouseQuery, WarehouseResponseDTO | null> {
+  constructor(@Inject(WAREHOUSE_SERVICE) private readonly service: IWarehouseService) {}
+  async execute(): Promise<WarehouseResponseDTO | null> { return this.service.getDefault(); }
+}

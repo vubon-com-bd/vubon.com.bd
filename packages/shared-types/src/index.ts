@@ -1,13 +1,33 @@
-/**
- * Shared types module entry point
- * Exports all types from all sub-modules
- */
+// packages/shared-types/src/index.ts
+// Root barrel — FINAL
 
-// Export all auth types
-export * from './auth';
+// ─────────────────────────────────────────────
+// Level 1 — Foundation
+// ─────────────────────────────────────────────
+export * from './common/index.js';
 
-// Export all common types
-export * from './common';
+// ─────────────────────────────────────────────
+// Level 2 — Infrastructure + Security
+// ─────────────────────────────────────────────
+export * from './infrastructure/index.js';
+export * from './security/index.js';
 
-// Re-export specific types/constants from shared-constants if needed
-export { DefaultRole } from '@vubon/shared-constants';
+// ─────────────────────────────────────────────
+// Level 3 — Domain
+// ─────────────────────────────────────────────
+export * from './auth/index.js';
+export * from './user/index.js';
+export * from './business/index.js';
+
+// ─────────────────────────────────────────────
+// Level 4 — Platform
+// ─────────────────────────────────────────────
+export * from './platform/index.js';
+
+// ─────────────────────────────────────────────
+// Cross-cutting Domains
+// ─────────────────────────────────────────────
+export * from './ai/index.js';
+export * from './marketing/index.js';
+export * from './support/index.js';
+export * from './logistics/index.js';

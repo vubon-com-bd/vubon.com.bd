@@ -1,0 +1,6 @@
+import { BaseQuery } from '@vubon/shared-kernel/application/queries';
+
+export class GetDigestQuery extends BaseQuery {
+  readonly type = 'notification.digest.get';
+  constructor(public readonly digestId: string) { super(); }
+}

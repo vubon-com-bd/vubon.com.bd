@@ -1,0 +1,22 @@
+# ═══════════════════════════════════════════════════════════════
+# Nixpacks Configuration — Railway deployment
+# ═══════════════════════════════════════════════════════════════
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "pnpm --filter @vubon/shared-kernel build",
+  "pnpm --filter @vubon/identity-service build",
+]
+
+[start]
+cmd = "node apps/identity-service/dist/main.js"
+
+[variables]
+NODE_ENV = "production"
+DB_MODE = "prisma"

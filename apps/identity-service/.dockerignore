@@ -1,0 +1,66 @@
+# ═══════════════════════════════════════════════════════════════
+# Identity Service — Docker Ignore
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Dependencies (re-installed in container) ───
+node_modules/
+.pnpm-store/
+**/node_modules/
+
+# ─── Build output (rebuilt in container) ───
+dist/
+build/
+**/dist/
+*.tsbuildinfo
+
+# ─── Test / Coverage ───
+coverage/
+test/
+*.spec.ts
+*.e2e-spec.ts
+test-results.json
+e2e-results.json
+
+# ─── Environment (secrets) ───
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ─── Development ───
+.vscode/
+.idea/
+*.swp
+*.swo
+.cache/
+tmp/
+temp/
+
+# ─── Docs (not needed in runtime) ───
+*.md
+!README.md
+docs/
+
+# ─── Git ───
+.git/
+.gitignore
+.gitattributes
+
+# ─── Logs ───
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+
+# ─── Redis dumps ───
+dump.rdb
+
+# ─── Scripts (not needed in prod) ───
+scripts/
+
+# ─── Generated ───
+*.tsbuildinfo

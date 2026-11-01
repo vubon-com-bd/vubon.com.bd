@@ -1,0 +1,10 @@
+export { FacebookIcon } from './FacebookIcon';
+export { GoogleIcon } from './GoogleIcon';
+export { TwitterIcon } from './TwitterIcon';
+export { InstagramIcon } from './InstagramIcon';
+export { LinkedInIcon } from './LinkedInIcon';
+export { GitHubIcon } from './GitHubIcon';
+export { YouTubeIcon } from './YouTubeIcon';
+export { WhatsAppIcon } from './WhatsAppIcon';
+export { TelegramIcon } from './TelegramIcon';
+export { PinterestIcon } from './PinterestIcon';

@@ -1,0 +1,14 @@
+dist/
+node_modules/
+*.log
+*.lock
+*.json
+*.md
+*.yml
+*.yaml
+*.toml
+.vscode/
+.idea/
+coverage/
+.nyc_output/
+.env*

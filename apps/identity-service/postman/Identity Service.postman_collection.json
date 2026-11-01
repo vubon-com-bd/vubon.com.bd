@@ -1,0 +1,2113 @@
+{
+  "info": {
+    "_postman_id": "identity-service-v1-2026",
+    "name": "Identity Service",
+    "description": "Vubon.com.bd \u2014 Identity Service REST API (auth + user)\n\nBase URL: http://localhost:3000\nSwagger: http://localhost:3000/api/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "00000000-0000-0000-0000-000000000002",
+      "type": "string"
+    },
+    {
+      "key": "deviceId",
+      "value": "00000000-0000-0000-0000-000000000003",
+      "type": "string"
+    },
+    {
+      "key": "addressId",
+      "value": "00000000-0000-0000-0000-000000000004",
+      "type": "string"
+    },
+    {
+      "key": "contactId",
+      "value": "00000000-0000-0000-0000-000000000005",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "uniqueEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "uniqueSuffix",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "timestamp",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));",
+          "pm.variables.set('uniqueEmail', 'test-' + Date.now() + '@example.com');"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "\ud83c\udfe5 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has service field', () => pm.expect(pm.response.json()).to.have.property('service'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd10 Auth Core",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 or 400 or 409', () => pm.expect([201, 400, 409, 500]).to.include(pm.response.code));",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.test('Has userId', () => pm.expect(json).to.have.property('user'));",
+                  "  if (json.user && json.user.id) pm.collectionVariables.set('userId', json.user.id);",
+                  "  if (json.tokens && json.tokens.accessToken) pm.collectionVariables.set('accessToken', json.tokens.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{uniqueEmail}}\",\n  \"password\": \"Test@1234\",\n  \"confirmPassword\": \"Test@1234\",\n  \"name\": \"Test User\",\n  \"acceptTerms\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 401 or 400', () => pm.expect([200, 201, 400, 401, 500]).to.include(pm.response.code));",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.tokens && json.tokens.accessToken) pm.collectionVariables.set('accessToken', json.tokens.accessToken);",
+                  "  if (json.tokens && json.tokens.refreshToken) pm.collectionVariables.set('refreshToken', json.tokens.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"test@example.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login with email/password"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token-here\",\n  \"newPassword\": \"NewTest@1234\",\n  \"confirmPassword\": \"NewTest@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"verify-token-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd12 Auth MFA",
+      "item": [
+        {
+          "name": "Setup MFA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/setup",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "setup"
+              ]
+            },
+            "description": "Setup TOTP MFA"
+          }
+        },
+        {
+          "name": "Enable MFA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/enable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "enable"
+              ]
+            },
+            "description": "Verify + enable MFA"
+          }
+        },
+        {
+          "name": "Disable MFA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/disable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "disable"
+              ]
+            },
+            "description": "Disable MFA"
+          }
+        },
+        {
+          "name": "Verify MFA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "verify"
+              ]
+            },
+            "description": "Verify MFA code"
+          }
+        },
+        {
+          "name": "Verify Backup Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"ABCD-1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/verify-backup-code",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "verify-backup-code"
+              ]
+            },
+            "description": "Verify MFA backup code"
+          }
+        },
+        {
+          "name": "Get MFA Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "settings"
+              ]
+            },
+            "description": "Get MFA settings"
+          }
+        },
+        {
+          "name": "Get Recovery Codes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/mfa/recovery-codes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "mfa",
+                "recovery-codes"
+              ]
+            },
+            "description": "Get MFA recovery codes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udc64 Auth Roles & Permissions",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "roles"
+              ]
+            },
+            "description": "List all roles"
+          }
+        },
+        {
+          "name": "Assign Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/roles/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "roles",
+                "assign"
+              ]
+            },
+            "description": "Assign role to user"
+          }
+        },
+        {
+          "name": "Revoke Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/roles/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "roles",
+                "revoke"
+              ]
+            },
+            "description": "Revoke role"
+          }
+        },
+        {
+          "name": "List Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "permissions"
+              ]
+            },
+            "description": "List all permissions"
+          }
+        },
+        {
+          "name": "Assign Permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"permission\": \"read:products\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/permissions/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "permissions",
+                "assign"
+              ]
+            },
+            "description": "Assign permission"
+          }
+        },
+        {
+          "name": "Revoke Permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"permission\": \"read:products\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/permissions/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "permissions",
+                "revoke"
+              ]
+            },
+            "description": "Revoke permission"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd11 Auth Sessions",
+      "item": [
+        {
+          "name": "List Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sessions"
+              ]
+            },
+            "description": "List active sessions"
+          }
+        },
+        {
+          "name": "Get Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "description": "Get session by ID"
+          }
+        },
+        {
+          "name": "Delete Session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "description": "Delete session (revoke)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcf1 Auth Devices",
+      "item": [
+        {
+          "name": "List Devices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "devices"
+              ]
+            },
+            "description": "List user's trusted devices"
+          }
+        },
+        {
+          "name": "Get Device",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/devices/{{deviceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "devices",
+                "{{deviceId}}"
+              ]
+            },
+            "description": "Get device by ID"
+          }
+        },
+        {
+          "name": "Delete Device",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/devices/{{deviceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "devices",
+                "{{deviceId}}"
+              ]
+            },
+            "description": "Remove a device"
+          }
+        },
+        {
+          "name": "Trust Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/devices/{{deviceId}}/trust",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "devices",
+                "{{deviceId}}",
+                "trust"
+              ]
+            },
+            "description": "Mark device as trusted"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd10 Auth Biometric",
+      "item": [
+        {
+          "name": "Enable Biometric",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"publicKey\": \"base64-public-key\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/biometric/enable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "biometric",
+                "enable"
+              ]
+            },
+            "description": "Enable biometric auth"
+          }
+        },
+        {
+          "name": "Disable Biometric",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/biometric/disable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "biometric",
+                "disable"
+              ]
+            },
+            "description": "Disable biometric auth"
+          }
+        },
+        {
+          "name": "Verify Biometric",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"signature\": \"base64-signature\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/biometric/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "biometric",
+                "verify"
+              ]
+            },
+            "description": "Verify biometric signature"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd12 Auth Account Lock",
+      "item": [
+        {
+          "name": "Lock Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"reason\": \"suspicious-activity\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/account-lock/lock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "account-lock",
+                "lock"
+              ]
+            },
+            "description": "Lock user account"
+          }
+        },
+        {
+          "name": "Unlock Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/account-lock/unlock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "account-lock",
+                "unlock"
+              ]
+            },
+            "description": "Unlock user account"
+          }
+        },
+        {
+          "name": "Lock Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/account-lock/status/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "account-lock",
+                "status",
+                "{{userId}}"
+              ]
+            },
+            "description": "Get account lock status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd75\ufe0f Auth Login Attempts",
+      "item": [
+        {
+          "name": "List Login Attempts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login-attempts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login-attempts"
+              ]
+            },
+            "description": "List recent login attempts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd11 Auth Recovery Codes",
+      "item": [
+        {
+          "name": "Generate Recovery Codes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/recovery-codes/generate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "recovery-codes",
+                "generate"
+              ]
+            },
+            "description": "Generate new recovery codes"
+          }
+        },
+        {
+          "name": "List Recovery Codes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/recovery-codes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "recovery-codes"
+              ]
+            },
+            "description": "List recovery codes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd17 Auth Social & SSO",
+      "item": [
+        {
+          "name": "Social Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"google\",\n  \"token\": \"oauth-token-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/social/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "social",
+                "login"
+              ]
+            },
+            "description": "Login via social provider"
+          }
+        },
+        {
+          "name": "Link Social",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"google\",\n  \"token\": \"oauth-token-here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/social/link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "social",
+                "link"
+              ]
+            },
+            "description": "Link social account to user"
+          }
+        },
+        {
+          "name": "Unlink Social",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"google\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/social/unlink",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "social",
+                "unlink"
+              ]
+            },
+            "description": "Unlink social account"
+          }
+        },
+        {
+          "name": "SSO Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"okta\",\n  \"relayState\": \"/dashboard\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/sso/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sso",
+                "login"
+              ]
+            },
+            "description": "Initiate SSO login"
+          }
+        },
+        {
+          "name": "SSO Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"sso-code-here\",\n  \"state\": \"state-token\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/sso/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "sso",
+                "callback"
+              ]
+            },
+            "description": "SSO callback handler"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\u2699\ufe0f Auth Settings & Tokens",
+      "item": [
+        {
+          "name": "Get Auth Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "settings"
+              ]
+            },
+            "description": "Get user auth settings"
+          }
+        },
+        {
+          "name": "Update Auth Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"twoFactorRequired\": true,\n  \"sessionTimeoutMinutes\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "settings"
+              ]
+            },
+            "description": "Update auth settings"
+          }
+        },
+        {
+          "name": "List Tokens",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/tokens",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "tokens"
+              ]
+            },
+            "description": "List user's active tokens"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udc65 Users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{uniqueEmail}}\",\n  \"name\": \"New User\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Create a new user (admin)"
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "List all users (paginated)"
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Get user by ID"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Update user"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Delete user"
+          }
+        },
+        {
+          "name": "Activate User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/activate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "activate"
+              ]
+            },
+            "description": "Activate user account"
+          }
+        },
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/deactivate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "deactivate"
+              ]
+            },
+            "description": "Deactivate user account"
+          }
+        },
+        {
+          "name": "Suspend User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"policy-violation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/suspend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "suspend"
+              ]
+            },
+            "description": "Suspend user"
+          }
+        },
+        {
+          "name": "Unsuspend User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/unsuspend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "unsuspend"
+              ]
+            },
+            "description": "Unsuspend user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udccb User Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "profile"
+              ]
+            },
+            "description": "Get own profile"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"bio\": \"Updated bio\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "profile"
+              ]
+            },
+            "description": "Update own profile"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udccd User Addresses",
+      "item": [
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "addresses"
+              ]
+            },
+            "description": "List all addresses"
+          }
+        },
+        {
+          "name": "Get Address",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "addresses",
+                "{{addressId}}"
+              ]
+            },
+            "description": "Get address by ID"
+          }
+        },
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"home\",\n  \"fullName\": \"Test User\",\n  \"phone\": \"+8801712345678\",\n  \"addressLine1\": \"House 12, Road 5, Dhanmondi\",\n  \"city\": \"Dhaka\",\n  \"state\": \"Dhaka\",\n  \"division\": \"dhaka\",\n  \"district\": \"dhaka\",\n  \"postalCode\": \"1205\",\n  \"country\": \"BD\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "addresses"
+              ]
+            },
+            "description": "Add new address"
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressLine1\": \"Updated Address\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "addresses",
+                "{{addressId}}"
+              ]
+            },
+            "description": "Update address"
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "addresses",
+                "{{addressId}}"
+              ]
+            },
+            "description": "Delete address"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcde User Contacts",
+      "item": [
+        {
+          "name": "List Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "contacts"
+              ]
+            },
+            "description": "List all contacts"
+          }
+        },
+        {
+          "name": "Add Contact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"email\",\n  \"value\": \"secondary@example.com\",\n  \"isPrimary\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "contacts"
+              ]
+            },
+            "description": "Add contact"
+          }
+        },
+        {
+          "name": "Update Contact",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/contacts/{{contactId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "contacts",
+                "{{contactId}}"
+              ]
+            },
+            "description": "Update contact"
+          }
+        },
+        {
+          "name": "Delete Contact",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/contacts/{{contactId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "contacts",
+                "{{contactId}}"
+              ]
+            },
+            "description": "Delete contact"
+          }
+        },
+        {
+          "name": "Verify Contact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/contacts/{{contactId}}/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "contacts",
+                "{{contactId}}",
+                "verify"
+              ]
+            },
+            "description": "Verify contact"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83e\udeaa User KYC",
+      "item": [
+        {
+          "name": "Submit KYC",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"national-id\",\n  \"documentNumber\": \"1234567890\",\n  \"frontImageUrl\": \"https://example.com/front.jpg\",\n  \"backImageUrl\": \"https://example.com/back.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/kyc/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "kyc",
+                "submit"
+              ]
+            },
+            "description": "Submit KYC documents"
+          }
+        },
+        {
+          "name": "Verify KYC",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/kyc/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "kyc",
+                "verify"
+              ]
+            },
+            "description": "Approve KYC (admin)"
+          }
+        },
+        {
+          "name": "Reject KYC",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"reason\": \"blurry-document\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/kyc/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "kyc",
+                "reject"
+              ]
+            },
+            "description": "Reject KYC (admin)"
+          }
+        },
+        {
+          "name": "KYC Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/kyc/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "kyc",
+                "status"
+              ]
+            },
+            "description": "Get own KYC status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\u2699\ufe0f User Preferences",
+      "item": [
+        {
+          "name": "Get Preferences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "preferences"
+              ]
+            },
+            "description": "Get user preferences"
+          }
+        },
+        {
+          "name": "Update Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"en\",\n  \"currency\": \"BDT\",\n  \"timezone\": \"Asia/Dhaka\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "preferences"
+              ]
+            },
+            "description": "Update preferences"
+          }
+        },
+        {
+          "name": "Reset Preferences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/preferences/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "preferences",
+                "reset"
+              ]
+            },
+            "description": "Reset to defaults"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udf9b\ufe0f User Settings",
+      "item": [
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "settings"
+              ]
+            },
+            "description": "Get user settings"
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"theme\": \"dark\",\n  \"notifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "settings"
+              ]
+            },
+            "description": "Update settings"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcca User Activity",
+      "item": [
+        {
+          "name": "List Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "activity"
+              ]
+            },
+            "description": "List user activity log"
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83c\udf10 Public Profile",
+      "item": [
+        {
+          "name": "Get Public Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/profiles/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "profiles",
+                "{{userId}}"
+              ]
+            },
+            "description": "Get public profile by user ID"
+          }
+        }
+      ]
+    }
+  ]
+}

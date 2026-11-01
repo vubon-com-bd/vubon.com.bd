@@ -1,0 +1,1453 @@
+{
+  "info": {
+    "_postman_id": "cart-service-v1-2026",
+    "name": "Cart Service",
+    "description": "Vubon.com.bd — Cart Service REST API\n\nBase URL: http://localhost:3003\nSwagger: http://localhost:3003/api/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3003",
+      "type": "string"
+    },
+    {
+      "key": "cartId",
+      "value": "00000000-0000-0000-0000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "00000000-0000-0000-0000-000000000002",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "00000000-0000-0000-0000-000000000003",
+      "type": "string"
+    },
+    {
+      "key": "variantId",
+      "value": "00000000-0000-0000-0000-000000000004",
+      "type": "string"
+    },
+    {
+      "key": "couponCode",
+      "value": "SAVE10",
+      "type": "string"
+    },
+    {
+      "key": "voucherCode",
+      "value": "GIFT2026ABC",
+      "type": "string"
+    },
+    {
+      "key": "savedItemId",
+      "value": "00000000-0000-0000-0000-000000000005",
+      "type": "string"
+    },
+    {
+      "key": "abandonedCartId",
+      "value": "00000000-0000-0000-0000-000000000006",
+      "type": "string"
+    },
+    {
+      "key": "guestCartId",
+      "value": "00000000-0000-0000-0000-000000000007",
+      "type": "string"
+    },
+    {
+      "key": "guestToken",
+      "value": "guest_token_32_chars_min_padding",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "00000000-0000-0000-0000-000000000008",
+      "type": "string"
+    },
+    {
+      "key": "addressId",
+      "value": "00000000-0000-0000-0000-000000000009",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Service health check (public)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Carts",
+      "item": [
+        {
+          "name": "Create Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "idem-{{uniqueSuffix}}-mv9zu7sk"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"user\",\n  \"currency\": \"BDT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.cartId) pm.collectionVariables.set('cartId', json.cartId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get My Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "me"
+              ]
+            },
+            "description": "Get current user's active cart."
+          }
+        },
+        {
+          "name": "List Carts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List carts (paginated)."
+          }
+        },
+        {
+          "name": "Cart Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "stats"
+              ]
+            },
+            "description": "Cart statistics (admin)."
+          }
+        },
+        {
+          "name": "Cart Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "count"
+              ]
+            },
+            "description": "Count carts for current user."
+          }
+        },
+        {
+          "name": "Get Cart By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            },
+            "description": "Get cart (owner or admin)."
+          }
+        },
+        {
+          "name": "Get Cart Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "summary"
+              ]
+            },
+            "description": "Lightweight summary."
+          }
+        },
+        {
+          "name": "Get Cart Public",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "public"
+              ]
+            },
+            "description": "Public view (no PII)."
+          }
+        },
+        {
+          "name": "Update Cart",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated by Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 or client error', () => pm.expect([200, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Test clear\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/clear",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "clear"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200/204 or client error', () => pm.expect([200, 204, 400, 401, 403, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recover Abandoned Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "idem-{{uniqueSuffix}}-mv9zu7sm"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"abandonedCartId\": \"{{abandonedCartId}}\",\n  \"sendNotification\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/recover",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "recover"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎨 Cart Items",
+      "item": [
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "idem-{{uniqueSuffix}}-mv9zu7sm"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"variantId\": \"{{variantId}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('itemId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Cart Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Paginated items."
+          }
+        },
+        {
+          "name": "Get Item By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3,\n  \"note\": \"Gift wrap\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 or client error', () => pm.expect([200, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items/{{itemId}}/quantity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items",
+                "{{itemId}}",
+                "quantity"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 or client error', () => pm.expect([200, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Select Items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemIds\": [\n    \"{{itemId}}\"\n  ],\n  \"selected\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items/select",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items",
+                "select"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Move Item to Saved",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Save for later\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items/{{itemId}}/move-to-saved",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items",
+                "{{itemId}}",
+                "move-to-saved"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200/204 or client error', () => pm.expect([200, 204, 400, 401, 403, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎟️ Coupons",
+      "item": [
+        {
+          "name": "Apply Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "idem-{{uniqueSuffix}}-mv9zu7sn"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{couponCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/coupon",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "coupon"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{couponCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/coupon/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "coupon",
+                "validate"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Coupon",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/coupon",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "coupon"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200/204 or client error', () => pm.expect([200, 204, 400, 401, 403, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎫 Vouchers",
+      "item": [
+        {
+          "name": "Apply Voucher",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "idem-{{uniqueSuffix}}-mv9zu7so"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{voucherCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/voucher",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "voucher"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Voucher",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/voucher",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "voucher"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200/204 or client error', () => pm.expect([200, 204, 400, 401, 403, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🚚 Shipping",
+      "item": [
+        {
+          "name": "Set Shipping Method",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"standard\",\n  \"cost\": 60\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/shipping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "shipping"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Calculate Shipping",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"express\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/shipping/calculate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "shipping",
+                "calculate"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Cart Totals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/shipping/totals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "shipping",
+                "totals"
+              ]
+            },
+            "description": "Get totals breakdown."
+          }
+        },
+        {
+          "name": "Clear Shipping",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/shipping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "shipping"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200/204 or client error', () => pm.expect([200, 204, 400, 401, 403, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "⭐ Saved for Later",
+      "item": [
+        {
+          "name": "Save Item for Later",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartId\": \"{{cartId}}\",\n  \"itemId\": \"{{itemId}}\",\n  \"note\": \"Save this\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/saved",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saved"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Saved Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saved?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saved"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List saved items (paginated)."
+          }
+        },
+        {
+          "name": "Move Saved to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartId\": \"{{cartId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/saved/{{savedItemId}}/move-to-cart",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saved",
+                "{{savedItemId}}",
+                "move-to-cart"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Saved Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saved/{{savedItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saved",
+                "{{savedItemId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200/204 or client error', () => pm.expect([200, 204, 400, 401, 403, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📭 Abandoned Carts",
+      "item": [
+        {
+          "name": "List Abandoned Carts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/abandoned-carts?page=1&limit=20&status=pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "abandoned-carts"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            },
+            "description": "List (paginated)."
+          }
+        },
+        {
+          "name": "Abandoned Cart Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/abandoned-carts/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "abandoned-carts",
+                "stats"
+              ]
+            },
+            "description": "Recovery stats."
+          }
+        },
+        {
+          "name": "Get Abandoned Cart By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/abandoned-carts/{{abandonedCartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "abandoned-carts",
+                "{{abandonedCartId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Send Reminder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"email\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/abandoned-carts/{{abandonedCartId}}/remind",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "abandoned-carts",
+                "{{abandonedCartId}}",
+                "remind"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "👤 Guest Carts",
+      "item": [
+        {
+          "name": "Create Guest Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currency\": \"BDT\",\n  \"sessionId\": \"postman-session\",\n  \"ttlHours\": 168\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/guest-carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guest-carts"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 403]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.guestCartId) pm.collectionVariables.set('guestCartId', json.guestCartId);",
+                  "  if (json.token) pm.collectionVariables.set('guestToken', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Merge Guest Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "idem-{{uniqueSuffix}}-mv9zu7sp"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestToken\": \"{{guestToken}}\",\n  \"userId\": \"{{userId}}\",\n  \"strategy\": \"sum_quantity\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/guest-carts/merge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guest-carts",
+                "merge"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Guest Cart By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/guest-carts/{{guestCartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guest-carts",
+                "{{guestCartId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Expire Guest Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/guest-carts/{{guestCartId}}/expire",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guest-carts",
+                "{{guestCartId}}",
+                "expire"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is success or client error', () => pm.expect([200, 201, 400, 401, 403, 404, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

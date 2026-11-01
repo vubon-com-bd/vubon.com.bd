@@ -1,0 +1,6 @@
+import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
+export class GetKycStatusQuery extends BaseQuery {
+  readonly type = 'user.get-kyc-status';
+  readonly queryType = 'user.get-kyc-status';
+  constructor(public readonly userId: string) { super(); }
+}

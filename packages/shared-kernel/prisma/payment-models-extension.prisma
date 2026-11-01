@@ -1,0 +1,201 @@
+
+// ═══════════════════════════════════════════════════════════
+// PAYMENT SERVICE — EXTENDED MODELS (add to schema.prisma)
+// Generated based on domain entities + application contracts
+// ═══════════════════════════════════════════════════════════
+
+// ─── Payment Method ────────────────────────────────────────
+model PaymentMethod {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  method      String    @db.VarChar(50)
+  type        String    @db.VarChar(30)
+  gateway     String?   @db.VarChar(50)
+  label       String    @db.VarChar(150)
+  cardToken   String?   @db.VarChar(255)
+  last4       String?   @db.VarChar(4)
+  brand       String?   @db.VarChar(30)
+  expiryMonth Int?
+  expiryYear  Int?
+  holderName  String?   @db.VarChar(150)
+  walletAddress String? @db.VarChar(128)
+  walletNetwork String? @db.VarChar(30)
+  isActive    Boolean   @default(true)
+  isDefault   Boolean   @default(false)
+  version     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId])
+  @@index([isActive])
+  @@index([isDefault])
+  @@index([deletedAt])
+  @@map("payment_methods")
+}
+
+// ─── Payment Gateway ───────────────────────────────────────
+model PaymentGateway {
+  id                  String    @id @default(uuid()) @db.Uuid
+  provider            String    @unique @db.VarChar(50)
+  env                 String    @default("production") @db.VarChar(20)
+  displayName         String    @db.VarChar(150)
+  isActive            Boolean   @default(true)
+  isMaintenance       Boolean   @default(false)
+  supportedCurrencies Json?
+  minAmount           Decimal   @default(1) @db.Decimal(14, 2)
+  maxAmount           Decimal   @default(10000000) @db.Decimal(14, 2)
+  config              Json?
+  version             Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  @@index([provider])
+  @@index([isActive])
+  @@index([isMaintenance])
+  @@index([deletedAt])
+  @@map("payment_gateways")
+}
+
+// ─── Split Payment ─────────────────────────────────────────
+model SplitPayment {
+  id           String    @id @default(uuid()) @db.Uuid
+  paymentId    String    @db.Uuid
+  type         String    @db.VarChar(30)
+  totalAmount  Decimal   @db.Decimal(14, 2)
+  currency     String    @default("BDT") @db.VarChar(3)
+  receivers    Json
+  executedAt   DateTime?
+  failureReason String?  @db.VarChar(500)
+  version      Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("payment_splits")
+}
+
+// ─── Recurring Payment ─────────────────────────────────────
+model RecurringPayment {
+  id             String    @id @default(uuid()) @db.Uuid
+  paymentId      String    @db.Uuid
+  status         String    @default("scheduled") @db.VarChar(30)
+  interval       String    @db.VarChar(20)
+  intervalCount  Int       @default(1)
+  amount         Decimal   @db.Decimal(14, 2)
+  currency       String    @default("BDT") @db.VarChar(3)
+  startAt        DateTime
+  endAt          DateTime?
+  nextRunAt      DateTime?
+  attemptCount   Int       @default(0)
+  cancelledAt    DateTime?
+  failureReason  String?   @db.VarChar(500)
+  version        Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([status])
+  @@index([nextRunAt])
+  @@index([interval])
+  @@index([deletedAt])
+  @@map("payment_recurring")
+}
+
+// ─── Subscription ──────────────────────────────────────────
+model Subscription {
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @db.Uuid
+  status             String    @default("active") @db.VarChar(30)
+  plan               String    @db.VarChar(30)
+  interval           String    @db.VarChar(20)
+  intervalCount      Int       @default(1)
+  price              Decimal   @db.Decimal(14, 2)
+  currency           String    @default("BDT") @db.VarChar(3)
+  startedAt          DateTime
+  trialEndsAt        DateTime?
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelledAt        DateTime?
+  cancelAtPeriodEnd  Boolean   @default(false)
+  metadata           Json?
+  version            Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([plan])
+  @@index([currentPeriodEnd])
+  @@index([deletedAt])
+  @@map("payment_subscriptions")
+}
+
+// ─── Invoice ───────────────────────────────────────────────
+model Invoice {
+  id             String    @id @default(uuid()) @db.Uuid
+  invoiceNumber  String    @unique @db.VarChar(50)
+  userId         String    @db.Uuid
+  orderId        String?   @db.Uuid
+  status         String    @default("draft") @db.VarChar(30)
+  subtotal       Decimal   @db.Decimal(14, 2)
+  taxAmount      Decimal   @default(0) @db.Decimal(14, 2)
+  total          Decimal   @db.Decimal(14, 2)
+  currency       String    @default("BDT") @db.VarChar(3)
+  issuedAt       DateTime?
+  dueAt          DateTime?
+  paidAt         DateTime?
+  voidedAt       DateTime?
+  refundedAt     DateTime?
+  notes          String?   @db.VarChar(1000)
+  metadata       Json?
+  version        Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([dueAt])
+  @@index([deletedAt])
+  @@map("payment_invoices")
+}
+
+// ─── Verification ──────────────────────────────────────────
+model Verification {
+  id            String    @id @default(uuid()) @db.Uuid
+  paymentId     String    @db.Uuid
+  status        String    @default("pending") @db.VarChar(30)
+  method        String    @db.VarChar(30)
+  attempts      Int       @default(0)
+  codeHash      String?   @db.VarChar(255)
+  expiresAt     DateTime
+  verifiedAt    DateTime?
+  failureReason String?   @db.VarChar(500)
+  metadata      Json?
+  version       Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([deletedAt])
+  @@map("payment_verifications")
+}

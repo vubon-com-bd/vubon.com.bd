@@ -1,0 +1,1475 @@
+{
+  "info": {
+    "_postman_id": "order-service-v1-2026",
+    "name": "Order Service",
+    "description": "Vubon.com.bd — Order Service REST API\n\nBase URL: http://localhost:3003\nSwagger: http://localhost:3003/api/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3003",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "orderItemId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "checkoutId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "deliveryId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "cancelId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "returnId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "fulfillmentId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "trackingId",
+      "value": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Service health check. Public endpoint."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\n  \"items\": [\n    {\n      \"productId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\n      \"quantity\": 1,\n      \"unitPrice\": 100\n    }\n  ],\n  \"shippingAddress\": {\n    \"line1\": \"123 Test St\",\n    \"city\": \"Dhaka\",\n    \"country\": \"BD\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Create order. Auto-saves orderId."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.orderId) {",
+                  "      pm.collectionVariables.set('orderId', json.orderId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Paginated order list."
+          }
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Order By Number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/number/ORD-2026-000001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "number",
+                "ORD-2026-000001"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Order Public View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "public"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/detail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "detail"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Order Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "stats"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"urgent — {{timestamp}}\",\n  \"priority\": \"high\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirm Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"confirmed {{timestamp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "confirm"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hold Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"pending verification\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/hold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "hold"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Release Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"verified\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/release",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "release"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"test cleanup\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Order Items",
+      "item": [
+        {
+          "name": "Add Order Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"productId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\n  \"sku\": \"SKU-{{uniqueSuffix}}\",\n  \"name\": \"Test Item {{uniqueSuffix}}\",\n  \"quantity\": 2,\n  \"unitPrice\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "items"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.orderItemId) {",
+                  "      pm.collectionVariables.set('orderItemId', json.orderItemId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Order Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "items"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Order Item By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/items/{{orderItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "items",
+                "{{orderItemId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Update Order Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/items/{{orderItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "items",
+                "{{orderItemId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Order Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/items/{{orderItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "items",
+                "{{orderItemId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"test\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛍️ Checkouts",
+      "item": [
+        {
+          "name": "Start Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\n  \"email\": \"customer@example.com\",\n  \"phone\": \"+8801712345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkouts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.checkoutId) {",
+                  "      pm.collectionVariables.set('checkoutId', json.checkoutId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Select Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddressId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkouts/{{checkoutId}}/address",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts",
+                "{{checkoutId}}",
+                "address"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Select Shipping",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingMethodId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkouts/{{checkoutId}}/shipping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts",
+                "{{checkoutId}}",
+                "shipping"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Select Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"bkash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkouts/{{checkoutId}}/payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts",
+                "{{checkoutId}}",
+                "payment"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirm Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"bkash\",\n  \"acceptTerms\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkouts/{{checkoutId}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts",
+                "{{checkoutId}}",
+                "confirm"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.orderId) {",
+                  "      pm.collectionVariables.set('orderId', json.orderId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Abandon Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkouts/{{checkoutId}}/abandon",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts",
+                "{{checkoutId}}",
+                "abandon"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Checkout By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/checkouts/{{checkoutId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "checkouts",
+                "{{checkoutId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚚 Deliveries",
+      "item": [
+        {
+          "name": "Schedule Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"deliveryMethodId\": \"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\n  \"type\": \"standard\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliveries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliveries"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.deliveryId) {",
+                  "      pm.collectionVariables.set('deliveryId', json.deliveryId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Deliveries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliveries?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliveries"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Paginated deliveries."
+          }
+        },
+        {
+          "name": "Get Delivery By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/{{deliveryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliveries",
+                "{{deliveryId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reschedule Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"customer unavailable\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/reschedule?orderId={{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliveries",
+                "{{deliveryId}}",
+                "reschedule?orderId={{orderId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirm Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receivedBy\": \"Jane Doe\",\n  \"signature\": \"sig-123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/confirm?orderId={{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliveries",
+                "{{deliveryId}}",
+                "confirm?orderId={{orderId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❌ Cancels",
+      "item": [
+        {
+          "name": "Request Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"reason\": \"customer_request\",\n  \"notes\": \"changed mind\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cancels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancels"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.cancelId) {",
+                  "      pm.collectionVariables.set('cancelId', json.cancelId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approve Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refundAmount\": 100,\n  \"notes\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cancels/{{cancelId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancels",
+                "{{cancelId}}",
+                "approve"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"too late\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cancels/{{cancelId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancels",
+                "{{cancelId}}",
+                "reject"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Cancel By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cancels/{{cancelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cancels",
+                "{{cancelId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "↩️ Returns",
+      "item": [
+        {
+          "name": "Request Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"reason\": \"defective\",\n  \"itemIds\": [\n    \"7c9e6679-7425-40de-944b-e07fc1f90ae7\"\n  ],\n  \"notes\": \"broken package\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/returns",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "returns"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.returnId) {",
+                  "      pm.collectionVariables.set('returnId', json.returnId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approve Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/returns/{{returnId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "returns",
+                "{{returnId}}",
+                "approve"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"not eligible\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/returns/{{returnId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "returns",
+                "{{returnId}}",
+                "reject"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refundAmount\": 100,\n  \"restockFee\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/returns/{{returnId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "returns",
+                "{{returnId}}",
+                "complete"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Return By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/returns/{{returnId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "returns",
+                "{{returnId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "📬 Fulfillments",
+      "item": [
+        {
+          "name": "Start Fulfillment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"itemIds\": [\n    \"7c9e6679-7425-40de-944b-e07fc1f90ae7\"\n  ],\n  \"type\": \"standard\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fulfillments/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fulfillments",
+                "start"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.fulfillmentId) {",
+                  "      pm.collectionVariables.set('fulfillmentId', json.fulfillmentId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pack Fulfillment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageCount\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fulfillments/{{fulfillmentId}}/pack",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fulfillments",
+                "{{fulfillmentId}}",
+                "pack"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ship Fulfillment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trackingNumber\": \"TRK-{{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fulfillments/{{fulfillmentId}}/ship",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fulfillments",
+                "{{fulfillmentId}}",
+                "ship"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Fulfillment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"delivered\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fulfillments/{{fulfillmentId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fulfillments",
+                "{{fulfillmentId}}",
+                "complete"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fulfillment By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fulfillments/{{fulfillmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fulfillments",
+                "{{fulfillmentId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "📍 Tracking",
+      "item": [
+        {
+          "name": "Add Tracking Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"event\": \"in_transit\",\n  \"message\": \"Package departed warehouse\",\n  \"location\": \"Dhaka Hub\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tracking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tracking"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 2xx or expected error', () => pm.expect([200, 201, 400, 401, 403, 404, 409, 422, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json.trackingId) {",
+                  "      pm.collectionVariables.set('trackingId', json.trackingId);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tracking Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tracking/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tracking",
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "List Tracking Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tracking/orders/{{orderId}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tracking",
+                "orders",
+                "{{orderId}}",
+                "events"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Get Tracking By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tracking/{{trackingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tracking",
+                "{{trackingId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Update Tracking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"out for delivery\",\n  \"location\": \"Local hub\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tracking/{{trackingId}}/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tracking",
+                "{{trackingId}}",
+                "update"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

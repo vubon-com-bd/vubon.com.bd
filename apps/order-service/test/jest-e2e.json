@@ -1,0 +1,93 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": [
+    "/test/e2e/.*\\.e2e-spec\\.ts$"
+  ],
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": "<rootDir>/tsconfig.spec.json"
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^@domain/errors/(.*)\\.js$": "<rootDir>/src/module/domain/errors/$1",
+    "^@domain/errors/(.*)$": "<rootDir>/src/module/domain/errors/$1",
+    "^@domain/primitives/(.*)\\.js$": "<rootDir>/src/module/domain/value-objects/primitives/$1",
+    "^@domain/primitives/(.*)$": "<rootDir>/src/module/domain/value-objects/primitives/$1",
+    "^@domain/composites/(.*)\\.js$": "<rootDir>/src/module/domain/value-objects/composites/$1",
+    "^@domain/composites/(.*)$": "<rootDir>/src/module/domain/value-objects/composites/$1",
+    "^@domain/events/(.*)\\.js$": "<rootDir>/src/module/domain/events/$1",
+    "^@domain/events/(.*)$": "<rootDir>/src/module/domain/events/$1",
+    "^@domain/entities/(.*)\\.js$": "<rootDir>/src/module/domain/entities/$1",
+    "^@domain/entities/(.*)$": "<rootDir>/src/module/domain/entities/$1",
+    "^@domain/repositories/(.*)\\.js$": "<rootDir>/src/module/domain/repositories/$1",
+    "^@domain/repositories/(.*)$": "<rootDir>/src/module/domain/repositories/$1",
+    "^@domain/event-store/(.*)\\.js$": "<rootDir>/src/module/domain/event-store/$1",
+    "^@domain/event-store/(.*)$": "<rootDir>/src/module/domain/event-store/$1",
+    "^@domain/services/(.*)\\.js$": "<rootDir>/src/module/domain/services/$1",
+    "^@domain/services/(.*)$": "<rootDir>/src/module/domain/services/$1",
+    "^@domain/specifications/(.*)\\.js$": "<rootDir>/src/module/domain/specifications/$1",
+    "^@domain/specifications/(.*)$": "<rootDir>/src/module/domain/specifications/$1",
+    "^@infrastructure/prisma/(.*)\\.js$": "<rootDir>/src/module/infrastructure/persistence/prisma/$1",
+    "^@infrastructure/prisma/(.*)$": "<rootDir>/src/module/infrastructure/persistence/prisma/$1",
+    "^@infrastructure/cache/(.*)\\.js$": "<rootDir>/src/module/infrastructure/persistence/cache/$1",
+    "^@infrastructure/cache/(.*)$": "<rootDir>/src/module/infrastructure/persistence/cache/$1",
+    "^@infrastructure/mappers/(.*)\\.js$": "<rootDir>/src/module/infrastructure/persistence/prisma/mappers/$1",
+    "^@infrastructure/mappers/(.*)$": "<rootDir>/src/module/infrastructure/persistence/prisma/mappers/$1",
+    "^@infrastructure/repos/(.*)\\.js$": "<rootDir>/src/module/infrastructure/persistence/prisma/repositories/$1",
+    "^@infrastructure/repos/(.*)$": "<rootDir>/src/module/infrastructure/persistence/prisma/repositories/$1",
+    "^@infrastructure/queues/(.*)\\.js$": "<rootDir>/src/module/infrastructure/queues/$1",
+    "^@infrastructure/queues/(.*)$": "<rootDir>/src/module/infrastructure/queues/$1",
+    "^@infrastructure/workers/(.*)\\.js$": "<rootDir>/src/module/infrastructure/workers/$1",
+    "^@infrastructure/workers/(.*)$": "<rootDir>/src/module/infrastructure/workers/$1",
+    "^@infrastructure/config/(.*)\\.js$": "<rootDir>/src/module/infrastructure/config/$1",
+    "^@infrastructure/config/(.*)$": "<rootDir>/src/module/infrastructure/config/$1",
+    "^@infrastructure/external/(.*)\\.js$": "<rootDir>/src/module/infrastructure/external/$1",
+    "^@infrastructure/external/(.*)$": "<rootDir>/src/module/infrastructure/external/$1",
+    "^@infrastructure/services/(.*)\\.js$": "<rootDir>/src/module/infrastructure/services/$1",
+    "^@infrastructure/services/(.*)$": "<rootDir>/src/module/infrastructure/services/$1",
+    "^@domain/(.*)\\.js$": "<rootDir>/src/module/domain/$1",
+    "^@domain/(.*)$": "<rootDir>/src/module/domain/$1",
+    "^@application/(.*)\\.js$": "<rootDir>/src/module/application/$1",
+    "^@application/(.*)$": "<rootDir>/src/module/application/$1",
+    "^@infrastructure/(.*)\\.js$": "<rootDir>/src/module/infrastructure/$1",
+    "^@infrastructure/(.*)$": "<rootDir>/src/module/infrastructure/$1",
+    "^@interfaces/(.*)\\.js$": "<rootDir>/src/module/interfaces/$1",
+    "^@interfaces/(.*)$": "<rootDir>/src/module/interfaces/$1",
+    "^@modules/(.*)\\.js$": "<rootDir>/src/module/modules/$1",
+    "^@modules/(.*)$": "<rootDir>/src/module/modules/$1",
+    "^@/(.*)\\.js$": "<rootDir>/src/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@fixtures/(.*)\\.js$": "<rootDir>/test/fixtures/$1",
+    "^@fixtures/(.*)$": "<rootDir>/test/fixtures/$1",
+    "^@test-infra/(.*)\\.js$": "<rootDir>/test/fixtures/infrastructure/$1",
+    "^@test-infra/(.*)$": "<rootDir>/test/fixtures/infrastructure/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@prisma/client$": "<rootDir>/test/__mocks__/prisma-client.mock.ts",
+    "^@vubon/shared-kernel/infrastructure/persistence/prisma$": "<rootDir>/test/__mocks__/kernel-prisma.mock.ts"
+  },
+  "extensionsToTreatAsEsm": [
+    ".ts"
+  ],
+  "setupFilesAfterEnv": [
+    "<rootDir>/test/setup.ts",
+    "<rootDir>/test/setup-e2e.ts"
+  ],
+  "testTimeout": 60000,
+  "verbose": false,
+  "maxWorkers": 1,
+  "detectOpenHandles": false,
+  "forceExit": true,
+  "transformIgnorePatterns": [
+    "node_modules/(?!(@nestjs|@vubon|@prisma|uuid|nanoid|chalk|ora|cli-cursor|cli-spinners|log-symbols|strip-ansi|ansi-regex|is-interactive|is-unicode-supported|wcwidth|defaults|clone|mute-stream|stdin-discarder|bl|string-width|emoji-regex|strip-ansi|wrap-ansi|restore-cursor|signal-exit|onetime|mimic-fn|is-stream|execa|get-stream|human-signals|npm-run-path|path-key|shebang-command|shebang-regex|which|merge-stream|is-stream|strip-final-newline|onetime|signal-exit|figures|is-unicode-supported)/)"
+  ]
+}

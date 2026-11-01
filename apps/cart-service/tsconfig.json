@@ -1,0 +1,95 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2022",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": false,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@domain/*": [
+        "src/module/domain/*"
+      ],
+      "@application/*": [
+        "src/module/application/*"
+      ],
+      "@infrastructure/*": [
+        "src/module/infrastructure/*"
+      ],
+      "@interfaces/*": [
+        "src/module/interfaces/*"
+      ],
+      "@modules/*": [
+        "src/module/modules/*"
+      ],
+      "@domain/errors/*": [
+        "src/module/domain/errors/*"
+      ],
+      "@domain/primitives/*": [
+        "src/module/domain/value-objects/primitives/*"
+      ],
+      "@domain/composites/*": [
+        "src/module/domain/value-objects/composites/*"
+      ],
+      "@domain/events/*": [
+        "src/module/domain/events/*"
+      ],
+      "@domain/entities/*": [
+        "src/module/domain/entities/*"
+      ],
+      "@domain/repositories/*": [
+        "src/module/domain/repositories/*"
+      ],
+      "@domain/event-store/*": [
+        "src/module/domain/event-store/*"
+      ],
+      "@domain/services/*": [
+        "src/module/domain/services/*"
+      ],
+      "@domain/specifications/*": [
+        "src/module/domain/specifications/*"
+      ]
+    },
+    "isolatedModules": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "ignoreDeprecations": "5.0",
+    "strictPropertyInitialization": false,
+    "rootDir": "./src",
+    "useDefineForClassFields": false
+  },
+  "include": [
+    "src/**/*",
+    "prisma/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.e2e-spec.ts",
+    "**/*.BAK.*",
+    "**/*.bak",
+    "**/modules.BAK*"
+  ]
+}

@@ -1,0 +1,54 @@
+# ─── Dependencies ───
+node_modules
+.pnpm-store
+
+# ─── Build output ───
+dist
+build
+*.tsbuildinfo
+
+# ─── Test ───
+coverage
+test
+test-results.json
+e2e-results.json
+
+# ─── Env ───
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── Logs ───
+*.log
+logs
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+
+# ─── IDE ───
+.vscode
+.idea
+*.swp
+*.swo
+
+# ─── VCS ───
+.git
+.gitignore
+
+# ─── Prisma ───
+prisma/migrations
+*.db
+
+# ─── Redis ───
+dump.rdb
+
+# ─── Docs / scripts ───
+DOCKER.md
+postman
+scripts
+.github
+.cache
+tmp
+temp

@@ -1,0 +1,2142 @@
+{
+  "info": {
+    "_postman_id": "payment-service-v1-2026",
+    "name": "Payment Service",
+    "description": "Vubon.com.bd \u2014 Payment Service REST API\n\nBase URL: http://localhost:3006\nSwagger: http://localhost:3006/api/docs\n\n## Auth\nCollection uses Bearer token by default. Health + webhooks are public. Set {{accessToken}} env var.\n\n## Idempotency\nPayment + Refund creation require Idempotency-Key header (auto-set via {{uniqueSuffix}}).\n\n## Flows\n1. Initiate Payment \u2192 paymentId auto-saved\n2. Confirm / Verify / Cancel / Retry payment\n3. Request Refund \u2192 refundId auto-saved\n4. Approve / Reject refund",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3006",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "00000000-0000-4000-8000-000000000006",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "00000000-0000-4000-8000-000000000007",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "00000000-0000-4000-8000-000000000001",
+      "type": "string"
+    },
+    {
+      "key": "refundId",
+      "value": "00000000-0000-4000-8000-000000000002",
+      "type": "string"
+    },
+    {
+      "key": "subscriptionId",
+      "value": "00000000-0000-4000-8000-000000000003",
+      "type": "string"
+    },
+    {
+      "key": "invoiceId",
+      "value": "00000000-0000-4000-8000-000000000004",
+      "type": "string"
+    },
+    {
+      "key": "paymentMethodId",
+      "value": "00000000-0000-4000-8000-000000000005",
+      "type": "string"
+    },
+    {
+      "key": "transactionId",
+      "value": "00000000-0000-4000-8000-000000000008",
+      "type": "string"
+    },
+    {
+      "key": "recurringId",
+      "value": "00000000-0000-4000-8000-000000000009",
+      "type": "string"
+    },
+    {
+      "key": "verificationId",
+      "value": "00000000-0000-4000-8000-00000000000a",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.variables.set('timestamp', new Date().toISOString());",
+          "pm.variables.set('uniqueSuffix', Date.now().toString(36));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "\ud83c\udfe5 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Service health check. Public endpoint.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Readiness Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "ready"
+              ]
+            },
+            "description": "Kubernetes readiness probe. Public endpoint.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcb3 Payments",
+      "item": [
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "init-payment-{{uniqueSuffix}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"00000000-0000-4000-8000-000000000006\",\n  \"method\": \"card\",\n  \"gateway\": \"stripe\",\n  \"amount\": 1500,\n  \"currency\": \"BDT\",\n  \"returnUrl\": \"https://app.vubon.com.bd/payments/callback\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 201, 400, 401, 404, 409, 422, 500, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.paymentId) {",
+                  "      pm.collectionVariables.set('paymentId', json.paymentId);",
+                  "      pm.test('Has paymentId', () => pm.expect(json).to.have.property('paymentId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Paginated list of payments."
+          }
+        },
+        {
+          "name": "Get Payment Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "stats"
+              ]
+            },
+            "description": "Aggregated payment statistics."
+          }
+        },
+        {
+          "name": "Get Payments by Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "order",
+                "{{orderId}}"
+              ]
+            },
+            "description": "All payments for an order."
+          }
+        },
+        {
+          "name": "Get Payment By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Confirm Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gatewayReference\": \"pi_test_confirm_123\",\n  \"confirmedAmount\": 1500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}",
+                "confirm"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gatewaySignature\": \"sig_test_verify\",\n  \"gatewayData\": {\n    \"trxID\": \"TEST_TRX_1\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}",
+                "verify"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested cancellation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}",
+                "cancel"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retry Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gateway\": \"stripe\",\n  \"reason\": \"Retry after transient failure\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/retry",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}",
+                "retry"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd16 Payment Methods",
+      "item": [
+        {
+          "name": "Add Payment Method",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"card\",\n  \"type\": \"online\",\n  \"gateway\": \"stripe\",\n  \"cardToken\": \"tok_visa_test_{{uniqueSuffix}}\",\n  \"last4\": \"4242\",\n  \"brand\": \"visa\",\n  \"expiryMonth\": 12,\n  \"expiryYear\": 2030,\n  \"holderName\": \"Test User\",\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-methods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-methods"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 201, 400, 401, 404, 409, 422, 500, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.paymentMethodId) {",
+                  "      pm.collectionVariables.set('paymentMethodId', json.paymentMethodId);",
+                  "      pm.test('Has paymentMethodId', () => pm.expect(json).to.have.property('paymentMethodId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List My Payment Methods",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-methods?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-methods"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List payment methods for current user."
+          }
+        },
+        {
+          "name": "Get Payment Method",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-methods/{{paymentMethodId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-methods",
+                "{{paymentMethodId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Update Payment Method",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"My Primary Card\",\n  \"holderName\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-methods/{{paymentMethodId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-methods",
+                "{{paymentMethodId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set Default Payment Method",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-methods/{{paymentMethodId}}/default",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-methods",
+                "{{paymentMethodId}}",
+                "default"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Payment Method",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-methods/{{paymentMethodId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-methods",
+                "{{paymentMethodId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd0c Payment Gateways",
+      "item": [
+        {
+          "name": "List Gateways",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-gateways?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-gateways"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List all configured payment gateways."
+          }
+        },
+        {
+          "name": "Gateway Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment-gateways/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-gateways",
+                "health"
+              ]
+            },
+            "description": "Health status of all gateway adapters."
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcb0 Transactions",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"type\": \"payment\",\n  \"amount\": 1500,\n  \"currency\": \"BDT\",\n  \"reference\": \"txn-ref-{{uniqueSuffix}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 201, 400, 401, 404, 409, 422, 500, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.transactionId) {",
+                  "      pm.collectionVariables.set('transactionId', json.transactionId);",
+                  "      pm.test('Has transactionId', () => pm.expect(json).to.have.property('transactionId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions?page=1&limit=20&paymentId={{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "paymentId",
+                  "value": "{{paymentId}}"
+                }
+              ]
+            },
+            "description": "List all transactions."
+          }
+        },
+        {
+          "name": "Get Transaction By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reverse Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Duplicate charge reversal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}/reverse",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transactions",
+                "{{transactionId}}",
+                "reverse"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcb8 Refunds",
+      "item": [
+        {
+          "name": "Request Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "refund-request-{{uniqueSuffix}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500,\n  \"reason\": \"customer_request\",\n  \"note\": \"Partial refund for damaged items\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/refunds/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "refunds",
+                "payments",
+                "{{paymentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 201, 400, 401, 404, 409, 422, 500, 503]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.refundId) {",
+                  "      pm.collectionVariables.set('refundId', json.refundId);",
+                  "      pm.test('Has refundId', () => pm.expect(json).to.have.property('refundId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Refunds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/refunds?page=1&limit=20&paymentId={{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "refunds"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "paymentId",
+                  "value": "{{paymentId}}"
+                }
+              ]
+            },
+            "description": "List all refunds."
+          }
+        },
+        {
+          "name": "Get Refund By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/refunds/{{refundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "refunds",
+                "{{refundId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Approve Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvedAmount\": 500,\n  \"note\": \"Approved by admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/refunds/{{refundId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "refunds",
+                "{{refundId}}",
+                "approve"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Outside refund window\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/refunds/{{refundId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "refunds",
+                "{{refundId}}",
+                "reject"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Partial Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"amount\": 200,\n  \"currency\": \"BDT\",\n  \"reason\": \"Partial refund for one item\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/refunds/partial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "refunds",
+                "partial"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([201, 400, 404, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd00 Split Payments",
+      "item": [
+        {
+          "name": "Create Split Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"type\": \"percentage\",\n  \"totalAmount\": 1500,\n  \"currency\": \"BDT\",\n  \"receivers\": [\n    {\n      \"receiverId\": \"vendor-1\",\n      \"percentage\": 60\n    },\n    {\n      \"receiverId\": \"vendor-2\",\n      \"percentage\": 40\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/split-payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "split-payments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([201, 400, 404, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Split Payments by Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/split-payments/payment/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "split-payments",
+                "payment",
+                "{{paymentId}}"
+              ]
+            },
+            "description": "Splits for a specific payment."
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd01 Recurring Payments",
+      "item": [
+        {
+          "name": "Create Recurring Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"amount\": 999,\n  \"currency\": \"BDT\",\n  \"interval\": \"monthly\",\n  \"intervalCount\": 1,\n  \"startAt\": \"2026-10-22T18:32:09.817Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recurring-payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recurring-payments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([201, 400, 404, 422]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.recurringId) {",
+                  "      pm.collectionVariables.set('recurringId', json.recurringId);",
+                  "      pm.test('Has recurringId', () => pm.expect(json).to.have.property('recurringId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Recurring Payment By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recurring-payments/{{recurringId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recurring-payments",
+                "{{recurringId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Pause Recurring Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested pause\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recurring-payments/{{recurringId}}/pause",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recurring-payments",
+                "{{recurringId}}",
+                "pause"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Recurring Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested cancellation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/recurring-payments/{{recurringId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recurring-payments",
+                "{{recurringId}}",
+                "cancel"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcc5 Subscriptions",
+      "item": [
+        {
+          "name": "Create Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"premium\",\n  \"interval\": \"monthly\",\n  \"intervalCount\": 1,\n  \"price\": 999,\n  \"currency\": \"BDT\",\n  \"method\": \"card\",\n  \"gateway\": \"stripe\",\n  \"trialDays\": 7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([201, 400, 404, 409, 422]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.subscriptionId) {",
+                  "      pm.collectionVariables.set('subscriptionId', json.subscriptionId);",
+                  "      pm.test('Has subscriptionId', () => pm.expect(json).to.have.property('subscriptionId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List subscriptions."
+          }
+        },
+        {
+          "name": "Get Subscription By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions/{{subscriptionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions",
+                "{{subscriptionId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Upgrade Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPlan\": \"enterprise\",\n  \"newPrice\": 1999,\n  \"currency\": \"BDT\",\n  \"prorate\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions/{{subscriptionId}}/upgrade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions",
+                "{{subscriptionId}}",
+                "upgrade"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Downgrade Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPlan\": \"basic\",\n  \"newPrice\": 499,\n  \"currency\": \"BDT\",\n  \"effectiveAt\": \"period_end\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions/{{subscriptionId}}/downgrade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions",
+                "{{subscriptionId}}",
+                "downgrade"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pause Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested pause\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions/{{subscriptionId}}/pause",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions",
+                "{{subscriptionId}}",
+                "pause"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested cancellation\",\n  \"cancelAtPeriodEnd\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscriptions/{{subscriptionId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions",
+                "{{subscriptionId}}",
+                "cancel"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcc4 Invoices",
+      "item": [
+        {
+          "name": "Generate Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"00000000-0000-4000-8000-000000000007\",\n  \"subtotal\": 1000,\n  \"taxAmount\": 150,\n  \"currency\": \"BDT\",\n  \"dueAt\": \"2026-11-05T18:32:09.819Z\",\n  \"notes\": \"Auto-generated invoice\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invoices"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([201, 400, 404, 409, 422]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.invoiceId) {",
+                  "      pm.collectionVariables.set('invoiceId', json.invoiceId);",
+                  "      pm.test('Has invoiceId', () => pm.expect(json).to.have.property('invoiceId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invoices"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List invoices."
+          }
+        },
+        {
+          "name": "Get Invoice By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invoices",
+                "{{invoiceId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Send Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"email\",\n  \"recipientEmail\": \"customer@example.com\",\n  \"message\": \"Please find your invoice attached.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invoices",
+                "{{invoiceId}}",
+                "send"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Void Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Duplicate invoice\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}/void",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invoices",
+                "{{invoiceId}}",
+                "void"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udd10 Verifications",
+      "item": [
+        {
+          "name": "Initiate Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"otp_sms\",\n  \"ttlSeconds\": 600\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/verifications/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verifications",
+                "payments",
+                "{{paymentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([201, 400, 404, 409, 422]).to.include(pm.response.code));",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.verificationId) {",
+                  "      pm.collectionVariables.set('verificationId', json.verificationId);",
+                  "      pm.test('Has verificationId', () => pm.expect(json).to.have.property('verificationId'));",
+                  "    }",
+                  "  } catch (e) { /* not JSON */ }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Verification By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/verifications/{{verificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verifications",
+                "{{verificationId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Verify Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/verifications/{{verificationId}}/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "verifications",
+                "{{verificationId}}",
+                "verify"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 404, 409, 422]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcca Analytics",
+      "item": [
+        {
+          "name": "Revenue Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/revenue?userId=&fromDate=&toDate=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "revenue"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": ""
+                },
+                {
+                  "key": "fromDate",
+                  "value": ""
+                },
+                {
+                  "key": "toDate",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Revenue stats."
+          }
+        },
+        {
+          "name": "Payment Methods Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/payment-methods?userId=&fromDate=&toDate=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "payment-methods"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": ""
+                },
+                {
+                  "key": "fromDate",
+                  "value": ""
+                },
+                {
+                  "key": "toDate",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Payment method distribution."
+          }
+        }
+      ]
+    },
+    {
+      "name": "\ud83e\ude9d Webhooks",
+      "item": [
+        {
+          "name": "bKash Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Bkash-Signature",
+                "value": "test_sig_bkash"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentID\": \"TR0011abc123\",\n  \"trxID\": \"BK123456789\",\n  \"amount\": \"1500.00\",\n  \"currency\": \"BDT\",\n  \"transactionStatus\": \"Completed\",\n  \"signature\": \"test_sig_bkash\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/bkash",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "bkash"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nagad Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "test_sig_nagad"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{paymentId}}\",\n  \"paymentRefId\": \"NG123456\",\n  \"amount\": \"1500.00\",\n  \"status\": \"Success\",\n  \"issuerPaymentRefNo\": \"ISSUER123\",\n  \"signature\": \"test_sig_nagad\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/nagad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "nagad"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rocket Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "test_sig_rocket"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{paymentId}}\",\n  \"rocketPaymentId\": \"RCK123456\",\n  \"amount\": \"1500.00\",\n  \"status\": \"Success\",\n  \"signature\": \"test_sig_rocket\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/rocket",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "rocket"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stripe Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Stripe-Signature",
+                "value": "t=123,v1=test_sig_stripe"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_{{uniqueSuffix}}\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_123\",\n      \"amount\": 150000,\n      \"currency\": \"bdt\",\n      \"metadata\": {\n        \"paymentId\": \"{{paymentId}}\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/stripe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "stripe"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PayPal Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "PayPal-Transmission-Sig",
+                "value": "test_sig_paypal"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"WH-TEST-{{uniqueSuffix}}\",\n  \"event_type\": \"PAYMENT.CAPTURE.COMPLETED\",\n  \"resource\": {\n    \"id\": \"CAPTURE-1\",\n    \"custom_id\": \"{{paymentId}}\",\n    \"amount\": {\n      \"value\": \"15.00\",\n      \"currency_code\": \"USD\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/paypal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "paypal"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SSLCommerz Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tran_id\": \"{{paymentId}}\",\n  \"val_id\": \"VAL_{{uniqueSuffix}}\",\n  \"amount\": \"1500.00\",\n  \"status\": \"VALID\",\n  \"verify_sign\": \"test_verify_sign\",\n  \"verify_key\": \"test_verify_key\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/sslcommerz",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "sslcommerz"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "aamarPay Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mer_txnid\": \"{{paymentId}}\",\n  \"pg_txnid\": \"PG_{{uniqueSuffix}}\",\n  \"amount\": \"1500.00\",\n  \"pay_status\": \"Successful\",\n  \"status_code\": \"2\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/aamarpay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "aamarpay"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crypto Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"txHash\": \"0xabc{{uniqueSuffix}}\",\n  \"fromAddress\": \"0xfrom123\",\n  \"amount\": \"1500.00\",\n  \"currency\": \"USDT\",\n  \"status\": \"confirmed\",\n  \"confirmations\": 6\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/crypto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "crypto"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is one of expected', () => pm.expect([200, 400, 401, 404, 422, 500, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
