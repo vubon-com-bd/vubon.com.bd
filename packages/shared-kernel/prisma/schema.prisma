@@ -2156,6 +2156,7 @@ model VendorReturnPolicy {
 model LogisticsShipment {
   id                    String    @id @default(uuid()) @db.Uuid
   trackingNumber        String    @unique @db.VarChar(100)
+  shipmentNumber        String    @unique @db.VarChar(20)
   orderId               String    @db.Uuid
   userId                String?   @db.Uuid
   vendorId              String?   @db.Uuid
@@ -2211,9 +2212,24 @@ model LogisticsShipment {
   version               Int       @default(0)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  idempotencyKey        String?   @unique @db.VarChar(100)
+  confirmedAt           DateTime?
+  processingStartedAt   DateTime?
+  packedAt              DateTime?
+  inTransitAt           DateTime?
+  outForDeliveryAt      DateTime?
+  failedAt              DateTime?
+  onHoldAt              DateTime?
+  delayedAt             DateTime?
+  cancelledBy           String?   @db.Uuid
+  cancelReason          String?   @db.VarChar(500)
+  holdReason            String?   @db.VarChar(500)
+  delayReason           String?   @db.VarChar(500)
+  metadata              Json?
   deletedAt             DateTime?
 
   packages LogisticsShipmentPackage[]
+  items    LogisticsShipmentItem[]
 
   @@index([orderId])
   @@index([userId])
@@ -2272,6 +2288,14 @@ model LogisticsCourier {
   averageDeliveryDays   Int       @default(3)
   isDefault             Boolean   @default(false)
   priority              Int       @default(50)
+  activatedAt DateTime?
+  deactivatedAt DateTime?
+  suspendedAt DateTime?
+  terminatedAt DateTime?
+  suspendReason String? @db.VarChar(500)
+  terminateReason String? @db.VarChar(500)
+  deactivateReason String? @db.VarChar(500)
+  metadata Json?
   version               Int       @default(0)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
@@ -2314,6 +2338,15 @@ model LogisticsWarehouse {
   operatingHoursEnd   Int?
   timezone            String    @default("Asia/Dhaka") @db.VarChar(60)
   isDefault           Boolean   @default(false)
+  activatedAt DateTime?
+  deactivatedAt DateTime?
+  archivedAt DateTime?
+  closedAt DateTime?
+  maintenanceStartedAt DateTime?
+  maintenanceEndedAt DateTime?
+  fullMarkedAt DateTime?
+  reason String? @db.VarChar(500)
+  metadata Json?
   version             Int       @default(0)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -2364,6 +2397,16 @@ model LogisticsDelivery {
   proofRecipientName String?   @db.VarChar(150)
   proofCapturedAt    DateTime?
   notes              String?   @db.Text
+  attemptCount Int @default(0)
+  inTransitAt DateTime?
+  outForDeliveryAt DateTime?
+  refusedAt DateTime?
+  rescheduledAt DateTime?
+  failureReason String? @db.VarChar(500)
+  cancelReason String? @db.VarChar(500)
+  refusedReason String? @db.VarChar(500)
+  metadata Json?
+  window Json?
   version            Int       @default(0)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
@@ -2414,6 +2457,15 @@ model LogisticsTracking {
   estimatedDeliveryAt DateTime?
   publicAccess        Boolean   @default(true)
   lastUpdatedAt       DateTime  @default(now())
+  source String @default("manual") @db.VarChar(30)
+  currentEvent String? @db.VarChar(50)
+  eventCount Int @default(0)
+  expiresAt DateTime?
+  completedAt DateTime?
+  failedAt DateTime?
+  expiredAt DateTime?
+  failureReason String? @db.VarChar(500)
+  metadata Json?
   version             Int       @default(0)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -2486,6 +2538,16 @@ model LogisticsReturnShipment {
   restockFeeAmount   Decimal?  @db.Decimal(14, 2)
   trackingNumber     String?   @db.VarChar(100)
   notes              String?   @db.Text
+  approvedAt DateTime?
+  rejectedAt DateTime?
+  inTransitAt DateTime?
+  completedAt DateTime?
+  cancelledAt DateTime?
+  lostAt DateTime?
+  approveBy String? @db.VarChar(100)
+  rejectReason String? @db.VarChar(500)
+  cancelReason String? @db.VarChar(500)
+  metadata Json?
   version            Int       @default(0)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
@@ -2528,6 +2590,15 @@ model LogisticsInsurance {
   claimRejectedAt      DateTime?
   claimRejectionReason String?   @db.VarChar(1000)
   claimPaidAt          DateTime?
+  activatedAt DateTime?
+  expiredAt DateTime?
+  cancelledAt DateTime?
+  cancelReason String? @db.VarChar(500)
+  provider String? @db.VarChar(150)
+  notes String? @db.Text
+  metadata Json?
+  claims Json?
+  claimState Json?
   version              Int       @default(0)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -2566,6 +2637,14 @@ model LogisticsVehicle {
   registrationExpiresAt DateTime?
   assignedDriverId      String?   @db.Uuid
   isActive              Boolean   @default(true)
+  warehouseId String? @db.Uuid
+  maintenanceStartedAt DateTime?
+  maintenanceCompletedAt DateTime?
+  retiredAt DateTime?
+  maintenanceReason String? @db.VarChar(500)
+  retirementReason String? @db.VarChar(500)
+  maxVolumeM Decimal? @db.Decimal(10, 3)
+  metadata Json?
   version               Int       @default(0)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
@@ -2600,6 +2679,12 @@ model LogisticsDriver {
   cashInHand       Decimal   @default(0) @db.Decimal(14, 2)
   isAvailable      Boolean   @default(true)
   lastActiveAt     DateTime?
+  onLeaveStartAt DateTime?
+  onLeaveEndAt DateTime?
+  suspendedAt DateTime?
+  suspensionReason String? @db.VarChar(500)
+  license Json?
+  metadata Json?
   version          Int       @default(0)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -2633,6 +2718,14 @@ model LogisticsZone {
   codMaxAmount    Decimal?  @db.Decimal(14, 2)
   isRemote        Boolean   @default(false)
   isActive        Boolean   @default(true)
+  activatedAt DateTime?
+  deactivatedAt DateTime?
+  restrictedAt DateTime?
+  suspendedAt DateTime?
+  archivedAt DateTime?
+  statusReason String? @db.VarChar(500)
+  freeAbove Decimal? @db.Decimal(14, 2)
+  metadata Json?
   version         Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -2665,6 +2758,12 @@ model LogisticsShippingMethod {
   couriers        String[]  @default([])
   isDefault       Boolean   @default(false)
   isActive        Boolean   @default(true)
+  activatedAt DateTime?
+  deactivatedAt DateTime?
+  suspendedAt DateTime?
+  suspendReason String? @db.VarChar(500)
+  deactivateReason String? @db.VarChar(500)
+  metadata Json?
   version         Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -2695,6 +2794,12 @@ model LogisticsPackaging {
   isRecyclable            Boolean   @default(false)
   stock                   Int       @default(0)
   isDefault               Boolean   @default(false)
+  activatedAt DateTime?
+  deactivatedAt DateTime?
+  discontinuedAt DateTime?
+  deactivateReason String? @db.VarChar(500)
+  discontinueReason String? @db.VarChar(500)
+  metadata Json?
   version                 Int       @default(0)
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
@@ -2726,6 +2831,10 @@ model LogisticsRoute {
   isRecurring          Boolean   @default(false)
   recurrenceRule       String?   @db.VarChar(200)
   stops                Json
+  archivedAt DateTime?
+  cancelledAt DateTime?
+  cancelReason String? @db.VarChar(500)
+  metadata Json?
   version              Int       @default(0)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -2757,6 +2866,13 @@ model LogisticsFulfillment {
   notes         String?   @db.Text
   slaDueAt      DateTime?
   slaBreachedAt DateTime?
+  fulfilledAt DateTime?
+  onHoldAt DateTime?
+  failedAt DateTime?
+  failureReason String? @db.VarChar(500)
+  cancelReason String? @db.VarChar(500)
+  holdReason String? @db.VarChar(500)
+  metadata Json?
   version       Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -2789,6 +2905,13 @@ model LogisticsDispatch {
   deliveredAt        DateTime?
   cancelledAt        DateTime?
   notes              String?   @db.Text
+  inTransitAt DateTime?
+  returnedAt DateTime?
+  failedAt DateTime?
+  failureReason String? @db.VarChar(500)
+  cancelReason String? @db.VarChar(500)
+  returnReason String? @db.VarChar(500)
+  metadata Json?
   version            Int       @default(0)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
@@ -4040,4 +4163,164 @@ model Verification {
   @@index([expiresAt])
   @@index([deletedAt])
   @@map("payment_verifications")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGISTICS — Courier Rate (Missing model added)
+// ═══════════════════════════════════════════════════════════════
+
+model LogisticsCourierRate {
+  id              String    @id @default(uuid()) @db.Uuid
+  courierId       String    @db.Uuid
+  name            String    @db.VarChar(150)
+  code            String    @unique @db.VarChar(50)
+  zoneType        String    @db.VarChar(30)
+  rateType        String    @db.VarChar(30)
+  baseRate        Decimal   @db.Decimal(14, 2)
+  perKgRate       Decimal?  @db.Decimal(14, 2)
+  minWeightKg     Decimal   @default(0.5) @db.Decimal(10, 3)
+  maxWeightKg     Decimal   @default(500) @db.Decimal(10, 3)
+  freeAbove       Decimal?  @db.Decimal(14, 2)
+  currency        String    @default("BDT") @db.VarChar(3)
+  codCharge       Decimal?  @db.Decimal(14, 2)
+  codMaxAmount    Decimal?  @db.Decimal(14, 2)
+  insuranceCharge Decimal?  @db.Decimal(14, 2)
+  minDeliveryDays Int       @default(1)
+  maxDeliveryDays Int       @default(7)
+  isActive        Boolean   @default(true)
+  isDefault       Boolean   @default(false)
+  effectiveFrom   DateTime  @default(now())
+  effectiveTo     DateTime?
+  priority        Int       @default(50)
+  version         Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([courierId])
+  @@index([zoneType])
+  @@index([isActive])
+  @@index([isDefault])
+  @@index([effectiveFrom, effectiveTo])
+  @@index([deletedAt])
+  @@map("logistics_courier_rates")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGISTICS — Inventory Location (Missing model added)
+// ═══════════════════════════════════════════════════════════════
+
+model LogisticsInventoryLocation {
+  id            String    @id @default(uuid()) @db.Uuid
+  warehouseId   String    @db.Uuid
+  code          String    @db.VarChar(100)
+  name          String    @db.VarChar(150)
+  zone          String    @db.VarChar(30)
+  aisle         String?   @db.VarChar(50)
+  rack          String?   @db.VarChar(50)
+  shelf         String?   @db.VarChar(50)
+  bin           String?   @db.VarChar(50)
+  barcode       String?   @unique @db.VarChar(100)
+  maxCapacityKg Decimal?  @db.Decimal(10, 3)
+  maxCapacityM3 Decimal?  @db.Decimal(10, 3)
+  currentKg     Decimal   @default(0) @db.Decimal(10, 3)
+  currentM3     Decimal   @default(0) @db.Decimal(10, 3)
+  isActive      Boolean   @default(true)
+  isQuarantine  Boolean   @default(false)
+  isPickable    Boolean   @default(true)
+  priority      Int       @default(50)
+  activatedAt DateTime?
+  deactivatedAt DateTime?
+  archivedAt DateTime?
+  quarantinedAt DateTime?
+  reason String? @db.VarChar(500)
+  currentM Decimal @default(0) @db.Decimal(10, 3)
+  maxCapacityM Decimal? @db.Decimal(10, 3)
+  metadata Json?
+  version       Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([warehouseId])
+  @@index([zone])
+  @@index([isActive])
+  @@index([barcode])
+  @@index([deletedAt])
+  @@map("logistics_inventory_locations")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGISTICS — ShipmentItem (child of Shipment)
+// ═══════════════════════════════════════════════════════════════
+model LogisticsShipmentItem {
+  id              String    @id @default(uuid()) @db.Uuid
+  shipmentId      String    @db.Uuid
+  orderItemId     String?   @db.Uuid
+  productId       String?   @db.Uuid
+  variantId       String?   @db.Uuid
+  sku             String    @db.VarChar(64)
+  name            String    @db.VarChar(255)
+  quantity        Int
+  unitPrice       Decimal   @db.Decimal(14, 2)
+  totalPrice      Decimal   @db.Decimal(14, 2)
+  currency        String    @default("BDT") @db.VarChar(3)
+  weightKg        Decimal?  @db.Decimal(10, 3)
+  status          String    @default("pending") @db.VarChar(30)
+  imageUrl        String?   @db.VarChar(500)
+  notes           String?   @db.Text
+  returnReason    String?   @db.VarChar(500)
+  cancelReason    String?   @db.VarChar(500)
+  metadata        Json?
+  packedAt        DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  returnedAt      DateTime?
+  cancelledAt     DateTime?
+  version         Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  shipment        LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId])
+  @@index([orderItemId])
+  @@index([productId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("logistics_shipment_items")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOGISTICS — ReturnReason
+// ═══════════════════════════════════════════════════════════════
+model LogisticsReturnReason {
+  id            String    @id @default(uuid()) @db.Uuid
+  code          String    @unique @db.VarChar(50)
+  name          String    @db.VarChar(150)
+  description   String?   @db.VarChar(500)
+  type          String    @db.VarChar(30)
+  status        String    @default("active") @db.VarChar(30)
+  requiresImage Boolean   @default(false)
+  isRefundable  Boolean   @default(true)
+  sortOrder     Int       @default(0)
+  metadata      Json?
+  autoApprove Boolean @default(false)
+  isActive Boolean @default(true)
+  requiresPhoto Boolean @default(false)
+  priority Int @default(0)
+  label Json?
+  deactivatedAt DateTime?
+  deactivateReason String? @db.VarChar(500)
+  version       Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([code])
+  @@index([type])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("logistics_return_reasons")
 }

@@ -1,0 +1,50 @@
+# ─── Dependencies ───
+node_modules/
+.pnpm-store/
+
+# ─── Build output ───
+dist/
+build/
+*.tsbuildinfo
+
+# ─── Test / Coverage ───
+coverage/
+test/
+*.spec.ts
+*.e2e-spec.ts
+test-results.json
+e2e-results.json
+
+# ─── Environment ───
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ─── Development ───
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Docs ───
+*.md
+!README.md
+
+# ─── Git ───
+.git/
+.gitignore
+
+# ─── Logs ───
+logs/
+*.log
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+
+# ─── Redis ───
+dump.rdb
+
+# ─── Scripts (not needed in prod) ───
+scripts/

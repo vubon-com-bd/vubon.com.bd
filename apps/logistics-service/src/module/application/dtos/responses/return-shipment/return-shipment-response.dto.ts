@@ -1,0 +1,40 @@
+import type { ReturnShipmentStatusValue } from '@domain/primitives/return-shipment-status.vo';
+import type { ReturnShipmentTypeValue } from '@domain/primitives/return-shipment-type.vo';
+import type { ReturnReasonValue } from '@domain/primitives/return-reason.vo';
+
+export interface ReturnShipmentResponseDTO {
+  readonly id: string;
+  readonly rmaNumber: string;
+  readonly orderId: string;
+  readonly originalShipmentId?: string;
+  readonly userId: string;
+  readonly status: ReturnShipmentStatusValue;
+  readonly type: ReturnShipmentTypeValue;
+  readonly reason: ReturnReasonValue;
+  readonly description?: string;
+  readonly images?: readonly string[];
+  readonly itemIds: readonly string[];
+  readonly itemCount: number;
+  readonly pickupAddress: string;
+  readonly pickupScheduledAt?: string;
+  readonly pickedUpAt?: string;
+  readonly inTransitAt?: string;
+  readonly receivedAt?: string;
+  readonly inspectedAt?: string;
+  readonly inspectedBy?: string;
+  readonly completedAt?: string;
+  readonly cancelledAt?: string;
+  readonly rejectedAt?: string;
+  readonly lostAt?: string;
+  readonly restockable: boolean;
+  readonly refundAmount?: number;
+  readonly refundCurrency?: string;
+  readonly restockFeeAmount?: number;
+  readonly trackingNumber?: string;
+  readonly approveBy?: string;
+  readonly rejectReason?: string;
+  readonly cancelReason?: string;
+  readonly notes?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}

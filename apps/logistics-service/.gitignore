@@ -1,0 +1,94 @@
+# ─── Dependencies ───
+node_modules/
+.pnpm-store/
+
+# ─── Build output ───
+dist/
+build/
+*.tsbuildinfo
+
+# ─── Test coverage ───
+coverage/
+*.lcov
+test-results.json
+e2e-results.json
+
+# ─── Environment ───
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ─── Logs ───
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+
+# ─── IDE ───
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Prisma ───
+prisma/migrations/
+*.db
+
+# ─── Redis dumps ───
+dump.rdb
+
+# ─── Misc ───
+.cache/
+tmp/
+temp/
+
+# ─── Sensitive backups (NEVER commit) ───
+.env.bak
+.env.bak.*
+.env.*.bak
+*.env.bak
+.env.bak.prisma.*
+.env.local.bak
+
+# ─── Test artifacts ───
+.test-jwt.txt
+.jwt.txt
+*.jwt.txt
+
+# ─── Backup folders ───
+.bak-paths-fix/
+.bak-new-wiring/
+.archive-*/
+.archive-*
+*.backup
+*.bak
+**/*.bak
+**/*.bak.*
+**/*.backup
+
+# ─── Additional Prisma backups ───
+*.prisma.backup
+schema.prisma.backup
+
+# ─── Temp scripts ───
+/tmp/
+*.tmp
+
+# ─── Coverage + test reports ───
+.nyc_output/
+*.test-results.json
+*.e2e-results.json
+
+# ─── IDE-specific ───
+.idea/
+.vscode/settings.local.json
+*.iml
+
+# ─── Build caches ───
+.tsbuildinfo.*
+.cache-loader/
